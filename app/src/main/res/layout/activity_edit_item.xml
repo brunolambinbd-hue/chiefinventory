@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/etTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Titre" />
+
+        <EditText
+            android:id="@+id/etUniverse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Univers / Série" />
+
+        <EditText
+            android:id="@+id/etFabricant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Fabricant" />
+
+        <EditText
+            android:id="@+id/etAnnee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:hint="Année" />
+
+        <EditText
+            android:id="@+id/etCategorie"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Catégorie" />
+
+        <EditText
+            android:id="@+id/etMateriau"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Matériau" />
+
+        <EditText
+            android:id="@+id/etTirage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tirage" />
+
+        <EditText
+            android:id="@+id/etDimensions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Dimensions" />
+
+        <EditText
+            android:id="@+id/etPrixAchat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:hint="Prix d'achat" />
+
+        <EditText
+            android:id="@+id/etValeurEstimee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:hint="Valeur estimée" />
+
+        <EditText
+            android:id="@+id/etLieuAchat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Lieu d'achat" />
+
+        <EditText
+            android:id="@+id/etNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Notes" />
+
+        <EditText
+            android:id="@+id/etImageUri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="URI de l'image" />
+
+        <EditText
+            android:id="@+id/etLocalisation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Localisation" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enregistrer" />
+
+    </LinearLayout>
+</ScrollView>
