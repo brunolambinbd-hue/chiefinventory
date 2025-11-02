@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- On déclare la permission d'utiliser la caméra -->
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
@@ -25,7 +24,6 @@
         </activity>
         <activity android:name=".ui.EditItemActivity" />
 
-        <!-- On ajoute un FileProvider, nécessaire pour que la caméra puisse enregistrer l'image -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

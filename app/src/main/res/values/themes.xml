@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- On utilise un thème NoActionBar pour pouvoir utiliser une Toolbar personnalisée. -->
+    <!-- Thème de base de l'application SANS barre d'action -->
     <style name="Theme.ParaBDCollector" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
@@ -14,7 +14,7 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <!-- Splash Screen Theme -->
+    <!-- Thème du Splash Screen qui pointe vers le thème principal SANS barre d'action -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/white</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
