@@ -11,7 +11,6 @@ import com.example.parabdcollector.model.CollectionItem
 class EditItemActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditItemBinding
 
-    // On initialise le ViewModel de la bonne manière, comme dans MainActivity.
     private val viewModel: MainViewModel by viewModels {
         val repository = (application as CollectionApplication).repository
         ViewModelFactory(application, repository)
@@ -22,6 +21,9 @@ class EditItemActivity : AppCompatActivity() {
         binding = ActivityEditItemBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // On active la nouvelle Toolbar
+        setSupportActionBar(binding.toolbar)
+        // Et on affiche la flèche "Retour"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.btnSave.setOnClickListener {
@@ -68,6 +70,7 @@ class EditItemActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // On gère le clic sur la flèche "Retour"
         if (item.itemId == android.R.id.home) {
             finish()
             return true
