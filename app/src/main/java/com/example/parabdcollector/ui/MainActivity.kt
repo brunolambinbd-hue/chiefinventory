@@ -5,19 +5,18 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityMainBinding
-import com.example.parabdcollector.db.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
-import com.example.parabdcollector.repo.CollectionRepository
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    // On utilise 'applicationContext' pour être sûr d'avoir le bon contexte.
+    // On récupère le repository depuis la classe Application.
+    // C'est plus propre et plus sûr.
     private val viewModel: MainViewModel by viewModels {
-        val database = AppDatabase.getDatabase(applicationContext)
-        val repository = CollectionRepository(database.collectionDao())
+        val repository = (application as CollectionApplication).repository
         ViewModelFactory(repository)
     }
 
