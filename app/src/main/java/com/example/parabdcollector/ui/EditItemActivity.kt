@@ -1,21 +1,56 @@
 package com.example.parabdcollector.ui
 
+import android.Manifest
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityEditItemBinding
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.utils.ImageStorageHelper
+import java.io.File
 
 class EditItemActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditItemBinding
     private var currentItemId: Long = 0
+    private var latestTmpUri: Uri? = null
 
     private val viewModel: MainViewModel by viewModels {
         val repository = (application as CollectionApplication).repository
         ViewModelFactory(application, repository)
+    }
+
+    private val takeImageLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+        if (isSuccess) {
+            latestTmpUri?.let {
+                // On copie l'image temporaire vers un stockage permanent.
+                val permanentUri = ImageStorageHelper.saveImageToInternalStorage(this, it)
+                if (permanentUri != null) {
+                    binding.imagePreview.visibility = View.VISIBLE
+                    binding.imagePreview.setImageURI(permanentUri)
+                    binding.etImageUri.setText(permanentUri.toString())
+                } else {
+                    Toast.makeText(this, "Erreur lors de la sauvegarde de l'image", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            getTmpFileUri().let {
+                latestTmpUri = it
+                takeImageLauncher.launch(it)
+            }
+        } else {
+            Toast.makeText(this, "Permission de la caméra refusée", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,22 +61,26 @@ class EditItemActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // On récupère l'ID de l'item. Si c'est 0, c'est un nouvel item.
         currentItemId = intent.getLongExtra("itemId", 0)
 
         if (currentItemId != 0L) {
-            // On est en mode édition : on observe l'item.
             viewModel.getById(currentItemId).observe(this) { item ->
                 item?.let { populateUi(it) }
             }
         } else {
-            // On est en mode création.
             supportActionBar?.title = "Nouvel Objet"
         }
 
-        binding.btnSave.setOnClickListener {
-            saveItem()
+        binding.btnSave.setOnClickListener { saveItem() }
+        binding.btnTakePicture.setOnClickListener { requestPermissionLauncher.launch(Manifest.permission.CAMERA) }
+    }
+
+    private fun getTmpFileUri(): Uri {
+        val tmpFile = File.createTempFile("tmp_image_file", ".png", cacheDir).apply {
+            createNewFile()
+            deleteOnExit()
         }
+        return FileProvider.getUriForFile(applicationContext, "${applicationContext.packageName}.provider", tmpFile)
     }
 
     private fun populateUi(item: CollectionItem) {
@@ -60,6 +99,13 @@ class EditItemActivity : AppCompatActivity() {
         binding.etImageUri.setText(item.imageUri)
         binding.etLocalisation.setText(item.localisation)
 
+        item.imageUri?.let {
+            if (it.isNotBlank()) {
+                binding.imagePreview.visibility = View.VISIBLE
+                binding.imagePreview.setImageURI(Uri.parse(it))
+            }
+        }
+
         supportActionBar?.title = "Édition: ${item.titre}"
     }
 
@@ -71,7 +117,7 @@ class EditItemActivity : AppCompatActivity() {
         }
 
         val item = CollectionItem(
-            id = currentItemId, // On utilise l'ID actuel.
+            id = currentItemId,
             titre = title,
             univers = binding.etUniverse.text.toString().takeIf { it.isNotBlank() },
             fabricant = binding.etFabricant.text.toString().takeIf { it.isNotBlank() },
