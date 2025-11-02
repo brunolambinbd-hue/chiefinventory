@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ParaBDCollector</string>
+    <string name="open">Ouvrir</string>
+    <string name="close">Fermer</string>
 </resources>

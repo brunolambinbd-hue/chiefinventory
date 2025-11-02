@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // On définit notre toolbar personnalisée.
         setSupportActionBar(binding.toolbar)
 
         adapter = CollectionAdapter { item ->
@@ -43,11 +44,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, EditItemActivity::class.java))
         }
 
-        // On observe les changements dans la liste d'objets.
         viewModel.allItems.observe(this) { items ->
             adapter.submitList(items)
-            // On met à jour le titre de la toolbar avec le nombre d'objets.
-            supportActionBar?.title = "Ma Collection (${items.size})"
+            // On garde le titre par défaut pour l'instant.
+            supportActionBar?.title = "ParaBDCollector"
         }
     }
 }
