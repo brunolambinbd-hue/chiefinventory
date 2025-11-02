@@ -13,11 +13,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    // On récupère le repository depuis la classe Application.
-    // C'est plus propre et plus sûr.
+    // On passe maintenant l'application à la factory.
     private val viewModel: MainViewModel by viewModels {
         val repository = (application as CollectionApplication).repository
-        ViewModelFactory(repository)
+        ViewModelFactory(application, repository)
     }
 
     private lateinit var adapter: CollectionAdapter
