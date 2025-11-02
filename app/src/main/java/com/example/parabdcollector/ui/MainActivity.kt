@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityMainBinding
@@ -13,7 +14,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    // On passe maintenant l'application à la factory.
     private val viewModel: MainViewModel by viewModels {
         val repository = (application as CollectionApplication).repository
         ViewModelFactory(application, repository)
@@ -22,9 +22,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: CollectionAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setSupportActionBar(binding.toolbar)
 
         adapter = CollectionAdapter { item ->
             val intent = Intent(this, EditItemActivity::class.java)
@@ -39,9 +43,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, EditItemActivity::class.java))
         }
 
-        // La base de données est toujours active
+        // On observe les changements dans la liste d'objets.
         viewModel.allItems.observe(this) { items ->
             adapter.submitList(items)
+            // On met à jour le titre de la toolbar avec le nombre d'objets.
+            supportActionBar?.title = "Ma Collection (${items.size})"
         }
     }
 }
