@@ -10,6 +10,10 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return collectionDao.getAll()
     }
 
+    fun getById(id: Long): LiveData<CollectionItem> {
+        return collectionDao.getById(id)
+    }
+
     suspend fun insert(item: CollectionItem) {
         collectionDao.insert(item)
     }

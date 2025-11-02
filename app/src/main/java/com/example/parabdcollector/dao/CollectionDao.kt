@@ -15,6 +15,9 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items ORDER BY titre ASC")
     fun getAll(): LiveData<List<CollectionItem>>
 
+    @Query("SELECT * FROM collection_items WHERE id = :id")
+    fun getById(id: Long): LiveData<CollectionItem>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: CollectionItem)
 

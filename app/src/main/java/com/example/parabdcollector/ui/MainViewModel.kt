@@ -8,10 +8,13 @@ import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 import kotlinx.coroutines.launch
 
-// Le ViewModel doit hériter de AndroidViewModel pour être testable avec un contexte.
 class MainViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
     val allItems: LiveData<List<CollectionItem>> = repository.getAll()
+
+    fun getById(id: Long): LiveData<CollectionItem> {
+        return repository.getById(id)
+    }
 
     fun insert(item: CollectionItem) = viewModelScope.launch {
         repository.insert(item)
