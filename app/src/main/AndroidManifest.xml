@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.EditItemActivity" />
+        <activity android:name=".ui.SearchActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -91,6 +91,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (toggle.onOptionsItemSelected(item)) {
             return true
         }
+
+        when (item.itemId) {
+            R.id.action_search -> {
+                startActivity(Intent(this, SearchActivity::class.java))
+                return true
+            }
+        }
+
         return super.onOptionsItemSelected(item)
     }
 }

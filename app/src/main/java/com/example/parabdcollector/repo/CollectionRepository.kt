@@ -14,6 +14,10 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return collectionDao.getById(id)
     }
 
+    fun search(query: String): LiveData<List<CollectionItem>> {
+        return collectionDao.search(query)
+    }
+
     suspend fun insert(item: CollectionItem) {
         collectionDao.insert(item)
     }

@@ -10,6 +10,9 @@ class ViewModelFactory(private val application: Application, private val reposit
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return MainViewModel(application, repository) as T
+        } else if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return SearchViewModel(application, repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
