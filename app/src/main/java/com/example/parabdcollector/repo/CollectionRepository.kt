@@ -1,7 +1,7 @@
 package com.example.parabdcollector.repo
 
 import androidx.lifecycle.LiveData
-import com.example.parabdcollector.db.CollectionDao
+import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.model.CollectionItem
 
 class CollectionRepository(private val collectionDao: CollectionDao) {

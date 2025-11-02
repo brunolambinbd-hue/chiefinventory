@@ -6,12 +6,21 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.databinding.ActivityMainBinding
+import com.example.parabdcollector.db.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.repo.CollectionRepository
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: MainViewModel by viewModels()
+
+    // On utilise 'applicationContext' pour être sûr d'avoir le bon contexte.
+    private val viewModel: MainViewModel by viewModels {
+        val database = AppDatabase.getDatabase(applicationContext)
+        val repository = CollectionRepository(database.collectionDao())
+        ViewModelFactory(repository)
+    }
+
     private lateinit var adapter: CollectionAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // On utilise la version la plus simple de l'adaptateur
         adapter = CollectionAdapter { item ->
             val intent = Intent(this, EditItemActivity::class.java)
             intent.putExtra("itemId", item.id)
@@ -33,12 +41,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, EditItemActivity::class.java))
         }
 
-        // --- DÉSACTIVATION TEMPORAIRE DE LA BASE DE DONNÉES ---
-        // Ce bloc sera réactivé une fois que l'application sera stable.
-        /*
+        // La base de données est toujours active
         viewModel.allItems.observe(this) { items ->
             adapter.submitList(items)
         }
-        */
     }
 }
