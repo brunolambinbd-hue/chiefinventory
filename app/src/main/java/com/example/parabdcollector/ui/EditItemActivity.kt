@@ -4,12 +4,18 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityEditItemBinding
 import com.example.parabdcollector.model.CollectionItem
 
 class EditItemActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditItemBinding
-    private val viewModel: MainViewModel by viewModels()
+
+    // On initialise le ViewModel de la bonne manière, comme dans MainActivity.
+    private val viewModel: MainViewModel by viewModels {
+        val repository = (application as CollectionApplication).repository
+        ViewModelFactory(application, repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

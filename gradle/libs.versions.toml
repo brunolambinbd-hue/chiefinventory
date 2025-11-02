@@ -1,19 +1,19 @@
 [versions]
-agp = "8.13.0"
+agp = "8.4.1"
 kotlin = "1.9.23"
 ksp = "1.9.23-1.0.19"
-coreKtx = "1.12.0"
+coreKtx = "1.13.1"
 appcompat = "1.6.1"
 material = "1.11.0"
 room = "2.6.1"
 activityKtx = "1.8.2"
-junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
 coreSplashscreen = "1.0.1"
+
+# Versions pour les tests
+junit = "4.13.2"
+junitExt = "1.1.5"
+espressoCore = "3.5.1"
 archCoreTesting = "2.2.0"
-espressoContrib = "3.5.1"
-espressoIntents = "3.5.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -25,13 +25,14 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoContrib" }
-androidx-espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espressoIntents" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+
+# Librairies de Test
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitExt" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCoreTesting" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -32,11 +32,15 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
+    }
+
+    testOptions {
+        animationsDisabled = true
     }
 }
 
@@ -48,10 +52,12 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.core.splashscreen)
     ksp(libs.androidx.room.compiler)
+
+    // Dépendances de Test (configuration propre et simple)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.arch.core.testing)
-    androidTestImplementation(libs.androidx.espresso.contrib)
-    androidTestImplementation(libs.androidx.espresso.intents)
+
+    // On retire les anciennes dépendances JUnit 5 et on ne garde que l'essentiel.
 }
