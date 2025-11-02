@@ -9,9 +9,4 @@
     <color name="colorSecondaryVariant">#FF018786</color>
     <color name="colorOnSecondary">#FF000000</color>
 
-    <color name="statusBarColor">?attr/colorPrimaryVariant</color>
-
-    <!-- Couleurs génériques -->
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
 </resources>
