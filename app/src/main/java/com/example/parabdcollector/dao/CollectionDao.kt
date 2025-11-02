@@ -12,8 +12,14 @@ import com.example.parabdcollector.model.CollectionItem
 @Dao
 interface CollectionDao {
 
-    @Query("SELECT * FROM collection_items ORDER BY titre ASC")
-    fun getAll(): LiveData<List<CollectionItem>>
+    @Query("SELECT * FROM collection_items WHERE isPossessed = 1 ORDER BY titre ASC")
+    fun getAllPossessed(): LiveData<List<CollectionItem>>
+
+    @Query("SELECT * FROM collection_items WHERE isPossessed = 0 ORDER BY titre ASC")
+    fun getAllSought(): LiveData<List<CollectionItem>>
+
+    @Query("SELECT COUNT(*) FROM collection_items")
+    fun getTotalCount(): LiveData<Int>
 
     @Query("SELECT * FROM collection_items WHERE id = :id")
     fun getById(id: Long): LiveData<CollectionItem>

@@ -20,13 +20,34 @@
             android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/toolbar"
-            android:clipToPadding="false"
-            android:padding="8dp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/total_items_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Objets Totaux: 0"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/possessed_items_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Objets Possédés: 0"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/sought_items_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Objets Recherchés: 0"
+                android:textSize="18sp" />
+
+        </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAdd"

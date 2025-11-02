@@ -20,5 +20,6 @@ data class CollectionItem(
     val lieuAchat: String?,
     val notes: String?,
     val imageUri: String?,
-    val localisation: String?
+    val localisation: String?,
+    val isPossessed: Boolean = true // Nouveau champ pour distinguer les objets possédés
 )

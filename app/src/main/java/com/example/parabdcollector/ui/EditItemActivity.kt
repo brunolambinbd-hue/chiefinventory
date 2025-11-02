@@ -29,7 +29,6 @@ class EditItemActivity : AppCompatActivity() {
     private val takeImageLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
         if (isSuccess) {
             latestTmpUri?.let {
-                // On copie l'image temporaire vers un stockage permanent.
                 val permanentUri = ImageStorageHelper.saveImageToInternalStorage(this, it)
                 if (permanentUri != null) {
                     binding.imagePreview.visibility = View.VISIBLE
@@ -69,6 +68,8 @@ class EditItemActivity : AppCompatActivity() {
             }
         } else {
             supportActionBar?.title = "Nouvel Objet"
+            // Par défaut, un nouvel objet est possédé
+            binding.switchPossessed.isChecked = true
         }
 
         binding.btnSave.setOnClickListener { saveItem() }
@@ -85,6 +86,7 @@ class EditItemActivity : AppCompatActivity() {
 
     private fun populateUi(item: CollectionItem) {
         binding.etTitle.setText(item.titre)
+        binding.switchPossessed.isChecked = item.isPossessed
         binding.etUniverse.setText(item.univers)
         binding.etFabricant.setText(item.fabricant)
         binding.etAnnee.setText(item.annee?.toString())
@@ -119,6 +121,7 @@ class EditItemActivity : AppCompatActivity() {
         val item = CollectionItem(
             id = currentItemId,
             titre = title,
+            isPossessed = binding.switchPossessed.isChecked,
             univers = binding.etUniverse.text.toString().takeIf { it.isNotBlank() },
             fabricant = binding.etFabricant.text.toString().takeIf { it.isNotBlank() },
             annee = binding.etAnnee.text.toString().toIntOrNull(),

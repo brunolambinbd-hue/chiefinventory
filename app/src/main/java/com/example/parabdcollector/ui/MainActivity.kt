@@ -9,25 +9,22 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityMainBinding
-import com.example.parabdcollector.model.CollectionItem
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var toggle: ActionBarDrawerToggle
-    private var counterTextView: TextView? = null
+    private var possessedCounterTextView: TextView? = null
+    private var soughtCounterTextView: TextView? = null
 
     private val viewModel: MainViewModel by viewModels {
         val repository = (application as CollectionApplication).repository
         ViewModelFactory(application, repository)
     }
-
-    private lateinit var adapter: CollectionAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,24 +39,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         binding.navView.setNavigationItemSelectedListener(this)
 
-        adapter = CollectionAdapter { item ->
-            val intent = Intent(this, EditItemActivity::class.java)
-            intent.putExtra("itemId", item.id)
-            startActivity(intent)
-        }
-
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = adapter
-
         binding.fabAdd.setOnClickListener {
             startActivity(Intent(this, EditItemActivity::class.java))
         }
 
-        viewModel.allItems.observe(this) { items ->
-            adapter.submitList(items)
-            supportActionBar?.title = "ParaBDCollector"
-            // On met à jour le compteur
-            counterTextView?.text = items.size.toString()
+        // On observe les trois informations pour le tableau de bord.
+        viewModel.possessedItems.observe(this) { items ->
+            possessedCounterTextView?.text = items.size.toString()
+            binding.possessedItemsText.text = "Objets Possédés: ${items.size}"
+        }
+
+        viewModel.soughtItems.observe(this) { items ->
+            soughtCounterTextView?.text = items.size.toString()
+            binding.soughtItemsText.text = "Objets Recherchés: ${items.size}"
+        }
+
+        viewModel.totalItemsCount.observe(this) { count ->
+            binding.totalItemsText.text = "Objets Totaux: $count"
         }
     }
 
@@ -67,20 +63,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         menuInflater.inflate(R.menu.counter_menu, menu)
         
         val counterItem = menu?.findItem(R.id.action_counter)
-        counterTextView = counterItem?.actionView as? TextView
+        val actionView = counterItem?.actionView
+        possessedCounterTextView = actionView?.findViewById(R.id.possessed_counter)
+        soughtCounterTextView = actionView?.findViewById(R.id.sought_counter)
         
-        // On initialise le compteur avec la valeur actuelle du ViewModel.
-        val currentItemCount = viewModel.allItems.value?.size ?: 0
-        counterTextView?.text = currentItemCount.toString()
+        val possessedCount = viewModel.possessedItems.value?.size ?: 0
+        val soughtCount = viewModel.soughtItems.value?.size ?: 0
+        possessedCounterTextView?.text = possessedCount.toString()
+        soughtCounterTextView?.text = soughtCount.toString()
         
         return true
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_home -> Toast.makeText(this, "Accueil cliqué", Toast.LENGTH_SHORT).show()
-            R.id.nav_products -> Toast.makeText(this, "Mes Produits cliqué", Toast.LENGTH_SHORT).show()
-            R.id.nav_searches -> Toast.makeText(this, "Mes Recherches cliqué", Toast.LENGTH_SHORT).show()
+            R.id.nav_home -> { 
+                // Ne fait rien, car nous sommes déjà sur l'écran d'accueil.
+            }
+            R.id.nav_products -> {
+                startActivity(Intent(this, PossessedActivity::class.java))
+            }
+            R.id.nav_searches -> {
+                startActivity(Intent(this, SoughtActivity::class.java))
+            }
             R.id.nav_locations -> Toast.makeText(this, "Mes Emplacements cliqué", Toast.LENGTH_SHORT).show()
         }
         binding.drawerLayout.closeDrawers()

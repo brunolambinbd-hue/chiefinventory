@@ -6,8 +6,16 @@ import com.example.parabdcollector.model.CollectionItem
 
 class CollectionRepository(private val collectionDao: CollectionDao) {
 
-    fun getAll(): LiveData<List<CollectionItem>> {
-        return collectionDao.getAll()
+    fun getAllPossessed(): LiveData<List<CollectionItem>> {
+        return collectionDao.getAllPossessed()
+    }
+
+    fun getAllSought(): LiveData<List<CollectionItem>> {
+        return collectionDao.getAllSought()
+    }
+
+    fun getTotalCount(): LiveData<Int> {
+        return collectionDao.getTotalCount()
     }
 
     fun getById(id: Long): LiveData<CollectionItem> {

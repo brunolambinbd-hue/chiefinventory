@@ -52,6 +52,12 @@
                 android:layout_height="wrap_content"
                 android:hint="Titre" />
 
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_possessed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Je possède cet objet" />
+
             <EditText
                 android:id="@+id/etUniverse"
                 android:layout_width="match_parent"

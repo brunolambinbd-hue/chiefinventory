@@ -10,7 +10,9 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
-    val allItems: LiveData<List<CollectionItem>> = repository.getAll()
+    val possessedItems: LiveData<List<CollectionItem>> = repository.getAllPossessed()
+    val soughtItems: LiveData<List<CollectionItem>> = repository.getAllSought()
+    val totalItemsCount: LiveData<Int> = repository.getTotalCount()
 
     fun getById(id: Long): LiveData<CollectionItem> {
         return repository.getById(id)
