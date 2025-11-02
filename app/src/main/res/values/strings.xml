@@ -2,4 +2,8 @@
     <string name="app_name">ParaBDCollector</string>
     <string name="open">Ouvrir</string>
     <string name="close">Fermer</string>
+
+    <!-- Strings pour le compteur -->
+    <string name="initial_counter_value">0</string>
+    <string name="counter_separator"> / </string>
 </resources>

@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Thème de base pour le mode nuit, SANS barre d'action -->
     <style name="Theme.ParaBDCollector" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Couleurs de marque primaires pour le mode nuit -->
