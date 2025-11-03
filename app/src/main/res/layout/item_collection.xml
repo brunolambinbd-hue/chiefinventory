@@ -10,7 +10,8 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:scaleType="centerCrop"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/item_thumbnail_description_generic" />
 
     <LinearLayout
         android:layout_width="0dp"

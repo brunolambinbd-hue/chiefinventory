@@ -7,10 +7,48 @@
     <string name="initial_counter_value">0</string>
     <string name="counter_separator"> / </string>
 
-    <!-- String pour le titre de la toolbar -->
-    <string name="toolbar_title">Ma Collection</string>
-
     <!-- Titres formatables pour les pages -->
     <string name="possessed_items_title">Mes Produits (%1$d)</string>
     <string name="sought_items_title">Mes Recherches (%1$d)</string>
+
+    <!-- Strings pour le tableau de bord -->
+    <string name="total_items_label">Objets Totaux: %1$d</string>
+    <string name="possessed_items_label">Objets Possédés: %1$d</string>
+    <string name="sought_items_label">Objets Recherchés: %1$d</string>
+    <string name="add_item_description">Ajouter un objet</string>
+
+    <!-- Descriptions pour l'accessibilité -->
+    <string name="item_image_preview_description">Aperçu de l\'image de l\'objet</string>
+    <string name="item_thumbnail_description_generic">Image de l\'objet</string>
+    <string name="item_thumbnail_description_dynamic">Image de %1$s</string>
+
+    <!-- Textes pour l'écran d'édition -->
+    <string name="take_picture_button">Prendre une photo</string>
+    <string name="save_button">Enregistrer</string>
+    <string name="item_title_hint">Titre</string>
+    <string name="item_possessed_switch">Je possède cet objet</string>
+    <string name="item_universe_hint">Univers / Série</string>
+    <string name="item_manufacturer_hint">Fabricant</string>
+    <string name="item_year_hint">Année</string>
+    <string name="item_category_hint">Catégorie</string>
+    <string name="item_material_hint">Matériau</string>
+    <string name="item_run_hint">Tirage</string>
+    <string name="item_dimensions_hint">Dimensions</string>
+    <string name="item_purchase_price_hint">Prix d\'achat</string>
+    <string name="item_estimated_value_hint">Valeur estimée</string>
+    <string name="item_purchase_location_hint">Lieu d\'achat</string>
+    <string name="item_notes_hint">Notes</string>
+    <string name="item_location_hint">Localisation</string>
+
+    <!-- Textes pour l'écran de recherche -->
+    <string name="search_button">Rechercher</string>
+    <string name="search_hint">Entrez un titre, un univers...</string>
+
+    <!-- Textes pour les menus -->
+    <string name="menu_search_title">Recherche</string>
+    <string name="menu_counter_title">Compteur</string>
+    <string name="menu_home_title">Accueil</string>
+    <string name="menu_products_title">Mes Produits</string>
+    <string name="menu_searches_title">Mes Recherches</string>
+    <string name="menu_locations_title">Mes Emplacements</string>
 </resources>

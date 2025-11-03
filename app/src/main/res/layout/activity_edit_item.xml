@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -18,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
-        android:text="Enregistrer" />
+        android:text="@string/save_button" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -38,106 +39,121 @@
                 android:layout_height="200dp"
                 android:layout_marginBottom="16dp"
                 android:scaleType="centerCrop"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:contentDescription="@string/item_image_preview_description" />
 
             <Button
                 android:id="@+id/btn_take_picture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Prendre une photo" />
+                android:text="@string/take_picture_button" />
 
             <EditText
                 android:id="@+id/etTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Titre" />
+                android:autofillHints="name"
+                android:hint="@string/item_title_hint" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switch_possessed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Je possède cet objet" />
+                android:text="@string/item_possessed_switch" />
 
             <EditText
                 android:id="@+id/etUniverse"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Univers / Série" />
+                android:hint="@string/item_universe_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etImageUri"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etFabricant"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Fabricant" />
+                android:hint="@string/item_manufacturer_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etAnnee"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:hint="Année" />
+                android:hint="@string/item_year_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etCategorie"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Catégorie" />
+                android:hint="@string/item_category_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etMateriau"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Matériau" />
+                android:hint="@string/item_material_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etTirage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Tirage" />
+                android:hint="@string/item_run_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etDimensions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Dimensions" />
+                android:hint="@string/item_dimensions_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etPrixAchat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
-                android:hint="Prix d'achat" />
+                android:hint="@string/item_purchase_price_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etValeurEstimee"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
-                android:hint="Valeur estimée" />
+                android:hint="@string/item_estimated_value_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etLieuAchat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Lieu d'achat" />
+                android:hint="@string/item_purchase_location_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etNotes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Notes" />
+                android:hint="@string/item_notes_hint"
+                tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etLocalisation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Localisation" />
+                android:hint="@string/item_location_hint"
+                tools:ignore="Autofill" />
 
         </LinearLayout>
     </ScrollView>

@@ -51,16 +51,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // On observe les trois informations pour le tableau de bord.
         viewModel.possessedItems.observe(this) { items ->
             possessedCounterTextView?.text = items.size.toString()
-            binding.possessedItemsText.text = "Objets Possédés: ${items.size}"
+            binding.possessedItemsText.text = getString(R.string.possessed_items_label, items.size)
         }
 
         viewModel.soughtItems.observe(this) { items ->
             soughtCounterTextView?.text = items.size.toString()
-            binding.soughtItemsText.text = "Objets Recherchés: ${items.size}"
+            binding.soughtItemsText.text = getString(R.string.sought_items_label, items.size)
         }
 
         viewModel.totalItemsCount.observe(this) { count ->
-            binding.totalItemsText.text = "Objets Totaux: $count"
+            binding.totalItemsText.text = getString(R.string.total_items_label, count)
         }
     }
 

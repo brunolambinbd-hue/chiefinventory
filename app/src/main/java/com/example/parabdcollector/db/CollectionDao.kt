@@ -15,7 +15,7 @@ interface CollectionDao {
     fun getAll(): LiveData<List<CollectionItem>>
 
 
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: CollectionItem): Long
 
 

@@ -26,7 +26,5 @@ class MainViewModel(application: Application, private val repository: Collection
         repository.update(item)
     }
 
-    fun delete(item: CollectionItem) = viewModelScope.launch {
-        repository.delete(item)
-    }
+
 }

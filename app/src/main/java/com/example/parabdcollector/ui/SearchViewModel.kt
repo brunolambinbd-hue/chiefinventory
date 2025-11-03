@@ -10,7 +10,7 @@ import com.example.parabdcollector.repo.CollectionRepository
 class SearchViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
     private val _searchResults = MutableLiveData<List<CollectionItem>>()
-    val searchResults: LiveData<List<CollectionItem>> = _searchResults
+
 
     fun search(query: String): LiveData<List<CollectionItem>> {
         return repository.search("%${query}%")

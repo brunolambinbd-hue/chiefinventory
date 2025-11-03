@@ -30,21 +30,21 @@
                 android:id="@+id/total_items_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Objets Totaux: 0"
+                android:text="@string/total_items_label"
                 android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/possessed_items_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Objets Possédés: 0"
+                android:text="@string/possessed_items_label"
                 android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/sought_items_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Objets Recherchés: 0"
+                android:text="@string/sought_items_label"
                 android:textSize="18sp" />
 
         </LinearLayout>
@@ -59,7 +59,7 @@
             android:clickable="true"
             android:focusable="true"
             app:rippleColor="@color/colorSecondary"
-            android:contentDescription="Ajouter un objet"
+            android:contentDescription="@string/add_item_description"
             app:srcCompat="@android:drawable/ic_input_add" />
 
     </RelativeLayout>

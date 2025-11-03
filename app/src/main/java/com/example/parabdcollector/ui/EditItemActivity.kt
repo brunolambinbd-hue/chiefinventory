@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityEditItemBinding
 import com.example.parabdcollector.model.CollectionItem
@@ -35,7 +36,7 @@ class EditItemActivity : AppCompatActivity() {
                     binding.imagePreview.setImageURI(permanentUri)
                     binding.etImageUri.setText(permanentUri.toString())
                 } else {
-                    Toast.makeText(this, "Erreur lors de la sauvegarde de l'image", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Erreur lors de la sauvegarde de l\'image", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -104,7 +105,7 @@ class EditItemActivity : AppCompatActivity() {
         item.imageUri?.let {
             if (it.isNotBlank()) {
                 binding.imagePreview.visibility = View.VISIBLE
-                binding.imagePreview.setImageURI(Uri.parse(it))
+                binding.imagePreview.setImageURI(it.toUri())
             }
         }
 

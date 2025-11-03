@@ -1,8 +1,8 @@
 package com.example.parabdcollector.ui
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -34,10 +34,11 @@ class CollectionAdapter(private val onItemClicked: (CollectionItem) -> Unit) : L
 
         fun bind(item: CollectionItem) {
             b.itemName.text = item.titre
+            b.itemImage.contentDescription = itemView.context.getString(R.string.item_thumbnail_description_dynamic, item.titre)
 
             // On charge l'image si l'URI existe.
             if (!item.imageUri.isNullOrBlank()) {
-                b.itemImage.setImageURI(Uri.parse(item.imageUri))
+                b.itemImage.setImageURI(item.imageUri.toUri())
             } else {
                 // Sinon, on affiche une image par défaut.
                 b.itemImage.setImageResource(R.mipmap.ic_launcher)

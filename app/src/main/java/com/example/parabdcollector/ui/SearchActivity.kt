@@ -1,10 +1,10 @@
 package com.example.parabdcollector.ui
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
@@ -54,13 +54,13 @@ class SearchActivity : AppCompatActivity() {
 
         // On demande le focus et on ouvre le clavier automatiquement
         binding.etSearch.requestFocus()
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT)
     }
 
-    private fun performSearchAndHideKeyboard(view: android.view.View) {
+    private fun performSearchAndHideKeyboard(view: View) {
         performSearch()
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
