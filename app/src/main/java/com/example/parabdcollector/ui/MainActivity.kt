@@ -2,6 +2,8 @@ package com.example.parabdcollector.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
@@ -40,7 +42,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.navView.setNavigationItemSelectedListener(this)
 
         binding.fabAdd.setOnClickListener {
-            startActivity(Intent(this, EditItemActivity::class.java))
+            // On ajoute un petit délai pour laisser l'animation du ripple se jouer.
+            Handler(Looper.getMainLooper()).postDelayed({
+                startActivity(Intent(this, EditItemActivity::class.java))
+            }, 200) // 200 millisecondes de délai
         }
 
         // On observe les trois informations pour le tableau de bord.

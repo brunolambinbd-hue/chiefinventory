@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
+import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySoughtBinding
 
 class SoughtActivity : AppCompatActivity() {
@@ -26,12 +27,13 @@ class SoughtActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Mes Recherches"
 
         setupRecyclerView()
 
         viewModel.soughtItems.observe(this) { items ->
             adapter.submitList(items)
+            // On utilise la ressource string formatable
+            supportActionBar?.title = getString(R.string.sought_items_title, items.size)
         }
     }
 

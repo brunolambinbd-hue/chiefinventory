@@ -6,4 +6,11 @@
     <!-- Strings pour le compteur -->
     <string name="initial_counter_value">0</string>
     <string name="counter_separator"> / </string>
+
+    <!-- String pour le titre de la toolbar -->
+    <string name="toolbar_title">Ma Collection</string>
+
+    <!-- Titres formatables pour les pages -->
+    <string name="possessed_items_title">Mes Produits (%1$d)</string>
+    <string name="sought_items_title">Mes Recherches (%1$d)</string>
 </resources>
