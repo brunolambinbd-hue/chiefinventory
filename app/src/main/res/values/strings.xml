@@ -42,7 +42,7 @@
 
     <!-- Textes pour l'écran de recherche -->
     <string name="search_button">Rechercher</string>
-    <string name="search_hint">Entrez un titre, un univers...</string>
+    <string name="search_hint">Entrez un titre, un univers…</string>
 
     <!-- Textes pour les menus -->
     <string name="menu_search_title">Recherche</string>

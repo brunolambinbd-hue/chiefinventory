@@ -1,4 +1,4 @@
-@OptIn(kotlin.ExperimentalStdlibApi::class)
+@OptIn(com.android.build.api.dsl.IncubatingApi::class)
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)

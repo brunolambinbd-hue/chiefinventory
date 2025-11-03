@@ -38,9 +38,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_marginBottom="16dp"
+                android:contentDescription="@string/item_image_preview_description"
                 android:scaleType="centerCrop"
-                android:visibility="gone"
-                android:contentDescription="@string/item_image_preview_description" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/btn_take_picture"
@@ -53,7 +53,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="name"
-                android:hint="@string/item_title_hint" />
+                android:hint="@string/item_title_hint"
+                android:inputType="textCapWords" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switch_possessed"
@@ -66,12 +67,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/item_universe_hint"
+                android:inputType="textCapWords"
                 tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etImageUri"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:inputType="textUri"
                 android:visibility="gone"
                 tools:ignore="Autofill" />
 
@@ -80,14 +83,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/item_manufacturer_hint"
+                android:inputType="textCapWords"
                 tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etAnnee"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number"
                 android:hint="@string/item_year_hint"
+                android:inputType="number"
                 tools:ignore="Autofill" />
 
             <EditText
@@ -95,6 +99,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/item_category_hint"
+                android:inputType="textCapWords"
                 tools:ignore="Autofill" />
 
             <EditText
@@ -102,6 +107,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/item_material_hint"
+                android:inputType="textCapSentences"
                 tools:ignore="Autofill" />
 
             <EditText
@@ -109,6 +115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/item_run_hint"
+                android:inputType="text"
                 tools:ignore="Autofill" />
 
             <EditText
@@ -116,22 +123,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/item_dimensions_hint"
+                android:inputType="text"
                 tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etPrixAchat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
                 android:hint="@string/item_purchase_price_hint"
+                android:inputType="numberDecimal"
                 tools:ignore="Autofill" />
 
             <EditText
                 android:id="@+id/etValeurEstimee"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
                 android:hint="@string/item_estimated_value_hint"
+                android:inputType="numberDecimal"
                 tools:ignore="Autofill" />
 
             <EditText
@@ -139,6 +147,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/item_purchase_location_hint"
+                android:inputType="textCapWords"
                 tools:ignore="Autofill" />
 
             <EditText
@@ -146,6 +155,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/item_notes_hint"
+                android:inputType="textMultiLine|textCapSentences"
                 tools:ignore="Autofill" />
 
             <EditText
@@ -153,6 +163,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/item_location_hint"
+                android:inputType="textCapWords"
                 tools:ignore="Autofill" />
 
         </LinearLayout>
