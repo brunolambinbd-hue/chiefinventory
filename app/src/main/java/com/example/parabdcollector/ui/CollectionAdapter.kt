@@ -49,8 +49,8 @@ class CollectionAdapter(private val onItemClicked: (CollectionItem) -> Unit) : L
             b.itemUniverse.text = item.univers?.let { "Univers: $it" } ?: ""
             b.itemUniverse.visibility = if (item.univers.isNullOrBlank()) View.GONE else View.VISIBLE
 
-            b.itemManufacturer.text = item.fabricant?.let { "Fabricant: $it" } ?: ""
-            b.itemManufacturer.visibility = if (item.fabricant.isNullOrBlank()) View.GONE else View.VISIBLE
+            b.itemEditeur.text = item.editeur?.let { "Editeur: $it" } ?: ""
+            b.itemEditeur.visibility = if (item.editeur.isNullOrBlank()) View.GONE else View.VISIBLE
 
             b.itemYear.text = item.annee?.let { "Année: $it" } ?: ""
             b.itemYear.visibility = if (item.annee == null) View.GONE else View.VISIBLE

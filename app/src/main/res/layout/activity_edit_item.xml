@@ -79,10 +79,10 @@
                 tools:ignore="Autofill" />
 
             <EditText
-                android:id="@+id/etFabricant"
+                android:id="@+id/etEditeur"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_manufacturer_hint"
+                android:hint="@string/item_editor_hint"
                 android:inputType="textCapWords"
                 tools:ignore="Autofill" />
 
@@ -94,13 +94,32 @@
                 android:inputType="number"
                 tools:ignore="Autofill" />
 
-            <EditText
-                android:id="@+id/etCategorie"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_category_hint"
-                android:inputType="textCapWords"
-                tools:ignore="Autofill" />
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/actv_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_category_hint"
+                    android:inputType="none"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/tv_super_category_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Super-Catégorie:"/>
+                
+            <TextView
+                android:id="@+id/tv_super_category_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"/>
 
             <EditText
                 android:id="@+id/etMateriau"

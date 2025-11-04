@@ -8,7 +8,7 @@ import com.example.parabdcollector.repo.CollectionRepository
 data class SearchCriteria(
     val titre: String? = null,
     val univers: String? = null,
-    val fabricant: String? = null,
+    val editeur: String? = null,
     val annee: Int? = null,
     val categorie: String? = null
 )
@@ -23,7 +23,7 @@ class SearchViewModel(private val repository: CollectionRepository) : ViewModel(
         return repository.advancedSearch(
             titre = criteria.titre?.let { "%${it}%" },
             univers = criteria.univers?.let { "%${it}%" },
-            fabricant = criteria.fabricant?.let { "%${it}%" },
+            editeur = criteria.editeur?.let { "%${it}%" },
             annee = criteria.annee,
             categorie = criteria.categorie?.let { "%${it}%" }
         )

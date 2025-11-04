@@ -25,7 +25,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         val imageUriString = intent.getStringExtra(EXTRA_IMAGE_URI)
         val title = intent.getStringExtra(EXTRA_TITLE)
         val universe = intent.getStringExtra(EXTRA_UNIVERSE)
-        val manufacturer = intent.getStringExtra(EXTRA_MANUFACTURER)
+        val editeur = intent.getStringExtra(EXTRA_EDITOR) 
         val year = intent.getIntExtra(EXTRA_YEAR, 0)
         val category = intent.getStringExtra(EXTRA_CATEGORY)
         val material = intent.getStringExtra(EXTRA_MATERIAL)
@@ -40,7 +40,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         // Affichage des informations textuelles
         binding.imageInfoTitle.text = title
         binding.imageInfoUniverse.text = universe
-        binding.imageInfoManufacturer.text = manufacturer
+        binding.imageInfoManufacturer.text = editeur
         binding.imageInfoYear.text = if (year != 0) year.toString() else ""
         binding.imageInfoCategory.text = category
         binding.imageInfoMaterial.text = material
@@ -49,7 +49,7 @@ class FullScreenImageActivity : AppCompatActivity() {
 
         // On masque les champs vides
         binding.imageInfoUniverse.visibility = if (universe.isNullOrBlank()) View.GONE else View.VISIBLE
-        binding.imageInfoManufacturer.visibility = if (manufacturer.isNullOrBlank()) View.GONE else View.VISIBLE
+        binding.imageInfoManufacturer.visibility = if (editeur.isNullOrBlank()) View.GONE else View.VISIBLE
         binding.imageInfoYear.visibility = if (year == 0) View.GONE else View.VISIBLE
         binding.imageInfoCategory.visibility = if (category.isNullOrBlank()) View.GONE else View.VISIBLE
         binding.imageInfoMaterial.visibility = if (material.isNullOrBlank()) View.GONE else View.VISIBLE
@@ -87,7 +87,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         const val EXTRA_IMAGE_URI = "image_uri"
         const val EXTRA_TITLE = "title"
         const val EXTRA_UNIVERSE = "universe"
-        const val EXTRA_MANUFACTURER = "manufacturer"
+        const val EXTRA_EDITOR = "editor"
         const val EXTRA_YEAR = "year"
         const val EXTRA_CATEGORY = "category"
         const val EXTRA_MATERIAL = "material"

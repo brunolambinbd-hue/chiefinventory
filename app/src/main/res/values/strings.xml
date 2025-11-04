@@ -28,7 +28,7 @@
     <string name="item_title_hint">Titre</string>
     <string name="item_possessed_switch">Je possède cet objet</string>
     <string name="item_universe_hint">Univers / Série</string>
-    <string name="item_manufacturer_hint">Fabricant</string>
+    <string name="item_editor_hint">Editeur</string>
     <string name="item_year_hint">Année</string>
     <string name="item_category_hint">Catégorie</string>
     <string name="item_material_hint">Matériau</string>
@@ -51,4 +51,5 @@
     <string name="menu_products_title">Mes Produits</string>
     <string name="menu_searches_title">Mes Recherches</string>
     <string name="menu_locations_title">Mes Emplacements</string>
+    <string name="menu_import_title">Importer / Mettre à jour</string>
 </resources>

@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -13,8 +14,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.example.parabdcollector.CollectionApplication
+import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityEditItemBinding
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.utils.CategoryMapper
 import com.example.parabdcollector.utils.ImageStorageHelper
 import java.io.File
 
@@ -62,6 +65,18 @@ class EditItemActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        // Configuration du menu déroulant pour la catégorie
+        val categories = resources.getStringArray(R.array.categories_array)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
+        binding.actvCategory.setAdapter(adapter)
+
+        // Mise à jour de la super-catégorie quand une catégorie est choisie
+        binding.actvCategory.setOnItemClickListener { parent, _, position, _ ->
+            val selectedCategory = parent.getItemAtPosition(position) as String
+            val superCategory = CategoryMapper.getSuperCategory(selectedCategory)
+            binding.tvSuperCategoryValue.text = superCategory ?: ""
+        }
+
         currentItemId = intent.getLongExtra("itemId", 0)
 
         if (currentItemId != 0L) {
@@ -70,7 +85,6 @@ class EditItemActivity : AppCompatActivity() {
             }
         } else {
             supportActionBar?.title = "Nouvel Objet"
-            // Par défaut, un nouvel objet est possédé
             binding.switchPossessed.isChecked = true
         }
 
@@ -84,9 +98,9 @@ class EditItemActivity : AppCompatActivity() {
                     putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, imageUri)
                     putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_UNIVERSE, binding.etUniverse.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_MANUFACTURER, binding.etFabricant.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditeur.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etAnnee.text.toString().toIntOrNull() ?: 0)
-                    putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.etCategorie.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.actvCategory.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMateriau.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etTirage.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, binding.etDimensions.text.toString())
@@ -108,9 +122,10 @@ class EditItemActivity : AppCompatActivity() {
         binding.etTitle.setText(item.titre)
         binding.switchPossessed.isChecked = item.isPossessed
         binding.etUniverse.setText(item.univers)
-        binding.etFabricant.setText(item.fabricant)
+        binding.etEditeur.setText(item.editeur)
         binding.etAnnee.setText(item.annee?.toString())
-        binding.etCategorie.setText(item.categorie)
+        binding.actvCategory.setText(item.categorie, false)
+        binding.tvSuperCategoryValue.text = item.superCategorie ?: ""
         binding.etMateriau.setText(item.materiau)
         binding.etTirage.setText(item.tirage)
         binding.etDimensions.setText(item.dimensions)
@@ -138,14 +153,18 @@ class EditItemActivity : AppCompatActivity() {
             return
         }
 
+        val category = binding.actvCategory.text.toString().takeIf { it.isNotBlank() }
+        val superCategory = category?.let { CategoryMapper.getSuperCategory(it) }
+
         val item = CollectionItem(
             id = currentItemId,
             titre = title,
             isPossessed = binding.switchPossessed.isChecked,
             univers = binding.etUniverse.text.toString().takeIf { it.isNotBlank() },
-            fabricant = binding.etFabricant.text.toString().takeIf { it.isNotBlank() },
+            editeur = binding.etEditeur.text.toString().takeIf { it.isNotBlank() },
             annee = binding.etAnnee.text.toString().toIntOrNull(),
-            categorie = binding.etCategorie.text.toString().takeIf { it.isNotBlank() },
+            categorie = category,
+            superCategorie = superCategory,
             materiau = binding.etMateriau.text.toString().takeIf { it.isNotBlank() },
             tirage = binding.etTirage.text.toString().takeIf { it.isNotBlank() },
             dimensions = binding.etDimensions.text.toString().takeIf { it.isNotBlank() },

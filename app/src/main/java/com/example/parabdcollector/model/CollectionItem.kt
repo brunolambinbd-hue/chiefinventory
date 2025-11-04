@@ -1,17 +1,19 @@
 package com.example.parabdcollector.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-
-@Entity(tableName = "collection_items")
+@Entity(tableName = "collection_items", indices = [Index(value = ["remoteId"], unique = true)])
 data class CollectionItem(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val remoteId: Int? = null,
     val titre: String,
     val univers: String?,
-    val fabricant: String?,
+    val editeur: String?,
     val annee: Int?,
     val categorie: String?,
+    val superCategorie: String?,
     val materiau: String?,
     val tirage: String?,
     val dimensions: String?,
@@ -21,5 +23,5 @@ data class CollectionItem(
     val notes: String?,
     val imageUri: String?,
     val localisation: String?,
-    val isPossessed: Boolean = true // Nouveau champ pour distinguer les objets possédés
+    val isPossessed: Boolean = true 
 )
