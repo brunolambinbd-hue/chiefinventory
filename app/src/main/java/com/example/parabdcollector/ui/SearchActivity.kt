@@ -1,11 +1,10 @@
 package com.example.parabdcollector.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -36,38 +35,38 @@ class SearchActivity : AppCompatActivity() {
 
         binding.btnSearch.setOnClickListener { performSearch() }
 
-        binding.etSearch.setOnEditorActionListener { v, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearchAndHideKeyboard(v)
-                return@setOnEditorActionListener true
+        binding.tvToggleAdvancedSearch.setOnClickListener {
+            if (binding.advancedSearchContainer.visibility == View.GONE) {
+                binding.advancedSearchContainer.visibility = View.VISIBLE
+                binding.tvToggleAdvancedSearch.text = "Masquer la recherche avancée"
+            } else {
+                binding.advancedSearchContainer.visibility = View.GONE
+                binding.tvToggleAdvancedSearch.text = "Recherche avancée"
             }
-            false
         }
-
-        binding.etSearch.setOnKeyListener { v, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                performSearchAndHideKeyboard(v)
-                return@setOnKeyListener true
-            }
-            false
-        }
-
-        // On demande le focus et on ouvre le clavier automatiquement
-        binding.etSearch.requestFocus()
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT)
-    }
-
-    private fun performSearchAndHideKeyboard(view: View) {
-        performSearch()
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     private fun performSearch() {
-        val query = binding.etSearch.text.toString()
-        if (query.isNotBlank()) {
-            viewModel.search(query).observe(this) { results ->
+        // On cache le clavier
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+
+        val simpleQuery = binding.etSearchSimple.text.toString()
+
+        if (simpleQuery.isNotBlank()) {
+            viewModel.search(simpleQuery).observe(this) { results ->
+                adapter.submitList(results)
+            }
+        } else {
+            val criteria = SearchCriteria(
+                titre = binding.etSearchTitre.text.toString().takeIf { it.isNotBlank() },
+                univers = binding.etSearchUnivers.text.toString().takeIf { it.isNotBlank() },
+                fabricant = binding.etSearchFabricant.text.toString().takeIf { it.isNotBlank() },
+                annee = binding.etSearchAnnee.text.toString().toIntOrNull(),
+                categorie = binding.etSearchCategorie.text.toString().takeIf { it.isNotBlank() }
+            )
+
+            viewModel.advancedSearch(criteria).observe(this) { results ->
                 adapter.submitList(results)
             }
         }

@@ -13,33 +13,91 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <EditText
-            android:id="@+id/et_search"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:autofillHints="name"
-            android:hint="@string/search_hint"
-            android:inputType="text" 
-            tools:ignore="Typos" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <Button
-            android:id="@+id/btn_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/search_button" />
+            <!-- Recherche Simple -->
+            <EditText
+                android:id="@+id/et_search_simple"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Recherche rapide..."
+                android:inputType="text" />
 
-    </LinearLayout>
+            <!-- Bouton pour afficher/masquer la recherche avancée -->
+            <TextView
+                android:id="@+id/tv_toggle_advanced_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recherche avancée"
+                android:textColor="?attr/colorPrimary"
+                android:layout_gravity="end"
+                android:padding="8dp" />
+
+            <!-- Section Recherche Avancée (masquée par défaut) -->
+            <LinearLayout
+                android:id="@+id/advanced_search_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/et_search_titre"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Titre" />
+
+                <EditText
+                    android:id="@+id/et_search_univers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Univers / Série" />
+
+                <EditText
+                    android:id="@+id/et_search_fabricant"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Fabricant" />
+
+                <EditText
+                    android:id="@+id/et_search_annee"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Année"
+                    android:inputType="number" />
+
+                <EditText
+                    android:id="@+id/et_search_categorie"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Catégorie" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:text="@string/search_button" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_search_results"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 </LinearLayout>

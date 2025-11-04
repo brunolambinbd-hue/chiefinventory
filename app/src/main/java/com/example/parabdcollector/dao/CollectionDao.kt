@@ -24,8 +24,19 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE id = :id")
     fun getById(id: Long): LiveData<CollectionItem>
 
-    @Query("SELECT * FROM collection_items WHERE titre LIKE :query OR univers LIKE :query")
+    @Query("SELECT * FROM collection_items WHERE titre LIKE :query OR univers LIKE :query OR fabricant LIKE :query OR CAST(annee AS TEXT) LIKE :query OR categorie LIKE :query OR materiau LIKE :query OR tirage LIKE :query OR dimensions LIKE :query")
     fun search(query: String): LiveData<List<CollectionItem>>
+
+    @Query("""
+        SELECT * FROM collection_items WHERE 
+            (:titre IS NULL OR titre LIKE :titre) AND
+            (:univers IS NULL OR univers LIKE :univers) AND
+            (:fabricant IS NULL OR fabricant LIKE :fabricant) AND
+            (:annee IS NULL OR annee = :annee) AND
+            (:categorie IS NULL OR categorie LIKE :categorie)
+        """)
+    fun advancedSearch(titre: String?, univers: String?, fabricant: String?, annee: Int?, categorie: String?): LiveData<List<CollectionItem>>
+
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: CollectionItem)

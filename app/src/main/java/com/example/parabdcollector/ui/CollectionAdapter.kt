@@ -1,6 +1,7 @@
 package com.example.parabdcollector.ui
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
@@ -43,6 +44,25 @@ class CollectionAdapter(private val onItemClicked: (CollectionItem) -> Unit) : L
                 // Sinon, on affiche une image par défaut.
                 b.itemImage.setImageResource(R.mipmap.ic_launcher)
             }
+
+            // On remplit les champs supplémentaires et on ne les affiche que s'ils ne sont pas vides.
+            b.itemUniverse.text = item.univers?.let { "Univers: $it" } ?: ""
+            b.itemUniverse.visibility = if (item.univers.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            b.itemManufacturer.text = item.fabricant?.let { "Fabricant: $it" } ?: ""
+            b.itemManufacturer.visibility = if (item.fabricant.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            b.itemYear.text = item.annee?.let { "Année: $it" } ?: ""
+            b.itemYear.visibility = if (item.annee == null) View.GONE else View.VISIBLE
+
+            b.itemCategory.text = item.categorie?.let { "Catégorie: $it" } ?: ""
+            b.itemCategory.visibility = if (item.categorie.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            b.itemMaterial.text = item.materiau?.let { "Matériau: $it" } ?: ""
+            b.itemMaterial.visibility = if (item.materiau.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            b.itemDimensions.text = item.dimensions?.let { "Dimensions: $it" } ?: ""
+            b.itemDimensions.visibility = if (item.dimensions.isNullOrBlank()) View.GONE else View.VISIBLE
         }
     }
 

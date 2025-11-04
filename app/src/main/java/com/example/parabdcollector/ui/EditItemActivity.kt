@@ -1,6 +1,7 @@
 package com.example.parabdcollector.ui
 
 import android.Manifest
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
@@ -75,6 +76,24 @@ class EditItemActivity : AppCompatActivity() {
 
         binding.btnSave.setOnClickListener { saveItem() }
         binding.btnTakePicture.setOnClickListener { requestPermissionLauncher.launch(Manifest.permission.CAMERA) }
+
+        binding.imagePreview.setOnClickListener { 
+            val imageUri = binding.etImageUri.text.toString()
+            if (imageUri.isNotBlank()) {
+                val intent = Intent(this, FullScreenImageActivity::class.java).apply {
+                    putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, imageUri)
+                    putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_UNIVERSE, binding.etUniverse.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_MANUFACTURER, binding.etFabricant.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etAnnee.text.toString().toIntOrNull() ?: 0)
+                    putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.etCategorie.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMateriau.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etTirage.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, binding.etDimensions.text.toString())
+                }
+                startActivity(intent)
+            }
+        }
     }
 
     private fun getTmpFileUri(): Uri {

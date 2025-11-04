@@ -1,18 +1,31 @@
 package com.example.parabdcollector.ui
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 
-class SearchViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
+data class SearchCriteria(
+    val titre: String? = null,
+    val univers: String? = null,
+    val fabricant: String? = null,
+    val annee: Int? = null,
+    val categorie: String? = null
+)
 
-    private val _searchResults = MutableLiveData<List<CollectionItem>>()
-
+class SearchViewModel(private val repository: CollectionRepository) : ViewModel() {
 
     fun search(query: String): LiveData<List<CollectionItem>> {
         return repository.search("%${query}%")
+    }
+
+    fun advancedSearch(criteria: SearchCriteria): LiveData<List<CollectionItem>> {
+        return repository.advancedSearch(
+            titre = criteria.titre?.let { "%${it}%" },
+            univers = criteria.univers?.let { "%${it}%" },
+            fabricant = criteria.fabricant?.let { "%${it}%" },
+            annee = criteria.annee,
+            categorie = criteria.categorie?.let { "%${it}%" }
+        )
     }
 }
