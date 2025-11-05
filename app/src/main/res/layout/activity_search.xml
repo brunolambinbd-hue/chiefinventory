@@ -29,7 +29,7 @@
                 android:id="@+id/et_search_simple"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Recherche rapide..."
+                android:hint="@string/simple_search_hint"
                 android:inputType="text"
                 tools:ignore="Autofill" />
 

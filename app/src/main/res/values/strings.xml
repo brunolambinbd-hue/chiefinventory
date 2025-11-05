@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ParaBDCollector</string>
+    <string name="app_name" translatable="false">ParaBDCollector</string>
     <string name="open">Ouvrir</string>
     <string name="close">Fermer</string>
 
@@ -44,6 +44,7 @@
     <!-- Textes pour l'écran de recherche -->
     <string name="search_button">Rechercher</string>
     <string name="search_hint">Entrez un titre, un univers…</string>
+    <string name="simple_search_hint">Recherche rapide…</string>
     <string name="advanced_search_show">Recherche avancée</string>
     <string name="advanced_search_hide">Masquer la recherche avancée</string>
 
