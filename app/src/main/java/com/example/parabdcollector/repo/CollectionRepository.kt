@@ -22,6 +22,10 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return collectionDao.getById(id)
     }
 
+    fun findByRemoteId(remoteId: Int): CollectionItem? {
+        return collectionDao.findByRemoteId(remoteId)
+    }
+
     fun search(query: String): LiveData<List<CollectionItem>> {
         return collectionDao.search(query)
     }
@@ -36,9 +40,5 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
 
     suspend fun update(item: CollectionItem) {
         collectionDao.update(item)
-    }
-
-    suspend fun delete(item: CollectionItem) {
-        collectionDao.delete(item)
     }
 }

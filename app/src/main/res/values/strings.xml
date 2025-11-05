@@ -31,6 +31,7 @@
     <string name="item_editor_hint">Editeur</string>
     <string name="item_year_hint">Année</string>
     <string name="item_category_hint">Catégorie</string>
+    <string name="item_super_category_label">Super-Catégorie:</string>
     <string name="item_material_hint">Matériau</string>
     <string name="item_run_hint">Tirage</string>
     <string name="item_dimensions_hint">Dimensions</string>
@@ -43,6 +44,8 @@
     <!-- Textes pour l'écran de recherche -->
     <string name="search_button">Rechercher</string>
     <string name="search_hint">Entrez un titre, un univers…</string>
+    <string name="advanced_search_show">Recherche avancée</string>
+    <string name="advanced_search_hide">Masquer la recherche avancée</string>
 
     <!-- Textes pour les menus -->
     <string name="menu_search_title">Recherche</string>

@@ -30,14 +30,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Recherche rapide..."
-                android:inputType="text" />
+                android:inputType="text"
+                tools:ignore="Autofill" />
 
             <!-- Bouton pour afficher/masquer la recherche avancée -->
             <TextView
                 android:id="@+id/tv_toggle_advanced_search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Recherche avancée"
+                android:text="@string/advanced_search_show"
                 android:textColor="?attr/colorPrimary"
                 android:layout_gravity="end"
                 android:padding="8dp" />
@@ -54,32 +55,41 @@
                     android:id="@+id/et_search_titre"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Titre" />
+                    android:hint="@string/item_title_hint"
+                    android:inputType="textCapWords"
+                    tools:ignore="Autofill" />
 
                 <EditText
                     android:id="@+id/et_search_univers"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Univers / Série" />
+                    android:hint="@string/item_universe_hint"
+                    android:inputType="textCapWords"
+                    tools:ignore="Autofill" />
 
                 <EditText
                     android:id="@+id/et_search_editeur"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Fabricant" />
+                    android:hint="@string/item_editor_hint"
+                    android:inputType="textCapWords"
+                    tools:ignore="Autofill" />
 
                 <EditText
                     android:id="@+id/et_search_annee"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Année"
-                    android:inputType="number" />
+                    android:hint="@string/item_year_hint"
+                    android:inputType="number"
+                    tools:ignore="Autofill" />
 
                 <EditText
                     android:id="@+id/et_search_categorie"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Catégorie" />
+                    android:hint="@string/item_category_hint"
+                    android:inputType="textCapWords"
+                    tools:ignore="Autofill" />
 
             </LinearLayout>
 

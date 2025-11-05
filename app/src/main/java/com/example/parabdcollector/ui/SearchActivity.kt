@@ -8,8 +8,11 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
+import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
 
 class SearchActivity : AppCompatActivity() {
@@ -36,19 +39,19 @@ class SearchActivity : AppCompatActivity() {
         binding.btnSearch.setOnClickListener { performSearch() }
 
         binding.tvToggleAdvancedSearch.setOnClickListener {
-            if (binding.advancedSearchContainer.visibility == View.GONE) {
-                binding.advancedSearchContainer.visibility = View.VISIBLE
-                binding.tvToggleAdvancedSearch.text = "Masquer la recherche avancée"
+            if (binding.advancedSearchContainer.isGone) {
+                binding.advancedSearchContainer.isVisible = true
+                binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_hide)
             } else {
-                binding.advancedSearchContainer.visibility = View.GONE
-                binding.tvToggleAdvancedSearch.text = "Recherche avancée"
+                binding.advancedSearchContainer.isGone = true
+                binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
             }
         }
     }
 
     private fun performSearch() {
         // On cache le clavier
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 
         val simpleQuery = binding.etSearchSimple.text.toString()

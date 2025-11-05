@@ -113,7 +113,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Super-Catégorie:"/>
+                android:text="@string/item_super_category_label"/>
                 
             <TextView
                 android:id="@+id/tv_super_category_value"

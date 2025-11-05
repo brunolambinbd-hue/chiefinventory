@@ -24,6 +24,9 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE id = :id")
     fun getById(id: Long): LiveData<CollectionItem>
 
+    @Query("SELECT * FROM collection_items WHERE remoteId = :remoteId")
+    fun findByRemoteId(remoteId: Int): CollectionItem?
+
     @Query("SELECT * FROM collection_items WHERE titre LIKE :query OR univers LIKE :query OR editeur LIKE :query OR CAST(annee AS TEXT) LIKE :query OR categorie LIKE :query OR materiau LIKE :query OR tirage LIKE :query OR dimensions LIKE :query")
     fun search(query: String): LiveData<List<CollectionItem>>
 

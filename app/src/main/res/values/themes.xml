@@ -14,4 +14,9 @@
         <!-- Couleur de la barre de statut -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
     </style>
+
+    <!-- Thème pour l'écran plein écran -->
+    <style name="Theme.ParaBDCollector.FullScreen" parent="Theme.ParaBDCollector">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
 </resources>
