@@ -16,7 +16,11 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
         android:contentDescription="@string/item_image_preview_description"
-        android:padding="8dp" 
+        android:paddingStart="8dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="150dp" 
+        android:clipToPadding="false"
         android:scaleType="fitCenter" />
 
     <ScrollView

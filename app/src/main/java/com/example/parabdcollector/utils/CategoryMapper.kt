@@ -40,4 +40,12 @@ object CategoryMapper {
     fun getSuperCategory(category: String): String? {
         return categoryMap[category]
     }
+
+    fun getSuperCategories(): List<String> {
+        return categoryMap.values.distinct().sorted()
+    }
+
+    fun getCategoriesFor(superCategory: String): List<String> {
+        return categoryMap.filterValues { it == superCategory }.keys.sorted()
+    }
 }

@@ -65,17 +65,7 @@ class EditItemActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Configuration du menu déroulant pour la catégorie
-        val categories = resources.getStringArray(R.array.categories_array)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
-        binding.actvCategory.setAdapter(adapter)
-
-        // Mise à jour de la super-catégorie quand une catégorie est choisie
-        binding.actvCategory.setOnItemClickListener { parent, _, position, _ ->
-            val selectedCategory = parent.getItemAtPosition(position) as String
-            val superCategory = CategoryMapper.getSuperCategory(selectedCategory)
-            binding.tvSuperCategoryValue.text = superCategory ?: ""
-        }
+        setupCategorySpinners()
 
         currentItemId = intent.getLongExtra("itemId", 0)
 
@@ -110,6 +100,28 @@ class EditItemActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupCategorySpinners() {
+        // Remplir le spinner des super-catégories
+        val superCategories = CategoryMapper.getSuperCategories()
+        val superCategoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, superCategories)
+        binding.actvSuperCategory.setAdapter(superCategoryAdapter)
+
+        // Le spinner des catégories est désactivé au début
+        binding.categoryLayout.isEnabled = false
+
+        // Écouteur pour le spinner des super-catégories
+        binding.actvSuperCategory.setOnItemClickListener { parent, _, position, _ ->
+            val selectedSuperCategory = parent.getItemAtPosition(position) as String
+            val categories = CategoryMapper.getCategoriesFor(selectedSuperCategory)
+            val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
+            binding.actvCategory.setAdapter(categoryAdapter)
+
+            // Activer le deuxième spinner et vider son contenu
+            binding.categoryLayout.isEnabled = true
+            binding.actvCategory.text = null
+        }
+    }
+
     private fun getTmpFileUri(): Uri {
         val tmpFile = File.createTempFile("tmp_image_file", ".png", cacheDir).apply {
             createNewFile()
@@ -124,8 +136,17 @@ class EditItemActivity : AppCompatActivity() {
         binding.etUniverse.setText(item.univers)
         binding.etEditeur.setText(item.editeur)
         binding.etAnnee.setText(item.annee?.toString())
+        
+        // Pré-remplir les spinners de catégories
+        binding.actvSuperCategory.setText(item.superCategorie, false)
+        if (!item.superCategorie.isNullOrBlank()) {
+            val categories = CategoryMapper.getCategoriesFor(item.superCategorie)
+            val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
+            binding.actvCategory.setAdapter(categoryAdapter)
+            binding.categoryLayout.isEnabled = true
+        }
         binding.actvCategory.setText(item.categorie, false)
-        binding.tvSuperCategoryValue.text = item.superCategorie ?: ""
+
         binding.etMateriau.setText(item.materiau)
         binding.etTirage.setText(item.tirage)
         binding.etDimensions.setText(item.dimensions)
@@ -153,10 +174,11 @@ class EditItemActivity : AppCompatActivity() {
             return
         }
 
+        val superCategory = binding.actvSuperCategory.text.toString().takeIf { it.isNotBlank() }
         val category = binding.actvCategory.text.toString().takeIf { it.isNotBlank() }
-        val superCategory = category?.let { CategoryMapper.getSuperCategory(it) }
 
         val item = CollectionItem(
+            remoteId = null, // L'ID distant sera géré par l'import
             id = currentItemId,
             titre = title,
             isPossessed = binding.switchPossessed.isChecked,
