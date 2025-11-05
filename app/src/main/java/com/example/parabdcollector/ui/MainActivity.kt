@@ -29,11 +29,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         ViewModelFactory(application, repository)
     }
 
+    private val importViewModel: ImportViewModel by viewModels {
+        val repository = (application as CollectionApplication).repository
+        ViewModelFactory(application, repository)
+    }
+
     private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
-            // Pour l'instant, on affiche juste un Toast pour confirmer la sélection.
-            // Plus tard, on appellera la logique d'importation ici.
-            Toast.makeText(this, "Fichier sélectionné: $uri", Toast.LENGTH_LONG).show()
+            importViewModel.importCsv(uri)
+            Toast.makeText(this, "Importation en cours...", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -106,7 +110,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_locations -> Toast.makeText(this, "Mes Emplacements cliqué", Toast.LENGTH_SHORT).show()
             R.id.nav_import -> {
-                importCsvLauncher.launch("*/*")
+                importCsvLauncher.launch("text/comma-separated-values")
             }
         }
         binding.drawerLayout.closeDrawers()

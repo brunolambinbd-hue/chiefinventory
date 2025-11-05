@@ -7,13 +7,20 @@ import com.example.parabdcollector.repo.CollectionRepository
 
 class ViewModelFactory(private val application: Application, private val repository: CollectionRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MainViewModel(application, repository) as T
-        } else if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return SearchViewModel(repository) as T
+        return when {
+            modelClass.isAssignableFrom(MainViewModel::class.java) -> {
+                @Suppress("UNCHECKED_CAST")
+                MainViewModel(application, repository) as T
+            }
+            modelClass.isAssignableFrom(SearchViewModel::class.java) -> {
+                @Suppress("UNCHECKED_CAST")
+                SearchViewModel(repository) as T
+            }
+            modelClass.isAssignableFrom(ImportViewModel::class.java) -> {
+                @Suppress("UNCHECKED_CAST")
+                ImportViewModel(application, repository) as T
+            }
+            else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
