@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.coil)
     ksp(libs.androidx.room.compiler)
 
     // Dépendances de Test (configuration propre et simple)

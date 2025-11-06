@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Permission pour accéder à Internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- On clarifie que la caméra est une fonctionnalité facultative -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />

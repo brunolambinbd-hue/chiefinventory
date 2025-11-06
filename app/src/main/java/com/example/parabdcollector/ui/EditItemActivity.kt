@@ -12,7 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
+import coil.load
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityEditItemBinding
@@ -37,7 +37,7 @@ class EditItemActivity : AppCompatActivity() {
                 val permanentUri = ImageStorageHelper.saveImageToInternalStorage(this, it)
                 if (permanentUri != null) {
                     binding.imagePreview.visibility = View.VISIBLE
-                    binding.imagePreview.setImageURI(permanentUri)
+                    binding.imagePreview.load(permanentUri)
                     binding.etImageUri.setText(permanentUri.toString())
                 } else {
                     Toast.makeText(this, "Erreur lors de la sauvegarde de l\'image", Toast.LENGTH_SHORT).show()
@@ -137,7 +137,6 @@ class EditItemActivity : AppCompatActivity() {
         binding.etEditeur.setText(item.editeur)
         binding.etAnnee.setText(item.annee?.toString())
         
-        // Pré-remplir les spinners de catégories
         binding.actvSuperCategory.setText(item.superCategorie, false)
         if (!item.superCategorie.isNullOrBlank()) {
             val categories = CategoryMapper.getCategoriesFor(item.superCategorie)
@@ -160,7 +159,10 @@ class EditItemActivity : AppCompatActivity() {
         item.imageUri?.let {
             if (it.isNotBlank()) {
                 binding.imagePreview.visibility = View.VISIBLE
-                binding.imagePreview.setImageURI(it.toUri())
+                binding.imagePreview.load(it) {
+                    placeholder(R.mipmap.ic_launcher)
+                    error(R.mipmap.ic_launcher)
+                }
             }
         }
 

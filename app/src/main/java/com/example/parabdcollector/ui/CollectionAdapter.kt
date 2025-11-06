@@ -3,10 +3,10 @@ package com.example.parabdcollector.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ItemCollectionBinding
 import com.example.parabdcollector.model.CollectionItem
@@ -37,15 +37,16 @@ class CollectionAdapter(private val onItemClicked: (CollectionItem) -> Unit) : L
             b.itemName.text = item.titre
             b.itemImage.contentDescription = itemView.context.getString(R.string.item_thumbnail_description_dynamic, item.titre)
 
-            // On charge l'image si l'URI existe.
             if (!item.imageUri.isNullOrBlank()) {
-                b.itemImage.setImageURI(item.imageUri.toUri())
+                // On utilise Coil pour charger l'image depuis l'URL.
+                b.itemImage.load(item.imageUri) {
+                    placeholder(R.mipmap.ic_launcher) // Image affichée pendant le chargement
+                    error(R.mipmap.ic_launcher) // Image affichée en cas d'erreur
+                }
             } else {
-                // Sinon, on affiche une image par défaut.
                 b.itemImage.setImageResource(R.mipmap.ic_launcher)
             }
 
-            // On remplit les champs supplémentaires et on ne les affiche que s'ils ne sont pas vides.
             b.itemUniverse.text = item.univers?.let { "Univers: $it" } ?: ""
             b.itemUniverse.visibility = if (item.univers.isNullOrBlank()) View.GONE else View.VISIBLE
 

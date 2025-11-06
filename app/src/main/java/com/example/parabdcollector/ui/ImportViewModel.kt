@@ -15,59 +15,66 @@ import java.io.InputStreamReader
 
 class ImportViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
+    private val baseImageUrl = "https://frankpe.com/images/bdg_new/"
+
     fun importCsv(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             val inputStream = getApplication<Application>().contentResolver.openInputStream(uri)
-            val reader = BufferedReader(InputStreamReader(inputStream))
+            val lines = BufferedReader(InputStreamReader(inputStream)).readLines()
 
-            reader.use {
-                // On saute la première ligne (l'en-tête)
-                var line = it.readLine()
-                line = it.readLine()
+            for (line in lines.drop(1)) {
+                val tokens = line.split(";")
+                
+                val remoteId = tokens.getOrNull(0)?.toIntOrNull()
+                if (remoteId != null) {
+                    val existingItem = repository.findByRemoteId(remoteId)
 
-                while (line != null) {
-                    val tokens = line.split(";")
-                    
-                    val remoteId = tokens[0].toIntOrNull()
-                    if (remoteId != null) {
-                        val existingItem = repository.findByRemoteId(remoteId)
+                    val annee = tokens.getOrNull(1)?.toIntOrNull()
+                    val superCategorie = tokens.getOrNull(4)
+                    val titre = tokens.getOrNull(5)
+                    val editeur = tokens.getOrNull(6)
+                    val description = tokens.getOrNull(7) ?: ""
+                    val categorie = tokens.getOrNull(10)
 
-                        val description = tokens.getOrNull(10) ?: ""
-                        val parsedInfo = DescriptionParser.parse(description)
+                    val parsedInfo = DescriptionParser.parse(titre, description)
+                    val imageUrl = buildImageUrl(remoteId)
 
-                        val category = tokens.getOrNull(5)
-                        val superCategory = category?.let { CategoryMapper.getSuperCategory(it) }
+                    val item = CollectionItem(
+                        id = existingItem?.id ?: 0,
+                        remoteId = remoteId,
+                        titre = titre ?: "",
+                        univers = null,
+                        editeur = editeur,
+                        annee = annee,
+                        categorie = categorie,
+                        superCategorie = superCategorie,
+                        materiau = null,
+                        tirage = parsedInfo.tirage,
+                        dimensions = parsedInfo.dimensions,
+                        prixAchat = null,
+                        valeurEstimee = null,
+                        lieuAchat = null,
+                        notes = description,
+                        imageUri = imageUrl,
+                        localisation = null,
+                        isPossessed = true
+                    )
 
-                        val item = CollectionItem(
-                            id = existingItem?.id ?: 0,
-                            remoteId = remoteId,
-                            titre = tokens.getOrNull(1) ?: "",
-                            univers = tokens.getOrNull(2),
-                            editeur = tokens.getOrNull(3),
-                            annee = tokens.getOrNull(4)?.toIntOrNull(),
-                            categorie = category,
-                            superCategorie = superCategory,
-                            materiau = tokens.getOrNull(6),
-                            tirage = parsedInfo.tirage,
-                            dimensions = parsedInfo.dimensions,
-                            prixAchat = tokens.getOrNull(7)?.toDoubleOrNull(),
-                            valeurEstimee = tokens.getOrNull(8)?.toDoubleOrNull(),
-                            lieuAchat = tokens.getOrNull(9),
-                            notes = description, // On garde la description complète dans les notes
-                            imageUri = null, // L'URI de l'image sera géré plus tard
-                            localisation = tokens.getOrNull(11),
-                            isPossessed = true
-                        )
-
-                        if (existingItem == null) {
-                            repository.insert(item)
-                        } else {
-                            repository.update(item)
-                        }
+                    if (existingItem == null) {
+                        repository.insert(item)
+                    } else {
+                        repository.update(item.copy(imageUri = existingItem.imageUri ?: imageUrl))
                     }
-                    line = it.readLine()
                 }
             }
         }
+    }
+
+    private fun buildImageUrl(remoteId: Int): String {
+        val folder = (remoteId / 100) * 100
+        // On suppose un préfixe "frank" et un suffixe "-1.jpg" basé sur l'exemple.
+        // A ADAPTER SI LE PREFIXE CHANGE
+        val prefix = "frank"
+        return "$baseImageUrl$folder/$prefix$remoteId-1.jpg"
     }
 }

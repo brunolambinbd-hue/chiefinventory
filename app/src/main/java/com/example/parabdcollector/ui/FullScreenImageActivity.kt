@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
+import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityFullScreenImageBinding
 
@@ -33,9 +33,12 @@ class FullScreenImageActivity : AppCompatActivity() {
         val run = intent.getStringExtra(EXTRA_RUN)
         val dimensions = intent.getStringExtra(EXTRA_DIMENSIONS)
 
-        // Affichage de l'image
+        // Affichage de l'image avec Coil
         if (imageUriString != null) {
-            binding.fullScreenImageView.setImageURI(imageUriString.toUri())
+            binding.fullScreenImageView.load(imageUriString) {
+                placeholder(R.mipmap.ic_launcher)
+                error(R.mipmap.ic_launcher)
+            }
         }
 
         // Affichage des informations textuelles avec libellés
