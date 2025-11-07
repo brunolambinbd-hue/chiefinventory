@@ -5,11 +5,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
-import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityItemListBinding
 
 class ItemListActivity : AppCompatActivity() {
@@ -17,11 +14,9 @@ class ItemListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityItemListBinding
     private lateinit var adapter: CollectionAdapter
 
-    private val listType by lazy { intent.getStringExtra(EXTRA_LIST_TYPE) }
-
-    private val viewModel: ItemListViewModel by viewModels {
+    private val viewModel: MainViewModel by viewModels {
         val repository = (application as CollectionApplication).repository
-        ItemListViewModelFactory(repository, listType)
+        ViewModelFactory(application, repository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,13 +29,25 @@ class ItemListActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
-        viewModel.items.observe(this) { items ->
-            adapter.submitList(items)
-            // On met à jour le titre dynamiquement
+        val listType = intent.getStringExtra(EXTRA_LIST_TYPE)
+        val superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
+        val category = intent.getStringExtra(EXTRA_CATEGORY)
+
+        if (superCategory != null && category != null) {
+            // On affiche les objets pour une catégorie spécifique
+            val isPossessed = listType == TYPE_POSSESSED
+            supportActionBar?.title = category
+            viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, isPossessed).observe(this) {
+                adapter.submitList(it)
+            }
+        } else {
+            // Comportement par défaut (si on arrive ici sans passer par la nouvelle navigation)
             if (listType == TYPE_POSSESSED) {
-                supportActionBar?.title = getString(R.string.possessed_items_title, items.size)
+                supportActionBar?.title = "Mes Produits"
+                viewModel.possessedItems.observe(this) { items -> adapter.submitList(items) }
             } else {
-                supportActionBar?.title = getString(R.string.sought_items_title, items.size)
+                supportActionBar?.title = "Mes Recherches"
+                viewModel.soughtItems.observe(this) { items -> adapter.submitList(items) }
             }
         }
     }
@@ -67,16 +74,7 @@ class ItemListActivity : AppCompatActivity() {
         const val EXTRA_LIST_TYPE = "list_type"
         const val TYPE_POSSESSED = "possessed"
         const val TYPE_SOUGHT = "sought"
-    }
-}
-
-// Factory spécifique pour ce ViewModel qui a besoin du type de liste
-class ItemListViewModelFactory(private val repository: com.example.parabdcollector.repo.CollectionRepository, private val listType: String?) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ItemListViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return ItemListViewModel(repository, listType) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        const val EXTRA_SUPER_CATEGORY = "super_category"
+        const val EXTRA_CATEGORY = "category"
     }
 }

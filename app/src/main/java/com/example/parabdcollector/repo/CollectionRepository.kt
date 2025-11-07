@@ -34,6 +34,18 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return collectionDao.advancedSearch(titre, editeur, annee, mois, superCategorie, categorie, description)
     }
 
+    fun getDistinctSuperCategories(isPossessed: Boolean): LiveData<List<String>> {
+        return collectionDao.getDistinctSuperCategories(isPossessed)
+    }
+
+    fun getDistinctCategoriesForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<String>> {
+        return collectionDao.getDistinctCategoriesForSuperCategory(superCategory, isPossessed)
+    }
+
+    fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>> {
+        return collectionDao.getItemsBySuperCategoryAndCategory(superCategory, category, isPossessed)
+    }
+
     suspend fun insert(item: CollectionItem) {
         collectionDao.insert(item)
     }

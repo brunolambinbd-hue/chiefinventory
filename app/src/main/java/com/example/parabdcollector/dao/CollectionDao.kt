@@ -42,6 +42,15 @@ interface CollectionDao {
         """)
     fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, superCategorie: String?, categorie: String?, description: String?): LiveData<List<CollectionItem>>
 
+    @Query("SELECT DISTINCT superCategorie FROM collection_items WHERE isPossessed = :isPossessed AND superCategorie IS NOT NULL AND superCategorie != '' ORDER BY superCategorie ASC")
+    fun getDistinctSuperCategories(isPossessed: Boolean): LiveData<List<String>>
+
+    @Query("SELECT DISTINCT categorie FROM collection_items WHERE superCategorie = :superCategory AND isPossessed = :isPossessed AND categorie IS NOT NULL AND categorie != '' ORDER BY categorie ASC")
+    fun getDistinctCategoriesForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<String>>
+
+    @Query("SELECT * FROM collection_items WHERE superCategorie = :superCategory AND categorie = :category AND isPossessed = :isPossessed ORDER BY titre ASC")
+    fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>>
+
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: CollectionItem)

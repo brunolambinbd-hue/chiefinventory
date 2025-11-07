@@ -30,6 +30,7 @@
         <activity android:name=".ui.EditItemActivity" />
         <activity android:name=".ui.SearchActivity" />
         <activity android:name=".ui.ItemListActivity" />
+        <activity android:name=".ui.CategoryListActivity" />
         <activity 
             android:name=".ui.FullScreenImageActivity"
             android:theme="@style/Theme.ParaBDCollector.FullScreen" />

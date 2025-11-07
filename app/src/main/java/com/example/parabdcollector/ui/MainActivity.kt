@@ -99,13 +99,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // Ne fait rien, car nous sommes déjà sur l'écran d'accueil.
             }
             R.id.nav_products -> {
-                val intent = Intent(this, ItemListActivity::class.java)
-                intent.putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_POSSESSED)
+                val intent = Intent(this, CategoryListActivity::class.java)
+                intent.putExtra(CategoryListActivity.EXTRA_IS_POSSESSED, true)
                 startActivity(intent)
             }
             R.id.nav_searches -> {
-                val intent = Intent(this, ItemListActivity::class.java)
-                intent.putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_SOUGHT)
+                val intent = Intent(this, CategoryListActivity::class.java)
+                intent.putExtra(CategoryListActivity.EXTRA_IS_POSSESSED, false)
                 startActivity(intent)
             }
             R.id.nav_locations -> Toast.makeText(this, "Mes Emplacements cliqué", Toast.LENGTH_SHORT).show()
