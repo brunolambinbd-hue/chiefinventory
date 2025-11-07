@@ -46,6 +46,12 @@
             android:textSize="14sp" />
             
         <TextView
+            android:id="@+id/itemSuperCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp" />
+
+        <TextView
             android:id="@+id/itemCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -59,6 +65,12 @@
 
         <TextView
             android:id="@+id/itemDimensions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/itemTirage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp" />

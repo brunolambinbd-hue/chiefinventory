@@ -3,6 +3,7 @@ package com.example.parabdcollector.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -20,7 +21,7 @@ import com.example.parabdcollector.utils.CategoryMapper
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
-    private lateinit var adapter: CollectionAdapter
+    private lateinit var adapter: CollectionAdapter // On utilise le bon adaptateur détaillé
 
     private val viewModel: SearchViewModel by viewModels {
         val repository = (application as CollectionApplication).repository

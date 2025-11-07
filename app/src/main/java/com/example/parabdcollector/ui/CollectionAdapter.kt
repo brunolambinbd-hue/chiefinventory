@@ -38,10 +38,9 @@ class CollectionAdapter(private val onItemClicked: (CollectionItem) -> Unit) : L
             b.itemImage.contentDescription = itemView.context.getString(R.string.item_thumbnail_description_dynamic, item.titre)
 
             if (!item.imageUri.isNullOrBlank()) {
-                // On utilise Coil pour charger l'image depuis l'URL.
                 b.itemImage.load(item.imageUri) {
-                    placeholder(R.mipmap.ic_launcher) // Image affichée pendant le chargement
-                    error(R.mipmap.ic_launcher) // Image affichée en cas d'erreur
+                    placeholder(R.mipmap.ic_launcher)
+                    error(R.mipmap.ic_launcher)
                 }
             } else {
                 b.itemImage.setImageResource(R.mipmap.ic_launcher)
@@ -53,8 +52,14 @@ class CollectionAdapter(private val onItemClicked: (CollectionItem) -> Unit) : L
             b.itemEditeur.text = item.editeur?.let { "Editeur: $it" } ?: ""
             b.itemEditeur.visibility = if (item.editeur.isNullOrBlank()) View.GONE else View.VISIBLE
 
-            b.itemYear.text = item.annee?.let { "Année: $it" } ?: ""
-            b.itemYear.visibility = if (item.annee == null) View.GONE else View.VISIBLE
+            var yearMonthText = ""
+            item.annee?.let { yearMonthText += "Année: $it" }
+            item.mois?.let { yearMonthText += "/$it" }
+            b.itemYear.text = yearMonthText
+            b.itemYear.visibility = if (yearMonthText.isBlank()) View.GONE else View.VISIBLE
+
+            b.itemSuperCategory.text = item.superCategorie?.let { "Super-Catégorie: $it" } ?: ""
+            b.itemSuperCategory.visibility = if (item.superCategorie.isNullOrBlank()) View.GONE else View.VISIBLE
 
             b.itemCategory.text = item.categorie?.let { "Catégorie: $it" } ?: ""
             b.itemCategory.visibility = if (item.categorie.isNullOrBlank()) View.GONE else View.VISIBLE
@@ -64,6 +69,9 @@ class CollectionAdapter(private val onItemClicked: (CollectionItem) -> Unit) : L
 
             b.itemDimensions.text = item.dimensions?.let { "Dimensions: $it" } ?: ""
             b.itemDimensions.visibility = if (item.dimensions.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            b.itemTirage.text = item.tirage?.let { "Tirage: $it ex." } ?: ""
+            b.itemTirage.visibility = if (item.tirage.isNullOrBlank()) View.GONE else View.VISIBLE
         }
     }
 

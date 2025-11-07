@@ -2,6 +2,7 @@ package com.example.parabdcollector.repo
 
 import androidx.lifecycle.LiveData
 import com.example.parabdcollector.dao.CollectionDao
+import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
 
 class CollectionRepository(private val collectionDao: CollectionDao) {
@@ -34,12 +35,12 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return collectionDao.advancedSearch(titre, editeur, annee, mois, superCategorie, categorie, description)
     }
 
-    fun getDistinctSuperCategories(isPossessed: Boolean): LiveData<List<String>> {
-        return collectionDao.getDistinctSuperCategories(isPossessed)
+    fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>> {
+        return collectionDao.getSuperCategoryInfo(isPossessed)
     }
 
-    fun getDistinctCategoriesForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<String>> {
-        return collectionDao.getDistinctCategoriesForSuperCategory(superCategory, isPossessed)
+    fun getCategoryInfoForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<CategoryInfo>> {
+        return collectionDao.getCategoryInfoForSuperCategory(superCategory, isPossessed)
     }
 
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>> {

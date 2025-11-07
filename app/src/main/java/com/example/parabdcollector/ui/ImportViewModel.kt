@@ -31,11 +31,11 @@ class ImportViewModel(application: Application, private val repository: Collecti
 
                     val annee = tokens.getOrNull(1)?.toIntOrNull()
                     val mois = tokens.getOrNull(2)?.toIntOrNull()
-                    val superCategorie = tokens.getOrNull(4)
-                    val titre = tokens.getOrNull(5)
-                    val editeur = tokens.getOrNull(6)
-                    val description = tokens.getOrNull(7) ?: ""
-                    val categorie = tokens.getOrNull(10)
+                    val categorie = tokens.getOrNull(3)
+                    val titre = tokens.getOrNull(4)
+                    val editeur = tokens.getOrNull(5)
+                    val description = tokens.getOrNull(6)
+                    val superCategorie = tokens.getOrNull(10)
 
                     val parsedInfo = DescriptionParser.parse(titre, description)
                     val imageUrl = buildImageUrl(remoteId)

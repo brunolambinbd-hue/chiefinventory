@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
 
 @Dao
@@ -42,11 +43,11 @@ interface CollectionDao {
         """)
     fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, superCategorie: String?, categorie: String?, description: String?): LiveData<List<CollectionItem>>
 
-    @Query("SELECT DISTINCT superCategorie FROM collection_items WHERE isPossessed = :isPossessed AND superCategorie IS NOT NULL AND superCategorie != '' ORDER BY superCategorie ASC")
-    fun getDistinctSuperCategories(isPossessed: Boolean): LiveData<List<String>>
+    @Query("SELECT superCategorie as name, COUNT(*) as count FROM collection_items WHERE isPossessed = :isPossessed AND superCategorie IS NOT NULL AND superCategorie != '' GROUP BY superCategorie ORDER BY superCategorie ASC")
+    fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>>
 
-    @Query("SELECT DISTINCT categorie FROM collection_items WHERE superCategorie = :superCategory AND isPossessed = :isPossessed AND categorie IS NOT NULL AND categorie != '' ORDER BY categorie ASC")
-    fun getDistinctCategoriesForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<String>>
+    @Query("SELECT categorie as name, COUNT(*) as count FROM collection_items WHERE superCategorie = :superCategory AND isPossessed = :isPossessed AND categorie IS NOT NULL AND categorie != '' GROUP BY categorie ORDER BY categorie ASC")
+    fun getCategoryInfoForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<CategoryInfo>>
 
     @Query("SELECT * FROM collection_items WHERE superCategorie = :superCategory AND categorie = :category AND isPossessed = :isPossessed ORDER BY titre ASC")
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>>

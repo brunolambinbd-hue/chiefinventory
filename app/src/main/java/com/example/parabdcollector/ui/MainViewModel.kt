@@ -3,6 +3,7 @@ package com.example.parabdcollector.ui
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 
@@ -16,12 +17,12 @@ class MainViewModel(application: Application, private val repository: Collection
         return repository.getById(id)
     }
 
-    fun getDistinctSuperCategories(isPossessed: Boolean): LiveData<List<String>> {
-        return repository.getDistinctSuperCategories(isPossessed)
+    fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>> {
+        return repository.getSuperCategoryInfo(isPossessed)
     }
 
-    fun getDistinctCategoriesForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<String>> {
-        return repository.getDistinctCategoriesForSuperCategory(superCategory, isPossessed)
+    fun getCategoryInfoForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<CategoryInfo>> {
+        return repository.getCategoryInfoForSuperCategory(superCategory, isPossessed)
     }
 
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>> {
