@@ -30,8 +30,8 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return collectionDao.search(query)
     }
 
-    fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, categorie: String?): LiveData<List<CollectionItem>> {
-        return collectionDao.advancedSearch(titre, editeur, annee, mois, categorie)
+    fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, superCategorie: String?, categorie: String?, description: String?): LiveData<List<CollectionItem>> {
+        return collectionDao.advancedSearch(titre, editeur, annee, mois, superCategorie, categorie, description)
     }
 
     suspend fun insert(item: CollectionItem) {

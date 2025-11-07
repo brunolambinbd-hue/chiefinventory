@@ -10,7 +10,9 @@ data class SearchCriteria(
     val editeur: String? = null,
     val annee: Int? = null,
     val mois: Int? = null,
-    val categorie: String? = null
+    val superCategorie: String? = null,
+    val categorie: String? = null,
+    val description: String? = null
 )
 
 class SearchViewModel(private val repository: CollectionRepository) : ViewModel() {
@@ -25,7 +27,9 @@ class SearchViewModel(private val repository: CollectionRepository) : ViewModel(
             editeur = criteria.editeur?.let { "%$it%" },
             annee = criteria.annee,
             mois = criteria.mois,
-            categorie = criteria.categorie?.let { "%$it%" }
+            superCategorie = criteria.superCategorie,
+            categorie = criteria.categorie?.let { "%$it%" },
+            description = criteria.description?.let { "%$it%" }
         )
     }
 }

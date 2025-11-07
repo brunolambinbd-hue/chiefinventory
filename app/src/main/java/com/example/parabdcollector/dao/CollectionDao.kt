@@ -36,9 +36,11 @@ interface CollectionDao {
             (:editeur IS NULL OR editeur LIKE :editeur) AND
             (:annee IS NULL OR annee = :annee) AND
             (:mois IS NULL OR mois = :mois) AND
-            (:categorie IS NULL OR categorie LIKE :categorie)
+            (:superCategorie IS NULL OR superCategorie = :superCategorie) AND
+            (:categorie IS NULL OR categorie LIKE :categorie) AND
+            (:description IS NULL OR notes LIKE :description)
         """)
-    fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, categorie: String?): LiveData<List<CollectionItem>>
+    fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, superCategorie: String?, categorie: String?, description: String?): LiveData<List<CollectionItem>>
 
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

@@ -30,15 +30,16 @@
     <string name="item_universe_hint">Univers / Série</string>
     <string name="item_editor_hint">Editeur</string>
     <string name="item_year_hint">Année</string>
+    <string name="item_month_hint">Mois</string>
     <string name="item_category_hint">Catégorie</string>
-    <string name="item_super_category_label">Super-Catégorie:</string>
+    <string name="item_super_category_hint">Super-Catégorie</string>
     <string name="item_material_hint">Matériau</string>
     <string name="item_run_hint">Tirage</string>
     <string name="item_dimensions_hint">Dimensions</string>
     <string name="item_purchase_price_hint">Prix d\'achat</string>
     <string name="item_estimated_value_hint">Valeur estimée</string>
     <string name="item_purchase_location_hint">Lieu d\'achat</string>
-    <string name="item_notes_hint">Notes</string>
+    <string name="item_notes_hint">Description</string>
     <string name="item_location_hint">Localisation</string>
 
     <!-- Textes pour l'écran de recherche -->

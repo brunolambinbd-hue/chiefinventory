@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
+import com.example.parabdcollector.utils.CategoryMapper
 
 class SearchActivity : AppCompatActivity() {
 
@@ -35,6 +37,7 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.title = "Rechercher un objet"
 
         setupRecyclerView()
+        setupCategorySpinners()
 
         binding.btnSearch.setOnClickListener { performSearch() }
 
@@ -46,6 +49,24 @@ class SearchActivity : AppCompatActivity() {
                 binding.advancedSearchContainer.isGone = true
                 binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
             }
+        }
+    }
+
+    private fun setupCategorySpinners() {
+        val superCategories = CategoryMapper.getSuperCategories()
+        val superCategoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, superCategories)
+        binding.actvSearchSuperCategory.setAdapter(superCategoryAdapter)
+
+        binding.categorySearchLayout.isEnabled = false
+
+        binding.actvSearchSuperCategory.setOnItemClickListener { parent, _, position, _ ->
+            val selectedSuperCategory = parent.getItemAtPosition(position) as String
+            val categories = CategoryMapper.getCategoriesFor(selectedSuperCategory)
+            val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
+            binding.actvSearchCategory.setAdapter(categoryAdapter)
+
+            binding.categorySearchLayout.isEnabled = true
+            binding.actvSearchCategory.text = null
         }
     }
 
@@ -66,7 +87,9 @@ class SearchActivity : AppCompatActivity() {
                 editeur = binding.etSearchEditeur.text.toString().takeIf { it.isNotBlank() },
                 annee = binding.etSearchAnnee.text.toString().toIntOrNull(),
                 mois = binding.etSearchMois.text.toString().toIntOrNull(),
-                categorie = binding.etSearchCategorie.text.toString().takeIf { it.isNotBlank() }
+                superCategorie = binding.actvSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
+                categorie = binding.actvSearchCategory.text.toString().takeIf { it.isNotBlank() },
+                description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() }
             )
 
             viewModel.advancedSearch(criteria).observe(this) { results ->

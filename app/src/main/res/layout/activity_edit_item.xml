@@ -98,7 +98,7 @@
                 android:id="@+id/etMois"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Mois"
+                android:hint="@string/item_month_hint"
                 android:inputType="number"
                 tools:ignore="Autofill" />
 
@@ -112,7 +112,7 @@
                     android:id="@+id/actv_super_category"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Super-Catégorie"
+                    android:hint="@string/item_super_category_hint"
                     android:inputType="none"/>
 
             </com.google.android.material.textfield.TextInputLayout>
