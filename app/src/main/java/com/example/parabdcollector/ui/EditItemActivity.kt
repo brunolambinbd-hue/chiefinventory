@@ -136,6 +136,7 @@ class EditItemActivity : AppCompatActivity() {
         binding.etUniverse.setText(item.univers)
         binding.etEditeur.setText(item.editeur)
         binding.etAnnee.setText(item.annee?.toString())
+        binding.etMois.setText(item.mois?.toString())
         
         binding.actvSuperCategory.setText(item.superCategorie, false)
         if (!item.superCategorie.isNullOrBlank()) {
@@ -187,6 +188,7 @@ class EditItemActivity : AppCompatActivity() {
             univers = binding.etUniverse.text.toString().takeIf { it.isNotBlank() },
             editeur = binding.etEditeur.text.toString().takeIf { it.isNotBlank() },
             annee = binding.etAnnee.text.toString().toIntOrNull(),
+            mois = binding.etMois.text.toString().toIntOrNull(),
             categorie = category,
             superCategorie = superCategory,
             materiau = binding.etMateriau.text.toString().takeIf { it.isNotBlank() },

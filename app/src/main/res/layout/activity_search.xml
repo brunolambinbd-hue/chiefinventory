@@ -60,14 +60,6 @@
                     tools:ignore="Autofill" />
 
                 <EditText
-                    android:id="@+id/et_search_univers"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/item_universe_hint"
-                    android:inputType="textCapWords"
-                    tools:ignore="Autofill" />
-
-                <EditText
                     android:id="@+id/et_search_editeur"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -80,6 +72,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/item_year_hint"
+                    android:inputType="number"
+                    tools:ignore="Autofill" />
+
+                <EditText
+                    android:id="@+id/et_search_mois"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Mois"
                     android:inputType="number"
                     tools:ignore="Autofill" />
 

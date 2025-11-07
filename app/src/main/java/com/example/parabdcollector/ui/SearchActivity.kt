@@ -63,9 +63,9 @@ class SearchActivity : AppCompatActivity() {
         } else {
             val criteria = SearchCriteria(
                 titre = binding.etSearchTitre.text.toString().takeIf { it.isNotBlank() },
-                univers = binding.etSearchUnivers.text.toString().takeIf { it.isNotBlank() },
                 editeur = binding.etSearchEditeur.text.toString().takeIf { it.isNotBlank() },
                 annee = binding.etSearchAnnee.text.toString().toIntOrNull(),
+                mois = binding.etSearchMois.text.toString().toIntOrNull(),
                 categorie = binding.etSearchCategorie.text.toString().takeIf { it.isNotBlank() }
             )
 

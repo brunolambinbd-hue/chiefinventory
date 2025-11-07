@@ -7,9 +7,9 @@ import com.example.parabdcollector.repo.CollectionRepository
 
 data class SearchCriteria(
     val titre: String? = null,
-    val univers: String? = null,
     val editeur: String? = null,
     val annee: Int? = null,
+    val mois: Int? = null,
     val categorie: String? = null
 )
 
@@ -21,11 +21,11 @@ class SearchViewModel(private val repository: CollectionRepository) : ViewModel(
 
     fun advancedSearch(criteria: SearchCriteria): LiveData<List<CollectionItem>> {
         return repository.advancedSearch(
-            titre = criteria.titre?.let { "%${it}%" },
-            univers = criteria.univers?.let { "%${it}%" },
-            editeur = criteria.editeur?.let { "%${it}%" },
+            titre = criteria.titre?.let { "%$it%" },
+            editeur = criteria.editeur?.let { "%$it%" },
             annee = criteria.annee,
-            categorie = criteria.categorie?.let { "%${it}%" }
+            mois = criteria.mois,
+            categorie = criteria.categorie?.let { "%$it%" }
         )
     }
 }

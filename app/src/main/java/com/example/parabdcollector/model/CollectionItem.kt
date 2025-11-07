@@ -12,6 +12,7 @@ data class CollectionItem(
     val univers: String?,
     val editeur: String?,
     val annee: Int?,
+    val mois: Int?,
     val categorie: String?,
     val superCategorie: String?,
     val materiau: String?,

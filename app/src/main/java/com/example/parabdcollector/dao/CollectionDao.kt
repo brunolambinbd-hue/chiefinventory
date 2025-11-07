@@ -33,12 +33,12 @@ interface CollectionDao {
     @Query("""
         SELECT * FROM collection_items WHERE 
             (:titre IS NULL OR titre LIKE :titre) AND
-            (:univers IS NULL OR univers LIKE :univers) AND
             (:editeur IS NULL OR editeur LIKE :editeur) AND
             (:annee IS NULL OR annee = :annee) AND
+            (:mois IS NULL OR mois = :mois) AND
             (:categorie IS NULL OR categorie LIKE :categorie)
         """)
-    fun advancedSearch(titre: String?, univers: String?, editeur: String?, annee: Int?, categorie: String?): LiveData<List<CollectionItem>>
+    fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, categorie: String?): LiveData<List<CollectionItem>>
 
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

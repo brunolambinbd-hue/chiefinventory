@@ -30,6 +30,7 @@ class ImportViewModel(application: Application, private val repository: Collecti
                     val existingItem = repository.findByRemoteId(remoteId)
 
                     val annee = tokens.getOrNull(1)?.toIntOrNull()
+                    val mois = tokens.getOrNull(2)?.toIntOrNull()
                     val superCategorie = tokens.getOrNull(4)
                     val titre = tokens.getOrNull(5)
                     val editeur = tokens.getOrNull(6)
@@ -46,6 +47,7 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         univers = null,
                         editeur = editeur,
                         annee = annee,
+                        mois = mois,
                         categorie = categorie,
                         superCategorie = superCategorie,
                         materiau = null,
