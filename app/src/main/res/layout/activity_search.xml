@@ -68,7 +68,7 @@
                     tools:ignore="Autofill" />
 
                 <EditText
-                    android:id="@+id/et_search_editeur"
+                    android:id="@+id/et_search_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/item_editor_hint"
@@ -76,7 +76,7 @@
                     tools:ignore="Autofill" />
 
                 <EditText
-                    android:id="@+id/et_search_annee"
+                    android:id="@+id/et_search_year"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/item_year_hint"
@@ -84,7 +84,7 @@
                     tools:ignore="Autofill" />
 
                 <EditText
-                    android:id="@+id/et_search_mois"
+                    android:id="@+id/et_searched_month"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/item_month_hint"
@@ -98,7 +98,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                     <AutoCompleteTextView
-                        android:id="@+id/actv_search_super_category"
+                        android:id="@+id/et_search_super_category"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/item_super_category_hint"
@@ -114,7 +114,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
                     <AutoCompleteTextView
-                        android:id="@+id/actv_search_category"
+                        android:id="@+id/et_search_category"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/item_category_hint"

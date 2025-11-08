@@ -53,9 +53,10 @@
                 android:id="@+id/etImageUri"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:hint="Image URI (hidden)"
                 android:inputType="textUri"
                 android:visibility="gone"
-                tools:ignore="Autofill" />
+                tools:ignore="Autofill,HardcodedText" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switch_possessed"
@@ -87,7 +88,7 @@
                 android:hint="@string/item_editor_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etEditeur"
+                    android:id="@+id/etEditor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textCapWords" />
@@ -96,20 +97,20 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginBottom="8dp"
-                android:baselineAligned="false">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
                     android:hint="@string/item_year_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etAnnee"
+                        android:id="@+id/etYear"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number" />
@@ -123,7 +124,7 @@
                     android:hint="@string/item_month_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etMois"
+                        android:id="@+id/etMonth"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number" />
@@ -139,9 +140,10 @@
                 android:hint="@string/item_super_category_hint">
 
                 <AutoCompleteTextView
-                    android:id="@+id/actv_super_category"
+                    android:id="@+id/etSuper_category"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:hint="@string/item_super_category_hint"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -154,9 +156,10 @@
                 android:hint="@string/item_category_hint">
 
                 <AutoCompleteTextView
-                    android:id="@+id/actv_category"
+                    android:id="@+id/etCategory"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:hint="@string/item_category_hint"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -168,7 +171,7 @@
                 android:hint="@string/item_material_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etMateriau"
+                    android:id="@+id/etMaterial"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textCapSentences" />
@@ -210,7 +213,7 @@
                 android:hint="@string/item_purchase_price_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etPrixAchat"
+                    android:id="@+id/etPurchasePrice"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal" />
@@ -224,7 +227,7 @@
                 android:hint="@string/item_estimated_value_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etValeurEstimee"
+                    android:id="@+id/etEstimatedValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal" />
@@ -238,7 +241,7 @@
                 android:hint="@string/item_purchase_location_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etLieuAchat"
+                    android:id="@+id/etPurchaseLocation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textCapWords" />

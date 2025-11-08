@@ -87,12 +87,13 @@ class EditItemActivity : AppCompatActivity() {
                 val intent = Intent(this, FullScreenImageActivity::class.java).apply {
                     putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, imageUri)
                     putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditeur.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etAnnee.text.toString().toIntOrNull() ?: 0)
-                    putExtra(FullScreenImageActivity.EXTRA_MONTH, binding.etMois.text.toString().toIntOrNull() ?: 0)
-                    putExtra(FullScreenImageActivity.EXTRA_SUPER_CATEGORY, binding.actvSuperCategory.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.actvCategory.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMateriau.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditor.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etYear.text.toString().toIntOrNull() ?: 0)
+                    putExtra(FullScreenImageActivity.EXTRA_MONTH, binding.etMonth.text.toString().toIntOrNull() ?: 0)
+                    putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etYear.text.toString().toIntOrNull() ?: 0)
+                    putExtra(FullScreenImageActivity.EXTRA_SUPER_CATEGORY, binding.etSuperCategory.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.etCategory.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMaterial.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etTirage.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, binding.etDimensions.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etNotes.text.toString()) // On ajoute la description
@@ -106,21 +107,21 @@ class EditItemActivity : AppCompatActivity() {
         // Remplir le spinner des super-catégories
         val superCategories = CategoryMapper.getSuperCategories()
         val superCategoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, superCategories)
-        binding.actvSuperCategory.setAdapter(superCategoryAdapter)
+        binding.etSuperCategory.setAdapter(superCategoryAdapter)
 
         // Le spinner des catégories est désactivé au début
         binding.categoryLayout.isEnabled = false
 
         // Écouteur pour le spinner des super-catégories
-        binding.actvSuperCategory.setOnItemClickListener { parent, _, position, _ ->
+        binding.etSuperCategory.setOnItemClickListener { parent, _, position, _ ->
             val selectedSuperCategory = parent.getItemAtPosition(position) as String
             val categories = CategoryMapper.getCategoriesFor(selectedSuperCategory)
             val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
-            binding.actvCategory.setAdapter(categoryAdapter)
+            binding.etCategory.setAdapter(categoryAdapter)
 
             // Activer le deuxième spinner et vider son contenu
             binding.categoryLayout.isEnabled = true
-            binding.actvCategory.text = null
+            binding.etCategory.text = null
         }
     }
 
@@ -135,25 +136,25 @@ class EditItemActivity : AppCompatActivity() {
     private fun populateUi(item: CollectionItem) {
         binding.etTitle.setText(item.titre)
         binding.switchPossessed.isChecked = item.isPossessed
-        binding.etEditeur.setText(item.editeur)
-        binding.etAnnee.setText(item.annee?.toString())
-        binding.etMois.setText(item.mois?.toString())
+        binding.etEditor.setText(item.editeur)
+        binding.etYear.setText(item.annee?.toString())
+        binding.etMonth.setText(item.mois?.toString())
         
-        binding.actvSuperCategory.setText(item.superCategorie, false)
+        binding.etSuperCategory.setText(item.superCategorie, false)
         if (!item.superCategorie.isNullOrBlank()) {
             val categories = CategoryMapper.getCategoriesFor(item.superCategorie)
             val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
-            binding.actvCategory.setAdapter(categoryAdapter)
+            binding.etCategory.setAdapter(categoryAdapter)
             binding.categoryLayout.isEnabled = true
         }
-        binding.actvCategory.setText(item.categorie, false)
+        binding.etCategory.setText(item.categorie, false)
 
-        binding.etMateriau.setText(item.materiau)
+        binding.etMaterial.setText(item.materiau)
         binding.etTirage.setText(item.tirage)
         binding.etDimensions.setText(item.dimensions)
-        binding.etPrixAchat.setText(item.prixAchat?.toString())
-        binding.etValeurEstimee.setText(item.valeurEstimee?.toString())
-        binding.etLieuAchat.setText(item.lieuAchat)
+        binding.etPurchasePrice.setText(item.prixAchat?.toString())
+        binding.etEstimatedValue.setText(item.valeurEstimee?.toString())
+        binding.etPurchaseLocation.setText(item.lieuAchat)
         binding.etNotes.setText(item.notes)
         binding.etImageUri.setText(item.imageUri)
         binding.etLocalisation.setText(item.localisation)
@@ -178,25 +179,25 @@ class EditItemActivity : AppCompatActivity() {
             return
         }
 
-        val superCategory = binding.actvSuperCategory.text.toString().takeIf { it.isNotBlank() }
-        val category = binding.actvCategory.text.toString().takeIf { it.isNotBlank() }
+        val superCategory = binding.etSuperCategory.text.toString().takeIf { it.isNotBlank() }
+        val category = binding.etCategory.text.toString().takeIf { it.isNotBlank() }
 
         val item = CollectionItem(
             remoteId = null, // L'ID distant sera géré par l'import
             id = currentItemId,
             titre = title,
             isPossessed = binding.switchPossessed.isChecked,
-            editeur = binding.etEditeur.text.toString().takeIf { it.isNotBlank() },
-            annee = binding.etAnnee.text.toString().toIntOrNull(),
-            mois = binding.etMois.text.toString().toIntOrNull(),
+            editeur = binding.etEditor.text.toString().takeIf { it.isNotBlank() },
+            annee = binding.etYear.text.toString().toIntOrNull(),
+            mois = binding.etMonth.text.toString().toIntOrNull(),
             categorie = category,
             superCategorie = superCategory,
-            materiau = binding.etMateriau.text.toString().takeIf { it.isNotBlank() },
+            materiau = binding.etMaterial.text.toString().takeIf { it.isNotBlank() },
             tirage = binding.etTirage.text.toString().takeIf { it.isNotBlank() },
             dimensions = binding.etDimensions.text.toString().takeIf { it.isNotBlank() },
-            prixAchat = binding.etPrixAchat.text.toString().toDoubleOrNull(),
-            valeurEstimee = binding.etValeurEstimee.text.toString().toDoubleOrNull(),
-            lieuAchat = binding.etLieuAchat.text.toString().takeIf { it.isNotBlank() },
+            prixAchat = binding.etPurchasePrice.text.toString().toDoubleOrNull(),
+            valeurEstimee = binding.etEstimatedValue.text.toString().toDoubleOrNull(),
+            lieuAchat = binding.etPurchaseLocation.text.toString().takeIf { it.isNotBlank() },
             notes = binding.etNotes.text.toString().takeIf { it.isNotBlank() },
             imageUri = binding.etImageUri.text.toString().takeIf { it.isNotBlank() },
             localisation = binding.etLocalisation.text.toString().takeIf { it.isNotBlank() }

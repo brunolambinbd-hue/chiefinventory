@@ -1,3 +1,5 @@
+@file:Suppress("UnusedImport", "UnusedImport", "UnusedImport")
+
 package com.example.parabdcollector.ui
 
 import android.content.Context
@@ -35,7 +37,7 @@ class SearchActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Rechercher un objet"
+        supportActionBar?.title = getString(R.string.menu_search_title)
 
         setupRecyclerView()
         setupCategorySpinners()
@@ -58,18 +60,18 @@ class SearchActivity : AppCompatActivity() {
     private fun setupCategorySpinners() {
         val superCategories = CategoryMapper.getSuperCategories()
         val superCategoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, superCategories)
-        binding.actvSearchSuperCategory.setAdapter(superCategoryAdapter)
+        binding.etSearchSuperCategory.setAdapter(superCategoryAdapter)
 
         binding.categorySearchLayout.isEnabled = false
 
-        binding.actvSearchSuperCategory.setOnItemClickListener { parent, _, position, _ ->
+        binding.etSearchSuperCategory.setOnItemClickListener { parent, _, position, _ ->
             val selectedSuperCategory = parent.getItemAtPosition(position) as String
             val categories = CategoryMapper.getCategoriesFor(selectedSuperCategory)
             val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
-            binding.actvSearchCategory.setAdapter(categoryAdapter)
+            binding.etSearchCategory.setAdapter(categoryAdapter)
 
             binding.categorySearchLayout.isEnabled = true
-            binding.actvSearchCategory.text = null
+            binding.etSearchCategory.text = null
         }
     }
 
@@ -87,11 +89,11 @@ class SearchActivity : AppCompatActivity() {
         } else {
             val criteria = SearchCriteria(
                 titre = binding.etSearchTitre.text.toString().takeIf { it.isNotBlank() },
-                editeur = binding.etSearchEditeur.text.toString().takeIf { it.isNotBlank() },
-                annee = binding.etSearchAnnee.text.toString().toIntOrNull(),
-                mois = binding.etSearchMois.text.toString().toIntOrNull(),
-                superCategorie = binding.actvSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
-                categorie = binding.actvSearchCategory.text.toString().takeIf { it.isNotBlank() },
+                editeur = binding.etSearchEditor.text.toString().takeIf { it.isNotBlank() },
+                annee = binding.etSearchYear.text.toString().toIntOrNull(),
+                mois = binding.etSearchedMonth.text.toString().toIntOrNull(),
+                superCategorie = binding.etSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
+                categorie = binding.etSearchCategory.text.toString().takeIf { it.isNotBlank() },
                 description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() }
             )
 
