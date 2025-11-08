@@ -46,6 +46,8 @@ class SearchActivity : AppCompatActivity() {
             if (binding.advancedSearchContainer.isGone) {
                 binding.advancedSearchContainer.isVisible = true
                 binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_hide)
+                // On vide la recherche simple quand on ouvre la recherche avancée.
+                binding.etSearchSimple.setText("")
             } else {
                 binding.advancedSearchContainer.isGone = true
                 binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
@@ -75,11 +77,6 @@ class SearchActivity : AppCompatActivity() {
         // On cache le clavier
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
-
-        // Si la recherche avancée est visible, on efface la recherche simple pour éviter les conflits.
-        if (binding.advancedSearchContainer.isVisible) {
-            binding.etSearchSimple.setText("")
-        }
 
         val simpleQuery = binding.etSearchSimple.text.toString()
 

@@ -68,14 +68,14 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_title_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:autofillHints="name"
-                    android:hint="@string/item_title_hint"
                     android:inputType="textCapWords" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -83,13 +83,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_editor_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEditeur"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_editor_hint"
                     android:inputType="textCapWords" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -97,20 +97,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:baselineAligned="false">
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp">
+                    android:layout_marginEnd="8dp"
+                    android:hint="@string/item_year_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etAnnee"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/item_year_hint"
                         android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -118,13 +119,13 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:hint="@string/item_month_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etMois"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/item_month_hint"
                         android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
@@ -134,13 +135,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_super_category_hint">
 
                 <AutoCompleteTextView
                     android:id="@+id/actv_super_category"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_super_category_hint"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -149,13 +150,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_category_hint">
 
                 <AutoCompleteTextView
                     android:id="@+id/actv_category"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_category_hint"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -163,13 +164,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_material_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etMateriau"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_material_hint"
                     android:inputType="textCapSentences" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -177,13 +178,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_run_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etTirage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_run_hint"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -191,13 +192,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_dimensions_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDimensions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_dimensions_hint"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -205,13 +206,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_purchase_price_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPrixAchat"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_purchase_price_hint"
                     android:inputType="numberDecimal" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -219,13 +220,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_estimated_value_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etValeurEstimee"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_estimated_value_hint"
                     android:inputType="numberDecimal" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -233,13 +234,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_purchase_location_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etLieuAchat"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_purchase_location_hint"
                     android:inputType="textCapWords" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -247,26 +248,26 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="8dp"
+                android:hint="@string/item_notes_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etNotes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_notes_hint"
                     android:inputType="textMultiLine|textCapSentences" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:hint="@string/item_location_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etLocalisation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/item_location_hint"
                     android:inputType="textCapWords" />
             </com.google.android.material.textfield.TextInputLayout>
 
