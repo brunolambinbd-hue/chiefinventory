@@ -87,7 +87,6 @@ class EditItemActivity : AppCompatActivity() {
                 val intent = Intent(this, FullScreenImageActivity::class.java).apply {
                     putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, imageUri)
                     putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_UNIVERSE, binding.etUniverse.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditeur.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etAnnee.text.toString().toIntOrNull() ?: 0)
                     putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.actvCategory.text.toString())
@@ -133,7 +132,6 @@ class EditItemActivity : AppCompatActivity() {
     private fun populateUi(item: CollectionItem) {
         binding.etTitle.setText(item.titre)
         binding.switchPossessed.isChecked = item.isPossessed
-        binding.etUniverse.setText(item.univers)
         binding.etEditeur.setText(item.editeur)
         binding.etAnnee.setText(item.annee?.toString())
         binding.etMois.setText(item.mois?.toString())
@@ -185,7 +183,6 @@ class EditItemActivity : AppCompatActivity() {
             id = currentItemId,
             titre = title,
             isPossessed = binding.switchPossessed.isChecked,
-            univers = binding.etUniverse.text.toString().takeIf { it.isNotBlank() },
             editeur = binding.etEditeur.text.toString().takeIf { it.isNotBlank() },
             annee = binding.etAnnee.text.toString().toIntOrNull(),
             mois = binding.etMois.text.toString().toIntOrNull(),

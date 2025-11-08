@@ -63,14 +63,6 @@
                 android:text="@string/item_possessed_switch" />
 
             <EditText
-                android:id="@+id/etUniverse"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/item_universe_hint"
-                android:inputType="textCapWords"
-                tools:ignore="Autofill" />
-
-            <EditText
                 android:id="@+id/etImageUri"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

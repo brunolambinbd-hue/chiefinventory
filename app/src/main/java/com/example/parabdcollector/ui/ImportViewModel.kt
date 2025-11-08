@@ -44,7 +44,6 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         id = existingItem?.id ?: 0,
                         remoteId = remoteId,
                         titre = titre ?: "",
-                        univers = null,
                         editeur = editeur,
                         annee = annee,
                         mois = mois,

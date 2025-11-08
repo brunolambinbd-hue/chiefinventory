@@ -9,7 +9,6 @@ data class CollectionItem(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val remoteId: Int? = null,
     val titre: String,
-    val univers: String?,
     val editeur: String?,
     val annee: Int?,
     val mois: Int?,

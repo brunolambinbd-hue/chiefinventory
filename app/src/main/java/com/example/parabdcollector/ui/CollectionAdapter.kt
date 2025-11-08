@@ -46,9 +46,6 @@ class CollectionAdapter(private val onItemClicked: (CollectionItem) -> Unit) : L
                 b.itemImage.setImageResource(R.mipmap.ic_launcher)
             }
 
-            b.itemUniverse.text = item.univers?.let { "Univers: $it" } ?: ""
-            b.itemUniverse.visibility = if (item.univers.isNullOrBlank()) View.GONE else View.VISIBLE
-
             b.itemEditeur.text = item.editeur?.let { "Editeur: $it" } ?: ""
             b.itemEditeur.visibility = if (item.editeur.isNullOrBlank()) View.GONE else View.VISIBLE
 
