@@ -28,7 +28,7 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE remoteId = :remoteId")
     fun findByRemoteId(remoteId: Int): CollectionItem?
 
-    @Query("SELECT * FROM collection_items WHERE titre LIKE :query OR editeur LIKE :query OR CAST(annee AS TEXT) LIKE :query OR categorie LIKE :query OR materiau LIKE :query OR tirage LIKE :query OR dimensions LIKE :query")
+    @Query("SELECT * FROM collection_items WHERE titre LIKE :query OR editeur LIKE :query OR CAST(annee AS TEXT) LIKE :query OR categorie LIKE :query OR materiau LIKE :query OR tirage LIKE :query OR dimensions LIKE :query ORDER BY annee DESC, mois DESC")
     fun search(query: String): LiveData<List<CollectionItem>>
 
     @Query("""
@@ -40,6 +40,7 @@ interface CollectionDao {
             (:superCategorie IS NULL OR superCategorie = :superCategorie) AND
             (:categorie IS NULL OR categorie LIKE :categorie) AND
             (:description IS NULL OR notes LIKE :description)
+        ORDER BY annee DESC, mois DESC
         """)
     fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, superCategorie: String?, categorie: String?, description: String?): LiveData<List<CollectionItem>>
 

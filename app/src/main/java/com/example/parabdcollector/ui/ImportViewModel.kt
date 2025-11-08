@@ -6,7 +6,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
-import com.example.parabdcollector.utils.CategoryMapper
 import com.example.parabdcollector.utils.DescriptionParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,11 +30,11 @@ class ImportViewModel(application: Application, private val repository: Collecti
 
                     val annee = tokens.getOrNull(1)?.toIntOrNull()
                     val mois = tokens.getOrNull(2)?.toIntOrNull()
-                    val categorie = tokens.getOrNull(3)
-                    val titre = tokens.getOrNull(4)
-                    val editeur = tokens.getOrNull(5)
-                    val description = tokens.getOrNull(6)
-                    val superCategorie = tokens.getOrNull(10)
+                    val categorie = tokens.getOrNull(3)?.trim()
+                    val titre = tokens.getOrNull(4)?.trim()
+                    val editeur = tokens.getOrNull(5)?.trim()
+                    val description = tokens.getOrNull(6)?.trim() ?: ""
+                    val superCategorie = tokens.getOrNull(10)?.trim()
 
                     val parsedInfo = DescriptionParser.parse(titre, description)
                     val imageUrl = buildImageUrl(remoteId)
@@ -73,8 +72,6 @@ class ImportViewModel(application: Application, private val repository: Collecti
 
     private fun buildImageUrl(remoteId: Int): String {
         val folder = (remoteId / 100) * 100
-        // On suppose un préfixe "frank" et un suffixe "-1.jpg" basé sur l'exemple.
-        // A ADAPTER SI LE PREFIXE CHANGE
         val prefix = "frank"
         return "$baseImageUrl$folder/$prefix$remoteId-1.jpg"
     }

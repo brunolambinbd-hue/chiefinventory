@@ -89,10 +89,13 @@ class EditItemActivity : AppCompatActivity() {
                     putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditeur.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etAnnee.text.toString().toIntOrNull() ?: 0)
+                    putExtra(FullScreenImageActivity.EXTRA_MONTH, binding.etMois.text.toString().toIntOrNull() ?: 0)
+                    putExtra(FullScreenImageActivity.EXTRA_SUPER_CATEGORY, binding.actvSuperCategory.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.actvCategory.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMateriau.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etTirage.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, binding.etDimensions.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etNotes.text.toString()) // On ajoute la description
                 }
                 startActivity(intent)
             }

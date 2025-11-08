@@ -46,21 +46,8 @@
                 android:id="@+id/btn_take_picture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="@string/take_picture_button" />
-
-            <EditText
-                android:id="@+id/etTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="name"
-                android:hint="@string/item_title_hint"
-                android:inputType="textCapWords" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switch_possessed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/item_possessed_switch" />
 
             <EditText
                 android:id="@+id/etImageUri"
@@ -70,124 +57,218 @@
                 android:visibility="gone"
                 tools:ignore="Autofill" />
 
-            <EditText
-                android:id="@+id/etEditeur"
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_possessed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_editor_hint"
-                android:inputType="textCapWords"
-                tools:ignore="Autofill" />
+                android:layout_marginBottom="8dp"
+                android:text="@string/item_possessed_switch" />
 
-            <EditText
-                android:id="@+id/etAnnee"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_year_hint"
-                android:inputType="number"
-                tools:ignore="Autofill" />
+                android:layout_marginBottom="8dp">
 
-            <EditText
-                android:id="@+id/etMois"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="name"
+                    android:hint="@string/item_title_hint"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_month_hint"
-                android:inputType="number"
-                tools:ignore="Autofill" />
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEditeur"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_editor_hint"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etAnnee"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/item_year_hint"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etMois"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/item_month_hint"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/super_category_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                android:layout_marginBottom="8dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/actv_super_category"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/item_super_category_hint"
-                    android:inputType="none"/>
-
+                    android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/category_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                android:layout_marginBottom="8dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/actv_category"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/item_category_hint"
-                    android:inputType="none"/>
-
+                    android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/etMateriau"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_material_hint"
-                android:inputType="textCapSentences"
-                tools:ignore="Autofill" />
+                android:layout_marginBottom="8dp">
 
-            <EditText
-                android:id="@+id/etTirage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/item_run_hint"
-                android:inputType="text"
-                tools:ignore="Autofill" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMateriau"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_material_hint"
+                    android:inputType="textCapSentences" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/etDimensions"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_dimensions_hint"
-                android:inputType="text"
-                tools:ignore="Autofill" />
+                android:layout_marginBottom="8dp">
 
-            <EditText
-                android:id="@+id/etPrixAchat"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/item_purchase_price_hint"
-                android:inputType="numberDecimal"
-                tools:ignore="Autofill" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etTirage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_run_hint"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/etValeurEstimee"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_estimated_value_hint"
-                android:inputType="numberDecimal"
-                tools:ignore="Autofill" />
+                android:layout_marginBottom="8dp">
 
-            <EditText
-                android:id="@+id/etLieuAchat"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/item_purchase_location_hint"
-                android:inputType="textCapWords"
-                tools:ignore="Autofill" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDimensions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_dimensions_hint"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/etNotes"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_notes_hint"
-                android:inputType="textMultiLine|textCapSentences"
-                tools:ignore="Autofill" />
+                android:layout_marginBottom="8dp">
 
-            <EditText
-                android:id="@+id/etLocalisation"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPrixAchat"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_purchase_price_hint"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/item_location_hint"
-                android:inputType="textCapWords"
-                tools:ignore="Autofill" />
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etValeurEstimee"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_estimated_value_hint"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etLieuAchat"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_purchase_location_hint"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_notes_hint"
+                    android:inputType="textMultiLine|textCapSentences" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etLocalisation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_location_hint"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
     </ScrollView>

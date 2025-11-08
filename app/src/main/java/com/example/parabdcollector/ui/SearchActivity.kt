@@ -76,6 +76,11 @@ class SearchActivity : AppCompatActivity() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 
+        // Si la recherche avancée est visible, on efface la recherche simple pour éviter les conflits.
+        if (binding.advancedSearchContainer.isVisible) {
+            binding.etSearchSimple.setText("")
+        }
+
         val simpleQuery = binding.etSearchSimple.text.toString()
 
         if (simpleQuery.isNotBlank()) {
@@ -96,6 +101,12 @@ class SearchActivity : AppCompatActivity() {
             viewModel.advancedSearch(criteria).observe(this) { results ->
                 adapter.submitList(results)
             }
+        }
+
+        // On referme la recherche avancée pour donner de la place aux résultats.
+        if (binding.advancedSearchContainer.isVisible) {
+            binding.advancedSearchContainer.isGone = true
+            binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
         }
     }
 
