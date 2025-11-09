@@ -1,15 +1,14 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name" translatable="false">ParaBDCollector</string>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <string name="open">Ouvrir</string>
     <string name="close">Fermer</string>
 
     <!-- Strings pour le compteur -->
     <string name="initial_counter_value">0</string>
-    <string name="counter_separator"> / </string>
 
     <!-- Titres formatables pour les pages -->
-    <string name="possessed_items_title" tools:ignore="UnusedResources">Mes Produits (%1$d)</string>
-    <string name="sought_items_title" tools:ignore="UnusedResources">Mes Recherches (%1$d)</string>
+    <string name="possessed_items_title">Mes Produits (%1$d)</string>
+    <string name="sought_items_title">Mes Recherches (%1$d)</string>
     <string name="category_item_format">%1$s (%2$d)</string>
 
     <!-- Strings pour le tableau de bord -->
@@ -30,7 +29,7 @@
     <string name="save_button">Enregistrer</string>
     <string name="item_title_hint">Titre</string>
     <string name="item_possessed_switch">Je possède cet objet</string>
-    <string name="item_universe_hint" tools:ignore="UnusedResources">Univers / Série</string>
+    <string name="item_universe_hint">Univers / Série</string>
     <string name="item_editor_hint">Editeur</string>
     <string name="item_year_hint">Année</string>
     <string name="item_month_hint">Mois</string>
@@ -47,7 +46,7 @@
 
     <!-- Textes pour l'écran de recherche -->
     <string name="search_button">Rechercher</string>
-    <string name="search_hint" tools:ignore="UnusedResources">Entrez un titre, un univers…</string>
+    <string name="search_hint">Entrez un titre, un univers…</string>
     <string name="simple_search_hint">Recherche rapide…</string>
     <string name="advanced_search_show">Recherche avancée</string>
     <string name="advanced_search_hide">Masquer la recherche avancée</string>

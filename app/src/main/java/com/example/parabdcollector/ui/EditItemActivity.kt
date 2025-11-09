@@ -40,7 +40,7 @@ class EditItemActivity : AppCompatActivity() {
                     binding.imagePreview.load(permanentUri)
                     binding.etImageUri.setText(permanentUri.toString())
                 } else {
-                    Toast.makeText(this, "Erreur lors de la sauvegarde de l\'image", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.toast_error_saving_image, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -53,7 +53,7 @@ class EditItemActivity : AppCompatActivity() {
                 takeImageLauncher.launch(it)
             }
         } else {
-            Toast.makeText(this, "Permission de la caméra refusée", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.toast_camera_permission_denied, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -74,7 +74,7 @@ class EditItemActivity : AppCompatActivity() {
                 item?.let { populateUi(it) }
             }
         } else {
-            supportActionBar?.title = "Nouvel Objet"
+            supportActionBar?.title = getString(R.string.edit_item_title_new)
             binding.switchPossessed.isChecked = true
         }
 
@@ -94,7 +94,7 @@ class EditItemActivity : AppCompatActivity() {
                     putExtra(FullScreenImageActivity.EXTRA_SUPER_CATEGORY, binding.etSuperCategory.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.etCategory.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMaterial.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etTirage.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etPrintRun.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, binding.etDimensions.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etDescription.text.toString()) // On ajoute la description
                 }
@@ -150,14 +150,14 @@ class EditItemActivity : AppCompatActivity() {
         binding.etCategory.setText(item.categorie, false)
 
         binding.etMaterial.setText(item.materiau)
-        binding.etTirage.setText(item.tirage)
+        binding.etPrintRun.setText(item.tirage)
         binding.etDimensions.setText(item.dimensions)
         binding.etPurchasePrice.setText(item.prixAchat?.toString())
         binding.etEstimatedValue.setText(item.valeurEstimee?.toString())
         binding.etPurchaseLocation.setText(item.lieuAchat)
         binding.etDescription.setText(item.description)
         binding.etImageUri.setText(item.imageUri)
-        binding.etLocalisation.setText(item.localisation)
+        binding.etLocation.setText(item.localisation)
 
         item.imageUri?.let {
             if (it.isNotBlank()) {
@@ -169,13 +169,13 @@ class EditItemActivity : AppCompatActivity() {
             }
         }
 
-        supportActionBar?.title = "Édition: ${item.titre}"
+        supportActionBar?.title = getString(R.string.edit_item_title_editing, item.titre)
     }
 
     private fun saveItem() {
         val title = binding.etTitle.text.toString()
         if (title.isBlank()) {
-            Toast.makeText(this, "Le titre est obligatoire", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.toast_title_is_mandatory, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -193,14 +193,14 @@ class EditItemActivity : AppCompatActivity() {
             categorie = category,
             superCategorie = superCategory,
             materiau = binding.etMaterial.text.toString().takeIf { it.isNotBlank() },
-            tirage = binding.etTirage.text.toString().takeIf { it.isNotBlank() },
+            tirage = binding.etPrintRun.text.toString().takeIf { it.isNotBlank() },
             dimensions = binding.etDimensions.text.toString().takeIf { it.isNotBlank() },
             prixAchat = binding.etPurchasePrice.text.toString().toDoubleOrNull(),
             valeurEstimee = binding.etEstimatedValue.text.toString().toDoubleOrNull(),
             lieuAchat = binding.etPurchaseLocation.text.toString().takeIf { it.isNotBlank() },
             description = binding.etDescription.text.toString().takeIf { it.isNotBlank() },
             imageUri = binding.etImageUri.text.toString().takeIf { it.isNotBlank() },
-            localisation = binding.etLocalisation.text.toString().takeIf { it.isNotBlank() }
+            localisation = binding.etLocation.text.toString().takeIf { it.isNotBlank() }
         )
 
         if (currentItemId == 0L) {
