@@ -1,6 +1,5 @@
 package com.example.parabdcollector.ui
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +8,7 @@ import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 import kotlinx.coroutines.launch
 
-class MainViewModel(application: Application, private val repository: CollectionRepository) : ViewModel() {
+class MainViewModel(private val repository: CollectionRepository) : ViewModel() {
 
     val possessedItems: LiveData<List<CollectionItem>> = repository.getAllPossessed()
     val soughtItems: LiveData<List<CollectionItem>> = repository.getAllSought()

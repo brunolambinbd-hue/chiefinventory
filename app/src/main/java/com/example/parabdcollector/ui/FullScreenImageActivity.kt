@@ -25,7 +25,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         // Récupération des données de l'intent
         val imageUriString = intent.getStringExtra(EXTRA_IMAGE_URI)
         val title = intent.getStringExtra(EXTRA_TITLE)
-        val editeur = intent.getStringExtra(EXTRA_EDITOR)
+        val editor = intent.getStringExtra(EXTRA_EDITOR)
         val year = intent.getIntExtra(EXTRA_YEAR, 0)
         val month = intent.getIntExtra(EXTRA_MONTH, 0)
         val superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
@@ -46,8 +46,8 @@ class FullScreenImageActivity : AppCompatActivity() {
         // Affichage des informations textuelles avec libellés
         binding.imageInfoTitle.text = title
         
-        binding.imageInfoManufacturer.text = editeur?.let { getString(R.string.item_editor_hint) + ": " + it } ?: ""
-        binding.imageInfoManufacturer.visibility = if (editeur.isNullOrBlank()) View.GONE else View.VISIBLE
+        binding.imageInfoManufacturer.text = editor?.let { getString(R.string.item_editor_hint) + ": " + it } ?: ""
+        binding.imageInfoManufacturer.visibility = if (editor.isNullOrBlank()) View.GONE else View.VISIBLE
 
         var yearMonthText = ""
         if (year != 0) {

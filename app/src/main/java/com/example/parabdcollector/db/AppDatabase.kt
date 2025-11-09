@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.model.CollectionItem
 
-@Database(entities = [CollectionItem::class], version = 6, exportSchema = false) 
+@Database(entities = [CollectionItem::class], version = 7, exportSchema = false) 
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun collectionDao(): CollectionDao

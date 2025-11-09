@@ -20,7 +20,7 @@ data class CollectionItem(
     val prixAchat: Double?,
     val valeurEstimee: Double?,
     val lieuAchat: String?,
-    val notes: String?,
+    val description: String?,
     val imageUri: String?,
     val localisation: String?,
     val isPossessed: Boolean = true 

@@ -13,7 +13,8 @@ object DescriptionParser {
 
     // Liste des patterns pour les dimensions.
     private val dimensionPatterns = listOf(
-        Pattern.compile("(\\d+\\s*/\\s*\\d+)"), // Cherche "xx/yy" ou "xx / yy"
+        // Pattern amélioré: cherche "xx/yy" ou "xx,x/yy,y", avec virgule ou point comme séparateur.
+        Pattern.compile("(\\d+([.,]\\d+)?\\s*/\\s*\\d+([.,]\\d+)?)"), 
         Pattern.compile("(A\\d+)", Pattern.CASE_INSENSITIVE)      // Cherche "A4", "A5", etc., insensible à la casse.
     )
 
@@ -26,41 +27,20 @@ object DescriptionParser {
         var tirage: String? = null
         var dimensions: String? = null
 
+        val combinedString = listOfNotNull(titre, description).joinToString(separator = " ")
+
         // --- Recherche du TIRAGE ---
-        // Étape 1: Chercher dans le titre.
-        if (titre != null) {
-            val tirageMatcher = tiragePattern.matcher(titre)
-            if (tirageMatcher.find()) {
-                tirage = tirageMatcher.group(1)
-            }
-        }
-        // Étape 2: Si rien n'est trouvé, chercher dans la description.
-        if (tirage == null && description != null) {
-            val tirageMatcher = tiragePattern.matcher(description)
-            if (tirageMatcher.find()) {
-                tirage = tirageMatcher.group(1)
-            }
+        val tirageMatcher = tiragePattern.matcher(combinedString)
+        if (tirageMatcher.find()) {
+            tirage = tirageMatcher.group(1)
         }
 
         // --- Recherche des DIMENSIONS ---
-        // Étape 1: Chercher dans le titre.
-        if (titre != null) {
-            for (pattern in dimensionPatterns) {
-                val matcher = pattern.matcher(titre)
-                if (matcher.find()) {
-                    dimensions = matcher.group(1)
-                    break // On a trouvé, on arrête.
-                }
-            }
-        }
-        // Étape 2: Si rien n'est trouvé, chercher dans la description.
-        if (dimensions == null && description != null) {
-            for (pattern in dimensionPatterns) {
-                val matcher = pattern.matcher(description)
-                if (matcher.find()) {
-                    dimensions = matcher.group(1)
-                    break // On a trouvé, on arrête.
-                }
+        for (pattern in dimensionPatterns) {
+            val matcher = pattern.matcher(combinedString)
+            if (matcher.find()) {
+                dimensions = matcher.group(1)
+                break // On a trouvé, on arrête.
             }
         }
 

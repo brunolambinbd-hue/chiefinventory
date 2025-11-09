@@ -96,7 +96,7 @@ class EditItemActivity : AppCompatActivity() {
                     putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMaterial.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etTirage.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, binding.etDimensions.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etNotes.text.toString()) // On ajoute la description
+                    putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etDescription.text.toString()) // On ajoute la description
                 }
                 startActivity(intent)
             }
@@ -155,7 +155,7 @@ class EditItemActivity : AppCompatActivity() {
         binding.etPurchasePrice.setText(item.prixAchat?.toString())
         binding.etEstimatedValue.setText(item.valeurEstimee?.toString())
         binding.etPurchaseLocation.setText(item.lieuAchat)
-        binding.etNotes.setText(item.notes)
+        binding.etDescription.setText(item.description)
         binding.etImageUri.setText(item.imageUri)
         binding.etLocalisation.setText(item.localisation)
 
@@ -198,7 +198,7 @@ class EditItemActivity : AppCompatActivity() {
             prixAchat = binding.etPurchasePrice.text.toString().toDoubleOrNull(),
             valeurEstimee = binding.etEstimatedValue.text.toString().toDoubleOrNull(),
             lieuAchat = binding.etPurchaseLocation.text.toString().takeIf { it.isNotBlank() },
-            notes = binding.etNotes.text.toString().takeIf { it.isNotBlank() },
+            description = binding.etDescription.text.toString().takeIf { it.isNotBlank() },
             imageUri = binding.etImageUri.text.toString().takeIf { it.isNotBlank() },
             localisation = binding.etLocalisation.text.toString().takeIf { it.isNotBlank() }
         )

@@ -28,9 +28,9 @@ class ImportViewModel(application: Application, private val repository: Collecti
                 if (remoteId != null) {
                     val existingItem = repository.findByRemoteId(remoteId)
 
-                    val annee = tokens.getOrNull(1)?.toIntOrNull()
-                    val mois = tokens.getOrNull(2)?.toIntOrNull()
-                    val categorie = tokens.getOrNull(3)?.trim()
+                    val year = tokens.getOrNull(1)?.toIntOrNull()
+                    val month = tokens.getOrNull(2)?.toIntOrNull()
+                    val category = tokens.getOrNull(3)?.trim()
                     val titre = tokens.getOrNull(4)?.trim()
                     val editeur = tokens.getOrNull(5)?.trim()
                     val description = tokens.getOrNull(6)?.trim() ?: ""
@@ -44,9 +44,9 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         remoteId = remoteId,
                         titre = titre ?: "",
                         editeur = editeur,
-                        annee = annee,
-                        mois = mois,
-                        categorie = categorie,
+                        annee = year,
+                        mois = month,
+                        categorie = category,
                         superCategorie = superCategorie,
                         materiau = null,
                         tirage = parsedInfo.tirage,
@@ -54,7 +54,7 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         prixAchat = null,
                         valeurEstimee = null,
                         lieuAchat = null,
-                        notes = description,
+                        description = description,
                         imageUri = imageUrl,
                         localisation = null,
                         isPossessed = true

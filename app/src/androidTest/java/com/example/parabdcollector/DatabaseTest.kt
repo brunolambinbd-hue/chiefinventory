@@ -44,7 +44,7 @@ class DatabaseTest {
     @Test
     @Throws(Exception::class)
     fun writeAndReadItem() = runBlocking {
-        val item = CollectionItem(id = 1, titre = "Test Item", univers = "Test Universe", fabricant = null, annee = null, categorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, notes = null, imageUri = null, localisation = null)
+        val item = CollectionItem(id = 1, titre = "Test Item", univers = "Test Universe", fabricant = null, annee = null, categorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = null, imageUri = null, localisation = null)
         dao.insert(item)
         val items = dao.getAll().getOrAwaitValue()
         assertEquals(items.first().titre, "Test Item")

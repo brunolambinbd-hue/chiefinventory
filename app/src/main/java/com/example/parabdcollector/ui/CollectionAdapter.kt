@@ -35,6 +35,9 @@ class CollectionAdapter(private val onItemClicked: (CollectionItem) -> Unit) : L
 
         fun bind(item: CollectionItem) {
             b.itemName.text = item.titre
+            b.itemNotes.text = item.description
+            b.itemNotes.visibility = if (item.description.isNullOrBlank()) View.GONE else View.VISIBLE
+
             b.itemImage.contentDescription = itemView.context.getString(R.string.item_thumbnail_description_dynamic, item.titre)
 
             if (!item.imageUri.isNullOrBlank()) {

@@ -34,7 +34,7 @@ class SearchResultAdapter(private val onItemClicked: (CollectionItem) -> Unit) :
 
         fun bind(item: CollectionItem) {
             b.searchItemTitle.text = item.titre
-            b.searchItemDescription.text = item.notes // Correction : on utilise bien le champ 'notes' pour la description
+            b.searchItemDescription.text = item.description // Correction : on utilise bien le champ 'notes' pour la description
 
             if (!item.imageUri.isNullOrBlank()) {
                 b.searchItemImage.load(item.imageUri) {
