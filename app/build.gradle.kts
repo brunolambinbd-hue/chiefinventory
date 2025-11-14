@@ -14,7 +14,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.parabdcollector"
-        minSdk = 25
+        // ON ALIGNE LA VERSION MINIMALE
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -45,6 +46,9 @@ android {
 }
 
 dependencies {
+    // LA LIGNE CRUCIALE : On connecte l'app au module d'IA
+    implementation(project(":imagecomparison"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

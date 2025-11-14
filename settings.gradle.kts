@@ -28,4 +28,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ParaBDCollector"
 include(":app")
- 
+include(":imagecomparison")
