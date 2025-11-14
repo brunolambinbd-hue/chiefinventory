@@ -10,6 +10,9 @@ activityKtx = "1.8.2"
 coreSplashscreen = "1.0.1"
 coil = "2.6.0"
 
+# Nouvelle version pour MediaPipe
+mediaPipe = "0.10.14"
+
 # Versions pour les tests
 junit = "4.13.2"
 junitExt = "1.1.5"
@@ -28,6 +31,9 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
 coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
+
+# Nouvelle librairie MediaPipe
+mediapipe-tasks-vision = { group = "com.google.mediapipe", name = "tasks-vision", version.ref = "mediaPipe" }
 
 # Librairies de Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }

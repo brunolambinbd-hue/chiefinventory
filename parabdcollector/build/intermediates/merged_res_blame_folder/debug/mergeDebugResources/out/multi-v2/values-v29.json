@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.parabdcollector.app-mergeDebugResources-40:/values-v29/values-v29.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\bruno\\.gradle\\caches\\9.2.0\\transforms\\811737ceec4c6bfa4fcd588eaa197ad0\\workspace\\transformed\\jetified-core-splashscreen-1.0.1\\res\\values-v29\\values-v29.xml",
+                    "from": {
+                        "startLines": "2,7",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,374",
+                        "endLines": "6,8",
+                        "endColumns": "12,12",
+                        "endOffsets": "369,464"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -33,6 +33,9 @@ android {
 }
 
 dependencies {
+    // On ajoute la dépendance MediaPipe
+    implementation(libs.mediapipe.tasks.vision)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

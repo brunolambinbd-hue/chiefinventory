@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <string-array name="categories_array">
+        <item>Affiches</item>
+        <item>ALBUMS</item>
+        <item>Albums collectifs</item>
+        <item>Albums éditions étrangères</item>
+        <item>Autocollant</item>
+        <item>Bronze</item>
+        <item>Calendrier</item>
+        <item>Cartes de vœux</item>
+        <item>Cartes postales</item>
+        <item>Cartes-divers</item>
+        <item>Catalogues de ventes</item>
+        <item>Catalogues éditeurs</item>
+        <item>Dictionnaires</item>
+        <item>Dossiers de presse</item>
+        <item>Etiquette</item>
+        <item>Etudes</item>
+        <item>Ex-libris</item>
+        <item>Faire-part</item>
+        <item>ILLUSTRATIONS ALBUMS</item>
+        <item>Illustrations livres</item>
+        <item>Illustrations presses</item>
+        <item>ILLUSTRATIONS REVUES</item>
+        <item>Interviews</item>
+        <item>Invitations</item>
+        <item>Marque-pages</item>
+        <item>Objets-divers</item>
+        <item>Offsets</item>
+        <item>PORTFOLIOS</item>
+        <item>Programmes festivals</item>
+        <item>Promos-divers</item>
+        <item>Sérigraphies</item>
+        <item>T-shirt</item>
+    </string-array>
+    <color name="colorOnPrimary">#FFFFFFFF</color>
+    <color name="colorOnSecondary">#FF000000</color>
+    <color name="colorPrimary">#FF6200EE</color>
+    <color name="colorPrimaryVariant">#FF3700B3</color>
+    <color name="colorSecondary">#FF03DAC5</color>
+    <color name="colorSecondaryVariant">#FF018786</color>
+    <string name="add_item_description">Ajouter un objet</string>
+    <string name="advanced_search_hide">Masquer la recherche avancée</string>
+    <string name="advanced_search_show">Recherche avancée</string>
+    <string name="app_name" translatable="false">ParaBDCollector</string>
+    <string name="category_item_format">%1$s (%2$d)</string>
+    <string name="close">Fermer</string>
+    <string name="counter_separator"> / </string>
+    <string name="edit_item_title_editing">Édition : %1$s</string>
+    <string name="edit_item_title_new">Nouvel Objet</string>
+    <string name="initial_counter_value">0</string>
+    <string name="item_category_hint">Catégorie</string>
+    <string name="item_dimensions_hint">Dimensions</string>
+    <string name="item_editor_hint">Editeur</string>
+    <string name="item_estimated_value_hint">Valeur estimée</string>
+    <string name="item_image_preview_description">Aperçu de l\'image de l\'objet</string>
+    <string name="item_location_hint">Localisation</string>
+    <string name="item_material_hint">Matériau</string>
+    <string name="item_month_hint">Mois</string>
+    <string name="item_notes_hint">Description</string>
+    <string name="item_possessed_switch">Je possède cet objet</string>
+    <string name="item_purchase_location_hint">Lieu d\'achat</string>
+    <string name="item_purchase_price_hint">Prix d\'achat</string>
+    <string name="item_run_hint">Tirage</string>
+    <string name="item_super_category_hint">Super-Catégorie</string>
+    <string name="item_thumbnail_description_dynamic">Image de %1$s</string>
+    <string name="item_thumbnail_description_generic">Image de l\'objet</string>
+    <string name="item_title_hint">Titre</string>
+    <string name="item_universe_hint" ns1:ignore="UnusedResources">Univers / Série</string>
+    <string name="item_year_hint">Année</string>
+    <string name="menu_counter_title">Compteur</string>
+    <string name="menu_home_title">Accueil</string>
+    <string name="menu_import_title">Importer / Mettre à jour</string>
+    <string name="menu_locations_title">Mes Emplacements</string>
+    <string name="menu_products_title">Mes Produits</string>
+    <string name="menu_search_title">Recherche</string>
+    <string name="menu_searches_title">Mes Recherches</string>
+    <string name="open">Ouvrir</string>
+    <string name="possessed_items_label">Objets Possédés: %1$d</string>
+    <string name="possessed_items_title" ns1:ignore="UnusedResources">Mes Produits (%1$d)</string>
+    <string name="save_button">Enregistrer</string>
+    <string name="search_button">Rechercher</string>
+    <string name="search_hint" ns1:ignore="UnusedResources">Entrez un titre, un univers…</string>
+    <string name="simple_search_hint">Recherche rapide…</string>
+    <string name="sought_items_label">Objets Recherchés: %1$d</string>
+    <string name="sought_items_title" ns1:ignore="UnusedResources">Mes Recherches (%1$d)</string>
+    <string name="take_picture_button">Prendre une photo</string>
+    <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
+    <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>
+    <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
+    <string name="total_items_label">Objets Totaux: %1$d</string>
+    <style name="Theme.ParaBDCollector" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        
+        
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        
+        
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+    <style name="Theme.ParaBDCollector.FullScreen" parent="Theme.ParaBDCollector">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>

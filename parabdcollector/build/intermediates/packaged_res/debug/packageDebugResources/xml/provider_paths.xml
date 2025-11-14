@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- On donne la permission d'accéder au dossier cache de l'application -->
+    <cache-path name="my_images" path="." />
+</paths>
