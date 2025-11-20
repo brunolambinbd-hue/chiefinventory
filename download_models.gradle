@@ -7,7 +7,7 @@ def models = [
 
 def modelDir = project.ext.ASSET_DIR
 
-task downloadModels {
+tasks.register('downloadModels') {
     doLast {
         modelDir.mkdirs()
         models.each { modelName, modelLink ->
