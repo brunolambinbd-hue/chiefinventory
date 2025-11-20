@@ -14,7 +14,6 @@ android {
 
     defaultConfig {
         applicationId = "com.example.parabdcollector"
-        // ON ALIGNE LA VERSION MINIMALE
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -32,12 +31,13 @@ android {
             )
         }
     }
+    
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_18
+        targetCompatibility = JavaVersion.VERSION_18
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "18"
     }
 
     testOptions {
@@ -46,7 +46,6 @@ android {
 }
 
 dependencies {
-    // LA LIGNE CRUCIALE : On connecte l'app au module d'IA
     implementation(project(":imagecomparison"))
 
     implementation(libs.androidx.core.ktx)
@@ -57,12 +56,10 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil)
     ksp(libs.androidx.room.compiler)
+    implementation("com.google.mediapipe:tasks-vision:0.10.0")
 
-    // Dépendances de Test (configuration propre et simple)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.arch.core.testing)
-
-    // On retire les anciennes dépendances JUnit 5 et on ne garde que l'essentiel.
 }

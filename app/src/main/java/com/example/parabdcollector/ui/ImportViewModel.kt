@@ -1,9 +1,15 @@
 package com.example.parabdcollector.ui
 
 import android.app.Application
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.util.Log
+import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import coil.ImageLoader
+import coil.request.ImageRequest
+import com.example.imagecomparison.ImageEmbedderHelper
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.utils.DescriptionParser
@@ -11,10 +17,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.nio.ByteBuffer
 
 class ImportViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
-    private val baseImageUrl = "https://frankpe.com/images/bdg_new/"
+    private lateinit var imageEmbedderHelper: ImageEmbedderHelper
+    private val imageLoader = ImageLoader(application)
+    private val baseImageUrl = "https://frankpe.com/images/bdg_new/" // URL Web correcte
+
+    init {
+        imageEmbedderHelper = ImageEmbedderHelper(context = getApplication(), listener = null)
+    }
 
     fun importCsv(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -38,8 +51,9 @@ class ImportViewModel(application: Application, private val repository: Collecti
 
                     val parsedInfo = DescriptionParser.parse(titre, description)
                     val imageUrl = buildImageUrl(remoteId)
+                    Log.d("ImportViewModel", "Item $remoteId - Generated URL: $imageUrl") // LOG INCONDITIONNEL
 
-                    val item = CollectionItem(
+                    var itemToSave = CollectionItem(
                         id = existingItem?.id ?: 0,
                         remoteId = remoteId,
                         titre = titre ?: "",
@@ -56,14 +70,47 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         lieuAchat = null,
                         description = description,
                         imageUri = imageUrl,
+                        imageEmbedding = existingItem?.imageEmbedding, // On préserve l'ancienne signature
                         localisation = null,
                         isPossessed = true
                     )
 
+                    // Calcul de la signature si elle est manquante
+                    if (itemToSave.imageEmbedding == null && !itemToSave.imageUri.isNullOrBlank()) {
+                        try {
+                            val request = ImageRequest.Builder(getApplication())
+                                .data(itemToSave.imageUri?.toUri())
+                                .allowHardware(false) // Nécessaire pour le traitement bitmap
+                                .build()
+                            val bitmap = (imageLoader.execute(request).drawable as? BitmapDrawable)?.bitmap
+
+                            Log.d("ImportViewModel", "Item $remoteId - Bitmap loading result: ${if (bitmap == null) "NULL" else "OK"}")
+
+                            if (bitmap != null) {
+                                val signature = imageEmbedderHelper.computeSignature(bitmap)
+                                if (signature != null) {
+                                    // On convertit le FloatArray en ByteArray
+                                    val floatArray = signature.floatEmbedding()
+                                    val byteBuffer = ByteBuffer.allocate(floatArray.size * 4)
+                                    floatArray.forEach { byteBuffer.putFloat(it) }
+                                    itemToSave = itemToSave.copy(imageEmbedding = byteBuffer.array())
+                                    Log.i("ImportViewModel", "Item $remoteId - Signature calculée avec succès.")
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.e("ImportViewModel", "Item $remoteId - Erreur lors du calcul de la signature", e)
+                        }
+                    }
+
                     if (existingItem == null) {
-                        repository.insert(item)
+                        repository.insert(itemToSave)
                     } else {
-                        repository.update(item.copy(imageUri = existingItem.imageUri ?: imageUrl))
+                        val finalUri = if (existingItem.imageUri?.startsWith("content://") == true) {
+                            existingItem.imageUri
+                        } else {
+                            imageUrl
+                        }
+                        repository.update(itemToSave.copy(imageUri = finalUri))
                     }
                 }
             }
@@ -74,5 +121,10 @@ class ImportViewModel(application: Application, private val repository: Collecti
         val folder = (remoteId / 100) * 100
         val prefix = "frank"
         return "$baseImageUrl$folder/$prefix$remoteId-1.jpg"
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        imageEmbedderHelper.clearImageEmbedder()
     }
 }

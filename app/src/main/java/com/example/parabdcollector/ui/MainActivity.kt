@@ -1,6 +1,7 @@
 package com.example.parabdcollector.ui
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -12,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityMainBinding
@@ -75,6 +77,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel.totalItemsCount.observe(this) { count ->
             binding.totalItemsText.text = getString(R.string.total_items_label, count)
         }
+
+        // On active le mode débogage si nécessaire
+        setupDebugView()
+    }
+
+    private fun setupDebugView() {
+        val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        binding.debugSection.isVisible = isDebuggable
+
+        if (isDebuggable) {
+            viewModel.signatureStats.observe(this) { stats ->
+                binding.tvSignaturesOk.text = "Signatures OK : ${stats.validCount}"
+                binding.tvSignaturesEmpty.text = "Signatures Vides : ${stats.emptyCount}"
+                binding.tvSignaturesMissing.text = "Signatures Manquantes : ${stats.missingCount}"
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -111,6 +129,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_locations -> Toast.makeText(this, "Mes Emplacements cliqué", Toast.LENGTH_SHORT).show()
             R.id.nav_import -> {
                 importCsvLauncher.launch("text/comma-separated-values")
+            }
+            R.id.nav_signature_report -> {
+                startActivity(Intent(this, SignatureReportActivity::class.java))
             }
         }
         binding.drawerLayout.closeDrawers()

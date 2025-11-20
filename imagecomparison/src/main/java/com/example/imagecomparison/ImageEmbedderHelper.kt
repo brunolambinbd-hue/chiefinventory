@@ -24,6 +24,7 @@ import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.tasks.components.containers.Embedding
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.core.Delegate
+import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.imageembedder.ImageEmbedder
 import com.google.mediapipe.tasks.vision.imageembedder.ImageEmbedder.ImageEmbedderOptions
 
@@ -48,11 +49,14 @@ class ImageEmbedderHelper(
     }
 
     fun setupImageEmbedder() {
+        Log.i(TAG, "setupImageEmbedder() called") // LOG AJOUTÉ
         val modelName = when (currentModel) {
             MODEL_MOBILENETV3_LARGE -> "mobilenet_v3_large.tflite"
             MODEL_MOBILENETV3_SMALL -> "mobilenet_v3_small.tflite"
             else -> "mobilenet_v3_large.tflite"
         }
+
+        Log.i(TAG, "Attempting to load model: $modelName")
 
         val baseOptionsBuilder = BaseOptions.builder().setModelAssetPath(modelName)
 
@@ -69,24 +73,31 @@ class ImageEmbedderHelper(
             .setBaseOptions(baseOptionsBuilder.build())
             .setL2Normalize(true)
             .setQuantize(false)
-            .setRunningMode(com.google.mediapipe.tasks.vision.core.RunningMode.IMAGE)
+            .setRunningMode(RunningMode.IMAGE)
             .build()
 
+        Log.d(TAG, "Using ImageEmbedderOptions: $options") // LOG AJOUTÉ
         try {
             imageEmbedder = ImageEmbedder.createFromOptions(context, options)
+            Log.i(TAG, "ImageEmbedder created successfully.")
         } catch (e: Exception) {
             listener?.onError("Image embedder failed to load. See error logs for details")
-            Log.e(TAG, "TFLite failed to load model with error: " + e.message)
+            Log.e(TAG, "TFLite failed to load model with error: " + e.message, e) // Ajout de l'exception pour la stack trace
         }
     }
 
     fun computeSignature(bitmap: Bitmap): Embedding? {
+        Log.i(TAG, "computeSignature called for a bitmap.")
         imageEmbedder?.let {
-            val MpImage = BitmapImageBuilder(bitmap).build()
+            val mpImage = BitmapImageBuilder(bitmap).build()
+            val startTime = SystemClock.uptimeMillis()
             val signature =
-                it.embed(MpImage).embeddingResult().embeddings().first()
+                it.embed(mpImage).embeddingResult().embeddings().first()
+            val inferenceTime = SystemClock.uptimeMillis() - startTime
+            Log.i(TAG, "Signature computed in $inferenceTime ms.")
             return signature
         }
+        Log.e(TAG, "computeSignature called, but imageEmbedder is null.")
         return null
     }
 
@@ -94,22 +105,22 @@ class ImageEmbedderHelper(
         val newSignature = computeSignatureForComparison(bitmapToCompare)
         newSignature?.let {
             return ImageEmbedder.cosineSimilarity(it, savedSignature)
-        }
+        }        
         return null
     }
     
      fun computeSignatureForComparison(bitmap: Bitmap): Embedding? {
         imageEmbedder?.let {
-            val MpImage = BitmapImageBuilder(bitmap).build()
+            val mpImage = BitmapImageBuilder(bitmap).build()
             val signature =
-                it.embed(MpImage).embeddingResult().embeddings().first()
+                it.embed(mpImage).embeddingResult().embeddings().first()
             return signature
         }
         return null
     }
 
     // Reverted this function to the state you wanted.
-    fun embed(firstBitmap: Bitmap, secondBitmap: Bitmap): com.example.imagecomparison.ImageEmbedderHelper.ResultBundle? {
+    fun embed(firstBitmap: Bitmap, secondBitmap: Bitmap): ResultBundle? {
         // Inference time is the difference between the system time at the start and finish of the
         // process
         val startTime = SystemClock.uptimeMillis()
@@ -152,9 +163,5 @@ class ImageEmbedderHelper(
 
         const val GPU_ERROR = 1
         private const val TAG = "ImageEmbedderHelper"
-
-        fun compareSignatures(embedding1: Embedding, embedding2: Embedding): Double {
-            return ImageEmbedder.cosineSimilarity(embedding1, embedding2)
-        }
     }
 }

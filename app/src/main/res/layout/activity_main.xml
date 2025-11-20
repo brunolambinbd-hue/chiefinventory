@@ -5,12 +5,12 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:openDrawer="start">
+    tools:context=".ui.MainActivity">
 
-    <!-- Contenu principal de l'application -->
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -20,51 +20,84 @@
             android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:orientation="vertical">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/total_items_text"
+            <!-- Contenu principal ici -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/total_items_label"
-                android:textSize="18sp" />
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/possessed_items_text"
+                <TextView
+                    android:id="@+id/total_items_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/total_items_label"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+
+                <TextView
+                    android:id="@+id/possessed_items_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/possessed_items_label"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+
+                <TextView
+                    android:id="@+id/sought_items_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sought_items_label"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+
+                <!-- Section de débogage (masquée par défaut) -->
+                <LinearLayout
+                    android:id="@+id/debug_section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/tv_signatures_ok"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Signatures OK : 0" />
+
+                    <TextView
+                        android:id="@+id/tv_signatures_empty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Signatures Vides : 0" />
+
+                    <TextView
+                        android:id="@+id/tv_signatures_missing"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Signatures Manquantes : 0" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/possessed_items_label"
-                android:textSize="18sp" />
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:contentDescription="@string/add_item_description"
+                android:src="@android:drawable/ic_input_add" />
 
-            <TextView
-                android:id="@+id/sought_items_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/sought_items_label"
-                android:textSize="18sp" />
+        </FrameLayout>
 
-        </LinearLayout>
+    </LinearLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAdd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:rippleColor="@color/colorSecondary"
-            android:contentDescription="@string/add_item_description"
-            app:srcCompat="@android:drawable/ic_input_add" />
-
-    </RelativeLayout>
-
-    <!-- Le tiroir de navigation -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"

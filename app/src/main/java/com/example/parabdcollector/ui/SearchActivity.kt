@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
+import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.utils.CategoryMapper
 
 class SearchActivity : AppCompatActivity() {
@@ -84,7 +85,7 @@ class SearchActivity : AppCompatActivity() {
 
         if (simpleQuery.isNotBlank()) {
             viewModel.search(simpleQuery).observe(this) { results ->
-                adapter.submitList(results)
+                adapter.submitList(results.map { SearchResultItem(it) })
             }
         } else {
             val criteria = SearchCriteria(
@@ -98,7 +99,7 @@ class SearchActivity : AppCompatActivity() {
             )
 
             viewModel.advancedSearch(criteria).observe(this) { results ->
-                adapter.submitList(results)
+                adapter.submitList(results.map { SearchResultItem(it) })
             }
         }
 
@@ -110,9 +111,9 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = CollectionAdapter { item ->
+        adapter = CollectionAdapter { searchResult ->
             val intent = Intent(this, EditItemActivity::class.java)
-            intent.putExtra("itemId", item.id)
+            intent.putExtra("itemId", searchResult.item.id)
             startActivity(intent)
         }
         binding.rvSearchResults.adapter = adapter

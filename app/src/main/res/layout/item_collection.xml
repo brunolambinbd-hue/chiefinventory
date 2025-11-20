@@ -48,17 +48,11 @@
             android:textSize="14sp" />
             
         <TextView
-            android:id="@+id/itemSuperCategory"
+            android:id="@+id/itemCategoryHierarchy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/itemCategory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp" />
-            
         <TextView
             android:id="@+id/itemMaterial"
             android:layout_width="wrap_content"
@@ -76,6 +70,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/debug_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="10sp"
+            android:visibility="gone" />
 
     </LinearLayout>
 

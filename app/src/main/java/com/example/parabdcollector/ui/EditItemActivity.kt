@@ -24,6 +24,7 @@ import java.io.File
 class EditItemActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditItemBinding
     private var currentItemId: Long = 0
+    private var currentLoadedItem: CollectionItem? = null // Pour garder une référence à l'objet complet
     private var latestTmpUri: Uri? = null
 
     private val viewModel: MainViewModel by viewModels {
@@ -71,7 +72,10 @@ class EditItemActivity : AppCompatActivity() {
 
         if (currentItemId != 0L) {
             viewModel.getById(currentItemId).observe(this) { item ->
-                item?.let { populateUi(it) }
+                item?.let {
+                    currentLoadedItem = it // On stocke l'objet actuel
+                    populateUi(it)
+                }
             }
         } else {
             supportActionBar?.title = getString(R.string.edit_item_title_new)
@@ -90,13 +94,17 @@ class EditItemActivity : AppCompatActivity() {
                     putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditor.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etYear.text.toString().toIntOrNull() ?: 0)
                     putExtra(FullScreenImageActivity.EXTRA_MONTH, binding.etMonth.text.toString().toIntOrNull() ?: 0)
-                    putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etYear.text.toString().toIntOrNull() ?: 0)
                     putExtra(FullScreenImageActivity.EXTRA_SUPER_CATEGORY, binding.etSuperCategory.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.etCategory.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMaterial.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etPrintRun.text.toString())
                     putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, binding.etDimensions.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etDescription.text.toString()) // On ajoute la description
+                    putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etDescription.text.toString())
+
+                    // On ajoute la signature pour le mode debug
+                    currentLoadedItem?.imageEmbedding?.let {
+                        putExtra(FullScreenImageActivity.EXTRA_IMAGE_SIGNATURE, it)
+                    }
                 }
                 startActivity(intent)
             }
@@ -104,22 +112,18 @@ class EditItemActivity : AppCompatActivity() {
     }
 
     private fun setupCategorySpinners() {
-        // Remplir le spinner des super-catégories
         val superCategories = CategoryMapper.getSuperCategories()
         val superCategoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, superCategories)
         binding.etSuperCategory.setAdapter(superCategoryAdapter)
 
-        // Le spinner des catégories est désactivé au début
         binding.categoryLayout.isEnabled = false
 
-        // Écouteur pour le spinner des super-catégories
         binding.etSuperCategory.setOnItemClickListener { parent, _, position, _ ->
             val selectedSuperCategory = parent.getItemAtPosition(position) as String
             val categories = CategoryMapper.getCategoriesFor(selectedSuperCategory)
             val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
             binding.etCategory.setAdapter(categoryAdapter)
 
-            // Activer le deuxième spinner et vider son contenu
             binding.categoryLayout.isEnabled = true
             binding.etCategory.text = null
         }
@@ -182,9 +186,9 @@ class EditItemActivity : AppCompatActivity() {
         val superCategory = binding.etSuperCategory.text.toString().takeIf { it.isNotBlank() }
         val category = binding.etCategory.text.toString().takeIf { it.isNotBlank() }
 
-        val item = CollectionItem(
-            remoteId = null, // L'ID distant sera géré par l'import
-            id = currentItemId,
+        val itemToSave = CollectionItem(
+            id = currentLoadedItem?.id ?: 0L,
+            remoteId = currentLoadedItem?.remoteId, // On préserve le remoteId original
             titre = title,
             isPossessed = binding.switchPossessed.isChecked,
             editeur = binding.etEditor.text.toString().takeIf { it.isNotBlank() },
@@ -200,13 +204,14 @@ class EditItemActivity : AppCompatActivity() {
             lieuAchat = binding.etPurchaseLocation.text.toString().takeIf { it.isNotBlank() },
             description = binding.etDescription.text.toString().takeIf { it.isNotBlank() },
             imageUri = binding.etImageUri.text.toString().takeIf { it.isNotBlank() },
-            localisation = binding.etLocation.text.toString().takeIf { it.isNotBlank() }
+            localisation = binding.etLocation.text.toString().takeIf { it.isNotBlank() },
+            imageEmbedding = currentLoadedItem?.imageEmbedding // On préserve la signature existante
         )
 
         if (currentItemId == 0L) {
-            viewModel.insert(item)
+            viewModel.insert(itemToSave)
         } else {
-            viewModel.update(item)
+            viewModel.update(itemToSave)
         }
         finish()
     }

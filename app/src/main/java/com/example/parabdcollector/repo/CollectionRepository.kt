@@ -1,11 +1,41 @@
 package com.example.parabdcollector.repo
 
+import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.model.SignatureStats
 
 class CollectionRepository(private val collectionDao: CollectionDao) {
+
+    fun getAll(): LiveData<List<CollectionItem>> {
+        return collectionDao.getAll()
+    }
+
+    fun getSignatureStats(): LiveData<SignatureStats> {
+        return getAll().map { list ->
+            val total = list.size
+            var valid = 0
+            var empty = 0
+            var missing = 0
+
+            for (item in list) {
+                when {
+                    item.imageEmbedding == null -> {
+                        missing++
+                    }
+                    item.imageEmbedding.isEmpty() -> {
+                        empty++
+                    }
+                    else -> valid++
+                }
+            }
+            Log.i("SignatureStats", "Calcul terminé: Valides=$valid, Vides=$empty, Manquantes=$missing, Total=$total")
+            SignatureStats(total, valid, empty, missing)
+        }
+    }
 
     fun getAllPossessed(): LiveData<List<CollectionItem>> {
         return collectionDao.getAllPossessed()

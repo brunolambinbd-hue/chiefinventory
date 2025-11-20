@@ -1,5 +1,6 @@
 package com.example.parabdcollector.ui
 
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -34,6 +35,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         val run = intent.getStringExtra(EXTRA_RUN)
         val dimensions = intent.getStringExtra(EXTRA_DIMENSIONS)
         val description = intent.getStringExtra(EXTRA_DESCRIPTION)
+        val signature = intent.getByteArrayExtra(EXTRA_IMAGE_SIGNATURE)
 
         // Affichage de l'image avec Coil
         if (imageUriString != null) {
@@ -77,6 +79,15 @@ class FullScreenImageActivity : AppCompatActivity() {
         binding.imageInfoDescription.text = description
         binding.imageInfoDescription.visibility = if (description.isNullOrBlank()) View.GONE else View.VISIBLE
 
+        // On affiche les infos de debug si on est en mode "debug"
+        val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if (isDebuggable) {
+            val sigInfo = signature?.size?.let { "$it bytes" } ?: "N/A"
+            binding.debugSignatureInfo.text = "Signature: $sigInfo"
+            binding.debugSignatureInfo.visibility = View.VISIBLE
+        } else {
+            binding.debugSignatureInfo.visibility = View.GONE
+        }
 
         // Gestion du clic pour le mode immersif
         binding.fullScreenImageView.setOnClickListener {
@@ -117,5 +128,6 @@ class FullScreenImageActivity : AppCompatActivity() {
         const val EXTRA_RUN = "run"
         const val EXTRA_DIMENSIONS = "dimensions"
         const val EXTRA_DESCRIPTION = "description"
+        const val EXTRA_IMAGE_SIGNATURE = "image_signature"
     }
 }

@@ -16,6 +16,9 @@ class ViewModelFactory(private val application: Application, private val reposit
         if (modelClass.isAssignableFrom(ImportViewModel::class.java)) {
             return ImportViewModel(application, repository) as T
         }
+        if (modelClass.isAssignableFrom(SignatureReportViewModel::class.java)) {
+            return SignatureReportViewModel(repository) as T
+        }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }

@@ -37,10 +37,6 @@ object CategoryMapper {
         "T-shirt" to "Objets"
     )
 
-    fun getSuperCategory(category: String): String? {
-        return categoryMap[category]
-    }
-
     fun getSuperCategories(): List<String> {
         return categoryMap.values.distinct().sorted()
     }

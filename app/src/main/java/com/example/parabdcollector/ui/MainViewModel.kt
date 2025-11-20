@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.repo.CollectionRepository
 import kotlinx.coroutines.launch
 
@@ -14,8 +15,18 @@ class MainViewModel(private val repository: CollectionRepository) : ViewModel() 
     val soughtItems: LiveData<List<CollectionItem>> = repository.getAllSought()
     val totalItemsCount: LiveData<Int> = repository.getTotalCount()
 
+    val signatureStats: LiveData<SignatureStats> = repository.getSignatureStats()
+
     fun getById(id: Long): LiveData<CollectionItem> {
         return repository.getById(id)
+    }
+
+    fun insert(item: CollectionItem) = viewModelScope.launch {
+        repository.insert(item)
+    }
+
+    fun update(item: CollectionItem) = viewModelScope.launch {
+        repository.update(item)
     }
 
     fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>> {
@@ -28,13 +39,5 @@ class MainViewModel(private val repository: CollectionRepository) : ViewModel() 
 
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>> {
         return repository.getItemsBySuperCategoryAndCategory(superCategory, category, isPossessed)
-    }
-
-    fun insert(item: CollectionItem) = viewModelScope.launch {
-        repository.insert(item)
-    }
-
-    fun update(item: CollectionItem) = viewModelScope.launch {
-        repository.update(item)
     }
 }

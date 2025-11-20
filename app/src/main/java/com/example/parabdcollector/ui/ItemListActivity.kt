@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityItemListBinding
+import com.example.parabdcollector.model.SearchResultItem
 
 class ItemListActivity : AppCompatActivity() {
 
@@ -37,25 +38,29 @@ class ItemListActivity : AppCompatActivity() {
             // On affiche les objets pour une catégorie spécifique
             val isPossessed = listType == TYPE_POSSESSED
             supportActionBar?.title = category
-            viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, isPossessed).observe(this) {
-                adapter.submitList(it)
+            viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, isPossessed).observe(this) { items ->
+                adapter.submitList(items.map { SearchResultItem(it) })
             }
         } else {
             // Comportement par défaut (si on arrive ici sans passer par la nouvelle navigation)
             if (listType == TYPE_POSSESSED) {
                 supportActionBar?.title = "Mes Produits"
-                viewModel.possessedItems.observe(this) { items -> adapter.submitList(items) }
+                viewModel.possessedItems.observe(this) { items ->
+                    adapter.submitList(items.map { SearchResultItem(it) })
+                }
             } else {
                 supportActionBar?.title = "Mes Recherches"
-                viewModel.soughtItems.observe(this) { items -> adapter.submitList(items) }
+                viewModel.soughtItems.observe(this) { items ->
+                    adapter.submitList(items.map { SearchResultItem(it) })
+                }
             }
         }
     }
 
     private fun setupRecyclerView() {
-        adapter = CollectionAdapter { item ->
+        adapter = CollectionAdapter { searchResult ->
             val intent = Intent(this, EditItemActivity::class.java)
-            intent.putExtra("itemId", item.id)
+            intent.putExtra("itemId", searchResult.item.id)
             startActivity(intent)
         }
         binding.rvItemList.adapter = adapter
