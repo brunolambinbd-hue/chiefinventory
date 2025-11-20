@@ -21,6 +21,7 @@
     <string name="item_image_preview_description">Item image preview</string>
     <string name="item_thumbnail_description_generic">Item image</string>
     <string name="item_thumbnail_description_dynamic">Image of %1$s</string>
+    <string name="full_screen_image_description">Full screen image of the item</string>
 
     <!-- Texts for the edit screen -->
     <string name="edit_item_title_new">New Item</string>
@@ -64,5 +65,16 @@
     <string name="toast_error_saving_image">Error saving image</string>
     <string name="toast_camera_permission_denied">Camera permission denied</string>
     <string name="toast_title_is_mandatory">The title is mandatory</string>
+
+    <!-- New strings for signature report -->
+    <string name="report_signatures_ok">OK Signatures: %1$d</string>
+    <string name="report_signatures_empty">Empty Signatures: %1$d</string>
+    <string name="report_signatures_missing">Missing Signatures: %1$d</string>
+    <string name="report_item_id">ID: %1$d</string>
+    <string name="signature_status_valid">Valid</string>
+    <string name="signature_status_empty">Empty</string>
+    <string name="signature_status_missing">Missing</string>
+    <string name="debug_signature_info">ID: %1$d, Sig: %2$s</string>
+    <string name="debug_signature_info_fullscreen">Signature: %1$s</string>
 
 </resources>

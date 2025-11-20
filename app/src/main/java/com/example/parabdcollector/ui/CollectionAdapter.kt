@@ -65,10 +65,11 @@ class CollectionAdapter(
             binding.itemYear.isVisible = item.annee != null
             binding.itemYear.text = item.annee?.toString()
 
-            val isDebuggable = (itemView.context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+            val context = itemView.context
+            val isDebuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
             if (isDebuggable) {
                 val sigInfo = item.imageEmbedding?.size?.let { "$it bytes" } ?: "N/A"
-                binding.debugInfo.text = "ID: ${item.remoteId}, Sig: $sigInfo"
+                binding.debugInfo.text = context.getString(R.string.debug_signature_info, item.remoteId, sigInfo)
                 binding.debugInfo.visibility = View.VISIBLE
             } else {
                 binding.debugInfo.visibility = View.GONE

@@ -88,9 +88,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         if (isDebuggable) {
             viewModel.signatureStats.observe(this) { stats ->
-                binding.tvSignaturesOk.text = "Signatures OK : ${stats.validCount}"
-                binding.tvSignaturesEmpty.text = "Signatures Vides : ${stats.emptyCount}"
-                binding.tvSignaturesMissing.text = "Signatures Manquantes : ${stats.missingCount}"
+                binding.tvSignaturesOk.text = getString(R.string.report_signatures_ok, stats.validCount)
+                binding.tvSignaturesEmpty.text = getString(R.string.report_signatures_empty, stats.emptyCount)
+                binding.tvSignaturesMissing.text = getString(R.string.report_signatures_missing, stats.missingCount)
             }
         }
     }

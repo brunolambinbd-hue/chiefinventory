@@ -83,7 +83,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if (isDebuggable) {
             val sigInfo = signature?.size?.let { "$it bytes" } ?: "N/A"
-            binding.debugSignatureInfo.text = "Signature: $sigInfo"
+            binding.debugSignatureInfo.text = getString(R.string.debug_signature_info_fullscreen, sigInfo)
             binding.debugSignatureInfo.visibility = View.VISIBLE
         } else {
             binding.debugSignatureInfo.visibility = View.GONE

@@ -20,7 +20,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="16dp"
-        android:contentDescription="TODO"
+        android:contentDescription="@string/item_thumbnail_description_generic"
         android:visibility="gone"
         tools:visibility="visible"
         tools:src="@mipmap/ic_launcher" />

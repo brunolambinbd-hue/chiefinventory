@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +31,8 @@ class SignatureReportAdapter(
 
     class SignatureViewHolder(val binding: ItemSignatureReportBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: CollectionItem) {
-            binding.tvRemoteId.text = "ID: ${item.remoteId}"
+            val context = binding.root.context
+            binding.tvRemoteId.text = context.getString(R.string.report_item_id, item.remoteId)
             binding.tvItemTitle.text = item.titre
 
             binding.ivThumbnail.visibility = View.GONE
@@ -38,16 +40,16 @@ class SignatureReportAdapter(
 
             when {
                 item.imageEmbedding == null -> {
-                    binding.tvSignatureStatus.text = "Manquante"
+                    binding.tvSignatureStatus.text = context.getString(R.string.signature_status_missing)
                     binding.tvSignatureStatus.setTextColor(Color.RED)
                 }
                 item.imageEmbedding.isEmpty() -> {
-                    binding.tvSignatureStatus.text = "Vide"
-                    binding.tvSignatureStatus.setTextColor(Color.parseColor("#FFA500")) // Orange
+                    binding.tvSignatureStatus.text = context.getString(R.string.signature_status_empty)
+                    binding.tvSignatureStatus.setTextColor("#FFA500".toColorInt()) // Orange
                 }
                 else -> {
-                    binding.tvSignatureStatus.text = "Valide"
-                    binding.tvSignatureStatus.setTextColor(Color.parseColor("#008000")) // Green
+                    binding.tvSignatureStatus.text = context.getString(R.string.signature_status_valid)
+                    binding.tvSignatureStatus.setTextColor("#008000".toColorInt()) // Green
                     
                     // Affichage de la miniature et de l'aperçu
                     binding.ivThumbnail.visibility = View.VISIBLE
