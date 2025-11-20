@@ -75,11 +75,12 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         isPossessed = true
                     )
 
+                    val imageUriString = itemToSave.imageUri // Crée une référence stable AVANT le if
                     // Calcul de la signature si elle est manquante
-                    if (itemToSave.imageEmbedding == null && !itemToSave.imageUri.isNullOrBlank()) {
+                    if (itemToSave.imageEmbedding == null && !imageUriString.isNullOrBlank()) {
                         try {
                             val request = ImageRequest.Builder(getApplication())
-                                .data(itemToSave.imageUri?.toUri())
+                                .data(imageUriString.toUri()) // Le smart cast est maintenant possible
                                 .allowHardware(false) // Nécessaire pour le traitement bitmap
                                 .build()
                             val bitmap = (imageLoader.execute(request).drawable as? BitmapDrawable)?.bitmap

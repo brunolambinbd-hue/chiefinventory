@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
+import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySignatureReportBinding
 
 class SignatureReportActivity : AppCompatActivity() {
@@ -31,9 +32,9 @@ class SignatureReportActivity : AppCompatActivity() {
         setupRecyclerView()
 
         viewModel.signatureStats.observe(this) { stats ->
-            binding.tvSignaturesOk.text = "Signatures OK : ${stats.validCount}"
-            binding.tvSignaturesEmpty.text = "Signatures Vides : ${stats.emptyCount}"
-            binding.tvSignaturesMissing.text = "Signatures Manquantes : ${stats.missingCount}"
+            binding.tvSignaturesOk.text = getString(R.string.report_signatures_ok, stats.validCount)
+            binding.tvSignaturesEmpty.text = getString(R.string.report_signatures_empty, stats.emptyCount)
+            binding.tvSignaturesMissing.text = getString(R.string.report_signatures_missing, stats.missingCount)
         }
 
         viewModel.filteredItems.observe(this) { items ->

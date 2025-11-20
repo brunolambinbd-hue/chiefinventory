@@ -67,4 +67,9 @@
     <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
     <string name="rapport_signatures">Rapport des signatures</string>
 
+    <!-- Nouvelles chaînes pour le rapport de signature -->
+    <string name="report_signatures_ok">Signatures OK : %1$d</string>
+    <string name="report_signatures_empty">Signatures Vides : %1$d</string>
+    <string name="report_signatures_missing">Signatures Manquantes : %1$d</string>
+
 </resources>
