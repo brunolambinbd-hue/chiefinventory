@@ -16,7 +16,7 @@
     </style>
 
     <!-- Thème pour l'écran plein écran -->
-    <style name="Theme.ParaBDCollector.FullScreen" parent="Theme.ParaBDCollector">
+    <style name="Theme.ParaBDCollector.FullScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>
     </style>
 </resources>

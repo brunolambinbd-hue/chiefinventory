@@ -1,10 +1,13 @@
 package com.example.parabdcollector.model
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = "collection_items", indices = [Index(value = ["remoteId"], unique = true)])
 data class CollectionItem(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -27,7 +30,7 @@ data class CollectionItem(
     val imageEmbedding: ByteArray? = null,
     val localisation: String?,
     val isPossessed: Boolean = true 
-) {
+) : Parcelable {
     // On doit surcharger equals et hashCode à cause du ByteArray
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

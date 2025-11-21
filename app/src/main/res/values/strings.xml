@@ -69,6 +69,7 @@
     <string name="menu_searches_title">Mes Recherches</string>
     <string name="menu_locations_title">Mes Emplacements</string>
     <string name="menu_import_title">Importer / Mettre à jour</string>
+    <string name="refine_search_title">Affiner la recherche</string>
 
     <!-- Messages (Toast) -->
     <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>

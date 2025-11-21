@@ -4,10 +4,12 @@ import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityFullScreenImageBinding
+import java.nio.ByteBuffer
 
 class FullScreenImageActivity : AppCompatActivity() {
 
@@ -20,6 +22,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
+        // On active la flèche de retour dans la barre d'outils
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = ""
 
@@ -48,21 +51,21 @@ class FullScreenImageActivity : AppCompatActivity() {
         // Affichage des informations textuelles avec libellés
         binding.imageInfoTitle.text = title
         
-        fun setInfoText(textView: android.widget.TextView, labelResId: Int, value: String?) {
+        fun setInfoText(textView: TextView, labelResId: Int, value: String?) {
             if (value.isNullOrBlank()) {
                 textView.visibility = View.GONE
             } else {
                 textView.visibility = View.VISIBLE
-                textView.text = getString(labelResId, value)
+                textView.text = getString(R.string.generic_field_format, getString(labelResId), value)
             }
         }
 
-        setInfoText(binding.imageInfoManufacturer, R.string.generic_field_format, editor)
-        setInfoText(binding.imageInfoSupercategory, R.string.generic_field_format, superCategory)
-        setInfoText(binding.imageInfoCategory, R.string.generic_field_format, category)
-        setInfoText(binding.imageInfoMaterial, R.string.generic_field_format, material)
-        setInfoText(binding.imageInfoRun, R.string.generic_field_format, run)
-        setInfoText(binding.imageInfoDimensions, R.string.generic_field_format, dimensions)
+        setInfoText(binding.imageInfoManufacturer, R.string.item_editor_hint, editor)
+        setInfoText(binding.imageInfoSupercategory, R.string.item_super_category_hint, superCategory)
+        setInfoText(binding.imageInfoCategory, R.string.item_category_hint, category)
+        setInfoText(binding.imageInfoMaterial, R.string.item_material_hint, material)
+        setInfoText(binding.imageInfoRun, R.string.item_run_hint, run)
+        setInfoText(binding.imageInfoDimensions, R.string.item_dimensions_hint, dimensions)
 
         var yearMonthText = ""
         if (year != 0) {
@@ -80,7 +83,16 @@ class FullScreenImageActivity : AppCompatActivity() {
         // On affiche les infos de debug si on est en mode "debug"
         val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if (isDebuggable) {
-            val sigInfo = signature?.size?.let { "$it bytes" } ?: "N/A"
+            val sigInfo = signature?.let { embedding ->
+                if (embedding.isNotEmpty()) {
+                    val byteBuffer = ByteBuffer.wrap(embedding)
+                    val preview = (1..5).map { "%.2f".format(byteBuffer.float) }.joinToString(", ")
+                    getString(R.string.signature_preview_format, preview)
+                } else {
+                    getString(R.string.signature_status_empty)
+                }
+            } ?: getString(R.string.signature_status_missing)
+            
             binding.debugSignatureInfo.text = getString(R.string.debug_signature_info_fullscreen, sigInfo)
             binding.debugSignatureInfo.visibility = View.VISIBLE
         } else {
@@ -106,6 +118,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         areSystemBarsVisible = !areSystemBarsVisible
     }
 
+    // On gère le clic sur la flèche de retour
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             finish()

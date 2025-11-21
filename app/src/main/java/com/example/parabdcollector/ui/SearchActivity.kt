@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -72,15 +73,7 @@ class SearchActivity : AppCompatActivity() {
         binding.btnSearchByImage.setOnClickListener { onSearchByImageClicked() }
 
         binding.tvToggleAdvancedSearch.setOnClickListener {
-            if (binding.advancedSearchContainer.isGone) {
-                binding.advancedSearchContainer.isVisible = true
-                binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_hide)
-                // On vide la recherche simple quand on ouvre la recherche avancée.
-                binding.etSearchSimple.setText("")
-            } else {
-                binding.advancedSearchContainer.isGone = true
-                binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
-            }
+            toggleAdvancedSearch()
         }
 
         // On observe les résultats de la recherche (pour les deux types de recherche)
@@ -89,6 +82,18 @@ class SearchActivity : AppCompatActivity() {
             val count = results.size
             binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
             binding.tvResultsCount.isVisible = true
+        }
+    }
+
+    private fun toggleAdvancedSearch() {
+        if (binding.advancedSearchContainer.isGone) {
+            binding.advancedSearchContainer.isVisible = true
+            binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_hide)
+            // On vide la recherche simple quand on ouvre la recherche avancée.
+            binding.etSearchSimple.setText("")
+        } else {
+            binding.advancedSearchContainer.isGone = true
+            binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
         }
     }
 
@@ -185,10 +190,23 @@ class SearchActivity : AppCompatActivity() {
         binding.rvSearchResults.layoutManager = LinearLayoutManager(this)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.search_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+            R.id.action_refine_search -> {
+                if (binding.advancedSearchContainer.isGone) {
+                    toggleAdvancedSearch()
+                }
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
