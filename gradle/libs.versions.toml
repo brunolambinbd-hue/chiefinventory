@@ -13,7 +13,7 @@ download = "5.6.0"
 work = "2.9.0"
 
 # Nouvelle version pour MediaPipe
-mediaPipe = "0.10.14"
+mediaPipe = "0.10.29"
 
 # Versions pour les tests
 junit = "4.13.2"

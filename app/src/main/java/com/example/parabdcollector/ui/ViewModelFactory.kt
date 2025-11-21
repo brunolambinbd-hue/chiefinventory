@@ -11,7 +11,7 @@ class ViewModelFactory(private val application: Application, private val reposit
             return MainViewModel(repository) as T
         }
         if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
-            return SearchViewModel(repository) as T
+            return SearchViewModel(application, repository) as T
         }
         if (modelClass.isAssignableFrom(ImportViewModel::class.java)) {
             return ImportViewModel(application, repository) as T

@@ -12,6 +12,7 @@ import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ItemCollectionBinding
 import com.example.parabdcollector.model.SearchResultItem
+import java.nio.ByteBuffer
 
 class CollectionAdapter(
     private val onItemClicked: (SearchResultItem) -> Unit
@@ -31,7 +32,8 @@ class CollectionAdapter(
     class CollectionViewHolder(private val binding: ItemCollectionBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(searchResultItem: SearchResultItem) {
             val item = searchResultItem.item
-            
+            val context = itemView.context
+
             var titleText = item.titre
             searchResultItem.similarity?.let {
                  titleText += " (Similarité: %.1f%%)".format(it * 100)
@@ -65,10 +67,18 @@ class CollectionAdapter(
             binding.itemYear.isVisible = item.annee != null
             binding.itemYear.text = item.annee?.toString()
 
-            val context = itemView.context
             val isDebuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
             if (isDebuggable) {
-                val sigInfo = item.imageEmbedding?.size?.let { "$it bytes" } ?: "N/A"
+                val sigInfo = item.imageEmbedding?.let { embedding ->
+                    if (embedding.isNotEmpty()) {
+                        val byteBuffer = ByteBuffer.wrap(embedding)
+                        val preview = (1..5).map { "%.2f".format(byteBuffer.float) }.joinToString(", ")
+                        context.getString(R.string.signature_preview_format, preview)
+                    } else {
+                        context.getString(R.string.signature_status_empty)
+                    }
+                } ?: context.getString(R.string.signature_status_missing)
+                
                 binding.debugInfo.text = context.getString(R.string.debug_signature_info, item.remoteId, sigInfo)
                 binding.debugInfo.visibility = View.VISIBLE
             } else {

@@ -13,14 +13,40 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <Button
-        android:id="@+id/btn_search"
-        android:layout_width="wrap_content"
+    <!-- Barre de recherche principale -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/search_button" />
+        android:orientation="horizontal"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/et_search_simple"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/simple_search_hint"
+            android:inputType="text"
+            tools:ignore="Autofill" />
+
+        <ImageButton
+            android:id="@+id/btn_search_by_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_camera"
+            android:contentDescription="@string/search_by_image_description"/>
+
+        <Button
+            android:id="@+id/btn_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_button" />
+
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -31,15 +57,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
-
-            <!-- Recherche Simple -->
-            <EditText
-                android:id="@+id/et_search_simple"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/simple_search_hint"
-                android:inputType="text"
-                tools:ignore="Autofill" />
 
             <!-- Bouton pour afficher/masquer la recherche avancée -->
             <TextView
@@ -72,6 +89,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/item_editor_hint"
+                    android:inputType="textCapWords"
+                    tools:ignore="Autofill" />
+
+                <EditText
+                    android:id="@+id/et_search_tirage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_run_hint"
+                    android:inputType="textCapWords"
+                    tools:ignore="Autofill" />
+
+                <EditText
+                    android:id="@+id/et_search_dimensions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/item_dimensions_hint"
                     android:inputType="textCapWords"
                     tools:ignore="Autofill" />
 
@@ -134,6 +167,16 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <TextView
+        android:id="@+id/tv_results_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:padding="8dp"
+        android:visibility="gone"
+        tools:text="3 résultats trouvés"
+        tools:visibility="visible" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_search_results"

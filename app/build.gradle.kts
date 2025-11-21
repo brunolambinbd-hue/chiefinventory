@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.androidx.room.compiler)
+
     implementation(libs.mediapipe.tasks.vision)
 
     testImplementation(libs.junit)

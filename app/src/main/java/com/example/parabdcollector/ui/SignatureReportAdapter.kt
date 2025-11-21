@@ -1,10 +1,9 @@
 package com.example.parabdcollector.ui
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.graphics.toColorInt
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -41,15 +40,15 @@ class SignatureReportAdapter(
             when {
                 item.imageEmbedding == null -> {
                     binding.tvSignatureStatus.text = context.getString(R.string.signature_status_missing)
-                    binding.tvSignatureStatus.setTextColor(Color.RED)
+                    binding.tvSignatureStatus.setTextColor(ContextCompat.getColor(context, R.color.status_error))
                 }
                 item.imageEmbedding.isEmpty() -> {
                     binding.tvSignatureStatus.text = context.getString(R.string.signature_status_empty)
-                    binding.tvSignatureStatus.setTextColor("#FFA500".toColorInt()) // Orange
+                    binding.tvSignatureStatus.setTextColor(ContextCompat.getColor(context, R.color.status_warning))
                 }
                 else -> {
                     binding.tvSignatureStatus.text = context.getString(R.string.signature_status_valid)
-                    binding.tvSignatureStatus.setTextColor("#008000".toColorInt()) // Green
+                    binding.tvSignatureStatus.setTextColor(ContextCompat.getColor(context, R.color.status_ok))
                     
                     // Affichage de la miniature et de l'aperçu
                     binding.ivThumbnail.visibility = View.VISIBLE

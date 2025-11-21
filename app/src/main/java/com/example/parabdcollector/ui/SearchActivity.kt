@@ -2,16 +2,23 @@
 
 package com.example.parabdcollector.ui
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,11 +31,29 @@ import com.example.parabdcollector.utils.CategoryMapper
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
-    private lateinit var adapter: CollectionAdapter // On utilise le bon adaptateur détaillé
+    private lateinit var adapter: CollectionAdapter
+    private var currentSearchDescription: String = ""
 
     private val viewModel: SearchViewModel by viewModels {
         val repository = (application as CollectionApplication).repository
         ViewModelFactory(application, repository)
+    }
+
+    // Lanceur pour prendre une photo (méthode moderne)
+    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) {
+            currentSearchDescription = getString(R.string.search_by_image_description)
+            viewModel.searchByImage(bitmap)
+        }
+    }
+
+    // Lanceur pour demander la permission d'utiliser l'appareil photo
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            launchCamera()
+        } else {
+            Toast.makeText(this, R.string.toast_camera_permission_denied, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +69,7 @@ class SearchActivity : AppCompatActivity() {
         setupCategorySpinners()
 
         binding.btnSearch.setOnClickListener { performSearch() }
+        binding.btnSearchByImage.setOnClickListener { onSearchByImageClicked() }
 
         binding.tvToggleAdvancedSearch.setOnClickListener {
             if (binding.advancedSearchContainer.isGone) {
@@ -55,6 +81,33 @@ class SearchActivity : AppCompatActivity() {
                 binding.advancedSearchContainer.isGone = true
                 binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
             }
+        }
+
+        // On observe les résultats de la recherche (pour les deux types de recherche)
+        viewModel.searchResults.observe(this) { results ->
+            adapter.submitList(results)
+            val count = results.size
+            binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
+            binding.tvResultsCount.isVisible = true
+        }
+    }
+
+    private fun onSearchByImageClicked() {
+        when {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
+                launchCamera()
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    private fun launchCamera() {
+        try {
+            takePictureLauncher.launch(null)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Impossible de lancer l\'appareil photo", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -84,9 +137,8 @@ class SearchActivity : AppCompatActivity() {
         val simpleQuery = binding.etSearchSimple.text.toString()
 
         if (simpleQuery.isNotBlank()) {
-            viewModel.search(simpleQuery).observe(this) { results ->
-                adapter.submitList(results.map { SearchResultItem(it) })
-            }
+            currentSearchDescription = simpleQuery
+            viewModel.search(simpleQuery)
         } else {
             val criteria = SearchCriteria(
                 titre = binding.etSearchTitre.text.toString().takeIf { it.isNotBlank() },
@@ -95,12 +147,25 @@ class SearchActivity : AppCompatActivity() {
                 mois = binding.etSearchedMonth.text.toString().toIntOrNull(),
                 superCategorie = binding.etSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
                 categorie = binding.etSearchCategory.text.toString().takeIf { it.isNotBlank() },
-                description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() }
+                description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() },
+                tirage = binding.etSearchTirage.text.toString().takeIf { it.isNotBlank() },
+                dimensions = binding.etSearchDimensions.text.toString().takeIf { it.isNotBlank() }
             )
 
-            viewModel.advancedSearch(criteria).observe(this) { results ->
-                adapter.submitList(results.map { SearchResultItem(it) })
-            }
+            val descriptionParts = listOfNotNull(
+                criteria.titre,
+                criteria.editeur,
+                criteria.tirage,
+                criteria.dimensions,
+                criteria.annee?.toString(),
+                criteria.mois?.toString(),
+                criteria.superCategorie,
+                criteria.categorie,
+                criteria.description
+            )
+            currentSearchDescription = descriptionParts.joinToString(", ")
+
+            viewModel.advancedSearch(criteria)
         }
 
         // On referme la recherche avancée pour donner de la place aux résultats.

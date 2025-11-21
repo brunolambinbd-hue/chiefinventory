@@ -12,5 +12,6 @@
     <!-- Couleurs de statut -->
     <color name="status_error">#FFFF0000</color> <!-- Rouge -->
     <color name="status_warning">#FFFFA500</color> <!-- Orange -->
+    <color name="status_ok">#FF008000</color> <!-- Vert -->
 
 </resources>

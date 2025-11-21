@@ -32,7 +32,7 @@ interface CollectionDao {
     fun findByRemoteId(remoteId: Int): CollectionItem?
 
     @Query("SELECT * FROM collection_items WHERE titre LIKE :query OR editeur LIKE :query OR CAST(annee AS TEXT) LIKE :query OR categorie LIKE :query OR materiau LIKE :query OR tirage LIKE :query OR dimensions LIKE :query ORDER BY annee DESC, mois DESC")
-    fun search(query: String): LiveData<List<CollectionItem>>
+    suspend fun search(query: String): List<CollectionItem>
 
     @Query(
         """
@@ -43,11 +43,13 @@ interface CollectionDao {
             (:mois IS NULL OR mois = :mois) AND
             (:superCategorie IS NULL OR superCategorie = :superCategorie) AND
             (:categorie IS NULL OR categorie LIKE :categorie) AND
-            (:description IS NULL OR description LIKE :description)
+            (:description IS NULL OR description LIKE :description) AND
+            (:tirage IS NULL OR tirage LIKE :tirage) AND
+            (:dimensions IS NULL OR dimensions LIKE :dimensions)
         ORDER BY annee DESC, mois DESC
         """
     )
-    fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, superCategorie: String?, categorie: String?, description: String?): LiveData<List<CollectionItem>>
+    suspend fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, superCategorie: String?, categorie: String?, description: String?, tirage: String?, dimensions: String?): List<CollectionItem>
 
     @Query("SELECT superCategorie as name, COUNT(*) as count FROM collection_items WHERE isPossessed = :isPossessed AND superCategorie IS NOT NULL AND superCategorie != '' GROUP BY superCategorie ORDER BY superCategorie ASC")
     fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>>
