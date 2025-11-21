@@ -34,14 +34,11 @@ android {
 }
 
 dependencies {
-    // On ajoute la dépendance MediaPipe
-    implementation(libs.mediapipe.tasks.vision)
+    // Use 'api' with the version catalog to expose this dependency to the main app module correctly
+    api(libs.mediapipe.tasks.vision)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-
-    // Use 'api' to expose this dependency to the main app module
-    api("com.google.mediapipe:tasks-vision:0.10.29")
 }
 
 // On définit la variable pour le script et on l'applique

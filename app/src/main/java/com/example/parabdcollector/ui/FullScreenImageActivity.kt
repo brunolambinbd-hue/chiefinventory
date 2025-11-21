@@ -48,8 +48,21 @@ class FullScreenImageActivity : AppCompatActivity() {
         // Affichage des informations textuelles avec libellés
         binding.imageInfoTitle.text = title
         
-        binding.imageInfoManufacturer.text = editor?.let { getString(R.string.item_editor_hint) + ": " + it } ?: ""
-        binding.imageInfoManufacturer.visibility = if (editor.isNullOrBlank()) View.GONE else View.VISIBLE
+        fun setInfoText(textView: android.widget.TextView, labelResId: Int, value: String?) {
+            if (value.isNullOrBlank()) {
+                textView.visibility = View.GONE
+            } else {
+                textView.visibility = View.VISIBLE
+                textView.text = getString(labelResId, value)
+            }
+        }
+
+        setInfoText(binding.imageInfoManufacturer, R.string.generic_field_format, editor)
+        setInfoText(binding.imageInfoSupercategory, R.string.generic_field_format, superCategory)
+        setInfoText(binding.imageInfoCategory, R.string.generic_field_format, category)
+        setInfoText(binding.imageInfoMaterial, R.string.generic_field_format, material)
+        setInfoText(binding.imageInfoRun, R.string.generic_field_format, run)
+        setInfoText(binding.imageInfoDimensions, R.string.generic_field_format, dimensions)
 
         var yearMonthText = ""
         if (year != 0) {
@@ -60,21 +73,6 @@ class FullScreenImageActivity : AppCompatActivity() {
         }
         binding.imageInfoYear.text = yearMonthText
         binding.imageInfoYear.visibility = if (yearMonthText.isBlank()) View.GONE else View.VISIBLE
-
-        binding.imageInfoSupercategory.text = superCategory?.let { getString(R.string.item_super_category_hint) + ": " + it } ?: ""
-        binding.imageInfoSupercategory.visibility = if (superCategory.isNullOrBlank()) View.GONE else View.VISIBLE
-
-        binding.imageInfoCategory.text = category?.let { getString(R.string.item_category_hint) + ": " + it } ?: ""
-        binding.imageInfoCategory.visibility = if (category.isNullOrBlank()) View.GONE else View.VISIBLE
-
-        binding.imageInfoMaterial.text = material?.let { getString(R.string.item_material_hint) + ": " + it } ?: ""
-        binding.imageInfoMaterial.visibility = if (material.isNullOrBlank()) View.GONE else View.VISIBLE
-
-        binding.imageInfoRun.text = run?.let { getString(R.string.item_run_hint) + ": " + it } ?: ""
-        binding.imageInfoRun.visibility = if (run.isNullOrBlank()) View.GONE else View.VISIBLE
-
-        binding.imageInfoDimensions.text = dimensions?.let { getString(R.string.item_dimensions_hint) + ": " + it } ?: ""
-        binding.imageInfoDimensions.visibility = if (dimensions.isNullOrBlank()) View.GONE else View.VISIBLE
 
         binding.imageInfoDescription.text = description
         binding.imageInfoDescription.visibility = if (description.isNullOrBlank()) View.GONE else View.VISIBLE

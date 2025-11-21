@@ -77,5 +77,8 @@
     <string name="signature_status_missing">Manquante</string>
     <string name="debug_signature_info">ID : %1$d, Sig : %2$s</string>
     <string name="debug_signature_info_fullscreen">Signature: %1$s</string>
+    <string name="todo">À FAIRE</string>
+    <string name="generic_field_format">%1$s : %2$s</string>
+    <string name="signature_preview_format">[%1$s,…]</string>
 
 </resources>

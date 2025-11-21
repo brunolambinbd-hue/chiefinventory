@@ -21,7 +21,6 @@
     <!-- Descriptions pour l'accessibilité -->
     <string name="item_image_preview_description">Aperçu de l\'image de l\'objet</string>
     <string name="item_thumbnail_description_generic">Image de l\'objet</string>
-    <string name="item_thumbnail_description_dynamic">Image de %1$s</string>
     <string name="full_screen_image_description">Image en plein écran de l\'objet</string>
 
     <!-- Textes pour l'écran d'édition -->
@@ -78,5 +77,7 @@
     <string name="signature_status_missing">Manquante</string>
     <string name="debug_signature_info">ID : %1$d, Sig : %2$s</string>
     <string name="debug_signature_info_fullscreen">Signature: %1$s</string>
+    <string name="generic_field_format">%1$s: %2$s</string>
+    <string name="signature_preview_format">[%1$s,…]</string>
 
 </resources>

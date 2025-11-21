@@ -64,7 +64,7 @@ class SignatureReportAdapter(
                     // Conversion des 20 premiers bytes en 5 floats pour l'aperçu
                     val byteBuffer = ByteBuffer.wrap(item.imageEmbedding)
                     val preview = (1..5).map { "%.2f".format(byteBuffer.float) }.joinToString(", ")
-                    binding.tvSignaturePreview.text = "[$preview,...]"
+                    binding.tvSignaturePreview.text = context.getString(R.string.signature_preview_format, preview)
                 }
             }
         }

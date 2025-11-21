@@ -4,14 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
     tools:context=".ui.FullScreenImageActivity">
 
     <ImageView
         android:id="@+id/full_screen_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="TODO"
+        android:contentDescription="@string/full_screen_image_description"
         android:scaleType="fitCenter" />
 
     <androidx.appcompat.widget.Toolbar
