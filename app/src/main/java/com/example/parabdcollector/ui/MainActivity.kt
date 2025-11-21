@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
@@ -25,6 +26,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var toggle: ActionBarDrawerToggle
     private var possessedCounterTextView: TextView? = null
     private var soughtCounterTextView: TextView? = null
+    private var missingSignatureCounterTextView: TextView? = null
+    private var missingSignatureSeparator: TextView? = null
 
     private val viewModel: MainViewModel by viewModels {
         val repository = (application as CollectionApplication).repository
@@ -89,8 +92,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (isDebuggable) {
             viewModel.signatureStats.observe(this) { stats ->
                 binding.tvSignaturesOk.text = getString(R.string.report_signatures_ok, stats.validCount)
+                
                 binding.tvSignaturesEmpty.text = getString(R.string.report_signatures_empty, stats.emptyCount)
+                binding.tvSignaturesEmpty.setTextColor(ContextCompat.getColor(this, R.color.status_warning))
+
                 binding.tvSignaturesMissing.text = getString(R.string.report_signatures_missing, stats.missingCount)
+                binding.tvSignaturesMissing.setTextColor(ContextCompat.getColor(this, R.color.status_error))
+
+                // Mise à jour du compteur dans la barre d'outils
+                val showMissing = stats.missingCount > 0
+                missingSignatureCounterTextView?.text = stats.missingCount.toString()
+                missingSignatureCounterTextView?.isVisible = showMissing
+                missingSignatureSeparator?.isVisible = showMissing
             }
         }
     }
@@ -102,11 +115,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val actionView = counterItem?.actionView
         possessedCounterTextView = actionView?.findViewById(R.id.possessed_counter)
         soughtCounterTextView = actionView?.findViewById(R.id.sought_counter)
+        missingSignatureCounterTextView = actionView?.findViewById(R.id.missing_signature_counter)
+        missingSignatureSeparator = actionView?.findViewById(R.id.missing_signature_separator)
         
         val possessedCount = viewModel.possessedItems.value?.size ?: 0
         val soughtCount = viewModel.soughtItems.value?.size ?: 0
         possessedCounterTextView?.text = possessedCount.toString()
         soughtCounterTextView?.text = soughtCount.toString()
+
+        // On met à jour le compteur de signatures manquantes au cas où les données sont déjà là
+        val missingCount = viewModel.signatureStats.value?.missingCount ?: 0
+        val showMissing = missingCount > 0
+        missingSignatureCounterTextView?.text = missingCount.toString()
+        missingSignatureCounterTextView?.isVisible = showMissing
+        missingSignatureSeparator?.isVisible = showMissing
         
         return true
     }

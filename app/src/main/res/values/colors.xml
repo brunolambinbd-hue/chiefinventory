@@ -9,4 +9,8 @@
     <color name="colorSecondaryVariant">#FF018786</color>
     <color name="colorOnSecondary">#FF000000</color>
 
+    <!-- Couleurs de statut -->
+    <color name="status_error">#FFFF0000</color> <!-- Rouge -->
+    <color name="status_warning">#FFFFA500</color> <!-- Orange -->
+
 </resources>
