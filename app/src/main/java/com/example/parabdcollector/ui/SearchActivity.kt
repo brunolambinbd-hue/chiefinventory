@@ -34,6 +34,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchBinding
     private lateinit var adapter: CollectionAdapter
     private var currentSearchDescription: String = ""
+    private var searchImageBitmap: Bitmap? = null
 
     private val viewModel: SearchViewModel by viewModels {
         val repository = (application as CollectionApplication).repository
@@ -43,10 +44,9 @@ class SearchActivity : AppCompatActivity() {
     // Lanceur pour prendre une photo (méthode moderne)
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
         if (bitmap != null) {
+            searchImageBitmap = bitmap
             binding.ivSearchThumbnail.setImageBitmap(bitmap)
             binding.ivSearchThumbnail.visibility = View.VISIBLE
-            currentSearchDescription = getString(R.string.search_by_image_description)
-            viewModel.searchByImage(bitmap)
         }
     }
 
@@ -82,7 +82,7 @@ class SearchActivity : AppCompatActivity() {
         viewModel.searchResults.observe(this) { results ->
             adapter.submitList(results)
             val count = results.size
-            if (count > 0) {
+            if (count > 0 || currentSearchDescription.isNotBlank()) {
                 binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
                 binding.tvResultsCount.isVisible = true
             } else {
@@ -114,7 +114,9 @@ class SearchActivity : AppCompatActivity() {
         binding.etSearchCategory.setText("", false)
         binding.etSearchDescription.setText("")
 
-        // On cache l'imagette et le compteur
+        // On vide la description, l'image et on cache les vues AVANT de notifier le ViewModel
+        currentSearchDescription = ""
+        searchImageBitmap = null
         binding.ivSearchThumbnail.visibility = View.GONE
         binding.tvSearchThumbnailSignature.visibility = View.GONE
         binding.tvResultsCount.visibility = View.GONE
@@ -136,7 +138,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun onSearchByImageClicked() {
-        resetSearchState()
         when {
             ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
                 launchCamera()
@@ -174,44 +175,39 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun performSearch() {
-        resetSearchState()
         // On cache le clavier
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 
         val simpleQuery = binding.etSearchSimple.text.toString()
 
-        if (simpleQuery.isNotBlank()) {
-            currentSearchDescription = simpleQuery
-            viewModel.search(simpleQuery)
-        } else {
-            val criteria = SearchCriteria(
-                titre = binding.etSearchTitre.text.toString().takeIf { it.isNotBlank() },
-                editeur = binding.etSearchEditor.text.toString().takeIf { it.isNotBlank() },
-                annee = binding.etSearchYear.text.toString().toIntOrNull(),
-                mois = binding.etSearchedMonth.text.toString().toIntOrNull(),
-                superCategorie = binding.etSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
-                categorie = binding.etSearchCategory.text.toString().takeIf { it.isNotBlank() },
-                description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() },
-                tirage = binding.etSearchTirage.text.toString(), // On garde le type String ici
-                dimensions = binding.etSearchDimensions.text.toString().takeIf { it.isNotBlank() }
-            )
+        val criteria = SearchCriteria(
+            titre = if (simpleQuery.isNotBlank()) simpleQuery else binding.etSearchTitre.text.toString().takeIf { it.isNotBlank() },
+            editeur = binding.etSearchEditor.text.toString().takeIf { it.isNotBlank() },
+            annee = binding.etSearchYear.text.toString().toIntOrNull(),
+            mois = binding.etSearchedMonth.text.toString().toIntOrNull(),
+            superCategorie = binding.etSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
+            categorie = binding.etSearchCategory.text.toString().takeIf { it.isNotBlank() },
+            description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() },
+            tirage = binding.etSearchTirage.text.toString().takeIf { it.isNotBlank() },
+            dimensions = binding.etSearchDimensions.text.toString().takeIf { it.isNotBlank() }
+        )
 
-            val descriptionParts = listOfNotNull(
-                criteria.titre,
-                criteria.editeur,
-                criteria.tirage,
-                criteria.dimensions,
-                criteria.annee?.toString(),
-                criteria.mois?.toString(),
-                criteria.superCategorie,
-                criteria.categorie,
-                criteria.description
-            ).filter { it.isNotBlank() }
-            currentSearchDescription = descriptionParts.joinToString(", ")
+        val descriptionParts = mutableListOf<String>()
+        if (searchImageBitmap != null) descriptionParts.add(getString(R.string.search_by_image_description))
+        criteria.titre?.let { descriptionParts.add(it) }
+        criteria.editeur?.let { descriptionParts.add(it) }
+        criteria.tirage?.let { descriptionParts.add(it) }
+        criteria.dimensions?.let { descriptionParts.add(it) }
+        criteria.annee?.let { descriptionParts.add(it.toString()) }
+        criteria.mois?.let { descriptionParts.add(it.toString()) }
+        criteria.superCategorie?.let { descriptionParts.add(it) }
+        criteria.categorie?.let { descriptionParts.add(it) }
+        criteria.description?.let { descriptionParts.add(it) }
+        
+        currentSearchDescription = descriptionParts.joinToString(", ")
 
-            viewModel.advancedSearch(criteria)
-        }
+        viewModel.search(criteria, searchImageBitmap)
 
         // On referme la recherche avancée pour donner de la place aux résultats.
         if (binding.advancedSearchContainer.isVisible) {

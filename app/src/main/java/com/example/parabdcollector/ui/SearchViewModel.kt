@@ -44,41 +44,23 @@ class SearchViewModel(application: Application, private val repository: Collecti
         }
     )
 
-    fun search(query: String) {
+    fun search(criteria: SearchCriteria, bitmap: Bitmap?) {
         viewModelScope.launch {
-            val results = repository.search("%${query}%")
-            _searchResults.value = results.map { SearchResultItem(it) }
-        }
-    }
-
-    fun advancedSearch(criteria: SearchCriteria) {
-        viewModelScope.launch {
-            val results = repository.advancedSearch(
-                titre = criteria.titre?.let { "%$it%" },
-                editeur = criteria.editeur?.let { "%$it%" },
-                annee = criteria.annee,
-                mois = criteria.mois,
-                superCategorie = criteria.superCategorie,
-                categorie = criteria.categorie?.let { "%$it%" },
-                description = criteria.description?.let { "%$it%" },
-                tirage = criteria.tirage,
-                dimensions = criteria.dimensions?.let { "%$it%" }
-            )
-            _searchResults.value = results.map { SearchResultItem(it) }
-        }
-    }
-
-    fun searchByImage(bitmap: Bitmap) {
-        viewModelScope.launch {
-            val signature = imageEmbedderHelper.computeSignature(bitmap)
-            if (signature != null) {
-                val preview = (1..5).map { "%.2f".format(signature.floatEmbedding()[it-1]) }.joinToString(", ")
-                _signaturePreview.value = getApplication<Application>().getString(R.string.signature_preview_format, preview)
-                val results = repository.findSimilarItems(signature.floatEmbedding())
-                _searchResults.value = results
-            } else {
-                _signaturePreview.value = ""
+            // On calcule la signature de l'image de recherche, si elle existe
+            val querySignature = bitmap?.let {
+                val signature = imageEmbedderHelper.computeSignature(it)
+                signature?.floatEmbedding()
             }
+
+            // On met à jour l'aperçu de la signature
+            querySignature?.let {
+                val preview = it.take(5).joinToString(", ") { "%.2f".format(it) }
+                _signaturePreview.value = getApplication<Application>().getString(R.string.signature_preview_format, preview)
+            } ?: run { _signaturePreview.value = "" }
+
+            // On lance la recherche unifiée dans le repository
+            val results = repository.unifiedSearch(criteria, querySignature)
+            _searchResults.value = results
         }
     }
 

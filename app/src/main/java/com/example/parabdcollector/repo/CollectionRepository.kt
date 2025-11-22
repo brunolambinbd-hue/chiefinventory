@@ -8,6 +8,7 @@ import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.model.SignatureStats
+import com.example.parabdcollector.ui.SearchCriteria
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.experimental.and
@@ -61,26 +62,34 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return collectionDao.findByRemoteId(remoteId)
     }
 
-    suspend fun search(query: String): List<CollectionItem> {
-        return collectionDao.search(query)
-    }
+    suspend fun unifiedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
+        // 1. On filtre par les critères texte
+        val textFilteredItems = collectionDao.advancedSearch(
+            titre = criteria.titre?.let { "%$it%" },
+            editeur = criteria.editeur?.let { "%$it%" },
+            annee = criteria.annee,
+            mois = criteria.mois,
+            superCategorie = criteria.superCategorie,
+            categorie = criteria.categorie?.let { "%$it%" },
+            description = criteria.description?.let { "%$it%" },
+            tirage = criteria.tirage?.let { "%$it%" },
+            dimensions = criteria.dimensions?.let { "%$it%" }
+        )
 
-    suspend fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, superCategorie: String?, categorie: String?, description: String?, tirage: String?, dimensions: String?): List<CollectionItem> {
-        return collectionDao.advancedSearch(titre, editeur, annee, mois, superCategorie, categorie, description, tirage, dimensions)
-    }
-
-    suspend fun findSimilarItems(queryEmbedding: FloatArray): List<SearchResultItem> {
-        val allItems = collectionDao.getAllItems()
-
-        return allItems
-            .filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
-            .map {
-                val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
-                SearchResultItem(it, similarity.toDouble())
-            }
-            .filter { it.similarity!! >= 0.0 } // On garde tous les résultats pour le débogage
-            .sortedByDescending { it.similarity }
-            .take(5)
+        // 2. Si une image est fournie, on calcule la similarité sur les résultats pré-filtrés
+        if (queryEmbedding != null) {
+            return textFilteredItems
+                .filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
+                .map {
+                    val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
+                    SearchResultItem(it, similarity.toDouble())
+                }
+                .sortedByDescending { it.similarity }
+                .take(5)
+        } else {
+            // Sinon, on retourne simplement les résultats du texte
+            return textFilteredItems.map { SearchResultItem(it) }
+        }
     }
 
     private fun cosineSimilarity(vec1: FloatArray, vec2Bytes: ByteArray): Float {
