@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 class ImportViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
@@ -92,7 +93,7 @@ class ImportViewModel(application: Application, private val repository: Collecti
                                 if (signature != null) {
                                     // On convertit le FloatArray en ByteArray
                                     val floatArray = signature.floatEmbedding()
-                                    val byteBuffer = ByteBuffer.allocate(floatArray.size * 4)
+                                    val byteBuffer = ByteBuffer.allocate(floatArray.size * 4).order(ByteOrder.LITTLE_ENDIAN)
                                     floatArray.forEach { byteBuffer.putFloat(it) }
                                     itemToSave = itemToSave.copy(imageEmbedding = byteBuffer.array())
                                     Log.i("ImportViewModel", "Item $remoteId - Signature calculée avec succès.")

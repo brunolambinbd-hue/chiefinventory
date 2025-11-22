@@ -62,7 +62,11 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return collectionDao.findByRemoteId(remoteId)
     }
 
-    suspend fun unifiedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
+    suspend fun search(query: String): List<CollectionItem> {
+        return collectionDao.search("%${query}%")
+    }
+
+    suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
         // 1. On filtre par les critères texte
         val textFilteredItems = collectionDao.advancedSearch(
             titre = criteria.titre?.let { "%$it%" },
@@ -92,6 +96,20 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         }
     }
 
+    suspend fun findSimilarItems(queryEmbedding: FloatArray): List<SearchResultItem> {
+        val allItems = collectionDao.getAllItems()
+
+        return allItems
+            .filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
+            .map {
+                val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
+                SearchResultItem(it, similarity.toDouble())
+            }
+            .filter { !(it.similarity?.isNaN() ?: true) } // On exclut les NaN
+            .sortedByDescending { it.similarity }
+            .take(5)
+    }
+
     private fun cosineSimilarity(vec1: FloatArray, vec2Bytes: ByteArray): Float {
         val vec2 = toFloatArray(vec2Bytes)
         
@@ -115,7 +133,6 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return dotProduct / (normA_sqrt * normB_sqrt)
     }
 
-    // Méthode robuste pour convertir un ByteArray en FloatArray
     private fun toFloatArray(bytes: ByteArray): FloatArray {
         val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
         val floatArray = FloatArray(bytes.size / 4)

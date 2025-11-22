@@ -50,10 +50,17 @@ class SearchViewModel(application: Application, private val repository: Collecti
         }
     }
 
-    fun search(criteria: SearchCriteria, bitmap: Bitmap?) {
+    fun search(query: String) {
         viewModelScope.launch {
-            val querySignature = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
-            val results = repository.unifiedSearch(criteria, querySignature)
+            val results = repository.search(query)
+            _searchResults.value = results.map { SearchResultItem(it) }
+        }
+    }
+
+    fun advancedSearch(criteria: SearchCriteria, bitmap: Bitmap?) {
+        viewModelScope.launch {
+            val queryEmbedding = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
+            val results = repository.advancedSearch(criteria, queryEmbedding)
             _searchResults.postValue(results)
         }
     }

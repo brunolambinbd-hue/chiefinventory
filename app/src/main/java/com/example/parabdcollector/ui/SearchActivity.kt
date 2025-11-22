@@ -1,5 +1,3 @@
-@file:Suppress("UnusedImport", "UnusedImport")
-
 package com.example.parabdcollector.ui
 
 import android.Manifest
@@ -44,6 +42,7 @@ class SearchActivity : AppCompatActivity() {
     // Lanceur pour prendre une photo (méthode moderne)
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
         if (bitmap != null) {
+            // On retient l'image et on affiche l'aperçu, sans lancer la recherche
             searchImageBitmap = bitmap
             binding.ivSearchThumbnail.setImageBitmap(bitmap)
             binding.ivSearchThumbnail.visibility = View.VISIBLE
@@ -79,7 +78,7 @@ class SearchActivity : AppCompatActivity() {
             toggleAdvancedSearch()
         }
 
-        // On observe les résultats de la recherche (pour les deux types de recherche)
+        // On observe les résultats de la recherche
         viewModel.searchResults.observe(this) { results ->
             adapter.submitList(results)
             val count = results.size
@@ -130,7 +129,6 @@ class SearchActivity : AppCompatActivity() {
         if (binding.advancedSearchContainer.isGone) {
             binding.advancedSearchContainer.isVisible = true
             binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_hide)
-            // On vide la recherche simple quand on ouvre la recherche avancée.
             binding.etSearchSimple.setText("")
         } else {
             binding.advancedSearchContainer.isGone = true
@@ -182,35 +180,42 @@ class SearchActivity : AppCompatActivity() {
 
         val simpleQuery = binding.etSearchSimple.text.toString()
 
-        val criteria = SearchCriteria(
-            titre = if (simpleQuery.isNotBlank()) simpleQuery else binding.etSearchTitre.text.toString().takeIf { it.isNotBlank() },
-            editeur = binding.etSearchEditor.text.toString().takeIf { it.isNotBlank() },
-            annee = binding.etSearchYear.text.toString().toIntOrNull(),
-            mois = binding.etSearchedMonth.text.toString().toIntOrNull(),
-            superCategorie = binding.etSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
-            categorie = binding.etSearchCategory.text.toString().takeIf { it.isNotBlank() },
-            description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() },
-            tirage = binding.etSearchTirage.text.toString().takeIf { it.isNotBlank() },
-            dimensions = binding.etSearchDimensions.text.toString().takeIf { it.isNotBlank() }
-        )
+        if (simpleQuery.isNotBlank()) {
+            currentSearchDescription = simpleQuery
+            viewModel.search(simpleQuery)
+        } else {
+            val criteria = SearchCriteria(
+                titre = binding.etSearchTitre.text.toString().takeIf { it.isNotBlank() },
+                editeur = binding.etSearchEditor.text.toString().takeIf { it.isNotBlank() },
+                annee = binding.etSearchYear.text.toString().toIntOrNull(),
+                mois = binding.etSearchedMonth.text.toString().toIntOrNull(),
+                superCategorie = binding.etSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
+                categorie = binding.etSearchCategory.text.toString().takeIf { it.isNotBlank() },
+                description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() },
+                tirage = binding.etSearchTirage.text.toString().takeIf { it.isNotBlank() },
+                dimensions = binding.etSearchDimensions.text.toString().takeIf { it.isNotBlank() }
+            )
 
-        val descriptionParts = mutableListOf<String>()
-        if (searchImageBitmap != null) descriptionParts.add(getString(R.string.search_by_image_description))
-        criteria.titre?.let { descriptionParts.add(it) }
-        criteria.editeur?.let { descriptionParts.add(it) }
-        criteria.tirage?.let { descriptionParts.add(it) }
-        criteria.dimensions?.let { descriptionParts.add(it) }
-        criteria.annee?.let { descriptionParts.add(it.toString()) }
-        criteria.mois?.let { descriptionParts.add(it.toString()) }
-        criteria.superCategorie?.let { descriptionParts.add(it) }
-        criteria.categorie?.let { descriptionParts.add(it) }
-        criteria.description?.let { descriptionParts.add(it) }
-        
-        currentSearchDescription = descriptionParts.joinToString(", ")
+            val descriptionParts = mutableListOf<String>()
+            if (searchImageBitmap != null) {
+                descriptionParts.add(getString(R.string.search_by_image_description))
+            }
+            listOfNotNull(
+                criteria.titre,
+                criteria.editeur,
+                criteria.tirage,
+                criteria.dimensions,
+                criteria.annee?.toString(),
+                criteria.mois?.toString(),
+                criteria.superCategorie,
+                criteria.categorie,
+                criteria.description
+            ).filter { it.isNotBlank() }.forEach { descriptionParts.add(it) }
+            currentSearchDescription = descriptionParts.joinToString(", ")
+            
+            viewModel.advancedSearch(criteria, searchImageBitmap)
+        }
 
-        viewModel.search(criteria, searchImageBitmap)
-
-        // On referme la recherche avancée pour donner de la place aux résultats.
         if (binding.advancedSearchContainer.isVisible) {
             binding.advancedSearchContainer.isGone = true
             binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
