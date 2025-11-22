@@ -12,7 +12,7 @@ import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ItemCollectionBinding
 import com.example.parabdcollector.model.SearchResultItem
-import java.nio.ByteBuffer
+import com.example.parabdcollector.utils.SignatureUtils
 
 class CollectionAdapter(
     private val onItemClicked: (SearchResultItem) -> Unit
@@ -73,16 +73,7 @@ class CollectionAdapter(
 
             val isDebuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
             if (isDebuggable) {
-                val sigInfo = item.imageEmbedding?.let { embedding ->
-                    if (embedding.isNotEmpty()) {
-                        val byteBuffer = ByteBuffer.wrap(embedding)
-                        val preview = (1..5).map { "%.2f".format(byteBuffer.float) }.joinToString(", ")
-                        context.getString(R.string.signature_preview_format, preview)
-                    } else {
-                        context.getString(R.string.signature_status_empty)
-                    }
-                } ?: context.getString(R.string.signature_status_missing)
-                
+                val sigInfo = SignatureUtils.formatSignaturePreview(context, item.imageEmbedding)
                 binding.debugInfo.text = context.getString(R.string.debug_signature_info, item.remoteId, sigInfo)
                 binding.debugInfo.visibility = View.VISIBLE
             } else {

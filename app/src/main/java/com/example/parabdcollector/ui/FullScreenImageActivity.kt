@@ -9,8 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityFullScreenImageBinding
+import com.example.parabdcollector.utils.SignatureUtils
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.Locale
 
 class FullScreenImageActivity : AppCompatActivity() {
 
@@ -84,16 +86,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         // On affiche les infos de debug si on est en mode "debug"
         val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if (isDebuggable) {
-            val sigInfo = signature?.let { embedding ->
-                if (embedding.isNotEmpty()) {
-                    val byteBuffer = ByteBuffer.wrap(embedding).order(ByteOrder.LITTLE_ENDIAN)
-                    val preview = (1..5).map { "%.2f".format(byteBuffer.float) }.joinToString(", ")
-                    getString(R.string.signature_preview_format, preview)
-                } else {
-                    getString(R.string.signature_status_empty)
-                }
-            } ?: getString(R.string.signature_status_missing)
-            
+            val sigInfo = SignatureUtils.formatSignaturePreview(this, signature)
             binding.debugSignatureInfo.text = getString(R.string.debug_signature_info_fullscreen, sigInfo)
             binding.debugSignatureInfo.visibility = View.VISIBLE
         } else {

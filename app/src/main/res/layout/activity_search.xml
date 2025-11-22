@@ -67,7 +67,8 @@
                 android:text="@string/advanced_search_show"
                 android:textColor="?attr/colorPrimary"
                 android:layout_gravity="center_horizontal"
-                android:padding="8dp" />
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp" />
 
             <!-- Section Recherche Avancée (masquée par défaut) -->
             <LinearLayout
@@ -172,7 +173,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:scaleType="centerCrop"
                 android:visibility="gone"
                 tools:src="@mipmap/ic_launcher"
@@ -195,7 +196,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:padding="8dp"
+                android:paddingVertical="4dp"
                 android:visibility="gone"
                 tools:text="3 résultats trouvés"
                 tools:visibility="visible" />

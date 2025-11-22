@@ -47,6 +47,7 @@ class SearchActivity : AppCompatActivity() {
             searchImageBitmap = bitmap
             binding.ivSearchThumbnail.setImageBitmap(bitmap)
             binding.ivSearchThumbnail.visibility = View.VISIBLE
+            viewModel.calculateSignatureForPreview(bitmap)
         }
     }
 

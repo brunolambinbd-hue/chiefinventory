@@ -11,7 +11,7 @@ import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ItemSignatureReportBinding
 import com.example.parabdcollector.model.CollectionItem
-import java.nio.ByteBuffer
+import com.example.parabdcollector.utils.SignatureUtils
 
 class SignatureReportAdapter(
     private val onItemClicked: (CollectionItem) -> Unit
@@ -37,6 +37,8 @@ class SignatureReportAdapter(
             binding.ivThumbnail.visibility = View.GONE
             binding.tvSignaturePreview.visibility = View.GONE
 
+            val sigInfo = SignatureUtils.formatSignaturePreview(context, item.imageEmbedding)
+
             when {
                 item.imageEmbedding == null -> {
                     binding.tvSignatureStatus.text = context.getString(R.string.signature_status_missing)
@@ -60,10 +62,7 @@ class SignatureReportAdapter(
                         error(R.mipmap.ic_launcher)
                     }
 
-                    // Conversion des 20 premiers bytes en 5 floats pour l'aperçu
-                    val byteBuffer = ByteBuffer.wrap(item.imageEmbedding)
-                    val preview = (1..5).map { "%.2f".format(byteBuffer.float) }.joinToString(", ")
-                    binding.tvSignaturePreview.text = context.getString(R.string.signature_preview_format, preview)
+                    binding.tvSignaturePreview.text = sigInfo
                 }
             }
         }

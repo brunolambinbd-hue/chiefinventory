@@ -11,9 +11,8 @@ import com.example.imagecomparison.ImageEmbedderHelper
 import com.example.parabdcollector.R
 import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.utils.SignatureUtils
 import kotlinx.coroutines.launch
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 data class SearchCriteria(
     val titre: String? = null,
@@ -44,23 +43,18 @@ class SearchViewModel(application: Application, private val repository: Collecti
         }
     )
 
+    fun calculateSignatureForPreview(bitmap: Bitmap) {
+        viewModelScope.launch {
+            val signature = imageEmbedderHelper.computeSignature(bitmap)
+            _signaturePreview.postValue(SignatureUtils.formatSignaturePreview(getApplication(), signature?.floatEmbedding()))
+        }
+    }
+
     fun search(criteria: SearchCriteria, bitmap: Bitmap?) {
         viewModelScope.launch {
-            // On calcule la signature de l'image de recherche, si elle existe
-            val querySignature = bitmap?.let {
-                val signature = imageEmbedderHelper.computeSignature(it)
-                signature?.floatEmbedding()
-            }
-
-            // On met à jour l'aperçu de la signature
-            querySignature?.let {
-                val preview = it.take(5).joinToString(", ") { "%.2f".format(it) }
-                _signaturePreview.value = getApplication<Application>().getString(R.string.signature_preview_format, preview)
-            } ?: run { _signaturePreview.value = "" }
-
-            // On lance la recherche unifiée dans le repository
+            val querySignature = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
             val results = repository.unifiedSearch(criteria, querySignature)
-            _searchResults.value = results
+            _searchResults.postValue(results)
         }
     }
 
