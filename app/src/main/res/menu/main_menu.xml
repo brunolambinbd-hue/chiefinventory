@@ -11,7 +11,7 @@
         android:title="@string/menu_searches_title" />
     <item
         android:id="@+id/nav_locations"
-        android:title="@string/menu_locations_title" />
+        android:title="@string/locations_management_title" />
     <item
         android:id="@+id/nav_import"
         android:title="@string/menu_import_title" />

@@ -22,6 +22,7 @@
     <string name="item_image_preview_description">Aperçu de l\'image de l\'objet</string>
     <string name="item_thumbnail_description_generic">Image de l\'objet</string>
     <string name="full_screen_image_description">Image en plein écran de l\'objet</string>
+    <string name="add_location_description">Ajouter un emplacement</string>
 
     <!-- Textes pour l'écran d'édition -->
     <string name="edit_item_title_new">Nouvel Objet</string>
@@ -72,6 +73,7 @@
     <string name="menu_import_title">Importer / Mettre à jour</string>
     <string name="refine_search_title">Affiner la recherche</string>
     <string name="new_search_title">Nouvelle recherche</string>
+    <string name="locations_management_title">Gestion des emplacements</string>
 
     <!-- Messages (Toast) -->
     <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>

@@ -148,7 +148,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 intent.putExtra(CategoryListActivity.EXTRA_IS_POSSESSED, false)
                 startActivity(intent)
             }
-            R.id.nav_locations -> Toast.makeText(this, "Mes Emplacements cliqué", Toast.LENGTH_SHORT).show()
+            R.id.nav_locations -> {
+                startActivity(Intent(this, LocationManagementActivity::class.java))
+            }
             R.id.nav_import -> {
                 importCsvLauncher.launch("text/comma-separated-values")
             }
