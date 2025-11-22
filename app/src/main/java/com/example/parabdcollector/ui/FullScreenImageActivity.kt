@@ -10,6 +10,7 @@ import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityFullScreenImageBinding
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 class FullScreenImageActivity : AppCompatActivity() {
 
@@ -85,7 +86,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         if (isDebuggable) {
             val sigInfo = signature?.let { embedding ->
                 if (embedding.isNotEmpty()) {
-                    val byteBuffer = ByteBuffer.wrap(embedding)
+                    val byteBuffer = ByteBuffer.wrap(embedding).order(ByteOrder.LITTLE_ENDIAN)
                     val preview = (1..5).map { "%.2f".format(byteBuffer.float) }.joinToString(", ")
                     getString(R.string.signature_preview_format, preview)
                 } else {

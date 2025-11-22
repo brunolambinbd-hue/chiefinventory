@@ -60,8 +60,8 @@
         <item quantity="one">%1$d result for “%2$s”</item>
         <item quantity="other">%1$d results for “%2$s”</item>
     </plurals>
-    <string name="refine_search_title">Refine search</string>
-
+    <string name="similarity_score_format">Similarity: %.1f%%</string>
+    <string name="new_search_title">New search</string>
 
     <!-- Textes pour les menus -->
     <string name="menu_search_title">Recherche</string>
@@ -71,22 +71,22 @@
     <string name="menu_searches_title">Mes Recherches</string>
     <string name="menu_locations_title">Mes Emplacements</string>
     <string name="menu_import_title">Importer / Mettre à jour</string>
+    <string name="refine_search_title">Refine search</string>
 
     <!-- Messages (Toast) -->
     <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
     <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
-    <string name="rapport_signatures">Rapport des signatures</string>
 
-    <!-- Nouvelles chaînes pour le rapport de signature -->
-    <string name="report_signatures_ok">Signatures OK : %1$d</string>
-    <string name="report_signatures_empty">Signatures Vides : %1$d</string>
-    <string name="report_signatures_missing">Signatures Manquantes : %1$d</string>
-    <string name="report_item_id">ID : %1$d</string>
-    <string name="signature_status_valid">Valide</string>
-    <string name="signature_status_empty">Vide</string>
-    <string name="signature_status_missing">Manquante</string>
-    <string name="debug_signature_info">ID : %1$d, Sig : %2$s</string>
+    <!-- New strings for signature report -->
+    <string name="report_signatures_ok">OK Signatures: %1$d</string>
+    <string name="report_signatures_empty">Empty Signatures: %1$d</string>
+    <string name="report_signatures_missing">Missing Signatures: %1$d</string>
+    <string name="report_item_id">ID: %1$d</string>
+    <string name="signature_status_valid">Valid</string>
+    <string name="signature_status_empty">Empty</string>
+    <string name="signature_status_missing">Missing</string>
+    <string name="debug_signature_info">ID: %1$d, Sig: %2$s</string>
     <string name="debug_signature_info_fullscreen">Signature: %1$s</string>
     <string name="generic_field_format">%1$s: %2$s</string>
     <string name="signature_preview_format">[%1$s,…]</string>

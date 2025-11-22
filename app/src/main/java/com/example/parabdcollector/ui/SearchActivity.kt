@@ -43,6 +43,8 @@ class SearchActivity : AppCompatActivity() {
     // Lanceur pour prendre une photo (méthode moderne)
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
         if (bitmap != null) {
+            binding.ivSearchThumbnail.setImageBitmap(bitmap)
+            binding.ivSearchThumbnail.visibility = View.VISIBLE
             currentSearchDescription = getString(R.string.search_by_image_description)
             viewModel.searchByImage(bitmap)
         }
@@ -80,9 +82,45 @@ class SearchActivity : AppCompatActivity() {
         viewModel.searchResults.observe(this) { results ->
             adapter.submitList(results)
             val count = results.size
-            binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
-            binding.tvResultsCount.isVisible = true
+            if (count > 0) {
+                binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
+                binding.tvResultsCount.isVisible = true
+            } else {
+                binding.tvResultsCount.isVisible = false
+            }
         }
+
+        // On observe l'aperçu de la signature
+        viewModel.signaturePreview.observe(this) { preview ->
+            if (preview.isNotBlank()) {
+                binding.tvSearchThumbnailSignature.text = preview
+                binding.tvSearchThumbnailSignature.visibility = View.VISIBLE
+            } else {
+                binding.tvSearchThumbnailSignature.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun resetSearchState() {
+        // On vide les champs de texte
+        binding.etSearchSimple.setText("")
+        binding.etSearchTitre.setText("")
+        binding.etSearchEditor.setText("")
+        binding.etSearchTirage.setText("")
+        binding.etSearchDimensions.setText("")
+        binding.etSearchYear.setText("")
+        binding.etSearchedMonth.setText("")
+        binding.etSearchSuperCategory.setText("", false)
+        binding.etSearchCategory.setText("", false)
+        binding.etSearchDescription.setText("")
+
+        // On cache l'imagette et le compteur
+        binding.ivSearchThumbnail.visibility = View.GONE
+        binding.tvSearchThumbnailSignature.visibility = View.GONE
+        binding.tvResultsCount.visibility = View.GONE
+
+        // On vide les résultats dans le ViewModel
+        viewModel.clearSearchResults()
     }
 
     private fun toggleAdvancedSearch() {
@@ -98,6 +136,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun onSearchByImageClicked() {
+        resetSearchState()
         when {
             ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
                 launchCamera()
@@ -135,6 +174,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun performSearch() {
+        resetSearchState()
         // On cache le clavier
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
@@ -153,7 +193,7 @@ class SearchActivity : AppCompatActivity() {
                 superCategorie = binding.etSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
                 categorie = binding.etSearchCategory.text.toString().takeIf { it.isNotBlank() },
                 description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() },
-                tirage = binding.etSearchTirage.text.toString().takeIf { it.isNotBlank() },
+                tirage = binding.etSearchTirage.text.toString(), // On garde le type String ici
                 dimensions = binding.etSearchDimensions.text.toString().takeIf { it.isNotBlank() }
             )
 
@@ -167,7 +207,7 @@ class SearchActivity : AppCompatActivity() {
                 criteria.superCategorie,
                 criteria.categorie,
                 criteria.description
-            )
+            ).filter { it.isNotBlank() }
             currentSearchDescription = descriptionParts.joinToString(", ")
 
             viewModel.advancedSearch(criteria)
@@ -205,6 +245,10 @@ class SearchActivity : AppCompatActivity() {
                 if (binding.advancedSearchContainer.isGone) {
                     toggleAdvancedSearch()
                 }
+                return true
+            }
+            R.id.action_new_search -> {
+                resetSearchState()
                 return true
             }
         }

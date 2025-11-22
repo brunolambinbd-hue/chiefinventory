@@ -60,6 +60,7 @@
         <item quantity="one">%1$d résultat pour “%2$s”</item>
         <item quantity="other">%1$d résultats pour “%2$s”</item>
     </plurals>
+    <string name="similarity_score_format">Similarité : %.1f%%</string>
 
     <!-- Textes pour les menus -->
     <string name="menu_search_title">Recherche</string>

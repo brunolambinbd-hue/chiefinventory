@@ -16,6 +16,9 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items")
     fun getAll(): LiveData<List<CollectionItem>>
 
+    @Query("SELECT * FROM collection_items")
+    suspend fun getAllItems(): List<CollectionItem>
+
     @Query("SELECT * FROM collection_items WHERE isPossessed = 1 ORDER BY titre ASC")
     fun getAllPossessed(): LiveData<List<CollectionItem>>
 

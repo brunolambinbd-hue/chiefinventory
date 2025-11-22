@@ -60,6 +60,7 @@
         <item quantity="one">%1$d résultat pour “%2$s”</item>
         <item quantity="other">%1$d résultats pour “%2$s”</item>
     </plurals>
+    <string name="similarity_score_format">Similarité : %.1f%%</string>
 
     <!-- Textes pour les menus -->
     <string name="menu_search_title">Recherche</string>
@@ -70,6 +71,7 @@
     <string name="menu_locations_title">Mes Emplacements</string>
     <string name="menu_import_title">Importer / Mettre à jour</string>
     <string name="refine_search_title">Affiner la recherche</string>
+    <string name="new_search_title">Nouvelle recherche</string>
 
     <!-- Messages (Toast) -->
     <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>

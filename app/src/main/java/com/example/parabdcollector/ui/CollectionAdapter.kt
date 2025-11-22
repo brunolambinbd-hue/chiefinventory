@@ -34,11 +34,15 @@ class CollectionAdapter(
             val item = searchResultItem.item
             val context = itemView.context
 
-            var titleText = item.titre
+            binding.itemName.text = item.titre
+
+            // On affiche la similarité si elle est disponible
             searchResultItem.similarity?.let {
-                 titleText += " (Similarité: %.1f%%)".format(it * 100)
+                binding.itemSimilarity.text = context.getString(R.string.similarity_score_format, it * 100)
+                binding.itemSimilarity.visibility = View.VISIBLE
+            } ?: run {
+                binding.itemSimilarity.visibility = View.GONE
             }
-            binding.itemName.text = titleText
 
             binding.itemImage.load(item.imageUri) {
                 placeholder(R.mipmap.ic_launcher)

@@ -28,6 +28,14 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/item_similarity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="italic"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/itemNotes" 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

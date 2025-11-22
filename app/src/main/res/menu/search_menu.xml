@@ -3,10 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_new_search"
+        android:title="@string/new_search_title"
+        android:icon="@android:drawable/ic_menu_revert"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_refine_search"
         android:title="@string/refine_search_title"
         android:icon="@android:drawable/ic_menu_manage"
-        app:showAsAction="ifRoom"
-        android:visible="true" />
+        app:showAsAction="ifRoom" />
 
 </menu>
