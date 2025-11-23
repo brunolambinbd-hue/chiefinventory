@@ -27,6 +27,9 @@ class ViewModelFactory(
         if (modelClass.isAssignableFrom(LocationViewModel::class.java)) {
             return LocationViewModel(locationRepository) as T
         }
+        if (modelClass.isAssignableFrom(EditItemViewModel::class.java)) {
+            return EditItemViewModel(application, collectionRepository, locationRepository) as T
+        }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }

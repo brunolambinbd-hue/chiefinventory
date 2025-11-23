@@ -43,7 +43,7 @@ class LocationManagementActivity : AppCompatActivity() {
     }
 
     private fun showLocationOptionsDialog(location: Location) {
-        val options = arrayOf("Modifier le nom", "Ajouter un sous-emplacement", "Supprimer")
+        val options = arrayOf("Modifier le nom", "Ajouter un sous-emplacement", "Changer le parent", "Supprimer")
 
         AlertDialog.Builder(this)
             .setTitle(location.name)
@@ -51,8 +51,45 @@ class LocationManagementActivity : AppCompatActivity() {
                 when (which) {
                     0 -> showEditLocationDialog(location)
                     1 -> showAddLocationDialog(location) // On passe l'emplacement actuel comme parent
-                    2 -> showDeleteConfirmationDialog(location)
+                    2 -> showChangeParentDialog(location)
+                    3 -> showDeleteConfirmationDialog(location)
                 }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    private fun showChangeParentDialog(locationToMove: Location) {
+        val allDisplayLocations = viewModel.displayLocations.value ?: return
+        val allLocations = allDisplayLocations.map { it.location }
+
+        val descendants = mutableSetOf<Long>()
+        fun findDescendants(parentId: Long) {
+            descendants.add(parentId)
+            allLocations.filter { it.parentLocationId == parentId }.forEach { child ->
+                if (child.id !in descendants) findDescendants(child.id)
+            }
+        }
+        findDescendants(locationToMove.id)
+
+        val validParents = allLocations.filter { it.id !in descendants }
+
+        val rootOption = "Aucun parent (Racine)"
+        val parentNames = mutableListOf(rootOption)
+        parentNames.addAll(validParents.map { it.name })
+
+        AlertDialog.Builder(this)
+            .setTitle("Changer le parent de \"${locationToMove.name}\"")
+            .setItems(parentNames.toTypedArray()) { dialog, which ->
+                val updatedLocation = when (which) {
+                    0 -> locationToMove.copy(parentLocationId = null)
+                    else -> {
+                        val selectedParent = validParents[which - 1]
+                        locationToMove.copy(parentLocationId = selectedParent.id)
+                    }
+                }
+                viewModel.update(updatedLocation)
                 dialog.dismiss()
             }
             .setNegativeButton("Annuler", null)
