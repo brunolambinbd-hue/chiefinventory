@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.MenuItem
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,9 +39,13 @@ class EditItemActivity : AppCompatActivity() {
         ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
+    private var displayLocations: List<DisplayLocation> = emptyList()
+    private var selectedLocationId: Long? = null
+
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             photoUri?.let { uri ->
+                binding.itemImage.visibility = View.VISIBLE
                 binding.itemImage.load(uri)
                 viewModel.setImageUri(uri)
             }
@@ -49,7 +54,7 @@ class EditItemActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-            launchCamera() // On réessaye de lancer la caméra après avoir obtenu la permission.
+            launchCamera()
         } else {
             Toast.makeText(this, R.string.toast_camera_permission_denied, Toast.LENGTH_SHORT).show()
         }
@@ -64,28 +69,63 @@ class EditItemActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         setupCategorySpinners()
+        setupLocationDropdown()
 
         val itemId = intent.getLongExtra("itemId", -1L)
 
         if (isNewItem) {
-            // On est en mode création
             supportActionBar?.title = getString(R.string.edit_item_title_new)
-            binding.switchPossessed.isChecked = true // Par défaut, un nouvel objet est "possédé".
+            binding.switchPossessed.isChecked = true
         } else {
-            // On est en mode édition
             viewModel.loadItem(itemId)
             viewModel.item.observe(this) { item ->
                 currentItem = item
+                selectedLocationId = item.locationId
                 updateUI(item)
             }
         }
 
-        binding.btnTakePicture.setOnClickListener {
-            onTakePictureClicked()
+        binding.btnTakePicture.setOnClickListener { onTakePictureClicked() }
+        binding.btnSave.setOnClickListener { saveItem() }
+
+        binding.itemImage.setOnClickListener {
+            val imageUriString = viewModel.imageUri.value?.toString()
+            if (imageUriString != null) {
+                val intent = Intent(this, FullScreenImageActivity::class.java).apply {
+                    putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, imageUriString)
+                    putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditor.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etYear.text.toString().toIntOrNull() ?: 0)
+                    putExtra(FullScreenImageActivity.EXTRA_MONTH, binding.etMonth.text.toString().toIntOrNull() ?: 0)
+                    putExtra(FullScreenImageActivity.EXTRA_SUPER_CATEGORY, binding.etSuperCategory.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.etCategory.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMaterial.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etPrintRun.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, binding.etDimensions.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etDescription.text.toString())
+                    putExtra(FullScreenImageActivity.EXTRA_IMAGE_SIGNATURE, currentItem?.imageEmbedding)
+                }
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Aucune image à afficher", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun setupLocationDropdown() {
+        viewModel.displayLocations.observe(this) { locations ->
+            displayLocations = locations
+            val adapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_list_item_1,
+                locations.map { "    ".repeat(it.depth) + it.location.name }
+            )
+            binding.etLocation.setAdapter(adapter)
+            updateLocationSelectionInUI()
         }
 
-        binding.btnSave.setOnClickListener {
-            saveItem()
+        binding.etLocation.setOnItemClickListener { _, _, position, _ ->
+            selectedLocationId = displayLocations[position].location.id
         }
     }
 
@@ -109,25 +149,14 @@ class EditItemActivity : AppCompatActivity() {
 
     private fun onTakePictureClicked() {
         when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
-                launchCamera()
-            }
-            else -> {
-                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
+            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> launchCamera()
+            else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 
     private fun launchCamera() {
-        val imageFile = File(filesDir, "images/item_${System.currentTimeMillis()}.jpg")
-        imageFile.parentFile?.mkdirs()
-
-        photoUri = FileProvider.getUriForFile(
-            this,
-            "com.example.parabdcollector.fileprovider",
-            imageFile
-        )
-
+        val imageFile = File(filesDir, "images/item_${System.currentTimeMillis()}.jpg").apply { parentFile?.mkdirs() }
+        photoUri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.fileprovider", imageFile)
         takePictureLauncher.launch(photoUri)
     }
 
@@ -147,18 +176,15 @@ class EditItemActivity : AppCompatActivity() {
         binding.etPurchasePrice.setText(item.prixAchat?.toString() ?: "")
         binding.etPurchaseLocation.setText(item.lieuAchat ?: "")
         binding.etEstimatedValue.setText(item.valeurEstimee?.toString() ?: "")
-        binding.etLocation.setText(item.localisation ?: "")
 
-        // Charger l'image si elle existe
+        updateLocationSelectionInUI()
+
         item.imageUri?.let {
-            binding.itemImage.load(it.toUri()) {
-                placeholder(R.mipmap.ic_launcher)
-                error(R.mipmap.ic_launcher)
-            }
-            viewModel.setImageUri(it.toUri()) // On informe le ViewModel de l'URI existant
+            binding.itemImage.visibility = View.VISIBLE
+            binding.itemImage.load(it.toUri()) { placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher) }
+            viewModel.setImageUri(it.toUri())
         }
 
-        // On active le champ des catégories si une super-catégorie est définie
         if (!item.superCategorie.isNullOrBlank()) {
             val categories = CategoryMapper.getCategoriesFor(item.superCategorie)
             val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
@@ -166,6 +192,14 @@ class EditItemActivity : AppCompatActivity() {
             binding.categoryLayout.isEnabled = true
         } else {
             binding.categoryLayout.isEnabled = false
+        }
+    }
+
+    private fun updateLocationSelectionInUI() {
+        if (displayLocations.isNotEmpty()) {
+            val selectedLocation = displayLocations.find { it.location.id == selectedLocationId }
+            val indentedName = selectedLocation?.let { "    ".repeat(it.depth) + it.location.name }
+            binding.etLocation.setText(indentedName ?: "", false)
         }
     }
 
@@ -177,7 +211,6 @@ class EditItemActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            // On récupère la signature de l'image si elle n'est pas déjà calculée
             var imageEmbedding: ByteArray? = currentItem?.imageEmbedding
             val imageDrawable = binding.itemImage.drawable
             if (imageEmbedding == null && imageDrawable is BitmapDrawable) {
@@ -201,7 +234,7 @@ class EditItemActivity : AppCompatActivity() {
                 valeurEstimee = binding.etEstimatedValue.text.toString().toDoubleOrNull(),
                 lieuAchat = binding.etPurchaseLocation.text.toString(),
                 description = binding.etDescription.text.toString(),
-                localisation = binding.etLocation.text.toString(),
+                locationId = selectedLocationId,
                 imageUri = viewModel.imageUri.value?.toString(),
                 imageEmbedding = imageEmbedding
             )

@@ -72,7 +72,7 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         description = description,
                         imageUri = imageUrl,
                         imageEmbedding = existingItem?.imageEmbedding, // On préserve l'ancienne signature
-                        localisation = null,
+                        locationId = null,
                         isPossessed = true
                     )
 

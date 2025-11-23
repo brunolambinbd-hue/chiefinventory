@@ -28,8 +28,8 @@ data class CollectionItem(
     val imageUri: String?,
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
     val imageEmbedding: ByteArray? = null,
-    val localisation: String?,
-    val isPossessed: Boolean = true 
+    val locationId: Long? = null,
+    val isPossessed: Boolean = true
 ) : Parcelable {
     // On doit surcharger equals et hashCode à cause du ByteArray
     override fun equals(other: Any?): Boolean {
@@ -58,7 +58,7 @@ data class CollectionItem(
             if (other.imageEmbedding == null) return false
             if (!imageEmbedding.contentEquals(other.imageEmbedding)) return false
         } else if (other.imageEmbedding != null) return false
-        if (localisation != other.localisation) return false
+        if (locationId != other.locationId) return false
         if (isPossessed != other.isPossessed) return false
 
         return true
@@ -82,7 +82,7 @@ data class CollectionItem(
         result = 31 * result + (description?.hashCode() ?: 0)
         result = 31 * result + (imageUri?.hashCode() ?: 0)
         result = 31 * result + (imageEmbedding?.contentHashCode() ?: 0)
-        result = 31 * result + (localisation?.hashCode() ?: 0)
+        result = 31 * result + (locationId?.hashCode() ?: 0)
         result = 31 * result + isPossessed.hashCode()
         return result
     }

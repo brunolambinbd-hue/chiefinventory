@@ -12,24 +12,20 @@ class ViewModelFactory(
     private val locationRepository: LocationRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            return MainViewModel(collectionRepository) as T
+        return when {
+            modelClass.isAssignableFrom(MainViewModel::class.java) ->
+                MainViewModel(collectionRepository) as T
+            modelClass.isAssignableFrom(SearchViewModel::class.java) ->
+                SearchViewModel(application, collectionRepository) as T
+            modelClass.isAssignableFrom(ImportViewModel::class.java) ->
+                ImportViewModel(application, collectionRepository) as T
+            modelClass.isAssignableFrom(SignatureReportViewModel::class.java) ->
+                SignatureReportViewModel(collectionRepository) as T
+            modelClass.isAssignableFrom(LocationViewModel::class.java) ->
+                LocationViewModel(locationRepository) as T
+            modelClass.isAssignableFrom(EditItemViewModel::class.java) ->
+                EditItemViewModel(application, collectionRepository, locationRepository) as T
+            else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
-        if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
-            return SearchViewModel(application, collectionRepository) as T
-        }
-        if (modelClass.isAssignableFrom(ImportViewModel::class.java)) {
-            return ImportViewModel(application, collectionRepository) as T
-        }
-        if (modelClass.isAssignableFrom(SignatureReportViewModel::class.java)) {
-            return SignatureReportViewModel(collectionRepository) as T
-        }
-        if (modelClass.isAssignableFrom(LocationViewModel::class.java)) {
-            return LocationViewModel(locationRepository) as T
-        }
-        if (modelClass.isAssignableFrom(EditItemViewModel::class.java)) {
-            return EditItemViewModel(application, collectionRepository, locationRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }

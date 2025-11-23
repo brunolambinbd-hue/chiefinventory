@@ -9,7 +9,7 @@ import com.example.parabdcollector.dao.LocationDao
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.Location
 
-@Database(entities = [CollectionItem::class, Location::class], version = 8, exportSchema = false)
+@Database(entities = [CollectionItem::class, Location::class], version = 9, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun collectionDao(): CollectionDao
