@@ -2,57 +2,54 @@ package com.example.parabdcollector.ui
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.MenuItem
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityEditItemBinding
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.utils.CategoryMapper
-import com.example.parabdcollector.utils.ImageStorageHelper
+import kotlinx.coroutines.launch
 import java.io.File
 
 class EditItemActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityEditItemBinding
-    private var currentItemId: Long = 0
-    private var currentLoadedItem: CollectionItem? = null // Pour garder une référence à l'objet complet
-    private var latestTmpUri: Uri? = null
 
-    private val viewModel: MainViewModel by viewModels {
-        val repository = (application as CollectionApplication).repository
-        ViewModelFactory(application, repository)
+    private lateinit var binding: ActivityEditItemBinding
+    private var currentItem: CollectionItem? = null
+    private var photoUri: Uri? = null
+    private val isNewItem: Boolean by lazy { intent.getLongExtra("itemId", -1L) == -1L }
+
+    private val viewModel: EditItemViewModel by viewModels {
+        val app = application as CollectionApplication
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
-    private val takeImageLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-        if (isSuccess) {
-            latestTmpUri?.let {
-                val permanentUri = ImageStorageHelper.saveImageToInternalStorage(this, it)
-                if (permanentUri != null) {
-                    binding.imagePreview.visibility = View.VISIBLE
-                    binding.imagePreview.load(permanentUri)
-                    binding.etImageUri.setText(permanentUri.toString())
-                } else {
-                    Toast.makeText(this, R.string.toast_error_saving_image, Toast.LENGTH_SHORT).show()
-                }
+    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            photoUri?.let { uri ->
+                binding.itemImage.load(uri)
+                viewModel.setImageUri(uri)
             }
         }
     }
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-            getTmpFileUri().let {
-                latestTmpUri = it
-                takeImageLauncher.launch(it)
-            }
+            launchCamera() // On réessaye de lancer la caméra après avoir obtenu la permission.
         } else {
             Toast.makeText(this, R.string.toast_camera_permission_denied, Toast.LENGTH_SHORT).show()
         }
@@ -68,46 +65,27 @@ class EditItemActivity : AppCompatActivity() {
 
         setupCategorySpinners()
 
-        currentItemId = intent.getLongExtra("itemId", 0)
+        val itemId = intent.getLongExtra("itemId", -1L)
 
-        if (currentItemId != 0L) {
-            viewModel.getById(currentItemId).observe(this) { item ->
-                item?.let {
-                    currentLoadedItem = it // On stocke l'objet actuel
-                    populateUi(it)
-                }
-            }
-        } else {
+        if (isNewItem) {
+            // On est en mode création
             supportActionBar?.title = getString(R.string.edit_item_title_new)
-            binding.switchPossessed.isChecked = true
+            binding.switchPossessed.isChecked = true // Par défaut, un nouvel objet est "possédé".
+        } else {
+            // On est en mode édition
+            viewModel.loadItem(itemId)
+            viewModel.item.observe(this) { item ->
+                currentItem = item
+                updateUI(item)
+            }
         }
 
-        binding.btnSave.setOnClickListener { saveItem() }
-        binding.btnTakePicture.setOnClickListener { requestPermissionLauncher.launch(Manifest.permission.CAMERA) }
+        binding.btnTakePicture.setOnClickListener {
+            onTakePictureClicked()
+        }
 
-        binding.imagePreview.setOnClickListener { 
-            val imageUri = binding.etImageUri.text.toString()
-            if (imageUri.isNotBlank()) {
-                val intent = Intent(this, FullScreenImageActivity::class.java).apply {
-                    putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, imageUri)
-                    putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditor.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etYear.text.toString().toIntOrNull() ?: 0)
-                    putExtra(FullScreenImageActivity.EXTRA_MONTH, binding.etMonth.text.toString().toIntOrNull() ?: 0)
-                    putExtra(FullScreenImageActivity.EXTRA_SUPER_CATEGORY, binding.etSuperCategory.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_CATEGORY, binding.etCategory.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_MATERIAL, binding.etMaterial.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_RUN, binding.etPrintRun.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, binding.etDimensions.text.toString())
-                    putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etDescription.text.toString())
-
-                    // On ajoute la signature pour le mode debug
-                    currentLoadedItem?.imageEmbedding?.let {
-                        putExtra(FullScreenImageActivity.EXTRA_IMAGE_SIGNATURE, it)
-                    }
-                }
-                startActivity(intent)
-            }
+        binding.btnSave.setOnClickListener {
+            saveItem()
         }
     }
 
@@ -129,51 +107,66 @@ class EditItemActivity : AppCompatActivity() {
         }
     }
 
-    private fun getTmpFileUri(): Uri {
-        val tmpFile = File.createTempFile("tmp_image_file", ".png", cacheDir).apply {
-            createNewFile()
-            deleteOnExit()
+    private fun onTakePictureClicked() {
+        when {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
+                launchCamera()
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
         }
-        return FileProvider.getUriForFile(applicationContext, "${applicationContext.packageName}.provider", tmpFile)
     }
 
-    private fun populateUi(item: CollectionItem) {
+    private fun launchCamera() {
+        val imageFile = File(filesDir, "images/item_${System.currentTimeMillis()}.jpg")
+        imageFile.parentFile?.mkdirs()
+
+        photoUri = FileProvider.getUriForFile(
+            this,
+            "com.example.parabdcollector.fileprovider",
+            imageFile
+        )
+
+        takePictureLauncher.launch(photoUri)
+    }
+
+    private fun updateUI(item: CollectionItem) {
+        supportActionBar?.title = getString(R.string.edit_item_title_editing, item.titre)
         binding.etTitle.setText(item.titre)
         binding.switchPossessed.isChecked = item.isPossessed
-        binding.etEditor.setText(item.editeur)
-        binding.etYear.setText(item.annee?.toString())
-        binding.etMonth.setText(item.mois?.toString())
-        
-        binding.etSuperCategory.setText(item.superCategorie, false)
+        binding.etSuperCategory.setText(item.superCategorie ?: "", false)
+        binding.etCategory.setText(item.categorie ?: "", false)
+        binding.etEditor.setText(item.editeur ?: "")
+        binding.etYear.setText(item.annee?.toString() ?: "")
+        binding.etMonth.setText(item.mois?.toString() ?: "")
+        binding.etMaterial.setText(item.materiau ?: "")
+        binding.etPrintRun.setText(item.tirage ?: "")
+        binding.etDimensions.setText(item.dimensions ?: "")
+        binding.etDescription.setText(item.description ?: "")
+        binding.etPurchasePrice.setText(item.prixAchat?.toString() ?: "")
+        binding.etPurchaseLocation.setText(item.lieuAchat ?: "")
+        binding.etEstimatedValue.setText(item.valeurEstimee?.toString() ?: "")
+        binding.etLocation.setText(item.localisation ?: "")
+
+        // Charger l'image si elle existe
+        item.imageUri?.let {
+            binding.itemImage.load(it.toUri()) {
+                placeholder(R.mipmap.ic_launcher)
+                error(R.mipmap.ic_launcher)
+            }
+            viewModel.setImageUri(it.toUri()) // On informe le ViewModel de l'URI existant
+        }
+
+        // On active le champ des catégories si une super-catégorie est définie
         if (!item.superCategorie.isNullOrBlank()) {
             val categories = CategoryMapper.getCategoriesFor(item.superCategorie)
             val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
             binding.etCategory.setAdapter(categoryAdapter)
             binding.categoryLayout.isEnabled = true
+        } else {
+            binding.categoryLayout.isEnabled = false
         }
-        binding.etCategory.setText(item.categorie, false)
-
-        binding.etMaterial.setText(item.materiau)
-        binding.etPrintRun.setText(item.tirage)
-        binding.etDimensions.setText(item.dimensions)
-        binding.etPurchasePrice.setText(item.prixAchat?.toString())
-        binding.etEstimatedValue.setText(item.valeurEstimee?.toString())
-        binding.etPurchaseLocation.setText(item.lieuAchat)
-        binding.etDescription.setText(item.description)
-        binding.etImageUri.setText(item.imageUri)
-        binding.etLocation.setText(item.localisation)
-
-        item.imageUri?.let {
-            if (it.isNotBlank()) {
-                binding.imagePreview.visibility = View.VISIBLE
-                binding.imagePreview.load(it) {
-                    placeholder(R.mipmap.ic_launcher)
-                    error(R.mipmap.ic_launcher)
-                }
-            }
-        }
-
-        supportActionBar?.title = getString(R.string.edit_item_title_editing, item.titre)
     }
 
     private fun saveItem() {
@@ -183,44 +176,52 @@ class EditItemActivity : AppCompatActivity() {
             return
         }
 
-        val superCategory = binding.etSuperCategory.text.toString().takeIf { it.isNotBlank() }
-        val category = binding.etCategory.text.toString().takeIf { it.isNotBlank() }
+        lifecycleScope.launch {
+            // On récupère la signature de l'image si elle n'est pas déjà calculée
+            var imageEmbedding: ByteArray? = currentItem?.imageEmbedding
+            val imageDrawable = binding.itemImage.drawable
+            if (imageEmbedding == null && imageDrawable is BitmapDrawable) {
+                imageEmbedding = viewModel.calculateSignature(imageDrawable.bitmap)
+            }
 
-        val itemToSave = CollectionItem(
-            id = currentLoadedItem?.id ?: 0L,
-            remoteId = currentLoadedItem?.remoteId, // On préserve le remoteId original
-            titre = title,
-            isPossessed = binding.switchPossessed.isChecked,
-            editeur = binding.etEditor.text.toString().takeIf { it.isNotBlank() },
-            annee = binding.etYear.text.toString().toIntOrNull(),
-            mois = binding.etMonth.text.toString().toIntOrNull(),
-            categorie = category,
-            superCategorie = superCategory,
-            materiau = binding.etMaterial.text.toString().takeIf { it.isNotBlank() },
-            tirage = binding.etPrintRun.text.toString().takeIf { it.isNotBlank() },
-            dimensions = binding.etDimensions.text.toString().takeIf { it.isNotBlank() },
-            prixAchat = binding.etPurchasePrice.text.toString().toDoubleOrNull(),
-            valeurEstimee = binding.etEstimatedValue.text.toString().toDoubleOrNull(),
-            lieuAchat = binding.etPurchaseLocation.text.toString().takeIf { it.isNotBlank() },
-            description = binding.etDescription.text.toString().takeIf { it.isNotBlank() },
-            imageUri = binding.etImageUri.text.toString().takeIf { it.isNotBlank() },
-            localisation = binding.etLocation.text.toString().takeIf { it.isNotBlank() },
-            imageEmbedding = currentLoadedItem?.imageEmbedding // On préserve la signature existante
-        )
+            val itemToSave = CollectionItem(
+                id = currentItem?.id ?: 0,
+                remoteId = currentItem?.remoteId,
+                titre = title,
+                isPossessed = binding.switchPossessed.isChecked,
+                superCategorie = binding.etSuperCategory.text.toString(),
+                categorie = binding.etCategory.text.toString(),
+                editeur = binding.etEditor.text.toString(),
+                annee = binding.etYear.text.toString().toIntOrNull(),
+                mois = binding.etMonth.text.toString().toIntOrNull(),
+                materiau = binding.etMaterial.text.toString(),
+                tirage = binding.etPrintRun.text.toString(),
+                dimensions = binding.etDimensions.text.toString(),
+                prixAchat = binding.etPurchasePrice.text.toString().toDoubleOrNull(),
+                valeurEstimee = binding.etEstimatedValue.text.toString().toDoubleOrNull(),
+                lieuAchat = binding.etPurchaseLocation.text.toString(),
+                description = binding.etDescription.text.toString(),
+                localisation = binding.etLocation.text.toString(),
+                imageUri = viewModel.imageUri.value?.toString(),
+                imageEmbedding = imageEmbedding
+            )
 
-        if (currentItemId == 0L) {
-            viewModel.insert(itemToSave)
-        } else {
-            viewModel.update(itemToSave)
+            if (isNewItem) {
+                viewModel.insert(itemToSave)
+            } else {
+                viewModel.update(itemToSave)
+            }
+            finish()
         }
-        finish()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 }

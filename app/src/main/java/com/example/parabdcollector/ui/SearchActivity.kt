@@ -35,8 +35,8 @@ class SearchActivity : AppCompatActivity() {
     private var searchImageBitmap: Bitmap? = null
 
     private val viewModel: SearchViewModel by viewModels {
-        val repository = (application as CollectionApplication).repository
-        ViewModelFactory(application, repository)
+        val app = application as CollectionApplication
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     // Lanceur pour prendre une photo (méthode moderne)

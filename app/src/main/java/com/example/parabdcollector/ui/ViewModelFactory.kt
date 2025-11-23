@@ -4,20 +4,28 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.repo.LocationRepository
 
-class ViewModelFactory(private val application: Application, private val repository: CollectionRepository) : ViewModelProvider.Factory {
+class ViewModelFactory(
+    private val application: Application,
+    private val collectionRepository: CollectionRepository,
+    private val locationRepository: LocationRepository
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            return MainViewModel(repository) as T
+            return MainViewModel(collectionRepository) as T
         }
         if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
-            return SearchViewModel(application, repository) as T
+            return SearchViewModel(application, collectionRepository) as T
         }
         if (modelClass.isAssignableFrom(ImportViewModel::class.java)) {
-            return ImportViewModel(application, repository) as T
+            return ImportViewModel(application, collectionRepository) as T
         }
         if (modelClass.isAssignableFrom(SignatureReportViewModel::class.java)) {
-            return SignatureReportViewModel(repository) as T
+            return SignatureReportViewModel(collectionRepository) as T
+        }
+        if (modelClass.isAssignableFrom(LocationViewModel::class.java)) {
+            return LocationViewModel(locationRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

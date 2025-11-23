@@ -17,8 +17,8 @@ class CategoryListActivity : AppCompatActivity() {
     private lateinit var adapter: CategoryAdapter
 
     private val viewModel: MainViewModel by viewModels {
-        val repository = (application as CollectionApplication).repository
-        ViewModelFactory(application, repository)
+        val app = application as CollectionApplication
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

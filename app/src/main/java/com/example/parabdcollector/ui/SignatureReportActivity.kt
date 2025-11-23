@@ -16,8 +16,8 @@ class SignatureReportActivity : AppCompatActivity() {
     private lateinit var adapter: SignatureReportAdapter
 
     private val viewModel: SignatureReportViewModel by viewModels {
-        val repository = (application as CollectionApplication).repository
-        ViewModelFactory(application, repository)
+        val app = application as CollectionApplication
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

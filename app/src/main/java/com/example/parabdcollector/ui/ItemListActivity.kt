@@ -16,8 +16,8 @@ class ItemListActivity : AppCompatActivity() {
     private lateinit var adapter: CollectionAdapter
 
     private val viewModel: MainViewModel by viewModels {
-        val repository = (application as CollectionApplication).repository
-        ViewModelFactory(application, repository)
+        val app = application as CollectionApplication
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,30 +28,33 @@ class ItemListActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        setupRecyclerView()
-
-        val listType = intent.getStringExtra(EXTRA_LIST_TYPE)
+        val listType = intent.getIntExtra(EXTRA_LIST_TYPE, TYPE_POSSESSED)
         val superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
         val category = intent.getStringExtra(EXTRA_CATEGORY)
 
-        if (superCategory != null && category != null) {
-            // On affiche les objets pour une catégorie spécifique
-            val isPossessed = listType == TYPE_POSSESSED
-            supportActionBar?.title = category
-            viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, isPossessed).observe(this) { items ->
-                adapter.submitList(items.map { SearchResultItem(it) })
+        setupRecyclerView()
+
+        when {
+            superCategory != null && category != null -> {
+                // On affiche les objets pour une catégorie et une super-catégorie données
+                supportActionBar?.title = category
+                viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, listType == TYPE_POSSESSED).observe(this) { items ->
+                    val searchResults = items.map { SearchResultItem(it) }
+                    adapter.submitList(searchResults)
+                }
             }
-        } else {
-            // Comportement par défaut (si on arrive ici sans passer par la nouvelle navigation)
-            if (listType == TYPE_POSSESSED) {
+            listType == TYPE_POSSESSED -> {
                 supportActionBar?.title = "Mes Produits"
                 viewModel.possessedItems.observe(this) { items ->
-                    adapter.submitList(items.map { SearchResultItem(it) })
+                    val searchResults = items.map { SearchResultItem(it) }
+                    adapter.submitList(searchResults)
                 }
-            } else {
+            }
+            else -> {
                 supportActionBar?.title = "Mes Recherches"
                 viewModel.soughtItems.observe(this) { items ->
-                    adapter.submitList(items.map { SearchResultItem(it) })
+                    val searchResults = items.map { SearchResultItem(it) }
+                    adapter.submitList(searchResults)
                 }
             }
         }
@@ -77,9 +80,10 @@ class ItemListActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_LIST_TYPE = "list_type"
-        const val TYPE_POSSESSED = "possessed"
-        const val TYPE_SOUGHT = "sought"
         const val EXTRA_SUPER_CATEGORY = "super_category"
         const val EXTRA_CATEGORY = "category"
+
+        const val TYPE_POSSESSED = 1
+        const val TYPE_SOUGHT = 2
     }
 }

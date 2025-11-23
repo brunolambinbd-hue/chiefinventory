@@ -30,13 +30,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var missingSignatureSeparator: TextView? = null
 
     private val viewModel: MainViewModel by viewModels {
-        val repository = (application as CollectionApplication).repository
-        ViewModelFactory(application, repository)
+        val app = application as CollectionApplication
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     private val importViewModel: ImportViewModel by viewModels {
-        val repository = (application as CollectionApplication).repository
-        ViewModelFactory(application, repository)
+        val app = application as CollectionApplication
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
