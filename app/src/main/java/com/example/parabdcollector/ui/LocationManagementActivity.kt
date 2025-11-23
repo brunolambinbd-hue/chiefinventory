@@ -2,12 +2,15 @@ package com.example.parabdcollector.ui
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.EditText
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityLocationManagementBinding
+import com.example.parabdcollector.model.Location
 
 class LocationManagementActivity : AppCompatActivity() {
 
@@ -30,14 +33,85 @@ class LocationManagementActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
-        viewModel.allLocations.observe(this) {
+        viewModel.displayLocations.observe(this) {
             locationAdapter.submitList(it)
+        }
+
+        binding.fabAddLocation.setOnClickListener {
+            showAddLocationDialog(null) // Pas de parent pour un emplacement racine
         }
     }
 
+    private fun showLocationOptionsDialog(location: Location) {
+        val options = arrayOf("Modifier le nom", "Ajouter un sous-emplacement", "Supprimer")
+
+        AlertDialog.Builder(this)
+            .setTitle(location.name)
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> showEditLocationDialog(location)
+                    1 -> showAddLocationDialog(location) // On passe l'emplacement actuel comme parent
+                    2 -> showDeleteConfirmationDialog(location)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    private fun showAddLocationDialog(parentLocation: Location?) {
+        val editText = EditText(this)
+        val title = if (parentLocation == null) "Nouvel Emplacement" else "Nouveau sous-emplacement pour \"${parentLocation.name}\""
+
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setView(editText)
+            .setPositiveButton("Ajouter") { dialog, _ ->
+                val name = editText.text.toString()
+                if (name.isNotBlank()) {
+                    val newLocation = Location(name = name, parentLocationId = parentLocation?.id)
+                    viewModel.insert(newLocation)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    private fun showEditLocationDialog(location: Location) {
+        val editText = EditText(this)
+        editText.setText(location.name)
+
+        AlertDialog.Builder(this)
+            .setTitle("Modifier l'emplacement")
+            .setView(editText)
+            .setPositiveButton("Modifier") { dialog, _ ->
+                val newName = editText.text.toString()
+                if (newName.isNotBlank()) {
+                    val updatedLocation = location.copy(name = newName)
+                    viewModel.update(updatedLocation)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    private fun showDeleteConfirmationDialog(location: Location) {
+        AlertDialog.Builder(this)
+            .setTitle("Supprimer l'emplacement")
+            .setMessage("Êtes-vous sûr de vouloir supprimer \"${location.name}\"? Cette action est irréversible.")
+            .setPositiveButton("Supprimer") { dialog, _ ->
+                viewModel.delete(location)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
     private fun setupRecyclerView() {
-        locationAdapter = LocationAdapter {
-            // Gérer le clic sur un emplacement (pour l'édition, etc.)
+        locationAdapter = LocationAdapter { displayLocation ->
+            showLocationOptionsDialog(displayLocation.location)
         }
         binding.rvLocations.apply {
             adapter = locationAdapter

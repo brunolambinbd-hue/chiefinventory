@@ -2,13 +2,13 @@ package com.example.parabdcollector.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.parabdcollector.databinding.ItemLocationBinding
-import com.example.parabdcollector.model.Location
 
-class LocationAdapter(private val onItemClicked: (Location) -> Unit) : ListAdapter<Location, LocationAdapter.LocationViewHolder>(DiffCallback) {
+class LocationAdapter(private val onItemClicked: (DisplayLocation) -> Unit) : ListAdapter<DisplayLocation, LocationAdapter.LocationViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationViewHolder {
         val binding = ItemLocationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -22,17 +22,23 @@ class LocationAdapter(private val onItemClicked: (Location) -> Unit) : ListAdapt
     }
 
     class LocationViewHolder(private val binding: ItemLocationBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(location: Location) {
-            binding.locationName.text = location.name
+        fun bind(displayLocation: DisplayLocation) {
+            binding.locationName.text = displayLocation.location.name
+
+            // Ajout de l'indentation
+            val indentation = (displayLocation.depth * 50) // 50px par niveau de profondeur
+            binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = indentation
+            }
         }
     }
 
     companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<Location>() {
-            override fun areItemsTheSame(oldItem: Location, newItem: Location):
-                    Boolean = oldItem.id == newItem.id
+        private val DiffCallback = object : DiffUtil.ItemCallback<DisplayLocation>() {
+            override fun areItemsTheSame(oldItem: DisplayLocation, newItem: DisplayLocation):
+                    Boolean = oldItem.location.id == newItem.location.id
 
-            override fun areContentsTheSame(oldItem: Location, newItem: Location):
+            override fun areContentsTheSame(oldItem: DisplayLocation, newItem: DisplayLocation):
                     Boolean = oldItem == newItem
         }
     }

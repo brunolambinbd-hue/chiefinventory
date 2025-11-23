@@ -39,21 +39,21 @@ class ItemListActivity : AppCompatActivity() {
                 // On affiche les objets pour une catégorie et une super-catégorie données
                 supportActionBar?.title = category
                 viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, listType == TYPE_POSSESSED).observe(this) { items ->
-                    val searchResults = items.map { SearchResultItem(it) }
+                    val searchResults = items.map(::SearchResultItem)
                     adapter.submitList(searchResults)
                 }
             }
             listType == TYPE_POSSESSED -> {
                 supportActionBar?.title = "Mes Produits"
                 viewModel.possessedItems.observe(this) { items ->
-                    val searchResults = items.map { SearchResultItem(it) }
+                    val searchResults = items.map(::SearchResultItem)
                     adapter.submitList(searchResults)
                 }
             }
             else -> {
                 supportActionBar?.title = "Mes Recherches"
                 viewModel.soughtItems.observe(this) { items ->
-                    val searchResults = items.map { SearchResultItem(it) }
+                    val searchResults = items.map(::SearchResultItem)
                     adapter.submitList(searchResults)
                 }
             }
