@@ -163,7 +163,9 @@ class EditItemActivity : AppCompatActivity() {
     private fun launchCamera() {
         val imageFile = File(filesDir, "images/item_${System.currentTimeMillis()}.jpg").apply { parentFile?.mkdirs() }
         photoUri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.fileprovider", imageFile)
-        takePictureLauncher.launch(photoUri)
+        photoUri?.let {
+            takePictureLauncher.launch(it)
+        }
     }
 
     private fun updateUI(item: CollectionItem) {
