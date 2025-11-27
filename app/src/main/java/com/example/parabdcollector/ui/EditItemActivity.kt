@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
@@ -19,6 +18,9 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import coil.load
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityEditItemBinding
@@ -42,12 +44,24 @@ class EditItemActivity : AppCompatActivity() {
     private var displayLocations: List<DisplayLocation> = emptyList()
     private var selectedLocationId: Long? = null
 
+    private val cropImageLauncher = registerForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+            result.uriContent?.let { croppedUri ->
+                binding.itemImage.visibility = View.VISIBLE
+                binding.itemImage.load(croppedUri)
+                viewModel.setImageUri(croppedUri)
+            }
+        } else {
+            val exception = result.error
+            Toast.makeText(this, "Erreur de recadrage: ${exception?.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             photoUri?.let { uri ->
-                binding.itemImage.visibility = View.VISIBLE
-                binding.itemImage.load(uri)
-                viewModel.setImageUri(uri)
+                val cropOptions = CropImageContractOptions(uri, CropImageOptions())
+                cropImageLauncher.launch(cropOptions)
             }
         }
     }
@@ -163,8 +177,8 @@ class EditItemActivity : AppCompatActivity() {
     private fun launchCamera() {
         val imageFile = File(filesDir, "images/item_${System.currentTimeMillis()}.jpg").apply { parentFile?.mkdirs() }
         photoUri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.fileprovider", imageFile)
-        photoUri?.let {
-            takePictureLauncher.launch(it)
+        photoUri?.let { uri ->
+            takePictureLauncher.launch(uri)
         }
     }
 

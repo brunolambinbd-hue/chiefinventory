@@ -37,9 +37,14 @@
             android:name=".ui.FullScreenImageActivity"
             android:theme="@style/Theme.ParaBDCollector.FullScreen" />
 
+        <!-- Déclaration de l'activité de la librairie de recadrage avec un thème approprié -->
+        <activity
+            android:name="com.canhub.cropper.CropImageActivity"
+            android:theme="@style/Theme.AppCompat.Light" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
