@@ -60,8 +60,12 @@ class EditItemActivity : AppCompatActivity() {
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             photoUri?.let { uri ->
-                val cropOptions = CropImageContractOptions(uri, CropImageOptions())
-                cropImageLauncher.launch(cropOptions)
+                val cropOptions = CropImageOptions().apply {
+                    allowRotation = true
+                    allowFlipping = true
+                }
+                val cropContractOptions = CropImageContractOptions(uri, cropOptions)
+                cropImageLauncher.launch(cropContractOptions)
             }
         }
     }

@@ -69,25 +69,26 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
     suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
         // 1. On filtre par les critères texte
         val textFilteredItems = collectionDao.advancedSearch(
-            titre = criteria.titre?.let { "%$it%" },
-            editeur = criteria.editeur?.let { "%$it%" },
+            titre = criteria.titre?.let { "%it%" },
+            editeur = criteria.editeur?.let { "%it%" },
             annee = criteria.annee,
             mois = criteria.mois,
             superCategorie = criteria.superCategorie,
-            categorie = criteria.categorie?.let { "%$it%" },
-            description = criteria.description?.let { "%$it%" },
-            tirage = criteria.tirage?.let { "%$it%" },
-            dimensions = criteria.dimensions?.let { "%$it%" }
+            categorie = criteria.categorie?.let { "%it%" },
+            description = criteria.description?.let { "%it%" },
+            tirage = criteria.tirage?.let { "%it%" },
+            dimensions = criteria.dimensions?.let { "%it%" }
         )
 
         // 2. Si une image est fournie, on calcule la similarité sur les résultats pré-filtrés
         if (queryEmbedding != null) {
             return textFilteredItems
                 .filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
-                .map {
+                .map { 
                     val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
                     SearchResultItem(it, similarity.toDouble())
                 }
+                .filter { (it.similarity ?: 0.0) >= 0.65 } // On ne garde que les résultats pertinents
                 .sortedByDescending { it.similarity }
                 .take(5)
         } else {
@@ -106,6 +107,7 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
                 SearchResultItem(it, similarity.toDouble())
             }
             .filter { !(it.similarity?.isNaN() ?: true) } // On exclut les NaN
+            .filter { (it.similarity ?: 0.0) >= 0.65 } // On ne garde que les résultats pertinents
             .sortedByDescending { it.similarity }
             .take(5)
     }

@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
-//import com.canhub.cropper.options
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
@@ -66,8 +65,12 @@ class SearchActivity : AppCompatActivity() {
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             photoUri?.let { uri ->
-                val cropOptions = CropImageContractOptions(uri, CropImageOptions())
-                cropImageLauncher.launch(cropOptions)
+                val cropOptions = CropImageOptions().apply {
+                    allowRotation = true
+                    allowFlipping = true
+                }
+                val cropContractOptions = CropImageContractOptions(uri, cropOptions)
+                cropImageLauncher.launch(cropContractOptions)
             }
         }
     }
