@@ -1,6 +1,7 @@
 package com.example.parabdcollector.ui
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -17,6 +18,7 @@ import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityEditItemBinding
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.utils.BitmapUtils
 import com.example.parabdcollector.utils.CategoryMapper
 import com.example.parabdcollector.utils.ImageCaptureUtil
 import kotlinx.coroutines.launch
@@ -27,6 +29,7 @@ class EditItemActivity : AppCompatActivity() {
     private lateinit var imageCaptureUtil: ImageCaptureUtil
     private var currentItem: CollectionItem? = null
     private val isNewItem: Boolean by lazy { intent.getLongExtra("itemId", -1L) == -1L }
+    private var newBitmap: Bitmap? = null
 
     private val viewModel: EditItemViewModel by viewModels {
         val app = application as CollectionApplication
@@ -48,6 +51,7 @@ class EditItemActivity : AppCompatActivity() {
             binding.itemImage.visibility = View.VISIBLE
             binding.itemImage.load(croppedUri)
             viewModel.setImageUri(croppedUri)
+            newBitmap = BitmapUtils.getBitmapFromUri(this, croppedUri)
         }
 
         setupCategorySpinners()
@@ -186,9 +190,9 @@ class EditItemActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             var imageEmbedding: ByteArray? = currentItem?.imageEmbedding
-            val imageDrawable = binding.itemImage.drawable
-            if (imageEmbedding == null && imageDrawable is BitmapDrawable) {
-                imageEmbedding = viewModel.calculateSignature(imageDrawable.bitmap)
+            
+            if (imageEmbedding == null && newBitmap != null) {
+                imageEmbedding = viewModel.calculateSignature(newBitmap!!)
             }
 
             val itemToSave = CollectionItem(

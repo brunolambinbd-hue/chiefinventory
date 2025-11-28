@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,6 +18,7 @@ import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
 import com.example.parabdcollector.model.SearchResultItem
+import com.example.parabdcollector.utils.BitmapUtils
 import com.example.parabdcollector.utils.CategoryMapper
 import com.example.parabdcollector.utils.ImageCaptureUtil
 
@@ -46,7 +46,8 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.title = getString(R.string.menu_search_title)
 
         imageCaptureUtil = ImageCaptureUtil(this) { croppedUri ->
-            val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, croppedUri)
+            val bitmap = BitmapUtils.getBitmapFromUri(this, croppedUri)
+            
             searchImageBitmap = bitmap
             binding.ivSearchThumbnail.setImageBitmap(bitmap)
             binding.ivSearchThumbnail.visibility = View.VISIBLE
