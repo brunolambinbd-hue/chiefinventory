@@ -10,11 +10,17 @@ import android.provider.MediaStore
 object BitmapUtils {
 
     fun getBitmapFromUri(context: Context, uri: Uri): Bitmap {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        val originalBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri))
         } else {
             @Suppress("DEPRECATION")
             MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
         }
+
+        // MediaPipe requiert le format ARGB_8888. On convertit si nécessaire.
+        if (originalBitmap.config == Bitmap.Config.ARGB_8888) {
+            return originalBitmap
+        }
+        return originalBitmap.copy(Bitmap.Config.ARGB_8888, true)
     }
 }
