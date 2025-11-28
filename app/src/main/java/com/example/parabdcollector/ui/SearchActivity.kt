@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
@@ -44,13 +45,16 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.menu_search_title)
 
-        imageCaptureUtil = ImageCaptureUtil(this) { croppedUri ->
-            val bitmap = BitmapUtils.getBitmapFromUri(this, croppedUri)
-            
-            searchImageBitmap = bitmap
-            binding.ivSearchThumbnail.setImageBitmap(bitmap)
-            binding.ivSearchThumbnail.visibility = View.VISIBLE
-            viewModel.calculateSignatureForPreview(bitmap)
+        imageCaptureUtil = ImageCaptureUtil(this) { permanentUri ->
+            if (permanentUri != null) {
+                val bitmap = BitmapUtils.getBitmapFromUri(this, permanentUri)
+                searchImageBitmap = bitmap
+                binding.ivSearchThumbnail.setImageBitmap(bitmap)
+                binding.ivSearchThumbnail.visibility = View.VISIBLE
+                viewModel.calculateSignatureForPreview(bitmap)
+            } else {
+                Toast.makeText(this, "Erreur lors de la sauvegarde de l'image", Toast.LENGTH_SHORT).show()
+            }
         }
 
         setupRecyclerView()

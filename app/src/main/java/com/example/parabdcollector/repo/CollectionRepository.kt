@@ -65,7 +65,6 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
-        // 1. On filtre par les critères texte
         val textFilteredItems = collectionDao.advancedSearch(
             titre = criteria.titre?.let { "%it%" },
             editeur = criteria.editeur?.let { "%it%" },
@@ -78,21 +77,19 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
             dimensions = criteria.dimensions?.let { "%it%" }
         )
 
-        // 2. Si une image est fournie, on calcule la similarité sur les résultats pré-filtrés
-        if (queryEmbedding != null) {
-            return textFilteredItems
+        return if (queryEmbedding != null) {
+            textFilteredItems
                 .filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
                 .map { 
                     val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
                     SearchResultItem(it, similarity.toDouble())
                 }
-                .filter { !(it.similarity?.isNaN() ?: true) } // On exclut les NaN
-                .filter { (it.similarity ?: 0.0) >= 0.65 } // On ne garde que les résultats pertinents
+                .filter { !(it.similarity?.isNaN() ?: true) }
+                .filter { (it.similarity ?: 0.0) >= 0.65 }
                 .sortedByDescending { it.similarity }
                 .take(5)
         } else {
-            // Sinon, on retourne simplement les résultats du texte
-            return textFilteredItems.map { SearchResultItem(it) }
+            textFilteredItems.map { SearchResultItem(it) }
         }
     }
 
@@ -111,7 +108,6 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         val normaSqrt = kotlin.math.sqrt(normA)
         val normbSqrt = kotlin.math.sqrt(normB)
 
-        // On évite la division par zéro
         if (normaSqrt == 0.0f || normbSqrt == 0.0f) {
             return 0.0f
         }

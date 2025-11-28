@@ -17,10 +17,6 @@ class MainViewModel(private val repository: CollectionRepository) : ViewModel() 
 
     val signatureStats: LiveData<SignatureStats> = repository.getSignatureStats()
 
-    fun getById(id: Long): LiveData<CollectionItem> {
-        return repository.getById(id)
-    }
-
     fun insert(item: CollectionItem) = viewModelScope.launch {
         repository.insert(item)
     }

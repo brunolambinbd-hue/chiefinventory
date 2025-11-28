@@ -76,31 +76,28 @@ class ImageEmbedderHelper(
             .setRunningMode(RunningMode.IMAGE)
             .build()
 
-        Log.d(TAG, "Using ImageEmbedderOptions: $options") // LOG AJOUTÉ
+        Log.d(TAG, "Using ImageEmbedderOptions: ${'$'}options") // LOG AJOUTÉ
         try {
             imageEmbedder = ImageEmbedder.createFromOptions(context, options)
             Log.i(TAG, "ImageEmbedder created successfully.")
         } catch (e: Exception) {
-            listener?.onError("Image embedder failed to load. See error logs for details")
-            Log.e(TAG, "TFLite failed to load model with error: " + e.message, e) // Ajout de l'exception pour la stack trace
+            val errorMsg = "Image embedder failed to load. See error logs for details"
+            val errorCode = if (currentDelegate == DELEGATE_GPU) GPU_ERROR else UNKNOWN_ERROR
+            listener?.onError(errorMsg, errorCode)
+            Log.e(TAG, "TFLite failed to load model with error: " + e.message, e)
         }
     }
 
     fun computeSignature(bitmap: Bitmap): Embedding? {
-        Log.i(TAG, "computeSignature called for a bitmap.")
         imageEmbedder?.let {
             val mpImage = BitmapImageBuilder(bitmap).build()
-            val startTime = SystemClock.uptimeMillis()
-            val signature =
-                it.embed(mpImage).embeddingResult().embeddings().first()
-            val inferenceTime = SystemClock.uptimeMillis() - startTime
-            Log.i(TAG, "Signature computed in $inferenceTime ms.")
-            return signature
+            return it.embed(mpImage).embeddingResult().embeddings().first()
         }
         Log.e(TAG, "computeSignature called, but imageEmbedder is null.")
         return null
     }
 
+    @Suppress("unused")
     fun compareBitmapWithSignature(bitmapToCompare: Bitmap, savedSignature: Embedding): Double? {
         val newSignature = computeSignatureForComparison(bitmapToCompare)
         newSignature?.let {
@@ -109,17 +106,16 @@ class ImageEmbedderHelper(
         return null
     }
     
+    @Suppress("unused")
      fun computeSignatureForComparison(bitmap: Bitmap): Embedding? {
         imageEmbedder?.let {
             val mpImage = BitmapImageBuilder(bitmap).build()
-            val signature =
-                it.embed(mpImage).embeddingResult().embeddings().first()
-            return signature
+            return it.embed(mpImage).embeddingResult().embeddings().first()
         }
         return null
     }
 
-    // Reverted this function to the state you wanted.
+    @Suppress("unused")
     fun embed(firstBitmap: Bitmap, secondBitmap: Bitmap): ResultBundle? {
         // Inference time is the difference between the system time at the start and finish of the
         // process
@@ -152,7 +148,7 @@ class ImageEmbedderHelper(
     )
 
     interface EmbedderListener {
-        fun onError(error: String, errorCode: Int = 0)
+        fun onError(error: String, errorCode: Int = UNKNOWN_ERROR)
     }
 
     companion object {
@@ -161,6 +157,7 @@ class ImageEmbedderHelper(
         const val MODEL_MOBILENETV3_LARGE = 0
         const val MODEL_MOBILENETV3_SMALL = 1
 
+        const val UNKNOWN_ERROR = 0
         const val GPU_ERROR = 1
         private const val TAG = "ImageEmbedderHelper"
     }

@@ -18,17 +18,21 @@ import java.io.File
 
 class ImageCaptureUtil(
     private val activity: AppCompatActivity,
-    private val onImageCropped: (Uri) -> Unit
+    private val onImageReady: (Uri?) -> Unit
 ) {
 
     private var photoUri: Uri? = null
 
     private val cropImageLauncher = activity.registerForActivityResult(CropImageContract()) { result ->
         if (result.isSuccessful) {
-            result.uriContent?.let(onImageCropped)
+            result.uriContent?.let { tempUri ->
+                val permanentUri = ImageStorageHelper.saveImageToInternalStorage(activity, tempUri)
+                onImageReady(permanentUri)
+            } ?: onImageReady(null) // Uri de recadrage nulle
         } else {
             val exception = result.error
             Toast.makeText(activity, "Erreur de recadrage: ${exception?.message}", Toast.LENGTH_SHORT).show()
+            onImageReady(null) // Erreur de recadrage
         }
     }
 
@@ -42,6 +46,9 @@ class ImageCaptureUtil(
                 val cropContractOptions = CropImageContractOptions(uri, cropOptions)
                 cropImageLauncher.launch(cropContractOptions)
             }
+        } else {
+            // L'utilisateur a annulé la prise de photo, on notifie avec null
+            onImageReady(null)
         }
     }
 

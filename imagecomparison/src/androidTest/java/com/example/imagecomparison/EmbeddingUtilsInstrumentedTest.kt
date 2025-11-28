@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.mediapipe.tasks.components.containers.Embedding
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

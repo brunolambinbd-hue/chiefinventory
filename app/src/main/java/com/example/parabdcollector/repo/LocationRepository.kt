@@ -10,14 +10,6 @@ class LocationRepository(private val locationDao: LocationDao) {
         return locationDao.getAll()
     }
 
-    fun getRootLocations(): LiveData<List<Location>> {
-        return locationDao.getRootLocations()
-    }
-
-    fun getChildren(parentId: Long): LiveData<List<Location>> {
-        return locationDao.getChildren(parentId)
-    }
-
     suspend fun insert(location: Location) {
         locationDao.insert(location)
     }

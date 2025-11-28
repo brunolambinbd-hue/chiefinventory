@@ -21,13 +21,9 @@ import java.io.InputStreamReader
 
 class ImportViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
-    private lateinit var imageEmbedderHelper: ImageEmbedderHelper
+    private val imageEmbedderHelper = ImageEmbedderHelper(context = getApplication(), listener = null)
     private val imageLoader = ImageLoader(application)
     private val baseImageUrl = "https://frankpe.com/images/bdg_new/" // URL Web correcte
-
-    init {
-        imageEmbedderHelper = ImageEmbedderHelper(context = getApplication(), listener = null)
-    }
 
     fun importCsv(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {

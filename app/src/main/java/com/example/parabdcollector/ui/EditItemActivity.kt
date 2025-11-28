@@ -45,11 +45,15 @@ class EditItemActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        imageCaptureUtil = ImageCaptureUtil(this) { croppedUri ->
-            binding.itemImage.visibility = View.VISIBLE
-            binding.itemImage.load(croppedUri)
-            viewModel.setImageUri(croppedUri)
-            newBitmap = BitmapUtils.getBitmapFromUri(this, croppedUri)
+        imageCaptureUtil = ImageCaptureUtil(this) { permanentUri ->
+            if (permanentUri != null) {
+                binding.itemImage.visibility = View.VISIBLE
+                binding.itemImage.load(permanentUri)
+                viewModel.setImageUri(permanentUri)
+                newBitmap = BitmapUtils.getBitmapFromUri(this, permanentUri)
+            } else {
+                Toast.makeText(this, "Erreur lors de la sauvegarde de l'image", Toast.LENGTH_SHORT).show()
+            }
         }
 
         setupCategorySpinners()
