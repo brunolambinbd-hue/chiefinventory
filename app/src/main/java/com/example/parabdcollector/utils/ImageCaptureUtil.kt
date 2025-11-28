@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.parabdcollector.utils
 
 import android.Manifest
@@ -21,7 +23,6 @@ class ImageCaptureUtil(
 
     private var photoUri: Uri? = null
 
-    @Suppress("DEPRECATION")
     private val cropImageLauncher = activity.registerForActivityResult(CropImageContract()) { result ->
         if (result.isSuccessful) {
             result.uriContent?.let(onImageCropped)
@@ -31,7 +32,6 @@ class ImageCaptureUtil(
         }
     }
 
-    @Suppress("DEPRECATION")
     private val takePictureLauncher = activity.registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             photoUri?.let { uri ->
