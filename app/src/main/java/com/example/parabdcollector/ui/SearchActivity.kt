@@ -1,11 +1,8 @@
 package com.example.parabdcollector.ui
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
@@ -13,74 +10,30 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.canhub.cropper.CropImageContract
-import com.canhub.cropper.CropImageContractOptions
-import com.canhub.cropper.CropImageOptions
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
 import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.utils.CategoryMapper
-import java.io.File
+import com.example.parabdcollector.utils.ImageCaptureUtil
 
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
     private lateinit var adapter: CollectionAdapter
+    private lateinit var imageCaptureUtil: ImageCaptureUtil
+
     private var currentSearchDescription: String = ""
     private var searchImageBitmap: Bitmap? = null
-    private var photoUri: Uri? = null // Pour stocker l'URI de la photo originale
 
     private val viewModel: SearchViewModel by viewModels {
         val app = application as CollectionApplication
         ViewModelFactory(app, app.repository, app.locationRepository)
-    }
-
-    // Lanceur pour le recadrage
-    private val cropImageLauncher = registerForActivityResult(CropImageContract()) { result ->
-        if (result.isSuccessful) {
-            result.uriContent?.let { croppedUri ->
-                val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, croppedUri)
-                searchImageBitmap = bitmap
-                binding.ivSearchThumbnail.setImageBitmap(bitmap)
-                binding.ivSearchThumbnail.visibility = View.VISIBLE
-                viewModel.calculateSignatureForPreview(bitmap)
-            }
-        } else {
-            val exception = result.error
-            Toast.makeText(this, "Erreur de recadrage: ${exception?.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Lanceur pour la prise de photo
-    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            photoUri?.let { uri ->
-                val cropOptions = CropImageOptions().apply {
-                    allowRotation = true
-                    allowFlipping = true
-                }
-                val cropContractOptions = CropImageContractOptions(uri, cropOptions)
-                cropImageLauncher.launch(cropContractOptions)
-            }
-        }
-    }
-
-    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            launchCamera()
-        } else {
-            Toast.makeText(this, R.string.toast_camera_permission_denied, Toast.LENGTH_SHORT).show()
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,22 +45,38 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.menu_search_title)
 
+        imageCaptureUtil = ImageCaptureUtil(this) { croppedUri ->
+            val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, croppedUri)
+            searchImageBitmap = bitmap
+            binding.ivSearchThumbnail.setImageBitmap(bitmap)
+            binding.ivSearchThumbnail.visibility = View.VISIBLE
+            viewModel.calculateSignatureForPreview(bitmap)
+        }
+
         setupRecyclerView()
         setupCategorySpinners()
 
         binding.btnSearch.setOnClickListener { performSearch() }
-        binding.btnSearchByImage.setOnClickListener { onSearchByImageClicked() }
+        binding.btnSearchByImage.setOnClickListener { imageCaptureUtil.start() }
 
         binding.tvToggleAdvancedSearch.setOnClickListener { toggleAdvancedSearch() }
 
         viewModel.searchResults.observe(this) { results ->
             adapter.submitList(results)
             val count = results.size
-            if (count > 0 || currentSearchDescription.isNotBlank()) {
-                binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
-                binding.tvResultsCount.isVisible = true
-            } else {
+
+            val searchPerformed = currentSearchDescription.isNotBlank()
+
+            if (!searchPerformed) {
                 binding.tvResultsCount.isVisible = false
+                return@observe
+            }
+
+            binding.tvResultsCount.isVisible = true
+            if (count == 0 && searchImageBitmap != null) {
+                binding.tvResultsCount.text = getString(R.string.search_no_similar_results)
+            } else {
+                binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
             }
         }
 
@@ -129,6 +98,7 @@ class SearchActivity : AppCompatActivity() {
         searchImageBitmap = null
         binding.ivSearchThumbnail.visibility = View.GONE
         binding.tvSearchThumbnailSignature.visibility = View.GONE
+        currentSearchDescription = ""
         viewModel.clearSearchResults()
     }
 
@@ -139,21 +109,6 @@ class SearchActivity : AppCompatActivity() {
         } else {
             binding.advancedSearchContainer.isGone = true
             binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
-        }
-    }
-
-    private fun onSearchByImageClicked() {
-        when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> launchCamera()
-            else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
-    }
-
-    private fun launchCamera() {
-        val imageFile = File(filesDir, "images/search_${System.currentTimeMillis()}.jpg").apply { parentFile?.mkdirs() }
-        photoUri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.fileprovider", imageFile)
-        photoUri?.let { uri ->
-            takePictureLauncher.launch(uri)
         }
     }
 
@@ -195,6 +150,17 @@ class SearchActivity : AppCompatActivity() {
                 tirage = binding.etSearchTirage.text.toString().takeIf { it.isNotBlank() },
                 dimensions = binding.etSearchDimensions.text.toString().takeIf { it.isNotBlank() }
             )
+
+            val descriptionParts = listOfNotNull(
+                criteria.titre,
+                criteria.editeur,
+                criteria.annee?.toString(),
+                criteria.superCategorie,
+                criteria.categorie,
+                if (searchImageBitmap != null) "Image" else null
+            )
+            currentSearchDescription = descriptionParts.joinToString(", ").ifBlank { "" }
+
             viewModel.advancedSearch(criteria, searchImageBitmap)
         }
     }

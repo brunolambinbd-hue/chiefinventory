@@ -1,8 +1,6 @@
 package com.example.parabdcollector.ui
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -10,30 +8,24 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import coil.load
-import com.canhub.cropper.CropImageContract
-import com.canhub.cropper.CropImageContractOptions
-import com.canhub.cropper.CropImageOptions
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityEditItemBinding
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.utils.CategoryMapper
+import com.example.parabdcollector.utils.ImageCaptureUtil
 import kotlinx.coroutines.launch
-import java.io.File
 
 class EditItemActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditItemBinding
+    private lateinit var imageCaptureUtil: ImageCaptureUtil
     private var currentItem: CollectionItem? = null
-    private var photoUri: Uri? = null
     private val isNewItem: Boolean by lazy { intent.getLongExtra("itemId", -1L) == -1L }
 
     private val viewModel: EditItemViewModel by viewModels {
@@ -44,40 +36,6 @@ class EditItemActivity : AppCompatActivity() {
     private var displayLocations: List<DisplayLocation> = emptyList()
     private var selectedLocationId: Long? = null
 
-    private val cropImageLauncher = registerForActivityResult(CropImageContract()) { result ->
-        if (result.isSuccessful) {
-            result.uriContent?.let { croppedUri ->
-                binding.itemImage.visibility = View.VISIBLE
-                binding.itemImage.load(croppedUri)
-                viewModel.setImageUri(croppedUri)
-            }
-        } else {
-            val exception = result.error
-            Toast.makeText(this, "Erreur de recadrage: ${exception?.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            photoUri?.let { uri ->
-                val cropOptions = CropImageOptions().apply {
-                    allowRotation = true
-                    allowFlipping = true
-                }
-                val cropContractOptions = CropImageContractOptions(uri, cropOptions)
-                cropImageLauncher.launch(cropContractOptions)
-            }
-        }
-    }
-
-    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            launchCamera()
-        } else {
-            Toast.makeText(this, R.string.toast_camera_permission_denied, Toast.LENGTH_SHORT).show()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditItemBinding.inflate(layoutInflater)
@@ -85,6 +43,12 @@ class EditItemActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        imageCaptureUtil = ImageCaptureUtil(this) { croppedUri ->
+            binding.itemImage.visibility = View.VISIBLE
+            binding.itemImage.load(croppedUri)
+            viewModel.setImageUri(croppedUri)
+        }
 
         setupCategorySpinners()
         setupLocationDropdown()
@@ -103,7 +67,7 @@ class EditItemActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnTakePicture.setOnClickListener { onTakePictureClicked() }
+        binding.btnTakePicture.setOnClickListener { imageCaptureUtil.start() }
         binding.btnSave.setOnClickListener { saveItem() }
 
         binding.itemImage.setOnClickListener {
@@ -168,21 +132,6 @@ class EditItemActivity : AppCompatActivity() {
 
             binding.categoryLayout.isEnabled = true
             binding.etCategory.text = null
-        }
-    }
-
-    private fun onTakePictureClicked() {
-        when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> launchCamera()
-            else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
-    }
-
-    private fun launchCamera() {
-        val imageFile = File(filesDir, "images/item_${System.currentTimeMillis()}.jpg").apply { parentFile?.mkdirs() }
-        photoUri = FileProvider.getUriForFile(this, "${applicationContext.packageName}.fileprovider", imageFile)
-        photoUri?.let { uri ->
-            takePictureLauncher.launch(uri)
         }
     }
 

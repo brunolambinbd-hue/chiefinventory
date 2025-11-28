@@ -90,5 +90,6 @@
     <string name="debug_signature_info_fullscreen">Signature: %1$s</string>
     <string name="generic_field_format">%1$s: %2$s</string>
     <string name="signature_preview_format">[%1$s,…]</string>
+    <string name="search_no_similar_results">No sufficiently similar results found (threshold &gt; 65%)</string>
 
 </resources>
