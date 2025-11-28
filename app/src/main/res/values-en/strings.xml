@@ -1,57 +1,61 @@
-<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="fr">
-    <string name="app_name" translatable="false">ParaBDCollector</string>
-    <string name="open">Ouvrir</string>
-    <string name="close">Fermer</string>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
+    <!-- App Name (Not translatable) -->
+    <!-- <string name="app_name">ParaBDCollector</string> -->
 
-    <!-- Strings pour le compteur -->
+    <!-- General UI -->
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+
+    <!-- Counter -->
     <string name="initial_counter_value">0</string>
     <string name="counter_separator"> / </string>
 
-    <!-- Titres formatables pour les pages -->
-    <string name="possessed_items_title" tools:ignore="UnusedResources">Mes Produits (%1$d)</string>
-    <string name="sought_items_title" tools:ignore="UnusedResources">Mes Recherches (%1$d)</string>
+    <!-- Page Titles -->
+    <string name="possessed_items_title">My Items (%1$d)</string>
+    <string name="sought_items_title">My Searches (%1$d)</string>
     <string name="category_item_format">%1$s (%2$d)</string>
 
-    <!-- Strings pour le tableau de bord -->
-    <string name="total_items_label">Objets Totaux: %1$d</string>
-    <string name="possessed_items_label">Objets Possédés: %1$d</string>
-    <string name="sought_items_label">Objets Recherchés: %1$d</string>
-    <string name="add_item_description">Ajouter un objet</string>
+    <!-- Dashboard -->
+    <string name="total_items_label">Total Items: %1$d</string>
+    <string name="possessed_items_label">Possessed Items: %1$d</string>
+    <string name="sought_items_label">Sought Items: %1$d</string>
+    <string name="add_item_description">Add an item</string>
 
-    <!-- Descriptions pour l'accessibilité -->
-    <string name="item_image_preview_description">Aperçu de l\'image de l\'objet</string>
-    <string name="item_thumbnail_description_generic">Image de l\'objet</string>
-    <string name="full_screen_image_description">Image en plein écran de l\'objet</string>
+    <!-- Accessibility -->
+    <string name="item_image_preview_description">Item image preview</string>
+    <string name="item_thumbnail_description_generic">Item thumbnail</string>
+    <string name="full_screen_image_description">Fullscreen image of the item</string>
+    <string name="add_location_description">Add a location</string>
 
-    <!-- Textes pour l'écran d'édition -->
-    <string name="edit_item_title_new">Nouvel Objet</string>
-    <string name="edit_item_title_editing">Édition : %1$s</string>
-    <string name="take_picture_button">Prendre une photo</string>
-    <string name="save_button">Enregistrer</string>
-    <string name="item_title_hint">Titre</string>
-    <string name="item_possessed_switch">Je possède cet objet</string>
-    <string name="item_universe_hint" tools:ignore="UnusedResources">Univers / Série</string>
-    <string name="item_editor_hint">Editeur</string>
-    <string name="item_year_hint">Année</string>
-    <string name="item_month_hint">Mois</string>
-    <string name="item_category_hint">Catégorie</string>
-    <string name="item_super_category_hint">Super-Catégorie</string>
-    <string name="item_material_hint">Matériau</string>
-    <string name="item_run_hint">Tirage</string>
+    <!-- Edit Screen -->
+    <string name="edit_item_title_new">New Item</string>
+    <string name="edit_item_title_editing">Editing: %1$s</string>
+    <string name="take_picture_button">Take a picture</string>
+    <string name="save_button">Save</string>
+    <string name="item_title_hint">Title</string>
+    <string name="item_possessed_switch">I own this item</string>
+    <string name="item_universe_hint">Universe / Series</string>
+    <string name="item_editor_hint">Editor</string>
+    <string name="item_year_hint">Year</string>
+    <string name="item_month_hint">Month</string>
+    <string name="item_category_hint">Category</string>
+    <string name="item_super_category_hint">Super-Category</string>
+    <string name="item_material_hint">Material</string>
+    <string name="item_run_hint">Print Run</string>
     <string name="item_dimensions_hint">Dimensions</string>
-    <string name="item_purchase_price_hint">Prix d\'achat</string>
-    <string name="item_estimated_value_hint">Valeur estimée</string>
-    <string name="item_purchase_location_hint">Lieu d\'achat</string>
+    <string name="item_purchase_price_hint">Purchase Price</string>
+    <string name="item_estimated_value_hint">Estimated Value</string>
+    <string name="item_purchase_location_hint">Purchase Location</string>
     <string name="item_notes_hint">Description</string>
-    <string name="item_location_hint">Localisation</string>
+    <string name="item_location_hint">Location</string>
 
-    <!-- Textes pour l'écran de recherche -->
-    <string name="search_button">Rechercher</string>
-    <string name="search_hint" tools:ignore="UnusedResources">Entrez un titre, un univers…</string>
-    <string name="simple_search_hint">Recherche rapide…</string>
-    <string name="advanced_search_show">Recherche avancée</string>
-    <string name="advanced_search_hide">Masquer la recherche avancée</string>
-    <string name="search_by_image_description">Rechercher par image</string>
+    <!-- Search Screen -->
+    <string name="search_button">Search</string>
+    <string name="search_hint">Enter a title, a universe…</string>
+    <string name="simple_search_hint">Quick search…</string>
+    <string name="advanced_search_show">Advanced search</string>
+    <string name="advanced_search_hide">Hide advanced search</string>
+    <string name="search_by_image_description">Search by image</string>
     <plurals name="search_results_count">
         <item quantity="one">%1$d result found</item>
         <item quantity="other">%1$d results found</item>
@@ -61,35 +65,39 @@
         <item quantity="other">%1$d results for “%2$s”</item>
     </plurals>
     <string name="similarity_score_format">Similarity: %.1f%%</string>
-    <string name="new_search_title">New search</string>
+    <string name="search_no_similar_results">No sufficiently similar results found (threshold &gt; 65%)</string>
 
-    <!-- Textes pour les menus -->
-    <string name="menu_search_title">Recherche</string>
-    <string name="menu_counter_title">Compteur</string>
-    <string name="menu_home_title">Accueil</string>
-    <string name="menu_products_title">Mes Produits</string>
-    <string name="menu_searches_title">Mes Recherches</string>
-    <string name="menu_locations_title">Mes Emplacements</string>
-    <string name="menu_import_title">Importer / Mettre à jour</string>
+    <!-- Menu -->
+    <string name="menu_search_title">Search</string>
+    <string name="menu_counter_title">Counter</string>
+    <string name="menu_home_title">Home</string>
+    <string name="menu_products_title">My Items</string>
+    <string name="menu_searches_title">My Searches</string>
+    <string name="menu_locations_title">My Locations</string>
+    <string name="menu_import_title">Import / Update</string>
     <string name="refine_search_title">Refine search</string>
+    <string name="new_search_title">New search</string>
+    <string name="locations_management_title">Location Management</string>
 
-    <!-- Messages (Toast) -->
-    <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>
-    <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
-    <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
+    <!-- Toast Messages -->
+    <string name="toast_error_saving_image">Error while saving image</string>
+    <string name="toast_camera_permission_denied">Camera permission denied</string>
+    <string name="toast_title_is_mandatory">Title is mandatory</string>
+    <string name="rapport_signatures">Signature Report</string>
 
-    <!-- New strings for signature report -->
-    <string name="report_signatures_ok">OK Signatures: %1$d</string>
+    <!-- Signature Report -->
+    <string name="report_signatures_ok">Signatures OK: %1$d</string>
     <string name="report_signatures_empty">Empty Signatures: %1$d</string>
     <string name="report_signatures_missing">Missing Signatures: %1$d</string>
     <string name="report_item_id">ID: %1$d</string>
     <string name="signature_status_valid">Valid</string>
     <string name="signature_status_empty">Empty</string>
     <string name="signature_status_missing">Missing</string>
+
+    <!-- Debug -->
     <string name="debug_signature_info">ID: %1$d, Sig: %2$s</string>
     <string name="debug_signature_info_fullscreen">Signature: %1$s</string>
     <string name="generic_field_format">%1$s: %2$s</string>
     <string name="signature_preview_format">[%1$s,…]</string>
-    <string name="search_no_similar_results">No sufficiently similar results found (threshold &gt; 65%)</string>
 
 </resources>
