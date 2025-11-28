@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 pluginManagement {
     repositories {
         google {
@@ -12,6 +14,7 @@ pluginManagement {
         maven { url = uri("https://jitpack.io") } // Ajout pour la résolution des plugins (si nécessaire)
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {

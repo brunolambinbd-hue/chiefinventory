@@ -1,5 +1,6 @@
 package com.example.parabdcollector.ui
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
+import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.utils.BitmapUtils
 import com.example.parabdcollector.utils.CategoryMapper
 import com.example.parabdcollector.utils.ImageCaptureUtil
@@ -28,6 +30,7 @@ class SearchActivity : AppCompatActivity() {
 
     private var currentSearchDescription: String = ""
     private var searchImageBitmap: Bitmap? = null
+    private var searchHasBeenPerformed: Boolean = false
 
     private val viewModel: SearchViewModel by viewModels {
         val app = application as CollectionApplication
@@ -62,20 +65,20 @@ class SearchActivity : AppCompatActivity() {
 
         viewModel.searchResults.observe(this) { results ->
             adapter.submitList(results)
-            val count = results.size
-
-            val searchPerformed = currentSearchDescription.isNotBlank()
-
-            if (!searchPerformed) {
+            if (!searchHasBeenPerformed) {
                 binding.tvResultsCount.isVisible = false
                 return@observe
             }
 
+            val count = results.size
             binding.tvResultsCount.isVisible = true
+
             if (count == 0 && searchImageBitmap != null) {
                 binding.tvResultsCount.text = getString(R.string.search_no_similar_results)
-            } else {
+            } else if (currentSearchDescription.isNotBlank()) {
                 binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
+            } else {
+                binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count, count, count)
             }
         }
 
@@ -98,6 +101,7 @@ class SearchActivity : AppCompatActivity() {
         binding.ivSearchThumbnail.visibility = View.GONE
         binding.tvSearchThumbnailSignature.visibility = View.GONE
         currentSearchDescription = ""
+        searchHasBeenPerformed = false
         viewModel.clearSearchResults()
     }
 
@@ -132,6 +136,7 @@ class SearchActivity : AppCompatActivity() {
     private fun performSearch() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        searchHasBeenPerformed = true
 
         val simpleQuery = binding.etSearchSimple.text.toString()
         if (simpleQuery.isNotBlank()) {

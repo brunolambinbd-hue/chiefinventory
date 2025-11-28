@@ -29,7 +29,7 @@ class LocationManagementActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.locations_management_title)
+        supportActionBar?.title = getString(R.string.menu_locations_title)
 
         setupRecyclerView()
 

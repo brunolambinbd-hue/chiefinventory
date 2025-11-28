@@ -80,7 +80,7 @@
     <string name="locations_management_title">Location Management</string>
 
     <!-- Toast Messages -->
-    <string name="toast_error_saving_image">Error while saving image</string>
+<!--    <string name="toast_error_saving_image">Error while saving image</string>-->
     <string name="toast_camera_permission_denied">Camera permission denied</string>
     <string name="toast_title_is_mandatory">Title is mandatory</string>
     <string name="rapport_signatures">Signature Report</string>

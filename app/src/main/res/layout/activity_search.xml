@@ -176,6 +176,7 @@
                 android:layout_marginTop="4dp"
                 android:scaleType="centerCrop"
                 android:visibility="gone"
+                android:contentDescription="@string/item_image_preview_description"
                 tools:src="@mipmap/ic_launcher"
                 tools:visibility="visible" />
 
