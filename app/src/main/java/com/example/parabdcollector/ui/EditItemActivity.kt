@@ -78,12 +78,24 @@ class EditItemActivity : AppCompatActivity() {
 
         binding.itemImage.setOnClickListener {
             val imageUriString = viewModel.imageUri.value?.toString()
-            if (imageUriString != null) {
-                val intent = Intent(this, FullScreenImageActivity::class.java).apply {
-                    putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, imageUriString)
-                    // ... (le reste des extras)
+            currentItem?.let { item ->
+                if (imageUriString != null) {
+                    val intent = Intent(this, FullScreenImageActivity::class.java).apply {
+                        putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, imageUriString)
+                        putExtra(FullScreenImageActivity.EXTRA_TITLE, item.titre)
+                        putExtra(FullScreenImageActivity.EXTRA_EDITOR, item.editeur)
+                        putExtra(FullScreenImageActivity.EXTRA_YEAR, item.annee)
+                        putExtra(FullScreenImageActivity.EXTRA_MONTH, item.mois)
+                        putExtra(FullScreenImageActivity.EXTRA_SUPER_CATEGORY, item.superCategorie)
+                        putExtra(FullScreenImageActivity.EXTRA_CATEGORY, item.categorie)
+                        putExtra(FullScreenImageActivity.EXTRA_MATERIAL, item.materiau)
+                        putExtra(FullScreenImageActivity.EXTRA_RUN, item.tirage)
+                        putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, item.dimensions)
+                        putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, item.description)
+                        putExtra(FullScreenImageActivity.EXTRA_IMAGE_SIGNATURE, item.imageEmbedding)
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
             }
         }
     }

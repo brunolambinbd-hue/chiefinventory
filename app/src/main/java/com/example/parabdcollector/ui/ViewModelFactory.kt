@@ -11,6 +11,7 @@ class ViewModelFactory(
     private val collectionRepository: CollectionRepository,
     private val locationRepository: LocationRepository
 ) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(MainViewModel::class.java) ->

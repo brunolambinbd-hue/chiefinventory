@@ -5,11 +5,13 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityCategoryListBinding
-import com.example.parabdcollector.model.CategoryInfo
+
 
 class CategoryListActivity : AppCompatActivity() {
 
@@ -53,15 +55,14 @@ class CategoryListActivity : AppCompatActivity() {
         adapter = CategoryAdapter { categoryName ->
             if (superCategory == null) {
                 // Clic sur une super-catégorie. On vérifie si on peut sauter une étape.
-                viewModel.getCategoryInfoForSuperCategory(categoryName, isPossessed).observe(this, object : Observer<List<CategoryInfo>> {
-                    override fun onChanged(subCategories: List<CategoryInfo>) {
-                        viewModel.getCategoryInfoForSuperCategory(categoryName, isPossessed).removeObserver(this)
-                        if (subCategories.size == 1) {
+                viewModel.getCategoryInfoForSuperCategory(categoryName, isPossessed)
+                    .observeOnce(this) { value ->
+                        if (value.size == 1) {
                             // Il n'y a qu'une seule sous-catégorie, on va directement à la liste des objets.
                             val intent = Intent(this@CategoryListActivity, ItemListActivity::class.java).apply {
                                 putExtra(ItemListActivity.EXTRA_LIST_TYPE, if (isPossessed) ItemListActivity.TYPE_POSSESSED else ItemListActivity.TYPE_SOUGHT)
                                 putExtra(ItemListActivity.EXTRA_SUPER_CATEGORY, categoryName)
-                                putExtra(ItemListActivity.EXTRA_CATEGORY, subCategories.first().name)
+                                putExtra(ItemListActivity.EXTRA_CATEGORY, value.first().name)
                             }
                             startActivity(intent)
                         } else {
@@ -73,7 +74,6 @@ class CategoryListActivity : AppCompatActivity() {
                             startActivity(intent)
                         }
                     }
-                })
             } else {
                 // Clic sur une catégorie -> on ouvre la liste des objets
                 val intent = Intent(this, ItemListActivity::class.java).apply {
@@ -94,6 +94,23 @@ class CategoryListActivity : AppCompatActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    /**
+     * Observe a LiveData object only once. After the first value is received,
+     * the observer is automatically removed.
+     */
+    private fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, onChanged: (T) -> Unit) {
+        // We use an explicit Observer object here instead of a lambda because we need a
+        // reference to the observer ('this') to remove it after the first emission.
+        @Suppress("ObjectLiteralToLambda")
+        val observer = object : Observer<T> {
+            override fun onChanged(value: T) {
+                removeObserver(this)
+                onChanged(value)
+            }
+        }
+        observe(owner, observer)
     }
 
     companion object {
