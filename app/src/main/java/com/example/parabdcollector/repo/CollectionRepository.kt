@@ -66,15 +66,15 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
 
     suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
         val textFilteredItems = collectionDao.advancedSearch(
-            titre = criteria.titre?.let { "%it%" },
-            editeur = criteria.editeur?.let { "%it%" },
+            titre = criteria.titre?.let { "%${it}%" },
+            editeur = criteria.editeur?.let { "%${it}%" },
             annee = criteria.annee,
             mois = criteria.mois,
             superCategorie = criteria.superCategorie,
-            categorie = criteria.categorie?.let { "%it%" },
-            description = criteria.description?.let { "%it%" },
-            tirage = criteria.tirage?.let { "%it%" },
-            dimensions = criteria.dimensions?.let { "%it%" }
+            categorie = criteria.categorie?.let { "%${it}%" },
+            description = criteria.description?.let { "%${it}%" },
+            tirage = criteria.tirage?.let { "%${it}%" },
+            dimensions = criteria.dimensions?.let { "%${it}%" }
         )
 
         return if (queryEmbedding != null) {

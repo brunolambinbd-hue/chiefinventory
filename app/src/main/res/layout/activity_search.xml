@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
@@ -17,12 +18,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
         android:paddingStart="16dp"
+        android:paddingTop="8dp"
         android:paddingEnd="16dp"
-        android:gravity="center_vertical">
+        android:paddingBottom="8dp">
 
         <EditText
             android:id="@+id/et_search_simple"
@@ -37,8 +38,8 @@
             android:id="@+id/btn_search_by_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_camera"
-            android:contentDescription="@string/search_by_image_description"/>
+            android:contentDescription="@string/search_by_image_description"
+            android:src="@android:drawable/ic_menu_camera" />
 
         <Button
             android:id="@+id/btn_search"
@@ -51,7 +52,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"> 
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -64,11 +65,11 @@
                 android:id="@+id/tv_toggle_advanced_search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/advanced_search_show"
-                android:textColor="?attr/colorPrimary"
                 android:layout_gravity="center_horizontal"
                 android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp" />
+                android:paddingVertical="4dp"
+                android:text="@string/advanced_search_show"
+                android:textColor="?attr/colorPrimary" />
 
             <!-- Section Recherche Avancée (masquée par défaut) -->
             <LinearLayout
@@ -129,32 +130,32 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/super_category_search_layout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                    android:layout_height="wrap_content">
 
                     <AutoCompleteTextView
                         android:id="@+id/et_search_super_category"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/item_super_category_hint"
-                        android:inputType="none"/>
+                        android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/category_search_layout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                    android:layout_marginTop="8dp">
 
                     <AutoCompleteTextView
                         android:id="@+id/et_search_category"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/item_category_hint"
-                        android:inputType="none"/>
+                        android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -174,9 +175,9 @@
                 android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="4dp"
+                android:contentDescription="@string/item_image_preview_description"
                 android:scaleType="centerCrop"
                 android:visibility="gone"
-                android:contentDescription="@string/item_image_preview_description"
                 tools:src="@mipmap/ic_launcher"
                 tools:visibility="visible" />
 
@@ -205,7 +206,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_search_results"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
     </ScrollView>

@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityCategoryListBinding
-
+import com.example.parabdcollector.model.CategoryInfo
 
 class CategoryListActivity : AppCompatActivity() {
 
@@ -101,9 +101,6 @@ class CategoryListActivity : AppCompatActivity() {
      * the observer is automatically removed.
      */
     private fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, onChanged: (T) -> Unit) {
-        // We use an explicit Observer object here instead of a lambda because we need a
-        // reference to the observer ('this') to remove it after the first emission.
-        @Suppress("ObjectLiteralToLambda")
         val observer = object : Observer<T> {
             override fun onChanged(value: T) {
                 removeObserver(this)
