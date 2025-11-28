@@ -24,7 +24,7 @@ class CategoryAdapter(private val onItemClicked: (String) -> Unit) : ListAdapter
     inner class VH(private val textView: TextView) : RecyclerView.ViewHolder(textView) {
         init {
             textView.setOnClickListener {
-                val position = adapterPosition
+                val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onItemClicked(getItem(position).name)
                 }
