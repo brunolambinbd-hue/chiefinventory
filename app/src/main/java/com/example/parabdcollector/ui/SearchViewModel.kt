@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.imagecomparison.ImageEmbedderHelper
-import com.example.parabdcollector.R
 import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.utils.SignatureUtils

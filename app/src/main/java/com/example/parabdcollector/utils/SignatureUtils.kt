@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.parabdcollector.R
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.Locale
+
 
 object SignatureUtils {
 

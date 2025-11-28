@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import coil.ImageLoader
 import coil.request.ImageRequest
+import com.example.imagecomparison.EmbeddingUtils
 import com.example.imagecomparison.ImageEmbedderHelper
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
@@ -17,8 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 class ImportViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
@@ -91,11 +90,7 @@ class ImportViewModel(application: Application, private val repository: Collecti
                             if (bitmap != null) {
                                 val signature = imageEmbedderHelper.computeSignature(bitmap)
                                 if (signature != null) {
-                                    // On convertit le FloatArray en ByteArray
-                                    val floatArray = signature.floatEmbedding()
-                                    val byteBuffer = ByteBuffer.allocate(floatArray.size * 4).order(ByteOrder.LITTLE_ENDIAN)
-                                    floatArray.forEach { byteBuffer.putFloat(it) }
-                                    itemToSave = itemToSave.copy(imageEmbedding = byteBuffer.array())
+                                    itemToSave = itemToSave.copy(imageEmbedding = EmbeddingUtils.embeddingToByteArray(signature))
                                     Log.i("ImportViewModel", "Item $remoteId - Signature calculée avec succès.")
                                 }
                             }

@@ -13,7 +13,27 @@ data class MyEmbedding(
     val floatValues: FloatArray? = null,
     val quantizedValues: ByteArray? = null,
     val isQuantized: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MyEmbedding
+
+        if (!floatValues.contentEquals(other.floatValues)) return false
+        if (!quantizedValues.contentEquals(other.quantizedValues)) return false
+        if (isQuantized != other.isQuantized) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = floatValues.contentHashCode()
+        result = 31 * result + quantizedValues.contentHashCode()
+        result = 31 * result + isQuantized.hashCode()
+        return result
+    }
+}
 /**
  * Utilitaires pour convertir les embeddings MediaPipe en ByteArray et inversement.
  *
@@ -58,6 +78,7 @@ object EmbeddingUtils {
     /**
      * Exemple d’utilisation : convertit un embedding en bytes et le reconstruit.
      */
+    @Suppress("unused")
     fun demoUsage(embedding: Embedding) {
         val bytes = embeddingToByteArray(embedding)
         val restored = byteArrayToMyEmbedding(bytes, fromQuantized = embedding.quantizedEmbedding() != null)

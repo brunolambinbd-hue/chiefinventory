@@ -10,9 +10,7 @@ import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityFullScreenImageBinding
 import com.example.parabdcollector.utils.SignatureUtils
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.util.Locale
+
 
 class FullScreenImageActivity : AppCompatActivity() {
 

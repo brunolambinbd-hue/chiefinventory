@@ -7,7 +7,7 @@ import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.repo.CollectionRepository
 
-class SignatureReportViewModel(private val repository: CollectionRepository) : ViewModel() {
+class SignatureReportViewModel(repository: CollectionRepository) : ViewModel() {
 
     private val _allItems = repository.getAll()
     val filteredItems = MediatorLiveData<List<CollectionItem>>()

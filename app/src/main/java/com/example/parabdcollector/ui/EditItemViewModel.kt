@@ -9,19 +9,20 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import com.example.imagecomparison.EmbeddingUtils
 import com.example.imagecomparison.ImageEmbedderHelper
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.Location
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import kotlinx.coroutines.withContext
 
 class EditItemViewModel(
     application: Application,
     private val collectionRepository: CollectionRepository,
-    private val locationRepository: LocationRepository
+    locationRepository: LocationRepository
 ) : AndroidViewModel(application) {
 
     private val _item = MediatorLiveData<CollectionItem>()
@@ -71,14 +72,9 @@ class EditItemViewModel(
         _imageUri.value = uri
     }
 
-    suspend fun calculateSignature(bitmap: Bitmap): ByteArray? {
+    suspend fun calculateSignature(bitmap: Bitmap): ByteArray? = withContext(Dispatchers.IO) {
         val signature = imageEmbedderHelper.computeSignature(bitmap)
-        return signature?.let {
-            val floatArray = it.floatEmbedding()
-            val byteBuffer = ByteBuffer.allocate(floatArray.size * 4).order(ByteOrder.LITTLE_ENDIAN)
-            floatArray.forEach { value -> byteBuffer.putFloat(value) }
-            byteBuffer.array()
-        }
+        signature?.let { EmbeddingUtils.embeddingToByteArray(it) }
     }
 
     fun insert(item: CollectionItem) = viewModelScope.launch {

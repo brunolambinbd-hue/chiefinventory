@@ -3,15 +3,13 @@ package com.example.parabdcollector.repo
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import com.example.imagecomparison.EmbeddingUtils
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.ui.SearchCriteria
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import kotlin.experimental.and
 
 class CollectionRepository(private val collectionDao: CollectionDao) {
 
@@ -88,6 +86,7 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
                     val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
                     SearchResultItem(it, similarity.toDouble())
                 }
+                .filter { !(it.similarity?.isNaN() ?: true) } // On exclut les NaN
                 .filter { (it.similarity ?: 0.0) >= 0.65 } // On ne garde que les résultats pertinents
                 .sortedByDescending { it.similarity }
                 .take(5)
@@ -97,23 +96,8 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         }
     }
 
-    suspend fun findSimilarItems(queryEmbedding: FloatArray): List<SearchResultItem> {
-        val allItems = collectionDao.getAllItems()
-
-        return allItems
-            .filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
-            .map {
-                val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
-                SearchResultItem(it, similarity.toDouble())
-            }
-            .filter { !(it.similarity?.isNaN() ?: true) } // On exclut les NaN
-            .filter { (it.similarity ?: 0.0) >= 0.65 } // On ne garde que les résultats pertinents
-            .sortedByDescending { it.similarity }
-            .take(5)
-    }
-
     private fun cosineSimilarity(vec1: FloatArray, vec2Bytes: ByteArray): Float {
-        val vec2 = toFloatArray(vec2Bytes)
+        val vec2 = EmbeddingUtils.byteArrayToMyEmbedding(vec2Bytes).floatValues ?: return 0.0f
         
         var dotProduct = 0.0f
         var normA = 0.0f
@@ -124,22 +108,15 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
             normB += vec2[i] * vec2[i]
         }
         
-        val normA_sqrt = kotlin.math.sqrt(normA)
-        val normB_sqrt = kotlin.math.sqrt(normB)
+        val normaSqrt = kotlin.math.sqrt(normA)
+        val normbSqrt = kotlin.math.sqrt(normB)
 
         // On évite la division par zéro
-        if (normA_sqrt == 0.0f || normB_sqrt == 0.0f) {
+        if (normaSqrt == 0.0f || normbSqrt == 0.0f) {
             return 0.0f
         }
 
-        return dotProduct / (normA_sqrt * normB_sqrt)
-    }
-
-    private fun toFloatArray(bytes: ByteArray): FloatArray {
-        val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
-        val floatArray = FloatArray(bytes.size / 4)
-        buffer.asFloatBuffer().get(floatArray)
-        return floatArray
+        return dotProduct / (normaSqrt * normbSqrt)
     }
 
     fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>> {
