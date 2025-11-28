@@ -2,8 +2,6 @@ package com.example.parabdcollector.ui
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View

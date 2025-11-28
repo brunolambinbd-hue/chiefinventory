@@ -31,6 +31,7 @@ class ImageCaptureUtil(
         }
     }
 
+    @Suppress("DEPRECATION")
     private val takePictureLauncher = activity.registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             photoUri?.let { uri ->
