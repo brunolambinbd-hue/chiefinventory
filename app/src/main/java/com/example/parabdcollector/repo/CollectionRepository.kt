@@ -7,9 +7,9 @@ import com.example.imagecomparison.EmbeddingUtils
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.model.SignatureStats
-import com.example.parabdcollector.ui.SearchCriteria
 
 class CollectionRepository(private val collectionDao: CollectionDao) {
 
@@ -133,5 +133,9 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
 
     suspend fun update(item: CollectionItem) {
         collectionDao.update(item)
+    }
+
+    suspend fun delete(item: CollectionItem) {
+        collectionDao.delete(item)
     }
 }

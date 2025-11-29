@@ -12,9 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.parabdcollector.R;
-import java.lang.NullPointerException;
-import java.lang.Override;
-import java.lang.String;
 
 public final class ActivityCategoryListBinding implements ViewBinding {
   @NonNull

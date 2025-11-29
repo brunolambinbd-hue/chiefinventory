@@ -11,7 +11,6 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityCategoryListBinding
-import com.example.parabdcollector.model.CategoryInfo
 
 class CategoryListActivity : AppCompatActivity() {
 

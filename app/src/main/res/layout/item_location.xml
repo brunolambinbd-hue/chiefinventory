@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -21,18 +22,19 @@
         android:id="@+id/child_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="└─ "
+        android:text="@string/child_location_indicator"
         android:textSize="18sp"
         android:layout_marginEnd="4dp"
         android:visibility="gone"
         tools:visibility="visible" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/expand_icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@android:drawable/ic_media_play"
         android:visibility="invisible"
+        app:tint="?android:attr/textColorPrimary"
         tools:visibility="visible"
         tools:rotation="90"
         android:contentDescription="@string/expand_location_description"/>
@@ -46,13 +48,14 @@
         android:textSize="16sp"
         tools:text="Salon"/>
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/edit_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:layout_marginStart="8dp"
         android:src="@android:drawable/ic_menu_edit"
+        app:tint="?android:attr/textColorPrimary"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/edit_location_description"/>
 

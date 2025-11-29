@@ -2,39 +2,47 @@ package com.example.parabdcollector.utils
 
 object CategoryMapper {
 
+    private const val SUPER_CAT_IMAGE = "Image"
+    private const val SUPER_CAT_ALBUM = "Album"
+    private const val SUPER_CAT_OBJETS = "Objets"
+    private const val SUPER_CAT_CARTE = "Carte"
+    private const val SUPER_CAT_PROMOS = "Promos - Publicités"
+    private const val SUPER_CAT_DIVERS = "Divers"
+    private const val SUPER_CAT_ILLUSTRATION = "Illustration"
+
     private val categoryMap = mapOf(
-        "Affiches" to "Image",
-        "ALBUMS" to "Album",
-        "Albums collectifs" to "Album",
-        "Albums éditions étrangères" to "Album",
-        "Autocollant" to "Objets",
-        "Bronze" to "Objets",
-        "Calendrier" to "Objets",
-        "Cartes de vœux" to "Carte",
-        "Cartes postales" to "Carte",
-        "Cartes-divers" to "Carte",
-        "Catalogues de ventes" to "Promos - Publicités",
-        "Catalogues éditeurs" to "Promos - Publicités",
-        "Dictionnaires" to "Divers",
-        "Dossiers de presse" to "Promos - Publicités",
-        "Etiquette" to "Objets",
-        "Etudes" to "Divers",
-        "Ex-libris" to "Image",
-        "Faire-part" to "Carte",
-        "ILLUSTRATIONS ALBUMS" to "Illustration",
-        "Illustrations livres" to "Illustration",
-        "Illustrations presses" to "Illustration",
-        "ILLUSTRATIONS REVUES" to "Illustration",
-        "Interviews" to "Divers",
-        "Invitations" to "Carte",
-        "Marque-pages" to "Carte",
-        "Objets-divers" to "Objets",
-        "Offsets" to "Image",
-        "PORTFOLIOS" to "Image",
-        "Programmes festivals" to "Promos - Publicités",
-        "Promos-divers" to "Promos - Publicités",
-        "Sérigraphies" to "Image",
-        "T-shirt" to "Objets"
+        "Affiches" to SUPER_CAT_IMAGE,
+        "ALBUMS" to SUPER_CAT_ALBUM,
+        "Albums collectifs" to SUPER_CAT_ALBUM,
+        "Albums éditions étrangères" to SUPER_CAT_ALBUM,
+        "Autocollant" to SUPER_CAT_OBJETS,
+        "Bronze" to SUPER_CAT_OBJETS,
+        "Calendrier" to SUPER_CAT_OBJETS,
+        "Cartes de vœux" to SUPER_CAT_CARTE,
+        "Cartes postales" to SUPER_CAT_CARTE,
+        "Cartes-divers" to SUPER_CAT_CARTE,
+        "Catalogues de ventes" to SUPER_CAT_PROMOS,
+        "Catalogues éditeurs" to SUPER_CAT_PROMOS,
+        "Dictionnaires" to SUPER_CAT_DIVERS,
+        "Dossiers de presse" to SUPER_CAT_PROMOS,
+        "Etiquette" to SUPER_CAT_OBJETS,
+        "Etudes" to SUPER_CAT_DIVERS,
+        "Ex-libris" to SUPER_CAT_IMAGE,
+        "Faire-part" to SUPER_CAT_CARTE,
+        "ILLUSTRATIONS ALBUMS" to SUPER_CAT_ILLUSTRATION,
+        "Illustrations livres" to SUPER_CAT_ILLUSTRATION,
+        "Illustrations presses" to SUPER_CAT_ILLUSTRATION,
+        "ILLUSTRATIONS REVUES" to SUPER_CAT_ILLUSTRATION,
+        "Interviews" to SUPER_CAT_DIVERS,
+        "Invitations" to SUPER_CAT_CARTE,
+        "Marque-pages" to SUPER_CAT_CARTE,
+        "Objets-divers" to SUPER_CAT_OBJETS,
+        "Offsets" to SUPER_CAT_IMAGE,
+        "PORTFOLIOS" to SUPER_CAT_IMAGE,
+        "Programmes festivals" to SUPER_CAT_PROMOS,
+        "Promos-divers" to SUPER_CAT_PROMOS,
+        "Sérigraphies" to SUPER_CAT_IMAGE,
+        "T-shirt" to SUPER_CAT_OBJETS
     )
 
     fun getSuperCategories(): List<String> {

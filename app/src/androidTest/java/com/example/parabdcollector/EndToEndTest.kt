@@ -27,7 +27,7 @@ class EndToEndTest {
     fun addItemAndCheckIfDisplayed() {
         val itemTitle = "Mon premier test Espresso"
 
-        onView(withId(R.id.fabAdd)).perform(click())
+        onView(withId(R.id.fab_add)).perform(click())
 
         onView(withId(R.id.etTitle)).perform(typeText(itemTitle))
 

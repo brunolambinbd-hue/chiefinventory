@@ -37,6 +37,7 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE titre LIKE :query OR editeur LIKE :query OR CAST(annee AS TEXT) LIKE :query OR categorie LIKE :query OR materiau LIKE :query OR tirage LIKE :query OR dimensions LIKE :query ORDER BY annee DESC, mois DESC")
     suspend fun search(query: String): List<CollectionItem>
 
+    @Suppress("LongParameterList") // Necessary for Room complex query
     @Query(
         """
         SELECT * FROM collection_items WHERE 
@@ -52,7 +53,11 @@ interface CollectionDao {
         ORDER BY annee DESC, mois DESC
         """
     )
-    suspend fun advancedSearch(titre: String?, editeur: String?, annee: Int?, mois: Int?, superCategorie: String?, categorie: String?, description: String?, tirage: String?, dimensions: String?): List<CollectionItem>
+    suspend fun advancedSearch(
+        titre: String?, editeur: String?, annee: Int?,
+        mois: Int?, superCategorie: String?, categorie: String?,
+        description: String?, tirage: String?, dimensions: String?
+    ): List<CollectionItem>
 
     @Query("SELECT superCategorie as name, COUNT(*) as count FROM collection_items WHERE isPossessed = :isPossessed AND superCategorie IS NOT NULL AND superCategorie != '' GROUP BY superCategorie ORDER BY superCategorie ASC")
     fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>>

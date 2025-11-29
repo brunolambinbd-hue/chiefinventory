@@ -18,9 +18,7 @@ import androidx.viewbinding.ViewBindings;
 import com.example.parabdcollector.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import java.lang.NullPointerException;
-import java.lang.Override;
-import java.lang.String;
+
 
 public final class ActivityEditItemBinding implements ViewBinding {
   @NonNull

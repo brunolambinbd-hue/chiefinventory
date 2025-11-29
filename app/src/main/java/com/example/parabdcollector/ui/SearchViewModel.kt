@@ -8,22 +8,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.imagecomparison.ImageEmbedderHelper
+import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.utils.SignatureUtils
 import kotlinx.coroutines.launch
-
-data class SearchCriteria(
-    val titre: String? = null,
-    val editeur: String? = null,
-    val annee: Int? = null,
-    val mois: Int? = null,
-    val superCategorie: String? = null,
-    val categorie: String? = null,
-    val description: String? = null,
-    val tirage: String? = null,
-    val dimensions: String? = null
-)
 
 class SearchViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
