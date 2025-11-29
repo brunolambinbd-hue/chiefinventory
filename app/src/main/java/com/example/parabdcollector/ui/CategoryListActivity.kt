@@ -100,6 +100,8 @@ class CategoryListActivity : AppCompatActivity() {
      * the observer is automatically removed.
      */
     private fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, onChanged: (T) -> Unit) {
+        // This cannot be a lambda because we need the 'this' reference to remove the observer.
+        @Suppress("ObjectLiteralToLambda")
         val observer = object : Observer<T> {
             override fun onChanged(value: T) {
                 removeObserver(this)

@@ -81,7 +81,6 @@
     <string name="locations_management_title">Gestion des emplacements</string>
 
     <!-- Messages (Toast) -->
-<!--    <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>-->
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
     <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
     <string name="rapport_signatures">Rapport des signatures</string>

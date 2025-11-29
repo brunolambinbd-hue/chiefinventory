@@ -12,6 +12,9 @@ sonarqube {
         property("sonar.projectKey", "brunolambinbd-hue_ParaBDCollector")
         property("sonar.organization", "brunolambinbd-hue")
         property("sonar.host.url", "https://sonarcloud.io")
+
+        // Éviter la compilation implicite (recommandé par le plugin)
+        property("sonar.gradle.skipCompile", "true")
         
         // LA LIGNE LA PLUS IMPORTANTE : Exclure les fichiers générés
         property("sonar.exclusions", "**/build/**, **/generated/**, **/.gradle/**, **/*Binding.java, **/*_Impl.java")
