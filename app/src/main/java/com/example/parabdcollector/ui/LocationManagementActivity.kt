@@ -33,7 +33,7 @@ class LocationManagementActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
-        viewModel.displayLocations.observe(this) {
+        viewModel.visibleLocations.observe(this) {
             locationAdapter.submitList(it)
         }
 
@@ -43,7 +43,8 @@ class LocationManagementActivity : AppCompatActivity() {
     }
 
     private fun showLocationOptionsDialog(location: Location) {
-        val options = arrayOf("Modifier le nom", "Ajouter un sous-emplacement", "Changer le parent", "Supprimer")
+        // "Changer le parent" est temporairement désactivé car la logique doit être adaptée au nouveau ViewModel
+        val options = arrayOf("Modifier le nom", "Ajouter un sous-emplacement", "Supprimer")
 
         AlertDialog.Builder(this)
             .setTitle(location.name)
@@ -51,45 +52,8 @@ class LocationManagementActivity : AppCompatActivity() {
                 when (which) {
                     0 -> showEditLocationDialog(location)
                     1 -> showAddLocationDialog(location) // On passe l'emplacement actuel comme parent
-                    2 -> showChangeParentDialog(location)
-                    3 -> showDeleteConfirmationDialog(location)
+                    2 -> showDeleteConfirmationDialog(location)
                 }
-                dialog.dismiss()
-            }
-            .setNegativeButton("Annuler", null)
-            .show()
-    }
-
-    private fun showChangeParentDialog(locationToMove: Location) {
-        val allDisplayLocations = viewModel.displayLocations.value ?: return
-        val allLocations = allDisplayLocations.map { it.location }
-
-        val descendants = mutableSetOf<Long>()
-        fun findDescendants(parentId: Long) {
-            descendants.add(parentId)
-            allLocations.filter { it.parentLocationId == parentId }.forEach { child ->
-                if (child.id !in descendants) findDescendants(child.id)
-            }
-        }
-        findDescendants(locationToMove.id)
-
-        val validParents = allLocations.filter { it.id !in descendants }
-
-        val rootOption = "Aucun parent (Racine)"
-        val parentNames = mutableListOf(rootOption)
-        parentNames.addAll(validParents.map { it.name })
-
-        AlertDialog.Builder(this)
-            .setTitle("Changer le parent de \"${locationToMove.name}\"")
-            .setItems(parentNames.toTypedArray()) { dialog, which ->
-                val updatedLocation = when (which) {
-                    0 -> locationToMove.copy(parentLocationId = null)
-                    else -> {
-                        val selectedParent = validParents[which - 1]
-                        locationToMove.copy(parentLocationId = selectedParent.id)
-                    }
-                }
-                viewModel.update(updatedLocation)
                 dialog.dismiss()
             }
             .setNegativeButton("Annuler", null)
@@ -147,9 +111,15 @@ class LocationManagementActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        locationAdapter = LocationAdapter { displayLocation ->
-            showLocationOptionsDialog(displayLocation.location)
-        }
+        locationAdapter = LocationAdapter(
+            onToggleExpand = { locationId ->
+                viewModel.toggleExpansion(locationId)
+            },
+            onEdit = { locationId ->
+                val location = locationAdapter.currentList.find { it.location.id == locationId }?.location
+                location?.let { showLocationOptionsDialog(it) }
+            }
+        )
         binding.rvLocations.apply {
             adapter = locationAdapter
             layoutManager = LinearLayoutManager(this@LocationManagementActivity)

@@ -1,17 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="16dp"
-    android:gravity="center_vertical">
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:gravity="center_vertical"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- This view is used for indentation -->
+    <Space
+        android:id="@+id/indentation"
+        android:layout_width="0dp"
+        android:layout_height="1dp" />
+
+    <TextView
+        android:id="@+id/child_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="└─ "
+        android:textSize="18sp"
+        android:layout_marginEnd="4dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/expand_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@android:drawable/ic_media_play"
+        android:visibility="invisible"
+        tools:visibility="visible"
+        tools:rotation="90"
+        android:contentDescription="@string/expand_location_description"/>
 
     <TextView
         android:id="@+id/location_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:layout_marginStart="8dp"
         android:textSize="16sp"
-        android:textStyle="bold"/>
+        tools:text="Salon"/>
+
+    <ImageView
+        android:id="@+id/edit_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:layout_marginStart="8dp"
+        android:src="@android:drawable/ic_menu_edit"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/edit_location_description"/>
 
 </LinearLayout>

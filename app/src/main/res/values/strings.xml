@@ -23,6 +23,8 @@
     <string name="item_thumbnail_description_generic">Image de l\'objet</string>
     <string name="full_screen_image_description">Image en plein écran de l\'objet</string>
     <string name="add_location_description">Ajouter un emplacement</string>
+    <string name="expand_location_description">Déplier/Replier l\'emplacement</string>
+    <string name="edit_location_description">Modifier l\'emplacement</string>
 
     <!-- Textes pour l'écran d'édition -->
     <string name="edit_item_title_new">Nouvel Objet</string>
@@ -78,7 +80,6 @@
     <string name="locations_management_title">Gestion des emplacements</string>
 
     <!-- Messages (Toast) -->
-<!--    <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>-->
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
     <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
     <string name="rapport_signatures">Rapport des signatures</string>

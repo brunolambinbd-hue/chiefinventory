@@ -26,6 +26,8 @@
     <string name="item_thumbnail_description_generic">Item thumbnail</string>
     <string name="full_screen_image_description">Fullscreen image of the item</string>
     <string name="add_location_description">Add a location</string>
+    <string name="expand_location_description">Expand/Collapse Location</string>
+    <string name="edit_location_description">Edit Location</string>
 
     <!-- Edit Screen -->
     <string name="edit_item_title_new">New Item</string>
@@ -80,7 +82,6 @@
     <string name="locations_management_title">Location Management</string>
 
     <!-- Toast Messages -->
-<!--    <string name="toast_error_saving_image">Error while saving image</string>-->
     <string name="toast_camera_permission_denied">Camera permission denied</string>
     <string name="toast_title_is_mandatory">Title is mandatory</string>
     <string name="rapport_signatures">Signature Report</string>
