@@ -15,6 +15,7 @@ import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.Location
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -72,7 +73,7 @@ class EditItemViewModel(
         _imageUri.value = uri
     }
 
-    suspend fun calculateSignature(bitmap: Bitmap): ByteArray? = withContext(Dispatchers.IO) {
+    suspend fun calculateSignature(bitmap: Bitmap, dispatcher: CoroutineDispatcher = Dispatchers.IO): ByteArray? = withContext(dispatcher) {
         val signature = imageEmbedderHelper.computeSignature(bitmap)
         signature?.let { EmbeddingUtils.embeddingToByteArray(it) }
     }

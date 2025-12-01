@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.parabdcollector.model.Location
 import com.example.parabdcollector.repo.LocationRepository
@@ -20,6 +21,11 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
     // The final, visible list of expandable locations to be displayed in the RecyclerView.
     private val _visibleLocations = MediatorLiveData<List<ExpandableLocation>>()
     val visibleLocations: LiveData<List<ExpandableLocation>> = _visibleLocations
+
+    // Simple hierarchical list for dropdowns and selection dialogs.
+    val displayLocations: LiveData<List<DisplayLocation>> = allLocations.map {
+        buildDisplayList(it)
+    }
 
     init {
         // We listen to changes from both the original data and the expansion state.
@@ -39,9 +45,6 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
         }
     }
 
-    /**
-     * Toggles the expansion state for a given location ID.
-     */
     fun toggleExpansion(locationId: Long) {
         val currentExpanded = _expandedState.value ?: emptySet()
         _expandedState.value = if (currentExpanded.contains(locationId)) {
@@ -51,9 +54,6 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
         }
     }
 
-    /**
-     * Builds the flat list of VISIBLE locations based on the current expansion state.
-     */
     private fun buildVisibleList(
         all: List<Location>,
         expandedIds: Set<Long>
@@ -74,15 +74,29 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
                         hasChildren = hasChildren
                     )
                 )
-                // If the current location is expanded, we add its children recursively.
                 if (expandedIds.contains(location.id)) {
                     addChildren(location.id, depth + 1)
                 }
             }
         }
 
-        addChildren(null, 0) // Start with root locations (parentId is null)
+        addChildren(null, 0)
         return visibleList
+    }
+
+    private fun buildDisplayList(locations: List<Location>): List<DisplayLocation> {
+        val displayList = mutableListOf<DisplayLocation>()
+        val locationsByParent = locations.groupBy { it.parentLocationId }
+
+        fun addChildren(parentId: Long?, depth: Int) {
+            locationsByParent[parentId]?.sortedBy { it.name }?.forEach { location ->
+                displayList.add(DisplayLocation(location, depth))
+                addChildren(location.id, depth + 1)
+            }
+        }
+
+        addChildren(null, 0)
+        return displayList
     }
 
     fun insert(location: Location) = viewModelScope.launch {

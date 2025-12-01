@@ -14,6 +14,7 @@ import com.example.imagecomparison.ImageEmbedderHelper
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.utils.DescriptionParser
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
@@ -25,8 +26,8 @@ class ImportViewModel(application: Application, private val repository: Collecti
     private val imageLoader = ImageLoader(application)
     private val baseImageUrl = "https://frankpe.com/images/bdg_new/" // URL Web correcte
 
-    fun importCsv(uri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun importCsv(uri: Uri, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             val inputStream = getApplication<Application>().contentResolver.openInputStream(uri)
             val lines = BufferedReader(InputStreamReader(inputStream)).readLines()
 

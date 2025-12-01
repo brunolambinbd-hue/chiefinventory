@@ -5,17 +5,17 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityCategoryListBinding
+import com.example.parabdcollector.utils.observeOnce
 
 class CategoryListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCategoryListBinding
     private lateinit var adapter: CategoryAdapter
+    private var isPossessed: Boolean = true
+    private var superCategory: String? = null
 
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
@@ -30,61 +30,63 @@ class CategoryListActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val listType = intent.getBooleanExtra(EXTRA_IS_POSSESSED, true)
-        val superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
+        isPossessed = intent.getBooleanExtra(EXTRA_IS_POSSESSED, true)
+        superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
 
-        setupRecyclerView(listType, superCategory)
+        setupRecyclerView()
+        observeViewModel()
+    }
 
+    private fun observeViewModel() {
         if (superCategory == null) {
-            // On affiche les super-catégories
-            supportActionBar?.title = if (listType) "Mes Produits" else "Mes Recherches"
-            viewModel.getSuperCategoryInfo(listType).observe(this) {
-                adapter.submitList(it)
-            }
+            supportActionBar?.title = if (isPossessed) "Mes Produits" else "Mes Recherches"
+            viewModel.getSuperCategoryInfo(isPossessed).observe(this) { adapter.submitList(it) }
         } else {
-            // On affiche les catégories pour une super-catégorie donnée
             supportActionBar?.title = superCategory
-            viewModel.getCategoryInfoForSuperCategory(superCategory, listType).observe(this) {
-                adapter.submitList(it)
-            }
+            viewModel.getCategoryInfoForSuperCategory(superCategory!!, isPossessed).observe(this) { adapter.submitList(it) }
         }
     }
 
-    private fun setupRecyclerView(isPossessed: Boolean, superCategory: String?) {
+    private fun setupRecyclerView() {
         adapter = CategoryAdapter { categoryName ->
             if (superCategory == null) {
-                // Clic sur une super-catégorie. On vérifie si on peut sauter une étape.
-                viewModel.getCategoryInfoForSuperCategory(categoryName, isPossessed)
-                    .observeOnce(this) { value ->
-                        if (value.size == 1) {
-                            // Il n'y a qu'une seule sous-catégorie, on va directement à la liste des objets.
-                            val intent = Intent(this@CategoryListActivity, ItemListActivity::class.java).apply {
-                                putExtra(ItemListActivity.EXTRA_LIST_TYPE, if (isPossessed) ItemListActivity.TYPE_POSSESSED else ItemListActivity.TYPE_SOUGHT)
-                                putExtra(ItemListActivity.EXTRA_SUPER_CATEGORY, categoryName)
-                                putExtra(ItemListActivity.EXTRA_CATEGORY, value.first().name)
-                            }
-                            startActivity(intent)
-                        } else {
-                            // Comportement normal : on ouvre la liste des catégories.
-                            val intent = Intent(this@CategoryListActivity, CategoryListActivity::class.java).apply {
-                                putExtra(EXTRA_IS_POSSESSED, isPossessed)
-                                putExtra(EXTRA_SUPER_CATEGORY, categoryName)
-                            }
-                            startActivity(intent)
-                        }
-                    }
+                handleSuperCategoryClick(categoryName)
             } else {
-                // Clic sur une catégorie -> on ouvre la liste des objets
-                val intent = Intent(this, ItemListActivity::class.java).apply {
-                    putExtra(ItemListActivity.EXTRA_LIST_TYPE, if (isPossessed) ItemListActivity.TYPE_POSSESSED else ItemListActivity.TYPE_SOUGHT)
-                    putExtra(ItemListActivity.EXTRA_SUPER_CATEGORY, superCategory)
-                    putExtra(ItemListActivity.EXTRA_CATEGORY, categoryName)
-                }
-                startActivity(intent)
+                handleCategoryClick(superCategory!!, categoryName)
             }
         }
         binding.rvCategoryList.adapter = adapter
         binding.rvCategoryList.layoutManager = LinearLayoutManager(this)
+    }
+
+    private fun handleSuperCategoryClick(categoryName: String) {
+        viewModel.getCategoryInfoForSuperCategory(categoryName, isPossessed)
+            .observeOnce(this) { subCategories ->
+                if (subCategories.size == 1) {
+                    // Il n'y a qu'une seule sous-catégorie, on va directement à la liste des objets.
+                    navigateToItemList(categoryName, subCategories.first().name)
+                } else {
+                    // Comportement normal : on ouvre la liste des catégories.
+                    val intent = Intent(this, CategoryListActivity::class.java).apply {
+                        putExtra(EXTRA_IS_POSSESSED, isPossessed)
+                        putExtra(EXTRA_SUPER_CATEGORY, categoryName)
+                    }
+                    startActivity(intent)
+                }
+            }
+    }
+
+    private fun handleCategoryClick(currentSuperCategory: String, categoryName: String) {
+        navigateToItemList(currentSuperCategory, categoryName)
+    }
+
+    private fun navigateToItemList(superCat: String, cat: String) {
+        val intent = Intent(this, ItemListActivity::class.java).apply {
+            putExtra(ItemListActivity.EXTRA_LIST_TYPE, if (isPossessed) ItemListActivity.TYPE_POSSESSED else ItemListActivity.TYPE_SOUGHT)
+            putExtra(ItemListActivity.EXTRA_SUPER_CATEGORY, superCat)
+            putExtra(ItemListActivity.EXTRA_CATEGORY, cat)
+        }
+        startActivity(intent)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -93,22 +95,6 @@ class CategoryListActivity : AppCompatActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    /**
-     * Observe a LiveData object only once. After the first value is received,
-     * the observer is automatically removed.
-     */
-    private fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, onChanged: (T) -> Unit) {
-        // This cannot be a lambda because we need the 'this' reference to remove the observer.
-        @Suppress("ObjectLiteralToLambda")
-        val observer = object : Observer<T> {
-            override fun onChanged(value: T) {
-                removeObserver(this)
-                onChanged(value)
-            }
-        }
-        observe(owner, observer)
     }
 
     companion object {

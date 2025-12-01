@@ -84,7 +84,8 @@ class ImageEmbedderHelper(
             val errorMsg = "Image embedder failed to load. See error logs for details"
             val errorCode = if (currentDelegate == DELEGATE_GPU) GPU_ERROR else UNKNOWN_ERROR
             listener?.onError(errorMsg, errorCode)
-            Log.e(TAG, "TFLite failed to load model with error: " + e.message, e)
+            Log.e(TAG,
+                context.getString(R.string.tflite_failed_to_load_model_with_error) + e.message, e)
         }
     }
 

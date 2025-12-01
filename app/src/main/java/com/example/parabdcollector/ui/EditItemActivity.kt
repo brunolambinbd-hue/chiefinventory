@@ -156,6 +156,14 @@ class EditItemActivity : AppCompatActivity() {
     private fun updateUI(item: CollectionItem) {
         supportActionBar?.title = getString(R.string.edit_item_title_editing, item.titre)
         binding.etTitle.setText(item.titre)
+
+        if (item.remoteId != null) {
+            binding.tvRemoteId.text = getString(R.string.report_item_id, item.remoteId)
+            binding.tvRemoteId.visibility = View.VISIBLE
+        } else {
+            binding.tvRemoteId.visibility = View.GONE
+        }
+
         binding.switchPossessed.isChecked = item.isPossessed
         binding.etSuperCategory.setText(item.superCategorie ?: "", false)
         binding.etCategory.setText(item.categorie ?: "", false)

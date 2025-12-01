@@ -3,6 +3,7 @@ package com.example.parabdcollector.repo
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.imagecomparison.EmbeddingUtils
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.model.CategoryInfo
@@ -65,17 +66,50 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
-        val textFilteredItems = collectionDao.advancedSearch(
-            titre = criteria.titre?.let { "%${it}%" },
-            editeur = criteria.editeur?.let { "%${it}%" },
-            annee = criteria.annee,
-            mois = criteria.mois,
-            superCategorie = criteria.superCategorie,
-            categorie = criteria.categorie?.let { "%${it}%" },
-            description = criteria.description?.let { "%${it}%" },
-            tirage = criteria.tirage?.let { "%${it}%" },
-            dimensions = criteria.dimensions?.let { "%${it}%" }
-        )
+        val queryBuilder = StringBuilder("SELECT * FROM collection_items WHERE 1=1")
+        val args = mutableListOf<Any?>()
+
+        criteria.titre?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND titre LIKE ?")
+            args.add("%$it%")
+        }
+        criteria.editeur?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND editeur LIKE ?")
+            args.add("%$it%")
+        }
+        criteria.annee?.let {
+            queryBuilder.append(" AND annee = ?")
+            args.add(it)
+        }
+        criteria.mois?.let {
+            queryBuilder.append(" AND mois = ?")
+            args.add(it)
+        }
+        criteria.superCategorie?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND superCategorie = ?")
+            args.add(it)
+        }
+        criteria.categorie?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND categorie LIKE ?")
+            args.add("%$it%")
+        }
+        criteria.description?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND description LIKE ?")
+            args.add("%$it%")
+        }
+        criteria.tirage?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND tirage LIKE ?")
+            args.add("%$it%")
+        }
+        criteria.dimensions?.takeIf { it.isNotBlank() }?.let {
+            queryBuilder.append(" AND dimensions LIKE ?")
+            args.add("%$it%")
+        }
+
+        queryBuilder.append(" ORDER BY annee DESC, mois DESC")
+
+        val sqlQuery = SimpleSQLiteQuery(queryBuilder.toString(), args.toTypedArray())
+        val textFilteredItems = collectionDao.advancedSearch(sqlQuery)
 
         return if (queryEmbedding != null) {
             textFilteredItems

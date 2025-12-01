@@ -6,10 +6,11 @@
 
     <!-- On clarifie que la caméra est une fonctionnalité facultative -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- Permission requise pour prendre des photos des objets et pour la recherche par image -->
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:name="com.example.parabdcollector.CollectionApplication"
+        android:name=".CollectionApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

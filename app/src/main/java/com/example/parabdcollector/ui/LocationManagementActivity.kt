@@ -2,6 +2,7 @@ package com.example.parabdcollector.ui
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -11,6 +12,7 @@ import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityLocationManagementBinding
 import com.example.parabdcollector.model.Location
+import com.example.parabdcollector.utils.observeOnce
 
 class LocationManagementActivity : AppCompatActivity() {
 
@@ -43,26 +45,73 @@ class LocationManagementActivity : AppCompatActivity() {
     }
 
     private fun showLocationOptionsDialog(location: Location) {
-        // "Changer le parent" est temporairement désactivé car la logique doit être adaptée au nouveau ViewModel
-        val options = arrayOf("Modifier le nom", "Ajouter un sous-emplacement", "Supprimer")
+        val options = arrayOf(getString(R.string.modifier_le_nom),
+            getString(R.string.ajouter_un_sous_emplacement),
+            getString(R.string.changer_de_parent), getString(R.string.supprimer))
 
         AlertDialog.Builder(this)
             .setTitle(location.name)
             .setItems(options) { dialog, which ->
                 when (which) {
                     0 -> showEditLocationDialog(location)
-                    1 -> showAddLocationDialog(location) // On passe l'emplacement actuel comme parent
-                    2 -> showDeleteConfirmationDialog(location)
+                    1 -> showAddLocationDialog(location)
+                    2 -> showChangeParentDialog(location)
+                    3 -> showDeleteConfirmationDialog(location)
                 }
                 dialog.dismiss()
             }
-            .setNegativeButton("Annuler", null)
+            .setNegativeButton(getString(R.string.annuler), null)
             .show()
+    }
+
+    private fun showChangeParentDialog(locationToMove: Location) {
+        viewModel.displayLocations.observeOnce(this) { allLocations ->
+            val locationMap = allLocations.associateBy { it.location.id }
+            // On ne peut pas déplacer un emplacement dans lui-même ou dans l'un de ses propres enfants.
+            val possibleParents = allLocations.filter { 
+                it.location.id != locationToMove.id && !isDescendant(it.location, locationToMove, locationMap)
+            }
+
+            // On ajoute l'option pour déplacer à la racine en premier.
+            val displayItems = mutableListOf(getString(R.string.la_racine))
+            displayItems.addAll(possibleParents.map { "    ".repeat(it.depth) + it.location.name })
+
+            val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, displayItems)
+
+            AlertDialog.Builder(this)
+                .setTitle("Déplacer \"${locationToMove.name}\" vers...")
+                .setAdapter(adapter) { dialog, which ->
+                    val newParentId = if (which == 0) {
+                        null // L'option "À la racine"
+                    } else {
+                        possibleParents[which - 1].location.id
+                    }
+                    val updatedLocation = locationToMove.copy(parentLocationId = newParentId)
+                    viewModel.update(updatedLocation)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Annuler", null)
+                .show()
+        }
+    }
+
+    private fun isDescendant(potentialChild: Location, locationToMove: Location, locationMap: Map<Long, DisplayLocation>): Boolean {
+        var current: Location? = potentialChild
+        while (current?.parentLocationId != null) {
+            if (current.parentLocationId == locationToMove.id) {
+                return true
+            }
+            // On remonte dans l'arbre pour trouver le parent suivant.
+            current = locationMap[current.parentLocationId]?.location
+        }
+        return false
     }
 
     private fun showAddLocationDialog(parentLocation: Location?) {
         val editText = EditText(this)
-        val title = if (parentLocation == null) "Nouvel Emplacement" else "Nouveau sous-emplacement pour \"${parentLocation.name}\""
+        val title = if (parentLocation == null) getString(R.string.nouvel_emplacement) else getString(
+            R.string.nouveau_sous_emplacement_pour, parentLocation.name
+        )
 
         AlertDialog.Builder(this)
             .setTitle(title)
@@ -84,7 +133,7 @@ class LocationManagementActivity : AppCompatActivity() {
         editText.setText(location.name)
 
         AlertDialog.Builder(this)
-            .setTitle("Modifier l'emplacement")
+            .setTitle(getString(R.string.modifier_l_emplacement))
             .setView(editText)
             .setPositiveButton("Modifier") { dialog, _ ->
                 val newName = editText.text.toString()
@@ -100,7 +149,7 @@ class LocationManagementActivity : AppCompatActivity() {
 
     private fun showDeleteConfirmationDialog(location: Location) {
         AlertDialog.Builder(this)
-            .setTitle("Supprimer l'emplacement")
+            .setTitle(getString(R.string.supprimer_l_emplacement))
             .setMessage("Êtes-vous sûr de vouloir supprimer \"${location.name}\"? Cette action est irréversible.")
             .setPositiveButton("Supprimer") { dialog, _ ->
                 viewModel.delete(location)

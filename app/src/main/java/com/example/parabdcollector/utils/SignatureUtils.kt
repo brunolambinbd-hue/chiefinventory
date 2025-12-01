@@ -34,6 +34,7 @@ object SignatureUtils {
         } ?: context.getString(R.string.signature_status_missing)
     }
 
+    @Suppress("UseGetOrSet")
     private fun toFloatArray(bytes: ByteArray): FloatArray {
         val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
         val floatArray = FloatArray(bytes.size / 4)

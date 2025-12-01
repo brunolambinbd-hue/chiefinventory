@@ -1,10 +1,9 @@
 package com.example.parabdcollector.ui
 
-import android.content.pm.ApplicationInfo
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,11 +11,8 @@ import coil.load
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ItemCollectionBinding
 import com.example.parabdcollector.model.SearchResultItem
-import com.example.parabdcollector.utils.SignatureUtils
 
-class CollectionAdapter(
-    private val onItemClicked: (SearchResultItem) -> Unit
-) : ListAdapter<SearchResultItem, CollectionAdapter.CollectionViewHolder>(DiffCallback) {
+class CollectionAdapter(private val onItemClicked: (SearchResultItem) -> Unit) : ListAdapter<SearchResultItem, CollectionAdapter.CollectionViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CollectionViewHolder {
         val binding = ItemCollectionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -30,54 +26,55 @@ class CollectionAdapter(
     }
 
     class CollectionViewHolder(private val binding: ItemCollectionBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(searchResultItem: SearchResultItem) {
-            val item = searchResultItem.item
-            val context = itemView.context
+        fun bind(searchResult: SearchResultItem) {
+            val item = searchResult.item
+            val context = binding.root.context
 
             binding.itemName.text = item.titre
 
-            // On affiche la similarité si elle est disponible
-            searchResultItem.similarity?.let {
-                binding.itemSimilarity.text = context.getString(R.string.similarity_score_format, it * 100)
-                binding.itemSimilarity.visibility = View.VISIBLE
-            } ?: run {
-                binding.itemSimilarity.visibility = View.GONE
+            // Affichage du remoteId
+            if (item.remoteId != null) {
+                binding.itemRemoteId.text = context.getString(R.string.report_item_id, item.remoteId)
+                binding.itemRemoteId.visibility = View.VISIBLE
+            } else {
+                binding.itemRemoteId.visibility = View.GONE
             }
 
-            binding.itemImage.load(item.imageUri) {
+            binding.itemImage.load(item.imageUri?.toUri()) {
+                crossfade(true)
                 placeholder(R.mipmap.ic_launcher)
                 error(R.mipmap.ic_launcher)
             }
 
-            fun bindField(textView: android.widget.TextView, value: String?) {
-                textView.isVisible = !value.isNullOrBlank()
-                textView.text = value
-            }
+            // Gestion des autres champs avec visibilité
+            binding.itemNotes.text = item.description
+            binding.itemNotes.visibility = if (item.description.isNullOrBlank()) View.GONE else View.VISIBLE
 
-            bindField(binding.itemNotes, item.description)
-            bindField(binding.itemEditeur, item.editeur)
-            bindField(binding.itemMaterial, item.materiau)
-            bindField(binding.itemDimensions, item.dimensions)
-            bindField(binding.itemTirage, item.tirage)
+            binding.itemEditeur.text = item.editeur
+            binding.itemEditeur.visibility = if (item.editeur.isNullOrBlank()) View.GONE else View.VISIBLE
 
-            val categoryHierarchy = when {
-                !item.superCategorie.isNullOrBlank() && !item.categorie.isNullOrBlank() -> "${item.superCategorie} > ${item.categorie}"
-                !item.superCategorie.isNullOrBlank() -> item.superCategorie
-                !item.categorie.isNullOrBlank() -> item.categorie
-                else -> null
-            }
-            bindField(binding.itemCategoryHierarchy, categoryHierarchy)
-
-            binding.itemYear.isVisible = item.annee != null
             binding.itemYear.text = item.annee?.toString()
+            binding.itemYear.visibility = if (item.annee == null) View.GONE else View.VISIBLE
 
-            val isDebuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-            if (isDebuggable) {
-                val sigInfo = SignatureUtils.formatSignaturePreview(context, item.imageEmbedding)
-                binding.debugInfo.text = context.getString(R.string.debug_signature_info, item.remoteId, sigInfo)
-                binding.debugInfo.visibility = View.VISIBLE
+            val categoryHierarchy = listOfNotNull(item.superCategorie, item.categorie).joinToString(" > ")
+            binding.itemCategoryHierarchy.text = categoryHierarchy
+            binding.itemCategoryHierarchy.visibility = if (categoryHierarchy.isBlank()) View.GONE else View.VISIBLE
+            
+            binding.itemMaterial.text = item.materiau
+            binding.itemMaterial.visibility = if (item.materiau.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            binding.itemDimensions.text = item.dimensions
+            binding.itemDimensions.visibility = if (item.dimensions.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            binding.itemTirage.text = item.tirage
+            binding.itemTirage.visibility = if (item.tirage.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            // Affichage de la similarité si elle existe
+            if (searchResult.similarity != null) {
+                binding.itemSimilarity.text = context.getString(R.string.similarity_score_format, searchResult.similarity * 100)
+                binding.itemSimilarity.visibility = View.VISIBLE
             } else {
-                binding.debugInfo.visibility = View.GONE
+                binding.itemSimilarity.visibility = View.GONE
             }
         }
     }

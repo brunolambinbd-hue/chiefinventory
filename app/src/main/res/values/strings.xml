@@ -98,5 +98,15 @@
     <string name="generic_field_format">%1$s: %2$s</string>
     <string name="signature_preview_format">[%1$s,…]</string>
     <string name="search_no_similar_results">Aucun résultat suffisamment similaire trouvé (seuil &gt; 65%)</string>
+    <string name="annuler">Annuler</string>
+    <string name="la_racine">À la racine</string>
+    <string name="nouvel_emplacement">Nouvel Emplacement</string>
+    <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour \"%1$s\"</string>
+    <string name="modifier_l_emplacement">Modifier l\'emplacement</string>
+    <string name="supprimer_l_emplacement">Supprimer l\'emplacement</string>
+    <string name="modifier_le_nom">Modifier le nom</string>
+    <string name="ajouter_un_sous_emplacement">Ajouter un sous-emplacement</string>
+    <string name="changer_de_parent">Changer de parent</string>
+    <string name="supprimer">Supprimer</string>
 
 </resources>

@@ -32,6 +32,7 @@ data class CollectionItem(
     val isPossessed: Boolean = true
 ) : Parcelable {
     // On doit surcharger equals et hashCode à cause du ByteArray
+    @Suppress("CognitiveComplexity")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
