@@ -4,19 +4,49 @@ import android.content.Context
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
+/**
+ * A utility object for managing the permanent storage of images within the app's internal files directory.
+ */
 object ImageStorageHelper {
 
-    fun saveImageToInternalStorage(context: Context, uri: Uri): Uri? {
-        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
-        val fileName = "IMG_${System.currentTimeMillis()}.jpg"
-        val file = File(context.filesDir, fileName)
-
-        FileOutputStream(file).use {
-            inputStream.copyTo(it)
+    /**
+     * Saves an image from a temporary URI (e.g., from a camera or cropper)
+     * to a permanent location in the app's internal storage.
+     *
+     * This prevents the file from being lost if the temporary content is cleaned up by the system.
+     *
+     * @param context The application context, needed to access the content resolver and internal storage.
+     * @param tempUri The temporary URI of the image to be saved.
+     * @return A permanent content URI for the newly saved file, or null if the operation fails.
+     */
+    fun saveImageToInternalStorage(context: Context, tempUri: Uri): Uri? {
+        // The directory within internal storage where we save the images.
+        val imageDir = File(context.filesDir, "images")
+        // Ensure the directory exists.
+        if (!imageDir.exists()) {
+            imageDir.mkdirs()
         }
 
-        inputStream.close()
-        return Uri.fromFile(file)
+        // Create a destination file with a unique name based on the current timestamp.
+        val destinationFile = File(imageDir, "img_${System.currentTimeMillis()}.jpg")
+
+        try {
+            // Open an input stream from the temporary URI.
+            context.contentResolver.openInputStream(tempUri)?.use { inputStream ->
+                // Open an output stream to the destination file.
+                FileOutputStream(destinationFile).use { outputStream ->
+                    // Copy the data from the input stream to the output stream.
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            // Return the content URI for the new permanent file.
+            return Uri.fromFile(destinationFile)
+        } catch (e: IOException) {
+            // Log the error and return null if any part of the process fails.
+            e.printStackTrace()
+            return null
+        }
     }
 }

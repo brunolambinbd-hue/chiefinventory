@@ -1,5 +1,11 @@
 package com.example.parabdcollector.utils
 
+/**
+ * A singleton object that maps detailed categories to broader super-categories.
+ *
+ * This utility is used to standardize and group items from the original data source
+ * into a more manageable hierarchy.
+ */
 object CategoryMapper {
 
     private const val SUPER_CAT_IMAGE = "Image"
@@ -45,10 +51,19 @@ object CategoryMapper {
         "T-shirt" to SUPER_CAT_OBJETS
     )
 
+    /**
+     * Returns a distinct, sorted list of all available super-categories.
+     * @return A list of super-category names.
+     */
     fun getSuperCategories(): List<String> {
         return categoryMap.values.distinct().sorted()
     }
 
+    /**
+     * Returns a sorted list of all detailed categories that belong to a given super-category.
+     * @param superCategory The name of the super-category to filter by.
+     * @return A list of matching category names.
+     */
     fun getCategoriesFor(superCategory: String): List<String> {
         return categoryMap.filterValues { it == superCategory }.keys.sorted()
     }

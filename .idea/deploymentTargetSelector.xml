@@ -13,13 +13,19 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="DatabaseTest">
+      <SelectionState runConfigName="BitmapUtilsInstrumentedTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="EndToEndTest">
+      <SelectionState runConfigName="ImageStorageHelperInstrumentedTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="EmbeddingUtilsInstrumentedTest">
+      <SelectionState runConfigName="Tests in 'com.example.parabdcollector.utils'">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="getBitmapFromUri_shouldDecodeAndConvertBitmapToARGB8888()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="clickingTakePictureButton_inEditItemActivity_doesNotCrash()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
