@@ -69,3 +69,14 @@ dependencies {
     androidTestImplementation(libs.androidx.lifecycle.testing)
 }
 
+// Ajout de la "Porte de Qualité" (Quality Gate)
+// On utilise afterEvaluate pour s'assurer que toutes les tâches ont été créées
+// avant d'essayer de leur ajouter une dépendance.
+afterEvaluate {
+    tasks.named("assembleRelease") {
+        dependsOn(tasks.named("testReleaseUnitTest"))
+    }
+    tasks.named("bundleRelease") {
+        dependsOn(tasks.named("testReleaseUnitTest"))
+    }
+}

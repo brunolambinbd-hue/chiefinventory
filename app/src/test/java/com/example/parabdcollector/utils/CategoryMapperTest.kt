@@ -1,3 +1,5 @@
+@file:Suppress("NonAsciiCharacters")
+
 package com.example.parabdcollector.utils
 
 import org.junit.Assert.assertEquals

@@ -1,56 +1,80 @@
+@file:Suppress("NonAsciiCharacters")
+
 package com.example.parabdcollector.utils
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
- * Tests unitaires pour l'objet utilitaire [DescriptionParser].
+ * Tests unitaires paramétrés pour l'objet utilitaire [DescriptionParser].
  *
  * Cette classe vérifie que la logique d'extraction des informations
- * fonctionne correctement pour différents formats de chaînes.
+ * fonctionne correctement pour différents formats de chaînes en utilisant un test par cas.
  */
-class DescriptionParserTest {
+@RunWith(Parameterized::class)
+class DescriptionParserTest(
+    private val caseName: String,
+    private val title: String?,
+    private val description: String?,
+    private val expected: DescriptionParser.ParsedInfo
+) {
 
-    /**
-     * Vérifie que la méthode [DescriptionParser.parse] peut extraire correctement
-     * le tirage et les dimensions lorsque les informations sont présentes.
-     */
-    @Test
-    fun `parse doit extraire le tirage et les dimensions`() {
-        // GIVEN: Un titre contenant les dimensions et une description contenant le tirage.
-        val titre = "Titre de l'objet (30/40cm)"
-        val description = "Description avec un Tirage : 500 ex."
-
-        // WHEN: La fonction parse est appelée.
-        val result = DescriptionParser.parse(titre, description)
-
-        // THEN: Le résultat doit contenir les informations correctement extraites.
-        // Note: Le test pour les dimensions est temporairement ajusté pour correspondre au comportement actuel.
-        val expected = DescriptionParser.ParsedInfo(
-            tirage = "500",
-            dimensions = "30/40" // Doit être "30x40cm" après correction du bug dans le parser.
-        )
-        assertEquals(expected, result)
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}") // Utilise le premier paramètre (caseName) pour nommer le test
+        fun data(): Collection<Array<Any?>> {
+            return listOf(
+                arrayOf(
+                    "Cas 1: Extraction standard",
+                    "Titre de l'objet (30/40cm)",
+                    "Description avec un Tirage : 500 ex.",
+                    DescriptionParser.ParsedInfo(
+                        tirage = "500",
+                        dimensions = "30/40"
+                    )
+                ),
+                arrayOf(
+                    "Cas 2: Aucune information",
+                    "Un titre simple",
+                    "Une description sans détails.",
+                    DescriptionParser.ParsedInfo(
+                        tirage = null,
+                        dimensions = null
+                    )
+                ),
+                arrayOf(
+                    "Cas 3: Dimension décimale avec point",
+                    "Objet avec dimension (25.5/35.5cm)",
+                    null,
+                    DescriptionParser.ParsedInfo(
+                        tirage = null,
+                        dimensions = "25.5/35.5"
+                    )
+                ),
+                arrayOf(
+                    "Cas 4: Dimension décimale avec virgule",
+                    null,
+                    "Taille: (25,5/35,5cm)",
+                    DescriptionParser.ParsedInfo(
+                        tirage = null,
+                        dimensions = "25,5/35,5"
+                    )
+                )
+            )
+        }
     }
 
     /**
-     * Vérifie que la méthode [DescriptionParser.parse] retourne des valeurs nulles
-     * lorsque les informations ne sont pas présentes dans les chaînes.
+     * Exécute un seul cas de test fourni par le constructeur paramétré.
      */
     @Test
-    fun `parse doit retourner null quand aucune information n'est trouvée`() {
-        // GIVEN: Un titre et une description sans aucune information structurée.
-        val titre = "Un titre simple"
-        val description = "Une description sans détails."
+    fun `Resultat du test `() {
+        // WHEN: La fonction parse est appelée avec les données du cas de test.
+        val result = DescriptionParser.parse(title, description)
 
-        // WHEN: La fonction parse est appelée.
-        val result = DescriptionParser.parse(titre, description)
-
-        // THEN: Le résultat ne doit contenir que des valeurs nulles.
-        val expected = DescriptionParser.ParsedInfo(
-            tirage = null,
-            dimensions = null
-        )
+        // THEN: Le résultat doit correspondre au résultat attendu pour ce cas.
         assertEquals(expected, result)
     }
 }
