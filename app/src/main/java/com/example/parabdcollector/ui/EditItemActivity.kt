@@ -31,7 +31,7 @@ class EditItemActivity : AppCompatActivity() {
 
     private val viewModel: EditItemViewModel by viewModels {
         val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository, app.locationRepository)
+        ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
     private var displayLocations: List<DisplayLocation> = emptyList()

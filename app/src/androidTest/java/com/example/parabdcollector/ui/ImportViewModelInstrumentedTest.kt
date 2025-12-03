@@ -13,7 +13,6 @@ import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -22,6 +21,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -68,9 +68,9 @@ class ImportViewModelInstrumentedTest {
     @Before
     fun createDb() {
         context = ApplicationProvider.getApplicationContext<Application>()
+        // Use allowMainThreadQueries to force synchronous database operations in tests.
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-            .setTransactionExecutor(mainDispatcherRule.testDispatcher.asExecutor())
-            .setQueryExecutor(mainDispatcherRule.testDispatcher.asExecutor())
+            .allowMainThreadQueries()
             .build()
         dao = db.collectionDao()
         repository = CollectionRepository(dao)
@@ -100,8 +100,8 @@ class ImportViewModelInstrumentedTest {
     fun importCsv_shouldUpdateExistingItem_andKeepEmbedding() = runTest {
         val existingItem = CollectionItem(
             id = 1, remoteId = 1002, titre = "Old Title", editeur = "Old Editor", annee = 2000, categorie = "Old Cat", description = "",
-            isPossessed = true, mois = null, superCategorie = null, materiau = null, tirage = null, dimensions = null,
-            prixAchat = null, valeurEstimee = null, lieuAchat = null, imageUri = null, 
+            isPossessed = true, mois = 1, superCategorie = "", materiau = "", tirage = "", dimensions = "",
+            prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", 
             imageEmbedding = byteArrayOf(1, 2, 3), // Dummy embedding to skip network call
             locationId = null
         )
@@ -120,11 +120,10 @@ class ImportViewModelInstrumentedTest {
 
     @Test
     fun importCsv_withMissingSignature_shouldUpdateItemAndComputeSignature() = runTest {
-        // GIVEN: an existing item with no embedding
         val existingItem = CollectionItem(
             id = 2, remoteId = 1003, titre = "Old Title No Sig", editeur = "", annee = 2000, categorie = "", description = "",
-            isPossessed = true, mois = null, superCategorie = null, materiau = null, tirage = null, dimensions = null,
-            prixAchat = null, valeurEstimee = null, lieuAchat = null, imageUri = null, 
+            isPossessed = true, mois = 1, superCategorie = "", materiau = "", tirage = "", dimensions = "",
+            prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", 
             imageEmbedding = null, // No embedding
             locationId = null
         )
@@ -133,14 +132,11 @@ class ImportViewModelInstrumentedTest {
                          "1003;2024;;;Updated Title No Sig;;;;;;"
         val csvUri = createTestCsvFile(csvContent)
 
-        // WHEN: We run the import. This will trigger a network call which may succeed.
         val importJob = viewModel.importCsv(csvUri, mainDispatcherRule.testDispatcher)
         importJob.join()
 
-        // THEN: The item should be updated, and the signature should now exist (if network was available).
         val updatedItem = dao.findByRemoteId(1003)
         assertEquals("Updated Title No Sig", updatedItem?.titre)
-        // This assertion now validates the "happy path": that the signature was computed.
         assertNotNull("Embedding should be computed if network is available", updatedItem?.imageEmbedding)
     }
 

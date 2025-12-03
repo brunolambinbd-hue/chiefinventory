@@ -34,7 +34,7 @@ class SearchActivity : AppCompatActivity() {
 
     private val viewModel: SearchViewModel by viewModels {
         val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository, app.locationRepository)
+        ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
