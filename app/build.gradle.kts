@@ -43,6 +43,7 @@ android {
 
     testOptions {
         animationsDisabled = true
+        unitTests.isReturnDefaultValues = true // Ajout pour mocker les classes Android dans les tests unitaires
     }
 }
 
@@ -70,6 +71,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.lifecycle.testing)
+    androidTestImplementation(libs.kotlinx.coroutines.test) // Ajout pour les tests instrumentés
 }
 
 // Ajout de la "Porte de Qualité" (Quality Gate)

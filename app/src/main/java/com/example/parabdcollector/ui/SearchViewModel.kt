@@ -34,7 +34,8 @@ class SearchViewModel(application: Application, private val repository: Collecti
     fun calculateSignatureForPreview(bitmap: Bitmap) {
         viewModelScope.launch {
             val signature = imageEmbedderHelper.computeSignature(bitmap)
-            _signaturePreview.postValue(SignatureUtils.formatSignaturePreview(getApplication(), signature?.floatEmbedding()))
+            // Utiliser .value car nous sommes sur le thread principal grâce à viewModelScope
+            _signaturePreview.value = SignatureUtils.formatSignaturePreview(getApplication(), signature?.floatEmbedding())
         }
     }
 
@@ -49,7 +50,8 @@ class SearchViewModel(application: Application, private val repository: Collecti
         viewModelScope.launch {
             val queryEmbedding = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
             val results = repository.advancedSearch(criteria, queryEmbedding)
-            _searchResults.postValue(results)
+            // Utiliser .value pour une mise à jour synchrone dans le scope du test
+            _searchResults.value = results
         }
     }
 

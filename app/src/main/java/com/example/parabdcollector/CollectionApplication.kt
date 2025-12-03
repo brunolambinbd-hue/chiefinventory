@@ -1,7 +1,7 @@
 package com.example.parabdcollector
 
 import android.app.Application
-import com.example.parabdcollector.db.AppDatabase
+import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
 

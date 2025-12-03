@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.parabdcollector.dao.CollectionDao
-import com.example.parabdcollector.db.AppDatabase
+import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking

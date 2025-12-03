@@ -51,8 +51,13 @@ class SearchActivity : AppCompatActivity() {
                 val bitmap = BitmapUtils.getBitmapFromUri(this, permanentUri)
                 searchImageBitmap = bitmap
                 binding.ivSearchThumbnail.setImageBitmap(bitmap)
-                binding.ivSearchThumbnail.visibility = View.VISIBLE
-                viewModel.calculateSignatureForPreview(bitmap)
+                if (bitmap != null) {
+                    binding.ivSearchThumbnail.visibility = View.VISIBLE
+                    viewModel.calculateSignatureForPreview(bitmap)
+                } else {
+                    binding.ivSearchThumbnail.visibility = View.GONE
+                    Toast.makeText(this, "Erreur de décodage de l'image", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 Toast.makeText(this, "Erreur lors de la sauvegarde de l'image", Toast.LENGTH_SHORT).show()
             }

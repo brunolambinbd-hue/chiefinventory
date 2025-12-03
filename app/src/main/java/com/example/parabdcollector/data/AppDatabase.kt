@@ -1,4 +1,4 @@
-package com.example.parabdcollector.db
+package com.example.parabdcollector.data
 
 import android.content.Context
 import androidx.room.Database
