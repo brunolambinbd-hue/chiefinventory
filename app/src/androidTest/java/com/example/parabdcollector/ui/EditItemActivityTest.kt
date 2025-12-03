@@ -2,6 +2,7 @@ package com.example.parabdcollector.ui
 
 import android.content.Context
 import android.content.Intent
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Lifecycle
 import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
@@ -15,13 +16,15 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.repo.LocationRepository
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -42,21 +45,28 @@ class EditItemActivityTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     private lateinit var db: AppDatabase
     private lateinit var dao: CollectionDao
 
     @Before
-    fun createDb() {
+    fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-            .setTransactionExecutor(mainDispatcherRule.testDispatcher.asExecutor())
-            .setQueryExecutor(mainDispatcherRule.testDispatcher.asExecutor())
+            .allowMainThreadQueries()
             .build()
         dao = db.collectionDao()
+
+        // Inject the test repository into the application.
+        val app = context as CollectionApplication
+        app.repository = CollectionRepository(dao)
+        app.locationRepository = LocationRepository(db.locationDao())
     }
 
     @After
-    fun closeDb() {
+    fun tearDown() {
         db.close()
     }
 

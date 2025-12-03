@@ -1,10 +1,10 @@
 package com.example.parabdcollector.utils
 
 /**
- * A singleton object that maps detailed categories to broader super-categories.
+ * A singleton object that maps detailed, raw categories from the data source to broader, standardized super-categories.
  *
- * This utility is used to standardize and group items from the original data source
- * into a more manageable hierarchy.
+ * This utility is essential for organizing and navigating the collection by providing a clean, hierarchical structure.
+ * For example, it maps both "Affiches" and "Sérigraphies" to the [SUPER_CAT_IMAGE] super-category.
  */
 object CategoryMapper {
 
@@ -16,6 +16,10 @@ object CategoryMapper {
     private const val SUPER_CAT_DIVERS = "Divers"
     private const val SUPER_CAT_ILLUSTRATION = "Illustration"
 
+    /**
+     * The definitive mapping of specific categories to their standardized super-category.
+     * This map is private to ensure that all interactions go through the public functions.
+     */
     private val categoryMap = mapOf(
         "Affiches" to SUPER_CAT_IMAGE,
         "ALBUMS" to SUPER_CAT_ALBUM,
@@ -52,8 +56,8 @@ object CategoryMapper {
     )
 
     /**
-     * Returns a distinct, sorted list of all available super-categories.
-     * @return A list of super-category names.
+     * Returns a distinct, alphabetically sorted list of all available super-categories.
+     * @return A sorted list of unique super-category names.
      */
     fun getSuperCategories(): List<String> {
         return categoryMap.values.distinct().sorted()
@@ -61,8 +65,8 @@ object CategoryMapper {
 
     /**
      * Returns a sorted list of all detailed categories that belong to a given super-category.
-     * @param superCategory The name of the super-category to filter by.
-     * @return A list of matching category names.
+     * @param superCategory The name of the super-category to filter by (e.g., "Image").
+     * @return A sorted list of matching category names (e.g., ["Affiches", "Ex-libris", ...]).
      */
     fun getCategoriesFor(superCategory: String): List<String> {
         return categoryMap.filterValues { it == superCategory }.keys.sorted()

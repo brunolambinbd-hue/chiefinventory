@@ -8,6 +8,7 @@ import java.io.IOException
 
 /**
  * A utility object for managing the permanent storage of images within the app's internal files directory.
+ * This ensures that images captured by the user are not lost when the app's cache is cleared.
  */
 object ImageStorageHelper {
 
@@ -16,10 +17,11 @@ object ImageStorageHelper {
      * to a permanent location in the app's internal storage.
      *
      * This prevents the file from being lost if the temporary content is cleaned up by the system.
+     * It creates a unique file name for each image to avoid collisions.
      *
-     * @param context The application context, needed to access the content resolver and internal storage.
+     * @param context The application context, needed to access the content resolver and internal storage directory.
      * @param tempUri The temporary URI of the image to be saved.
-     * @return A permanent content URI for the newly saved file, or null if the operation fails.
+     * @return A permanent content URI for the newly saved file, or null if the copy operation fails.
      */
     fun saveImageToInternalStorage(context: Context, tempUri: Uri): Uri? {
         // The directory within internal storage where we save the images.

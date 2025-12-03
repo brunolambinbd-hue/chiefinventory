@@ -9,7 +9,7 @@ import android.provider.MediaStore
 import android.util.Log
 
 /**
- * A utility object for handling [Bitmap] related operations.
+ * A utility object for handling [Bitmap] related operations, particularly for use with MediaPipe.
  */
 object BitmapUtils {
 
@@ -18,9 +18,10 @@ object BitmapUtils {
     /**
      * Safely decodes a [Bitmap] from a given [Uri] and ensures it is in the ARGB_8888 format.
      *
-     * This function handles both modern and legacy methods of decoding bitmaps and performs a color
-     * space conversion if necessary, as required by libraries like MediaPipe.
-     * It returns null if the decoding fails for any reason (e.g., invalid image format, corrupted file).
+     * This function is critical for preparing images for MediaPipe, which requires the ARGB_8888
+     * color space. It handles both modern (API 28+) and legacy methods of decoding bitmaps.
+     * If the decoding fails for any reason (e.g., invalid image format, corrupted file),
+     * it logs the error and returns null instead of crashing.
      *
      * @param context The application context, used to access the ContentResolver.
      * @param uri The Uri of the image to decode.
@@ -35,7 +36,7 @@ object BitmapUtils {
                 MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
             }
 
-            // MediaPipe requiert le format ARGB_8888. On convertit si nécessaire.
+            // Ensure the bitmap is in the ARGB_8888 format required by MediaPipe.
             if (originalBitmap.config == Bitmap.Config.ARGB_8888) {
                 originalBitmap
             } else {

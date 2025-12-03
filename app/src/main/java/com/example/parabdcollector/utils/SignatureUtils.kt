@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 /**
- * A utility object for formatting and handling image signatures (embeddings).
+ * An utility object for formatting and handling image signatures (embeddings) for UI display.
  */
 object SignatureUtils {
 
@@ -14,7 +14,7 @@ object SignatureUtils {
      * Formats a signature from a [ByteArray] for display in the UI.
      *
      * This version is typically used for embeddings loaded from the database.
-     * It handles null or empty cases by providing a descriptive status.
+     * It handles null or empty cases by providing a descriptive status from string resources.
      *
      * @param context The application context, used to access string resources.
      * @param embedding The nullable [ByteArray] representing the image signature.

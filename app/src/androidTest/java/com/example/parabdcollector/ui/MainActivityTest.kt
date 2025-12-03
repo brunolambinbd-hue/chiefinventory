@@ -76,7 +76,10 @@ class MainActivityTest {
         // WHEN: The MainActivity is launched.
         ActivityScenario.launch(MainActivity::class.java)
 
-        // THEN: The dashboard TextViews should reflect the correct counts, using string resources for i18n.
+        // THEN: The dashboard TextViews should reflect the correct counts.
+        // We add a small delay to allow the LiveData to update the UI.
+        Thread.sleep(500)
+
         val possessedText = context.getString(R.string.possessed_items_label, 3)
         val soughtText = context.getString(R.string.sought_items_label, 2)
         val totalText = context.getString(R.string.total_items_label, 5)

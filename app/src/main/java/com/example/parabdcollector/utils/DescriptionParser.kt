@@ -3,25 +3,25 @@ package com.example.parabdcollector.utils
 import java.util.regex.Pattern
 
 /**
- * Un objet utilitaire pour extraire des informations structurées 
- * d'une chaîne de description ou d'un titre.
+ * A utility object for parsing structured information like print run and dimensions
+ * from unstructured title and description strings.
  */
 object DescriptionParser {
 
-    // Pattern pour le tirage: cherche un nombre suivi de "ex" (ex: "350 ex"), insensible à la casse.
+    // Pattern for the print run: looks for a number followed by "ex" (e.g., "350 ex"), case-insensitive.
     private val tiragePattern = Pattern.compile("(\\d+)\\s*ex", Pattern.CASE_INSENSITIVE)
 
-    // Liste des patterns pour les dimensions.
+    // List of patterns for dimensions.
     private val dimensionPatterns = listOf(
-        // Pattern amélioré: cherche "xx/yy" ou "xx,x/yy,y", avec virgule ou point comme séparateur.
-        Pattern.compile("(\\d+([.,]\\d+)?\\s*/\\s*\\d+([.,]\\d+)?)"), 
-        Pattern.compile("(A\\d+)", Pattern.CASE_INSENSITIVE)      // Cherche "A4", "A5", etc., insensible à la casse.
+        // Improved pattern: looks for "xx/yy" or "xx.x/yy.y", with comma or dot as a separator.
+        Pattern.compile("(\\d+([.,]\\d+)?\\s*/\\s*\\d+([.,]\\d+)?)"),
+        Pattern.compile("(A\\d+)", Pattern.CASE_INSENSITIVE)      // Looks for "A4", "A5", etc., case-insensitive.
     )
 
     /**
-     * Contient les informations extraites par le [DescriptionParser].
-     * @property tirage Le tirage extrait (ex: "350").
-     * @property dimensions Les dimensions extraites (ex: "25x35cm").
+     * Holds the information extracted by the [DescriptionParser].
+     * @property tirage The extracted print run (e.g., "350").
+     * @property dimensions The extracted dimensions (e.g., "25x35cm").
      */
     data class ParsedInfo(
         val tirage: String?,
@@ -29,13 +29,13 @@ object DescriptionParser {
     )
 
     /**
-     * Extrait les informations de tirage et de dimensions à partir d'un titre et d'une description.
+     * Extracts print run and dimensions information from a title and a description.
      *
-     * La fonction recherche les motifs définis dans les deux chaînes combinées.
+     * The function searches for the defined patterns in both strings combined.
      *
-     * @param titre Le titre de l'objet, qui peut contenir des informations.
-     * @param description La description de l'objet.
-     * @return Un objet [ParsedInfo] contenant les informations trouvées.
+     * @param titre The title of the item, which may contain information.
+     * @param description The description of the item.
+     * @return A [ParsedInfo] object containing the found information.
      */
     fun parse(titre: String?, description: String?): ParsedInfo {
         var tirage: String? = null
@@ -43,19 +43,20 @@ object DescriptionParser {
 
         val combinedString = listOfNotNull(titre, description).joinToString(separator = " ")
 
-        // --- Recherche du TIRAGE ---
+        // --- Search for PRINT RUN ---
         val tirageMatcher = tiragePattern.matcher(combinedString)
         if (tirageMatcher.find()) {
             tirage = tirageMatcher.group(1)
         }
 
-        // --- Recherche des DIMENSIONS ---
+        // --- Search for DIMENSIONS ---
         for (pattern in dimensionPatterns) {
             val matcher = pattern.matcher(combinedString)
             if (matcher.find()) {
                 dimensions = matcher.group(1)
-                break // On a trouvé, on arrête.
-            }        }
+                break // Found, we stop.
+            }
+        }
 
         return ParsedInfo(tirage, dimensions)
     }
