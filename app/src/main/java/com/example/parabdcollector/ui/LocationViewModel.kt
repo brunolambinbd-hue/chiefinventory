@@ -12,32 +12,28 @@ import kotlinx.coroutines.launch
 
 class LocationViewModel(private val repository: LocationRepository) : ViewModel() {
 
-    // The original, flat list of all locations from the database.
     private val allLocations: LiveData<List<Location>> = repository.getAll()
-
-    // A set to keep track of which location IDs are currently expanded.
     private val _expandedState = MutableLiveData<Set<Long>>(emptySet())
 
-    // The final, visible list of expandable locations to be displayed in the RecyclerView.
     private val _visibleLocations = MediatorLiveData<List<ExpandableLocation>>()
     val visibleLocations: LiveData<List<ExpandableLocation>> = _visibleLocations
 
-    // Simple hierarchical list for dropdowns and selection dialogs.
     val displayLocations: LiveData<List<DisplayLocation>> = allLocations.map {
         buildDisplayList(it)
     }
 
     init {
-        // We listen to changes from both the original data and the expansion state.
         _visibleLocations.addSource(allLocations) { locations ->
-            // First time we get locations, expand all parents by default as requested.
-            if (_expandedState.value.isNullOrEmpty() && locations.isNotEmpty()) {
+            val currentExpanded = _expandedState.value ?: emptySet()
+            if (currentExpanded.isEmpty() && locations.isNotEmpty()) {
                 val parentIds = locations.filter { loc -> locations.any { it.parentLocationId == loc.id } }
                                          .map { it.id }
                                          .toSet()
                 _expandedState.value = parentIds
+                // On force la reconstruction avec le nouvel état étendu
+                _visibleLocations.value = buildVisibleList(locations, parentIds)
             } else {
-                 _visibleLocations.value = buildVisibleList(locations, _expandedState.value ?: emptySet())
+                _visibleLocations.value = buildVisibleList(locations, currentExpanded)
             }
         }
         _visibleLocations.addSource(_expandedState) { expandedIds ->

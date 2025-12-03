@@ -31,6 +31,13 @@ android {
     kotlinOptions {
         jvmTarget = "18"
     }
+
+    // Ajout pour que Gradle lise le dossier resources des tests
+    sourceSets {
+        getByName("test") {
+            resources.srcDirs("src/test/resources")
+        }
+    }
 }
 
 dependencies {
@@ -41,6 +48,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.kotlin)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

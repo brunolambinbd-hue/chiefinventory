@@ -20,16 +20,22 @@ data class MyEmbedding(
 
         other as MyEmbedding
 
-        if (!floatValues.contentEquals(other.floatValues)) return false
-        if (!quantizedValues.contentEquals(other.quantizedValues)) return false
+        if (floatValues != null) {
+            if (other.floatValues == null) return false
+            if (!floatValues.contentEquals(other.floatValues)) return false
+        } else if (other.floatValues != null) return false
+        if (quantizedValues != null) {
+            if (other.quantizedValues == null) return false
+            if (!quantizedValues.contentEquals(other.quantizedValues)) return false
+        } else if (other.quantizedValues != null) return false
         if (isQuantized != other.isQuantized) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = floatValues.contentHashCode()
-        result = 31 * result + quantizedValues.contentHashCode()
+        var result = floatValues?.contentHashCode() ?: 0
+        result = 31 * result + (quantizedValues?.contentHashCode() ?: 0)
         result = 31 * result + isQuantized.hashCode()
         return result
     }
@@ -47,12 +53,21 @@ object EmbeddingUtils {
      * Convertit un Embedding en ByteArray.
      * - Si embedding quantifié → retourne directement quantizedEmbedding()
      * - Si float → convertit chaque float en 4 octets (Little Endian)
+     * @throws IllegalArgumentException si l'embedding est vide ou nul.
      */
     fun embeddingToByteArray(embedding: Embedding): ByteArray {
-        embedding.quantizedEmbedding()?.let { return it } // déjà en bytes
+        // Vérifie d'abord l'embedding quantifié
+        embedding.quantizedEmbedding()?.let {
+            if (it.isNotEmpty()) return it
+        }
 
+        // Sinon, on vérifie l'embedding float
         val floats = embedding.floatEmbedding()
-            ?: throw IllegalArgumentException("Embedding ne contient ni float ni quantized data")
+
+        // Vérification cruciale : si le tableau de floats est nul ou vide, c'est une erreur.
+        if (floats == null || floats.isEmpty()) {
+            throw IllegalArgumentException("L'embedding est vide ou nul, impossible de le convertir.")
+        }
 
         val buffer = ByteBuffer.allocate(floats.size * 4).order(ByteOrder.LITTLE_ENDIAN)
         for (f in floats) buffer.putFloat(f)

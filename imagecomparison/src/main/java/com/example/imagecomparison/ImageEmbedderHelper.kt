@@ -49,93 +49,68 @@ class ImageEmbedderHelper(
     }
 
     fun setupImageEmbedder() {
-        Log.i(TAG, "setupImageEmbedder() called") // LOG AJOUTÉ
         val modelName = when (currentModel) {
             MODEL_MOBILENETV3_LARGE -> "mobilenet_v3_large.tflite"
             MODEL_MOBILENETV3_SMALL -> "mobilenet_v3_small.tflite"
             else -> "mobilenet_v3_large.tflite"
         }
 
-        Log.i(TAG, "Attempting to load model: $modelName")
-
-        val baseOptionsBuilder = BaseOptions.builder().setModelAssetPath(modelName)
-
-        when (currentDelegate) {
-            DELEGATE_CPU -> {
-                // Default
-            }
-            DELEGATE_GPU -> {
+        try {
+            val baseOptionsBuilder = BaseOptions.builder().setModelAssetPath(modelName)
+            if (currentDelegate == DELEGATE_GPU) {
                 baseOptionsBuilder.setDelegate(Delegate.GPU)
             }
-        }
+            val options = ImageEmbedderOptions.builder()
+                .setBaseOptions(baseOptionsBuilder.build())
+                .setL2Normalize(true)
+                .setQuantize(false)
+                .setRunningMode(RunningMode.IMAGE)
+                .build()
 
-        val options = ImageEmbedderOptions.builder()
-            .setBaseOptions(baseOptionsBuilder.build())
-            .setL2Normalize(true)
-            .setQuantize(false)
-            .setRunningMode(RunningMode.IMAGE)
-            .build()
-
-        Log.d(TAG, "Using ImageEmbedderOptions: ${'$'}options") // LOG AJOUTÉ
-        try {
             imageEmbedder = ImageEmbedder.createFromOptions(context, options)
             Log.i(TAG, "ImageEmbedder created successfully.")
-        } catch (e: Exception) {
+        } catch (t: Throwable) {
             val errorMsg = "Image embedder failed to load. See error logs for details"
-            val errorCode = if (currentDelegate == DELEGATE_GPU) GPU_ERROR else UNKNOWN_ERROR
-            listener?.onError(errorMsg, errorCode)
-            Log.e(TAG,
-                context.getString(R.string.tflite_failed_to_load_model_with_error) + e.message, e)
+            listener?.onError(errorMsg, if (currentDelegate == DELEGATE_GPU) GPU_ERROR else UNKNOWN_ERROR)
+            Log.e(TAG, "MediaPipe failed to load the model with error: ${t.message}", t)
         }
     }
 
     fun computeSignature(bitmap: Bitmap): Embedding? {
-        imageEmbedder?.let {
-            val mpImage = BitmapImageBuilder(bitmap).build()
-            return it.embed(mpImage).embeddingResult().embeddings().first()
+        if (imageEmbedder == null) return null
+
+        // CRUCIAL CHECK: Prevent native crash if bitmap is recycled.
+        if (bitmap.isRecycled) {
+            Log.e(TAG, "Cannot compute signature on a recycled bitmap.")
+            return null
         }
-        Log.e(TAG, "computeSignature called, but imageEmbedder is null.")
-        return null
+
+        return try {
+            val mpImage = BitmapImageBuilder(bitmap).build()
+            imageEmbedder!!.embed(mpImage).embeddingResult().embeddings().firstOrNull()
+        } catch (t: Throwable) {
+            Log.e(TAG, "Error computing signature: ${t.message}", t)
+            null
+        }
     }
 
-    @Suppress("unused")
-    fun compareBitmapWithSignature(bitmapToCompare: Bitmap, savedSignature: Embedding): Double? {
-        val newSignature = computeSignatureForComparison(bitmapToCompare)
-        newSignature?.let {
-            return ImageEmbedder.cosineSimilarity(it, savedSignature)
-        }        
-        return null
-    }
-    
-    @Suppress("unused")
-     fun computeSignatureForComparison(bitmap: Bitmap): Embedding? {
-        imageEmbedder?.let {
-            val mpImage = BitmapImageBuilder(bitmap).build()
-            return it.embed(mpImage).embeddingResult().embeddings().first()
-        }
-        return null
-    }
-
-    @Suppress("unused")
     fun embed(firstBitmap: Bitmap, secondBitmap: Bitmap): ResultBundle? {
-        // Inference time is the difference between the system time at the start and finish of the
-        // process
-        val startTime = SystemClock.uptimeMillis()
+        if (imageEmbedder == null) return null
 
-        val firstMpImage = BitmapImageBuilder(firstBitmap).build()
-        val secondMpImage = BitmapImageBuilder(secondBitmap).build()
-        imageEmbedder?.let {
-            val firstEmbed =
-                it.embed(firstMpImage).embeddingResult().embeddings().first()
-            val secondEmbed =
-                it.embed(secondMpImage).embeddingResult().embeddings().first()
+        // The safety checks are now inside computeSignature, no need for extra try-catch here.
+        val startTime = SystemClock.uptimeMillis()
+        val firstEmbed = computeSignature(firstBitmap)
+        val secondEmbed = computeSignature(secondBitmap)
+
+        return if (firstEmbed != null && secondEmbed != null) {
             val inferenceTimeMs = SystemClock.uptimeMillis() - startTime
-            return ResultBundle(
+            ResultBundle(
                 ImageEmbedder.cosineSimilarity(firstEmbed, secondEmbed),
                 inferenceTimeMs
             )
+        } else {
+            null
         }
-        return null
     }
 
     fun clearImageEmbedder() {
@@ -143,21 +118,15 @@ class ImageEmbedderHelper(
         imageEmbedder = null
     }
 
-    data class ResultBundle(
-        val similarity: Double,
-        val inferenceTime: Long,
-    )
+    data class ResultBundle(val similarity: Double, val inferenceTime: Long)
 
-    interface EmbedderListener {
-        fun onError(error: String, errorCode: Int = UNKNOWN_ERROR)
-    }
+    interface EmbedderListener { fun onError(error: String, errorCode: Int = UNKNOWN_ERROR) }
 
     companion object {
         const val DELEGATE_CPU = 0
         const val DELEGATE_GPU = 1
         const val MODEL_MOBILENETV3_LARGE = 0
         const val MODEL_MOBILENETV3_SMALL = 1
-
         const val UNKNOWN_ERROR = 0
         const val GPU_ERROR = 1
         private const val TAG = "ImageEmbedderHelper"

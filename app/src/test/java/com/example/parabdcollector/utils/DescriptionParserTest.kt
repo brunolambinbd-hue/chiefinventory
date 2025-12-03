@@ -70,11 +70,11 @@ class DescriptionParserTest(
      * Exécute un seul cas de test fourni par le constructeur paramétré.
      */
     @Test
-    fun `Resultat du test `() {
+    fun `Le cas de test doit passer`() {
         // WHEN: La fonction parse est appelée avec les données du cas de test.
         val result = DescriptionParser.parse(title, description)
 
         // THEN: Le résultat doit correspondre au résultat attendu pour ce cas.
-        assertEquals(expected, result)
+        assertEquals("Échec sur le cas : '$caseName'", expected, result)
     }
 }
