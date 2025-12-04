@@ -7,8 +7,6 @@
     <string name="close">Close</string>
 
     <!-- Counter -->
-    <string name="initial_counter_value">0</string>
-    <string name="counter_separator"> / </string>
 
     <!-- Page Titles -->
     <string name="possessed_items_title">My Items (%1$d)</string>

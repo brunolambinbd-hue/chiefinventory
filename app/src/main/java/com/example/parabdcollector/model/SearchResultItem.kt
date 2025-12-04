@@ -1,8 +1,15 @@
 package com.example.parabdcollector.model
 
 /**
- * Un conteneur qui encapsule un objet de la collection et son score de similarité
- * lors d'une recherche par image.
+ * A view-specific data class that represents an item in a search result list.
+ *
+ * It wraps the core [CollectionItem] entity with an optional similarity score, which is populated
+ * only when performing an image-based search. This allows the UI to display both the item data
+ * and its relevance to the image query.
+ *
+ * @property item The original [CollectionItem] from the search query.
+ * @property similarity The cosine similarity score (between 0.0 and 1.0) of the item's image
+ *                      compared to the search image. This is null for text-only searches.
  */
 data class SearchResultItem(
     val item: CollectionItem,

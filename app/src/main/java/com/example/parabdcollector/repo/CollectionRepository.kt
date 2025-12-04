@@ -12,12 +12,29 @@ import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.model.SignatureStats
 
+/**
+ * Repository for managing all data operations for [CollectionItem] entities.
+ *
+ * This class acts as a single source of truth for all collection data, abstracting the data sources
+ * (in this case, the [CollectionDao]) from the ViewModels.
+ *
+ * @property collectionDao The Data Access Object for collection items, provided via constructor injection.
+ */
 class CollectionRepository(private val collectionDao: CollectionDao) {
 
+    /**
+     * Retrieves all collection items from the database.
+     * @return A [LiveData] list of all [CollectionItem]s.
+     */
     fun getAll(): LiveData<List<CollectionItem>> {
         return collectionDao.getAll()
     }
 
+    /**
+     * Computes and returns live statistics about the state of image embeddings in the collection.
+     * This is a transformation on the `getAll()` LiveData.
+     * @return A [LiveData] object containing the [SignatureStats].
+     */
     fun getSignatureStats(): LiveData<SignatureStats> {
         return getAll().map { list ->
             val total = list.size
@@ -41,30 +58,68 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         }
     }
 
+    /**
+     * Retrieves all items that the user possesses.
+     * @return A [LiveData] list of possessed [CollectionItem]s.
+     */
     fun getAllPossessed(): LiveData<List<CollectionItem>> {
         return collectionDao.getAllPossessed()
     }
 
+    /**
+     * Retrieves all items that the user is seeking.
+     * @return A [LiveData] list of sought [CollectionItem]s.
+     */
     fun getAllSought(): LiveData<List<CollectionItem>> {
         return collectionDao.getAllSought()
     }
 
+    /**
+     * Gets the total number of items in the collection.
+     * @return A [LiveData] containing the total count.
+     */
     fun getTotalCount(): LiveData<Int> {
         return collectionDao.getTotalCount()
     }
 
+    /**
+     * Retrieves a single item by its local primary key.
+     * @param id The local database ID of the item.
+     * @return A [LiveData] object containing the requested [CollectionItem].
+     */
     fun getById(id: Long): LiveData<CollectionItem> {
         return collectionDao.getById(id)
     }
 
+    /**
+     * Finds a single item by its external (remote) ID. This is a synchronous, blocking operation.
+     * @param remoteId The remote ID to search for.
+     * @return The matching [CollectionItem], or null if not found.
+     */
     fun findByRemoteId(remoteId: Int): CollectionItem? {
         return collectionDao.findByRemoteId(remoteId)
     }
 
+    /**
+     * Performs a simple, full-text search across multiple fields.
+     * @param query The search term.
+     * @return A list of matching [CollectionItem]s.
+     */
     suspend fun search(query: String): List<CollectionItem> {
         return collectionDao.search("%${query}%")
     }
 
+    /**
+     * Performs a complex search based on a set of criteria and an optional image embedding.
+     *
+     * This method dynamically builds a SQL query based on the provided [SearchCriteria].
+     * If an image embedding is provided, it first filters by text criteria and then calculates
+     * the cosine similarity to find the most visually similar items.
+     *
+     * @param criteria The set of text-based search criteria.
+     * @param queryEmbedding The float array of the image to search for, or null.
+     * @return A list of [SearchResultItem], potentially including similarity scores.
+     */
     suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
         val queryBuilder = StringBuilder("SELECT * FROM collection_items WHERE 1=1")
         val args = mutableListOf<Any?>()
@@ -127,6 +182,12 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         }
     }
 
+    /**
+     * Calculates the cosine similarity between two vectors.
+     * @param vec1 The first vector as a [FloatArray].
+     * @param vec2Bytes The second vector as a [ByteArray] from the database.
+     * @return The cosine similarity score as a [Float].
+     */
     private fun cosineSimilarity(vec1: FloatArray, vec2Bytes: ByteArray): Float {
         val vec2 = EmbeddingUtils.byteArrayToMyEmbedding(vec2Bytes).floatValues ?: return 0.0f
         
@@ -149,26 +210,56 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         return dotProduct / (normaSqrt * normbSqrt)
     }
 
+    /**
+     * Returns statistical information about super-categories for either possessed or sought items.
+     * @param isPossessed True to get stats for possessed items, false for sought items.
+     * @return A [LiveData] list of [CategoryInfo] objects.
+     */
     fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>> {
         return collectionDao.getSuperCategoryInfo(isPossessed)
     }
 
+    /**
+     * Returns statistical information about detailed categories within a given super-category.
+     * @param superCategory The name of the super-category to filter by.
+     * @param isPossessed True to get stats for possessed items, false for sought items.
+     * @return A [LiveData] list of [CategoryInfo] objects.
+     */
     fun getCategoryInfoForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<CategoryInfo>> {
         return collectionDao.getCategoryInfoForSuperCategory(superCategory, isPossessed)
     }
 
+    /**
+     * Returns a list of items belonging to a specific category and super-category.
+     * @param superCategory The name of the super-category.
+     * @param category The name of the detailed category.
+     * @param isPossessed True to get possessed items, false for sought items.
+     * @return A [LiveData] list of matching [CollectionItem]s.
+     */
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>> {
         return collectionDao.getItemsBySuperCategoryAndCategory(superCategory, category, isPossessed)
     }
 
+    /**
+     * Inserts a new item into the database. This is a suspending function.
+     * @param item The [CollectionItem] to insert.
+     */
     suspend fun insert(item: CollectionItem) {
         collectionDao.insert(item)
     }
 
+    /**
+     * Updates an existing item in the database. This is a suspending function.
+     * @param item The [CollectionItem] to update.
+     */
     suspend fun update(item: CollectionItem) {
         collectionDao.update(item)
     }
 
+    /**
+     * Deletes an item from the database. This is a suspending function.
+     * @param item The [CollectionItem] to delete.
+     */
     suspend fun delete(item: CollectionItem) {
         collectionDao.delete(item)
     }

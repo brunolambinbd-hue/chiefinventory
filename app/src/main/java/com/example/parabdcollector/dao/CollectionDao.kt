@@ -12,52 +12,125 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
 
+/**
+ * Data Access Object for the [CollectionItem] entity.
+ * Defines the SQL queries used to interact with the collection_items table.
+ */
 @Dao
 interface CollectionDao {
 
-    @Query("SELECT * FROM collection_items")
+    /**
+     * Selects all items from the table, ordered by title.
+     * @return A [LiveData] list of all [CollectionItem]s.
+     */
+    @Query("SELECT * FROM collection_items ORDER BY titre ASC")
     fun getAll(): LiveData<List<CollectionItem>>
 
+    /**
+     * Synchronously selects all items from the table. Used for non-UI related tasks.
+     * @return A simple list of all [CollectionItem]s.
+     */
     @Query("SELECT * FROM collection_items")
     suspend fun getAllItems(): List<CollectionItem>
 
+    /**
+     * Selects all items marked as possessed.
+     * @return A [LiveData] list of possessed [CollectionItem]s.
+     */
     @Query("SELECT * FROM collection_items WHERE isPossessed = 1 ORDER BY titre ASC")
     fun getAllPossessed(): LiveData<List<CollectionItem>>
 
+    /**
+     * Selects all items marked as sought (not possessed).
+     * @return A [LiveData] list of sought [CollectionItem]s.
+     */
     @Query("SELECT * FROM collection_items WHERE isPossessed = 0 ORDER BY titre ASC")
     fun getAllSought(): LiveData<List<CollectionItem>>
 
+    /**
+     * Gets the total count of items in the table.
+     * @return A [LiveData] holding the total count.
+     */
     @Query("SELECT COUNT(*) FROM collection_items")
     fun getTotalCount(): LiveData<Int>
 
+    /**
+     * Selects a single item by its primary key.
+     * @param id The local ID of the item.
+     * @return A [LiveData] holding the requested [CollectionItem].
+     */
     @Query("SELECT * FROM collection_items WHERE id = :id")
     fun getById(id: Long): LiveData<CollectionItem>
 
+    /**
+     * Selects a single item by its unique remote ID.
+     * @param remoteId The remote ID to search for.
+     * @return The matching [CollectionItem], or null if not found.
+     */
     @Query("SELECT * FROM collection_items WHERE remoteId = :remoteId")
     fun findByRemoteId(remoteId: Int): CollectionItem?
 
+    /**
+     * Performs a simple full-text search across several key fields.
+     * @param query The search term to find.
+     * @return A list of matching [CollectionItem]s.
+     */
     @Query("SELECT * FROM collection_items WHERE titre LIKE :query OR editeur LIKE :query OR CAST(annee AS TEXT) LIKE :query OR categorie LIKE :query OR materiau LIKE :query OR tirage LIKE :query OR dimensions LIKE :query ORDER BY annee DESC, mois DESC")
     suspend fun search(query: String): List<CollectionItem>
 
+    /**
+     * Executes a dynamically constructed search query.
+     * @param query The [SupportSQLiteQuery] built by the repository.
+     * @return A list of matching [CollectionItem]s.
+     */
     @RawQuery
     suspend fun advancedSearch(query: SupportSQLiteQuery): List<CollectionItem>
 
+    /**
+     * Groups items by super-category and counts them.
+     * @param isPossessed True to count possessed items, false for sought items.
+     * @return A [LiveData] list of [CategoryInfo] objects for super-categories.
+     */
     @Query("SELECT superCategorie as name, COUNT(*) as count FROM collection_items WHERE isPossessed = :isPossessed AND superCategorie IS NOT NULL AND superCategorie != '' GROUP BY superCategorie ORDER BY superCategorie ASC")
     fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>>
 
+    /**
+     * Groups items by detailed category within a given super-category and counts them.
+     * @param superCategory The super-category to filter by.
+     * @param isPossessed True to count possessed items, false for sought items.
+     * @return A [LiveData] list of [CategoryInfo] objects for detailed categories.
+     */
     @Query("SELECT categorie as name, COUNT(*) as count FROM collection_items WHERE superCategorie = :superCategory AND isPossessed = :isPossessed AND categorie IS NOT NULL AND categorie != '' GROUP BY categorie ORDER BY categorie ASC")
     fun getCategoryInfoForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<CategoryInfo>>
 
+    /**
+     * Selects all items belonging to a specific super-category and detailed category.
+     * @param superCategory The super-category to filter by.
+     * @param category The detailed category to filter by.
+     * @param isPossessed True to select possessed items, false for sought items.
+     * @return A [LiveData] list of matching [CollectionItem]s.
+     */
     @Query("SELECT * FROM collection_items WHERE superCategorie = :superCategory AND categorie = :category AND isPossessed = :isPossessed ORDER BY titre ASC")
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>>
 
-
+    /**
+     * Inserts a new item. If the remoteId already exists, the insert is ignored.
+     * @param item The [CollectionItem] to insert.
+     */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: CollectionItem)
 
+    /**
+     * Updates an existing item.
+     * @param item The [CollectionItem] to update.
+     */
     @Update
     suspend fun update(item: CollectionItem)
 
+    /**
+     * Deletes an item.
+     * @param item The [CollectionItem] to delete.
+     */
     @Delete
     suspend fun delete(item: CollectionItem)
 }

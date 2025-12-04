@@ -7,6 +7,17 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Represents a physical or logical location where a collection item can be stored.
+ *
+ * This entity is designed to form a hierarchical tree structure, allowing for nested locations
+ * (e.g., a "Shelf" inside a "Library" which is in the "Office").
+ *
+ * @property id The unique primary key for the location.
+ * @property name The user-defined name of the location (e.g., "Living Room Shelf", "Box #3").
+ * @property parentLocationId The foreign key referencing the `id` of the parent location.
+ *                            A null value indicates that this is a top-level (root) location.
+ */
 @Parcelize
 @Entity(
     tableName = "locations",
@@ -15,7 +26,8 @@ import kotlinx.parcelize.Parcelize
             entity = Location::class,
             parentColumns = ["id"],
             childColumns = ["parentLocationId"],
-            onDelete = ForeignKey.CASCADE // Si un parent est supprimé, ses enfants le sont aussi
+            // When a parent location is deleted, all its child locations will be deleted as well.
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [Index("parentLocationId")]

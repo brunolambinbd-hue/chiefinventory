@@ -4,8 +4,8 @@
     <string name="close">Fermer</string>
 
     <!-- Strings pour le compteur -->
-    <string name="initial_counter_value">0</string>
-    <string name="counter_separator"> / </string>
+    <string name="initial_counter_value" translatable="false">0</string>
+    <string name="counter_separator" translatable="false"> / </string>
 
     <!-- Titres formatables pour les pages -->
     <string name="possessed_items_title" tools:ignore="UnusedResources">Mes Produits (%1$d)</string>

@@ -7,6 +7,30 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Represents a single item in the user's collection.
+ * This is the core data model for the application, used as a Room database entity and for UI display.
+ *
+ * @property id The unique primary key for the item in the local database.
+ * @property remoteId An optional ID from an external data source, used for synchronization.
+ * @property titre The main title of the item. This is a mandatory field.
+ * @property editeur The publisher or editor of the item.
+ * @property annee The year of publication or creation.
+ * @property mois The month of publication or creation.
+ * @property categorie The specific category of the item (e.g., "Affiches", "Albums collectifs").
+ * @property superCategorie The standardized, broader category (e.g., "Image", "Album"). See [CategoryMapper].
+ * @property materiau The material the item is made of (e.g., "Papier Velin").
+ * @property tirage The print run or edition size (e.g., "500 ex.").
+ * @property dimensions The physical dimensions of the item (e.g., "50x70cm").
+ * @property prixAchat The price paid by the user for the item.
+ * @property valeurEstimee The estimated current market value of the item.
+ * @property lieuAchat The location where the item was purchased.
+ * @property description A free-form text field for user notes and additional details.
+ * @property imageUri The URI of the item's image, which can be a local content URI or a remote web URL.
+ * @property imageEmbedding The computed image signature (embedding) as a ByteArray, used for similarity searches.
+ * @property locationId The foreign key referencing the [Location] where this item is stored.
+ * @property isPossessed A boolean flag indicating whether the user owns this item (true) or is seeking it (false).
+ */
 @Parcelize
 @Entity(tableName = "collection_items", indices = [Index(value = ["remoteId"], unique = true)])
 data class CollectionItem(
@@ -31,7 +55,8 @@ data class CollectionItem(
     val locationId: Long? = null,
     val isPossessed: Boolean = true
 ) : Parcelable {
-    // On doit surcharger equals et hashCode à cause du ByteArray
+    // We must override equals() and hashCode() because of the ByteArray property.
+    // The default data class implementation would perform a referential equality check on the array.
     @Suppress("CognitiveComplexity")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

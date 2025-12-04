@@ -3,12 +3,15 @@ package com.example.parabdcollector.ui
 import com.example.parabdcollector.model.Location
 
 /**
- * Data class representing a location in the expandable tree view.
+ * A view-specific data class that represents a location within an expandable list UI.
  *
- * @property location The original Location object from the database.
- * @property depth The depth of the location in the hierarchy (0 for root).
- * @property isExpanded True if the location's children are currently visible.
- * @property hasChildren True if the location has children, determining if the expand icon should be shown.
+ * It wraps the core [Location] entity with additional state information required by the [LocationAdapter]
+ * to render the hierarchical tree structure correctly.
+ *
+ * @property location The original [Location] entity from the database.
+ * @property depth The nesting level of the location in the hierarchy (e.g., 0 for root, 1 for a child), used for indentation.
+ * @property isExpanded True if this location is currently expanded to show its children; false otherwise.
+ * @property hasChildren True if this location has child locations, which determines whether to display an expand/collapse icon.
  */
 data class ExpandableLocation(
     val location: Location,

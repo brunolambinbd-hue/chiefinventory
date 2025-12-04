@@ -4,8 +4,6 @@
     <string name="close">Fermer</string>
 
     <!-- Strings pour le compteur -->
-    <string name="initial_counter_value">0</string>
-    <string name="counter_separator"> / </string>
 
     <!-- Titres formatables pour les pages -->
     <string name="possessed_items_title" tools:ignore="UnusedResources">Mes Produits (%1$d)</string>
@@ -76,6 +74,7 @@
 
     <!-- Messages (Toast) -->
 <!--    <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>-->
+    <string name="locations_management_title">Gestion des emplacements</string>
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
     <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
     <string name="rapport_signatures">Rapport des signatures</string>
@@ -103,6 +102,10 @@
     <string name="ajouter_un_sous_emplacement">Ajouter un sous-emplacement</string>
     <string name="changer_de_parent">Changer de parent</string>
     <string name="supprimer">Supprimer</string>
+    <string name="add_location_description">Ajouter un emplacement</string>
+    <string name="expand_location_description">Déplier/Replier l\'emplacement</string>
+    <string name="edit_location_description">Modifier l\'emplacement</string>
+    <string name="new_search_title">Nouvelle recherche</string>
 
 
 </resources>
