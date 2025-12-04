@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
@@ -41,9 +41,11 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(SignatureReportViewModel::class.java) ->
                 SignatureReportViewModel(collectionRepository) as T
             modelClass.isAssignableFrom(LocationViewModel::class.java) ->
-                LocationViewModel(locationRepository) as T
+                LocationViewModel(locationRepository, collectionRepository) as T
             modelClass.isAssignableFrom(EditItemViewModel::class.java) ->
                 EditItemViewModel(application, collectionRepository, locationRepository) as T
+            modelClass.isAssignableFrom(InventoryViewModel::class.java) ->
+                InventoryViewModel(application, collectionRepository) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

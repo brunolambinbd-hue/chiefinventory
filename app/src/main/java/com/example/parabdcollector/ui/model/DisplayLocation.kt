@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.model
 
 import com.example.parabdcollector.model.Location
 

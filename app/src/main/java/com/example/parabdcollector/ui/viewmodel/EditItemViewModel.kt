@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.viewmodel
 
 import android.app.Application
 import android.graphics.Bitmap
@@ -15,11 +15,22 @@ import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.Location
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
+import com.example.parabdcollector.ui.model.DisplayLocation
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * ViewModel for the item editing screen ([com.example.parabdcollector.ui.actvity.EditItemActivity]).
+ *
+ * This class manages the state for both creating a new item and editing an existing one.
+ * It interacts with both [CollectionRepository] and [LocationRepository].
+ *
+ * @param application The application instance.
+ * @param collectionRepository The repository for collection item data.
+ * @param locationRepository The repository for location data.
+ */
 class EditItemViewModel(
     application: Application,
     private val collectionRepository: CollectionRepository,
@@ -27,11 +38,13 @@ class EditItemViewModel(
 ) : AndroidViewModel(application) {
 
     private val _item = MediatorLiveData<CollectionItem>()
+    /** The collection item currently being edited. */
     val item: LiveData<CollectionItem> = _item
 
     private var currentItemSource: LiveData<CollectionItem>? = null
 
     private val _imageUri = MutableLiveData<Uri?>()
+    /** The URI of the new image taken or selected by the user. */
     val imageUri: LiveData<Uri?> = _imageUri
 
     private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(
@@ -39,12 +52,16 @@ class EditItemViewModel(
         listener = null
     )
 
-    // Logique pour l'affichage hiérarchique des emplacements
-    private val allLocations: LiveData<List<Location>> = locationRepository.getAll()
-    val displayLocations: LiveData<List<DisplayLocation>> = allLocations.map {
+    /** A flat list of all locations, decorated with their depth for indented display. */
+    val displayLocations: LiveData<List<DisplayLocation>> = locationRepository.getAll().map {
         buildDisplayList(it)
     }
 
+    /**
+     * Recursively builds a flat list of [DisplayLocation]s from a hierarchical list of [Location]s.
+     * @param locations The complete list of locations from the database.
+     * @return A list of [DisplayLocation]s, ordered and with depth information.
+     */
     private fun buildDisplayList(locations: List<Location>): List<DisplayLocation> {
         val displayList = mutableListOf<DisplayLocation>()
         val locationsByParent = locations.groupBy { it.parentLocationId }
@@ -56,10 +73,14 @@ class EditItemViewModel(
             }
         }
 
-        addChildren(null, 0) // On commence par les éléments racines
+        addChildren(null, 0) // Start with root elements
         return displayList
     }
 
+    /**
+     * Loads an item from the repository by its ID.
+     * @param id The ID of the item to load.
+     */
     fun loadItem(id: Long) {
         currentItemSource?.let { _item.removeSource(it) }
         val newSource = collectionRepository.getById(id)
@@ -69,19 +90,37 @@ class EditItemViewModel(
         currentItemSource = newSource
     }
 
+    /**
+     * Sets the new image URI.
+     * @param uri The URI of the newly captured image.
+     */
     fun setImageUri(uri: Uri) {
         _imageUri.value = uri
     }
 
+    /**
+     * Calculates the image signature for a given bitmap.
+     * @param bitmap The bitmap of the image.
+     * @param dispatcher The coroutine dispatcher to use. Defaults to IO.
+     * @return A [ByteArray] representing the signature, or null if calculation fails.
+     */
     suspend fun calculateSignature(bitmap: Bitmap, dispatcher: CoroutineDispatcher = Dispatchers.IO): ByteArray? = withContext(dispatcher) {
         val signature = imageEmbedderHelper.computeSignature(bitmap)
         signature?.let { EmbeddingUtils.embeddingToByteArray(it) }
     }
 
+    /**
+     * Inserts a new item into the database.
+     * @param item The [CollectionItem] to insert.
+     */
     fun insert(item: CollectionItem) = viewModelScope.launch {
         collectionRepository.insert(item)
     }
 
+    /**
+     * Updates an existing item in the database.
+     * @param item The [CollectionItem] to update.
+     */
     fun update(item: CollectionItem) = viewModelScope.launch {
         collectionRepository.update(item)
     }

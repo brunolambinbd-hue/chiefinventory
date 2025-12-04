@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.viewmodel
 
 import android.app.Application
 import android.graphics.drawable.BitmapDrawable
@@ -21,12 +21,31 @@ import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
+/**
+ * ViewModel responsible for handling the data import process from a CSV file.
+ *
+ * This class orchestrates the parsing of the CSV, fetching existing items, calculating image signatures
+ * for new or updated items, and finally inserting or updating the items in the database.
+ *
+ * @param application The application instance.
+ * @param repository The [CollectionRepository] for data operations.
+ */
 class ImportViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
     private val imageEmbedderHelper = ImageEmbedderHelper(context = getApplication(), listener = null)
     private val imageLoader = ImageLoader(application)
     private val baseImageUrl = "https://frankpe.com/images/bdg_new/" // URL Web correcte
 
+    /**
+     * Imports collection items from a CSV file specified by its URI.
+     *
+     * This function launches a coroutine to perform the file I/O, network requests (for images),
+     * and database operations off the main thread.
+     *
+     * @param uri The URI of the CSV file to import.
+     * @param dispatcher The coroutine dispatcher to use for the import process. Defaults to [Dispatchers.IO].
+     * @return A [Job] representing the import coroutine, which can be used to wait for completion.
+     */
     fun importCsv(uri: Uri, dispatcher: CoroutineDispatcher = Dispatchers.IO): Job {
         return viewModelScope.launch(dispatcher) {
             val inputStream = getApplication<Application>().contentResolver.openInputStream(uri)
@@ -112,12 +131,20 @@ class ImportViewModel(application: Application, private val repository: Collecti
         }
     }
 
+    /**
+     * Constructs the full image URL for a given remote ID.
+     * @param remoteId The remote ID of the item.
+     * @return The fully-qualified URL string for the item's image.
+     */
     private fun buildImageUrl(remoteId: Int): String {
         val folder = (remoteId / 100) * 100
         val prefix = "frank"
         return "$baseImageUrl$folder/$prefix$remoteId-1.jpg"
     }
 
+    /**
+     * Cleans up the ImageEmbedderHelper when the ViewModel is destroyed.
+     */
     override fun onCleared() {
         super.onCleared()
         imageEmbedderHelper.clearImageEmbedder()

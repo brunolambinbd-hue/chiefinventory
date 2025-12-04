@@ -6,8 +6,12 @@ import java.nio.ByteOrder
 
 
 /**
- * Classe interne de remplacement pour stocker des embeddings
- * quand on ne peut pas reconstruire un Embedding MediaPipe.
+ * A data class to hold embedding values when a full MediaPipe [Embedding] object cannot be reconstructed.
+ * This serves as an internal, serializable representation.
+ *
+ * @property floatValues The float array for a standard embedding.
+ * @property quantizedValues The byte array for a quantized embedding.
+ * @property isQuantized A flag indicating which of the two arrays is populated.
  */
 data class MyEmbedding(
     val floatValues: FloatArray? = null,
@@ -41,19 +45,19 @@ data class MyEmbedding(
     }
 }
 /**
- * Utilitaires pour convertir les embeddings MediaPipe en ByteArray et inversement.
- *
- * Compatible avec :
- *  - com.google.mediapipe.tasks.vision.imageembedder.ImageEmbedder
- *  - com.google.mediapipe.tasks.components.containers.Embedding
+ * A utility object for serializing and deserializing MediaPipe [Embedding] objects.
  */
 object EmbeddingUtils {
 
     /**
-     * Convertit un Embedding en ByteArray.
-     * - Si embedding quantifié → retourne directement quantizedEmbedding()
-     * - Si float → convertit chaque float en 4 octets (Little Endian)
-     * @throws IllegalArgumentException si l'embedding est vide ou nul.
+     * Converts a MediaPipe [Embedding] object to a [ByteArray] for database storage.
+     *
+     * It prioritizes the quantized embedding if available, otherwise it converts the float embedding
+     * into a byte array using Little Endian byte order.
+     *
+     * @param embedding The MediaPipe embedding to convert.
+     * @return A [ByteArray] representation of the embedding.
+     * @throws IllegalArgumentException if the embedding is null or empty.
      */
     fun embeddingToByteArray(embedding: Embedding): ByteArray {
         // Vérifie d'abord l'embedding quantifié
@@ -75,9 +79,11 @@ object EmbeddingUtils {
     }
 
     /**
-     * Recrée un Embedding à partir d’un ByteArray.
-     * @param bytes les données de l’embedding sérialisé
-     * @param fromQuantized true si l’embedding d’origine était quantifié (INT8)
+     * Reconstructs our internal [MyEmbedding] representation from a [ByteArray].
+     *
+     * @param bytes The serialized embedding data from the database.
+     * @param fromQuantized True if the original embedding was quantized (INT8).
+     * @return A [MyEmbedding] object containing the deserialized data.
      */
     fun byteArrayToMyEmbedding(bytes: ByteArray, fromQuantized: Boolean = false): MyEmbedding {
         return if (fromQuantized) {
@@ -91,7 +97,8 @@ object EmbeddingUtils {
     }
 
     /**
-     * Exemple d’utilisation : convertit un embedding en bytes et le reconstruit.
+     * Example of use: converts an embedding to bytes and rebuilds it.
+     * @param embedding The original embedding to process.
      */
     @Suppress("unused")
     fun demoUsage(embedding: Embedding) {

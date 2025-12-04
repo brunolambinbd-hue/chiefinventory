@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.actvity
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -18,10 +18,22 @@ import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
 import com.example.parabdcollector.model.SearchCriteria
+import com.example.parabdcollector.ui.adapter.CollectionAdapter
+import com.example.parabdcollector.ui.viewmodel.SearchViewModel
+import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 import com.example.parabdcollector.utils.BitmapUtils
 import com.example.parabdcollector.utils.CategoryMapper
 import com.example.parabdcollector.utils.ImageCaptureUtil
 
+/**
+ * An activity dedicated to searching the collection.
+ *
+ * This screen provides multiple ways to search:
+ * - A simple, single-field text search.
+ * - An advanced search with multiple, specific criteria.
+ * - An image-based similarity search.
+ * Results are displayed in a RecyclerView.
+ */
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
@@ -37,6 +49,9 @@ class SearchActivity : AppCompatActivity() {
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
+    /**
+     * Initializes the activity, sets up the toolbar, RecyclerView, spinners, and click listeners.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
@@ -100,6 +115,9 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Resets all search fields and results to their initial state.
+     */
     private fun resetSearchState() {
         binding.etSearchSimple.setText("")
         binding.etSearchTitre.setText("")
@@ -113,6 +131,9 @@ class SearchActivity : AppCompatActivity() {
         viewModel.clearSearchResults()
     }
 
+    /**
+     * Toggles the visibility of the advanced search container.
+     */
     private fun toggleAdvancedSearch() {
         if (binding.advancedSearchContainer.isGone) {
             binding.advancedSearchContainer.isVisible = true
@@ -123,6 +144,9 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Sets up the dependent dropdown menus for super-category and category in the advanced search section.
+     */
     private fun setupCategorySpinners() {
         val superCategories = CategoryMapper.getSuperCategories()
         val superCategoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, superCategories)
@@ -141,6 +165,10 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Gathers search criteria from the UI, hides the keyboard, and triggers the search via the ViewModel.
+     * It handles both simple and advanced search modes.
+     */
     private fun performSearch() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
@@ -177,6 +205,9 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Initializes the RecyclerView and its adapter.
+     */
     private fun setupRecyclerView() {
         adapter = CollectionAdapter { searchResult ->
             val intent = Intent(this, EditItemActivity::class.java)
@@ -187,11 +218,17 @@ class SearchActivity : AppCompatActivity() {
         binding.rvSearchResults.layoutManager = LinearLayoutManager(this)
     }
 
+    /**
+     * Inflates the options menu for the search screen.
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.search_menu, menu)
         return true
     }
 
+    /**
+     * Handles clicks on items in the options menu (toolbar).
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {

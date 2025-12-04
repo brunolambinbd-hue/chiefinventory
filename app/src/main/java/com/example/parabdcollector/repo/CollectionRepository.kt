@@ -6,11 +6,12 @@ import androidx.lifecycle.map
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.imagecomparison.EmbeddingUtils
 import com.example.parabdcollector.dao.CollectionDao
-import com.example.parabdcollector.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchCriteria
-import com.example.parabdcollector.model.SearchResultItem
 import com.example.parabdcollector.model.SignatureStats
+import com.example.parabdcollector.ui.model.CategoryInfo
+import com.example.parabdcollector.ui.model.ItemCountForLocation
+import com.example.parabdcollector.ui.model.SearchResultItem
 
 /**
  * Repository for managing all data operations for [CollectionItem] entities.
@@ -28,6 +29,14 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
      */
     fun getAll(): LiveData<List<CollectionItem>> {
         return collectionDao.getAll()
+    }
+
+    /**
+     * Counts the number of items in each location.
+     * @return A LiveData list of [ItemCountForLocation] objects.
+     */
+    fun getItemCountByLocation(): LiveData<List<ItemCountForLocation>> {
+        return collectionDao.getItemCountByLocation()
     }
 
     /**
@@ -89,6 +98,15 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
      */
     fun getById(id: Long): LiveData<CollectionItem> {
         return collectionDao.getById(id)
+    }
+
+    /**
+     * Synchronously retrieves a single item by its local primary key.
+     * @param id The local database ID of the item.
+     * @return The [CollectionItem], or null if not found.
+     */
+    suspend fun getItemById(id: Long): CollectionItem? {
+        return collectionDao.getItemById(id)
     }
 
     /**
@@ -180,6 +198,23 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
         } else {
             textFilteredItems.map { SearchResultItem(it) }
         }
+    }
+
+    /**
+     * Finds the most visually similar items to a given image embedding.
+     * @param queryEmbedding The float array of the image to search for.
+     * @return A list of the top 3 most similar [SearchResultItem]s.
+     */
+    suspend fun findMostSimilarItems(queryEmbedding: FloatArray): List<SearchResultItem> {
+        val allItems = collectionDao.getAllItemsWithEmbeddings()
+        return allItems
+            .map { 
+                val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
+                SearchResultItem(it, similarity.toDouble())
+            }
+            .filter { !(it.similarity?.isNaN() ?: true) }
+            .sortedByDescending { it.similarity }
+            .take(3)
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.model
 
 import com.example.parabdcollector.model.Location
 
@@ -12,10 +12,12 @@ import com.example.parabdcollector.model.Location
  * @property depth The nesting level of the location in the hierarchy (e.g., 0 for root, 1 for a child), used for indentation.
  * @property isExpanded True if this location is currently expanded to show its children; false otherwise.
  * @property hasChildren True if this location has child locations, which determines whether to display an expand/collapse icon.
+ * @property itemCount The number of collection items stored in this specific location.
  */
 data class ExpandableLocation(
     val location: Location,
     val depth: Int,
     val isExpanded: Boolean,
-    val hasChildren: Boolean
+    val hasChildren: Boolean,
+    val itemCount: Int = 0
 )

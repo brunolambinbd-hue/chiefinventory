@@ -17,6 +17,7 @@ import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
+import com.example.parabdcollector.ui.actvity.MainActivity
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest

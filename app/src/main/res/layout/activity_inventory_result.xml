@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.actvity.LocationManagementActivity">
+    android:fitsSystemWindows="true">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -14,20 +13,22 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_locations"
+    <Button
+        android:id="@+id/btn_create_new"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_location"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
-        android:contentDescription="@string/add_location_description"
-        android:src="@android:drawable/ic_input_add" />
+        android:text="Objet non trouvé ? Créer une nouvelle entrée" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_inventory_results"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/btn_create_new"
+        android:layout_below="@id/toolbar"
+        android:padding="8dp"
+        tools:listitem="@layout/item_collection" />
 
 </RelativeLayout>

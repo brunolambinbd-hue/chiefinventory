@@ -9,8 +9,9 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.example.parabdcollector.model.CategoryInfo
+import com.example.parabdcollector.ui.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.ui.model.ItemCountForLocation
 
 /**
  * Data Access Object for the [CollectionItem] entity.
@@ -34,6 +35,14 @@ interface CollectionDao {
     suspend fun getAllItems(): List<CollectionItem>
 
     /**
+     * Synchronously selects all items from the table that have a non-null and non-empty image embedding.
+     * This is used as the base for similarity searches.
+     * @return A list of [CollectionItem]s with valid embeddings.
+     */
+    @Query("SELECT * FROM collection_items WHERE imageEmbedding IS NOT NULL AND LENGTH(imageEmbedding) > 0")
+    suspend fun getAllItemsWithEmbeddings(): List<CollectionItem>
+
+    /**
      * Selects all items marked as possessed.
      * @return A [LiveData] list of possessed [CollectionItem]s.
      */
@@ -55,12 +64,27 @@ interface CollectionDao {
     fun getTotalCount(): LiveData<Int>
 
     /**
+     * Counts the number of items in each location.
+     * @return A LiveData list of [ItemCountForLocation] objects.
+     */
+    @Query("SELECT locationId, COUNT(*) as count FROM collection_items WHERE locationId IS NOT NULL GROUP BY locationId")
+    fun getItemCountByLocation(): LiveData<List<ItemCountForLocation>>
+
+    /**
      * Selects a single item by its primary key.
      * @param id The local ID of the item.
      * @return A [LiveData] holding the requested [CollectionItem].
      */
     @Query("SELECT * FROM collection_items WHERE id = :id")
     fun getById(id: Long): LiveData<CollectionItem>
+
+    /**
+     * Synchronously selects a single item by its primary key.
+     * @param id The local ID of the item.
+     * @return The [CollectionItem], or null if not found.
+     */
+    @Query("SELECT * FROM collection_items WHERE id = :id")
+    suspend fun getItemById(id: Long): CollectionItem?
 
     /**
      * Selects a single item by its unique remote ID.

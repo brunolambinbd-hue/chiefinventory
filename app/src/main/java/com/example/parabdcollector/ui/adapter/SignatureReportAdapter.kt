@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -13,22 +13,44 @@ import com.example.parabdcollector.databinding.ItemSignatureReportBinding
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.utils.SignatureUtils
 
+/**
+ * A RecyclerView adapter for displaying a report of items and their image signature status.
+ *
+ * This adapter highlights the status of each item's signature (Valid, Empty, Missing) using
+ * different colors and text, and shows an image thumbnail and signature preview for valid items.
+ *
+ * @param onItemClicked A lambda function invoked when an item in the list is clicked.
+ */
 class SignatureReportAdapter(
     private val onItemClicked: (CollectionItem) -> Unit
 ) : ListAdapter<CollectionItem, SignatureReportAdapter.SignatureViewHolder>(DiffCallback) {
 
+    /**
+     * Creates and returns a new [SignatureViewHolder].
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SignatureViewHolder {
         val binding = ItemSignatureReportBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return SignatureViewHolder(binding)
     }
 
+    /**
+     * Binds the data at the specified position to the [SignatureViewHolder].
+     */
     override fun onBindViewHolder(holder: SignatureViewHolder, position: Int) {
         val current = getItem(position)
         holder.itemView.setOnClickListener { onItemClicked(current) }
         holder.bind(current)
     }
 
+    /**
+     * ViewHolder for a single item in the signature report.
+     * @param binding The view binding for the item layout.
+     */
     class SignatureViewHolder(val binding: ItemSignatureReportBinding) : RecyclerView.ViewHolder(binding.root) {
+        /**
+         * Binds a [CollectionItem] to the views, setting text and visibility based on signature status.
+         * @param item The [CollectionItem] to display.
+         */
         fun bind(item: CollectionItem) {
             val context = binding.root.context
             binding.tvRemoteId.text = context.getString(R.string.report_item_id, item.remoteId)
@@ -51,8 +73,8 @@ class SignatureReportAdapter(
                 else -> {
                     binding.tvSignatureStatus.text = context.getString(R.string.signature_status_valid)
                     binding.tvSignatureStatus.setTextColor(ContextCompat.getColor(context, R.color.status_ok))
-                    
-                    // Affichage de la miniature et de l'aperçu
+
+                    // Show thumbnail and preview for valid signatures.
                     binding.ivThumbnail.visibility = View.VISIBLE
                     binding.tvSignaturePreview.visibility = View.VISIBLE
 
@@ -69,6 +91,9 @@ class SignatureReportAdapter(
     }
 
     companion object {
+        /**
+         * A DiffUtil.ItemCallback for calculating the difference between two [CollectionItem]s.
+         */
         private val DiffCallback = object : DiffUtil.ItemCallback<CollectionItem>() {
             override fun areItemsTheSame(oldItem: CollectionItem, newItem: CollectionItem):
                     Boolean = oldItem.id == newItem.id

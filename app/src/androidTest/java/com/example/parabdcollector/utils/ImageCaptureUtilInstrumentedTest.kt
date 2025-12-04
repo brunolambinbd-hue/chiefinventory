@@ -6,7 +6,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.parabdcollector.R
-import com.example.parabdcollector.ui.EditItemActivity
+import com.example.parabdcollector.ui.actvity.EditItemActivity
 import org.junit.Test
 import org.junit.runner.RunWith
 

@@ -1,4 +1,8 @@
-package com.example.parabdcollector.model
+package com.example.parabdcollector.ui.model
+
+import android.os.Parcelable
+import com.example.parabdcollector.model.CollectionItem
+import kotlinx.parcelize.Parcelize
 
 /**
  * A view-specific data class that represents an item in a search result list.
@@ -11,7 +15,8 @@ package com.example.parabdcollector.model
  * @property similarity The cosine similarity score (between 0.0 and 1.0) of the item's image
  *                      compared to the search image. This is null for text-only searches.
  */
+@Parcelize
 data class SearchResultItem(
     val item: CollectionItem,
     val similarity: Double? = null
-)
+) : Parcelable

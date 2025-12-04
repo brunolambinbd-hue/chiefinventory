@@ -62,9 +62,9 @@
         <item quantity="other">%1$d résultats trouvés</item>
     </plurals>
     <plurals name="search_results_count_with_criteria">
-        <item quantity="one">%1$d résultat pour “%2$s”</item>
-        <item quantity="many">%1$d résultats pour “%2$s”</item>
-        <item quantity="other">%1$d résultats pour “%2$s”</item>
+        <item quantity="one">%1$d résultat pour "%2$s"</item>
+        <item quantity="many">%1$d résultats pour "%2$s"</item>
+        <item quantity="other">%1$d résultats pour "%2$s"</item>
     </plurals>
     <string name="similarity_score_format">Similarité : %.1f%%</string>
 
@@ -101,12 +101,16 @@
     <string name="annuler">Annuler</string>
     <string name="la_racine">À la racine</string>
     <string name="nouvel_emplacement">Nouvel Emplacement</string>
-    <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour \"%1$s\"</string>
+    <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour "%1$s"</string>
     <string name="modifier_l_emplacement">Modifier l\'emplacement</string>
     <string name="supprimer_l_emplacement">Supprimer l\'emplacement</string>
     <string name="modifier_le_nom">Modifier le nom</string>
     <string name="ajouter_un_sous_emplacement">Ajouter un sous-emplacement</string>
     <string name="changer_de_parent">Changer de parent</string>
     <string name="supprimer">Supprimer</string>
+    <string name="scan_inventory">Scanner l\'inventaire</string>
+
+    <!-- Inventory Scanner -->
+    <string name="inventory_for_location">Inventaire pour : %1$s</string>
 
 </resources>

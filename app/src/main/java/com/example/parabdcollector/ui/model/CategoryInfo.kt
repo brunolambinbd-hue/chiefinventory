@@ -1,4 +1,4 @@
-package com.example.parabdcollector.model
+package com.example.parabdcollector.ui.model
 
 data class CategoryInfo(
     val name: String,

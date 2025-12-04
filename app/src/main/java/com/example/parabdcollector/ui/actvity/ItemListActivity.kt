@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.actvity
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,8 +8,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityItemListBinding
-import com.example.parabdcollector.model.SearchResultItem
+import com.example.parabdcollector.ui.adapter.CollectionAdapter
+import com.example.parabdcollector.ui.model.SearchResultItem
+import com.example.parabdcollector.ui.viewmodel.MainViewModel
+import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 
+/**
+ * An activity that displays a filtered list of collection items.
+ *
+ * This activity's behavior is controlled by extras passed in its Intent. It can display:
+ * - A list of items filtered by a specific super-category and category.
+ * - A list of all possessed items.
+ * - A list of all sought items.
+ */
 class ItemListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityItemListBinding
@@ -20,6 +31,10 @@ class ItemListActivity : AppCompatActivity() {
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
+    /**
+     * Initializes the activity, toolbar, and RecyclerView.
+     * It determines which list of items to display based on the intent extras.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityItemListBinding.inflate(layoutInflater)
@@ -36,7 +51,7 @@ class ItemListActivity : AppCompatActivity() {
 
         when {
             superCategory != null && category != null -> {
-                // On affiche les objets pour une catégorie et une super-catégorie données
+                // Display items for a specific category and super-category
                 supportActionBar?.title = category
                 viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, listType == TYPE_POSSESSED).observe(this) { items ->
                     val searchResults = items.map(::SearchResultItem)
@@ -60,6 +75,9 @@ class ItemListActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Initializes the RecyclerView and its adapter, and defines the item click behavior.
+     */
     private fun setupRecyclerView() {
         adapter = CollectionAdapter { searchResult ->
             val intent = Intent(this, EditItemActivity::class.java)
@@ -70,6 +88,9 @@ class ItemListActivity : AppCompatActivity() {
         binding.rvItemList.layoutManager = LinearLayoutManager(this)
     }
 
+    /**
+     * Handles the back arrow click in the toolbar.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             finish()
@@ -79,11 +100,16 @@ class ItemListActivity : AppCompatActivity() {
     }
 
     companion object {
+        /** Key for the Int extra that determines the general list type (possessed or sought). */
         const val EXTRA_LIST_TYPE = "list_type"
+        /** Key for the String extra that holds the super-category to filter by. */
         const val EXTRA_SUPER_CATEGORY = "super_category"
+        /** Key for the String extra that holds the detailed category to filter by. */
         const val EXTRA_CATEGORY = "category"
 
+        /** Value for EXTRA_LIST_TYPE to show possessed items. */
         const val TYPE_POSSESSED = 1
+        /** Value for EXTRA_LIST_TYPE to show sought items. */
         const val TYPE_SOUGHT = 2
     }
 }

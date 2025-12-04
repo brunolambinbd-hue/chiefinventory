@@ -4,8 +4,9 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchCriteria
-import com.example.parabdcollector.model.SearchResultItem
+import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.ui.viewmodel.SearchViewModel
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -21,7 +22,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 /**
- * Unit tests for the [SearchViewModel].
+ * Unit tests for the [com.example.parabdcollector.ui.viewmodel.SearchViewModel].
  */
 @ExperimentalCoroutinesApi
 class SearchViewModelTest {

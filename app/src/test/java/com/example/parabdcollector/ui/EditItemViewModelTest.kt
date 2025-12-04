@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
+import com.example.parabdcollector.ui.viewmodel.EditItemViewModel
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -19,7 +20,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 /**
- * Unit tests for the [EditItemViewModel].
+ * Unit tests for the [com.example.parabdcollector.ui.viewmodel.EditItemViewModel].
  */
 @ExperimentalCoroutinesApi
 class EditItemViewModelTest {

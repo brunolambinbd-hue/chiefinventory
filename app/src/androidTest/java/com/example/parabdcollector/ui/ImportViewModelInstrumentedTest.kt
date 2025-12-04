@@ -11,6 +11,7 @@ import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.ui.viewmodel.ImportViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
@@ -21,7 +22,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,7 +47,7 @@ class MainDispatcherRule(
 }
 
 /**
- * Instrumented integration tests for the [ImportViewModel].
+ * Instrumented integration tests for the [com.example.parabdcollector.ui.viewmodel.ImportViewModel].
  */
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)

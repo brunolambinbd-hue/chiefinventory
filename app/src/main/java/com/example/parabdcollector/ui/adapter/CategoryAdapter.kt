@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.parabdcollector.R
-import com.example.parabdcollector.model.CategoryInfo
+import com.example.parabdcollector.ui.model.CategoryInfo
 
 /**
  * An adapter for displaying a list of categories or super-categories in a RecyclerView.
@@ -20,11 +20,17 @@ import com.example.parabdcollector.model.CategoryInfo
  */
 class CategoryAdapter(private val onItemClicked: (String) -> Unit) : ListAdapter<CategoryInfo, CategoryAdapter.VH>(DIFF_CALLBACK) {
 
+    /**
+     * Creates and returns a new ViewHolder.
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val itemView = LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_1, parent, false)
         return VH(itemView as TextView)
     }
 
+    /**
+     * Binds the data at the specified position to the ViewHolder.
+     */
     override fun onBindViewHolder(holder: VH, position: Int) {
         val categoryInfo = getItem(position)
         holder.bind(categoryInfo)
@@ -47,7 +53,7 @@ class CategoryAdapter(private val onItemClicked: (String) -> Unit) : ListAdapter
         }
 
         /**
-         * Binds a [CategoryInfo] object to the TextView.
+         * Binds a [CategoryInfo] object to the TextView, formatting the display string.
          * @param categoryInfo The data to display.
          */
         fun bind(categoryInfo: CategoryInfo) {
@@ -56,14 +62,18 @@ class CategoryAdapter(private val onItemClicked: (String) -> Unit) : ListAdapter
     }
 
     companion object {
+        /**
+         * A DiffUtil.ItemCallback for calculating the difference between two non-null items in a list.
+         * This allows the ListAdapter to determine which items have changed, been added, or been removed.
+         */
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<CategoryInfo>() {
             override fun areItemsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
-                // Items are considered the same if their names are identical.
+                // Items are considered the same if their names are identical, as name is the unique key.
                 return oldItem.name == newItem.name
             }
 
             override fun areContentsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
-                // Content is the same if the objects are equal (data class implements this).
+                // Content is the same if the objects are equal (data class implements this check).
                 return oldItem == newItem
             }
         }

@@ -6,6 +6,7 @@ import androidx.lifecycle.Observer
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.ui.viewmodel.SignatureReportViewModel
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
@@ -17,7 +18,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 /**
- * Unit tests for the [SignatureReportViewModel].
+ * Unit tests for the [com.example.parabdcollector.ui.viewmodel.SignatureReportViewModel].
  */
 @ExperimentalCoroutinesApi
 class SignatureReportViewModelTest {

@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.parabdcollector.model.Location
 import com.example.parabdcollector.repo.LocationRepository
+import com.example.parabdcollector.ui.model.ExpandableLocation
+import com.example.parabdcollector.ui.viewmodel.LocationViewModel
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -16,7 +18,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 /**
- * Unit tests for the [LocationViewModel].
+ * Unit tests for the [com.example.parabdcollector.ui.viewmodel.LocationViewModel].
  *
  * This class uses Mockito to create a mock [LocationRepository] to test the ViewModel's logic
  * in isolation from the data layer. Each test is self-contained to prevent state leakage.

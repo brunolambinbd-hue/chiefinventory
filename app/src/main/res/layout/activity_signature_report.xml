@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context=".ui.SignatureReportActivity">
+    tools:context=".ui.actvity.SignatureReportActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"

@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ParaBDCollector">
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.actvity.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.ParaBDCollector"> <!-- On force le thème NoActionBar -->
             <intent-filter>
@@ -28,15 +28,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.EditItemActivity" />
-        <activity android:name=".ui.SearchActivity" />
-        <activity android:name=".ui.ItemListActivity" />
-        <activity android:name=".ui.CategoryListActivity" />
-        <activity android:name=".ui.SignatureReportActivity" />
-        <activity android:name=".ui.LocationManagementActivity" />
+        <activity android:name=".ui.actvity.EditItemActivity" />
+        <activity android:name=".ui.actvity.SearchActivity" />
+        <activity android:name=".ui.actvity.ItemListActivity" />
+        <activity android:name=".ui.actvity.CategoryListActivity" />
+        <activity android:name=".ui.actvity.SignatureReportActivity" />
+        <activity android:name=".ui.actvity.LocationManagementActivity" />
         <activity 
-            android:name=".ui.FullScreenImageActivity"
+            android:name=".ui.actvity.FullScreenImageActivity"
             android:theme="@style/Theme.ParaBDCollector.FullScreen" />
+        <activity android:name=".ui.actvity.InventoryScannerActivity" />
+        <activity android:name=".ui.actvity.InventoryResultActivity" />
 
         <!-- Déclaration de l'activité de la librairie de recadrage avec un thème approprié -->
         <activity

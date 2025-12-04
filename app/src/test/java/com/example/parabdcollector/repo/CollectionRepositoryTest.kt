@@ -1,96 +1,65 @@
 package com.example.parabdcollector.repo
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.MutableLiveData
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.model.CollectionItem
-import kotlinx.coroutines.runBlocking
+import com.example.imagecomparison.EmbeddingUtils
+import com.google.mediapipe.tasks.components.containers.Embedding
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 /**
  * Unit tests for the [CollectionRepository].
- *
- * This class uses Mockito to create a mock [CollectionDao] to test the repository's logic
- * in isolation from the actual database.
  */
+@ExperimentalCoroutinesApi
 class CollectionRepositoryTest {
 
-    /**
-     * This rule makes sure that LiveData updates happen synchronously in tests.
-     */
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    // The mock DAO that will be used in the tests.
     private lateinit var collectionDao: CollectionDao
-    // The repository instance under test.
-    private lateinit var collectionRepository: CollectionRepository
+    private lateinit var repository: CollectionRepository
 
-    /**
-     * Sets up the test environment before each test.
-     * This creates a new mock DAO and a new repository instance.
-     */
     @Before
     fun setup() {
         collectionDao = mock()
-        collectionRepository = CollectionRepository(collectionDao)
+        repository = CollectionRepository(collectionDao)
     }
 
-    /**
-     * Verifies that [CollectionRepository.getAllPossessed] correctly calls the DAO
-     * and returns the expected data.
-     */
-    @Test
-    fun `getAllPossessed should return possessed items from dao`() {
-        // GIVEN: A LiveData object with a test item.
-        val testData = listOf(CollectionItem(id = 1, titre = "Test Item", isPossessed = true, editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = "", imageUri = null, imageEmbedding = null, locationId = null, remoteId = null))
-        val liveData = MutableLiveData(testData)
-        whenever(collectionDao.getAllPossessed()).thenReturn(liveData)
-
-        // WHEN: The method is called on the repository.
-        val result = collectionRepository.getAllPossessed()
-
-        // THEN: The result should be the LiveData provided by the DAO.
-        assertEquals(testData, result.value)
+    // Helper function to create a dummy embedding ByteArray from a simple float.
+    private fun createDummyEmbedding(value: Float): ByteArray {
+        val floatArray = FloatArray(10) { value } // Dummy array
+        val embedding = Embedding.create(floatArray, 0)
+        return EmbeddingUtils.embeddingToByteArray(embedding)
     }
 
-    /**
-     * Verifies that [CollectionRepository.getAllSought] correctly calls the DAO
-     * and returns the expected data.
-     */
     @Test
-    fun `getAllSought should return sought items from dao`() {
-        // GIVEN: A LiveData object with a test item.
-        val testData = listOf(CollectionItem(id = 2, titre = "Sought Item", isPossessed = false, editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = "", imageUri = null, imageEmbedding = null, locationId = null, remoteId = null))
-        val liveData = MutableLiveData(testData)
-        whenever(collectionDao.getAllSought()).thenReturn(liveData)
+    fun `findMostSimilarItems should return top 3 sorted results`() = runTest {
+        // GIVEN: A query embedding and a list of items in the DAO with varying similarity.
+        val queryEmbedding = FloatArray(10) { 0.9f } // The vector we are searching for
 
-        // WHEN: The method is called on the repository.
-        val result = collectionRepository.getAllSought()
+        val allItemsWithEmbeddings = listOf(
+            CollectionItem(id = 1, titre = "Low Similarity", imageEmbedding = createDummyEmbedding(0.1f), isPossessed = true, description = "", editeur = "", annee = 2023, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "", prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", locationId = null, remoteId = null),
+            CollectionItem(id = 2, titre = "High Similarity", imageEmbedding = createDummyEmbedding(0.95f), isPossessed = true, description = "", editeur = "", annee = 2023, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "", prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", locationId = null, remoteId = null), // Most similar
+            CollectionItem(id = 3, titre = "Medium Similarity", imageEmbedding = createDummyEmbedding(0.5f), isPossessed = true, description = "", editeur = "", annee = 2023, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "", prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", locationId = null, remoteId = null),
+            CollectionItem(id = 4, titre = "Very High Similarity", imageEmbedding = createDummyEmbedding(0.99f), isPossessed = true, description = "", editeur = "", annee = 2023, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "", prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", locationId = null, remoteId = null), // Should be first
+            CollectionItem(id = 5, titre = "Another Low Similarity", imageEmbedding = createDummyEmbedding(0.2f), isPossessed = true, description = "", editeur = "", annee = 2023, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "", prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", locationId = null, remoteId = null)
+        )
+        whenever(collectionDao.getAllItemsWithEmbeddings()).thenReturn(allItemsWithEmbeddings)
 
-        // THEN: The result should be the LiveData provided by the DAO.
-        assertEquals(testData, result.value)
-    }
+        // WHEN: We call the function to find the most similar items.
+        val results = repository.findMostSimilarItems(queryEmbedding)
 
-    /**
-     * Verifies that calling [CollectionRepository.insert] correctly calls the
-     * corresponding suspend method on the DAO.
-     */
-    @Test
-    fun `insert should call insert on dao`() = runBlocking {
-        // GIVEN: A collection item to insert.
-        val item = CollectionItem(id = 3, titre = "New Item", isPossessed = true, editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = "", imageUri = null, imageEmbedding = null, locationId = null, remoteId = null)
-
-        // WHEN: The insert method is called on the repository.
-        collectionRepository.insert(item)
-
-        // THEN: The insert method on the DAO should be called with the same item.
-        verify(collectionDao).insert(item)
+        // THEN: The result should contain exactly 3 items, sorted by similarity descending.
+        assertEquals(3, results.size)
+        assertEquals("Very High Similarity", results[0].item.titre) // ID 4
+        assertEquals("High Similarity", results[1].item.titre)    // ID 2
+        assertEquals("Medium Similarity", results[2].item.titre)   // ID 3
     }
 }

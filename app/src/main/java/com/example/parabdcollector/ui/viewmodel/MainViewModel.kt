@@ -1,16 +1,16 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.parabdcollector.model.CategoryInfo
+import com.example.parabdcollector.ui.model.CategoryInfo
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.repo.CollectionRepository
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel for the main dashboard screen ([MainActivity]).
+ * ViewModel for the main dashboard screen ([com.example.parabdcollector.ui.actvity.MainActivity]).
  *
  * This ViewModel provides various LiveData streams to the UI, exposing different slices of the
  * collection data such as possessed items, sought items, and overall statistics.

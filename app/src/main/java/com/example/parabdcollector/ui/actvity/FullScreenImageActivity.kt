@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.actvity
 
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
@@ -11,7 +11,12 @@ import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityFullScreenImageBinding
 import com.example.parabdcollector.utils.SignatureUtils
 
-
+/**
+ * An activity to display a single image in full-screen, with overlayed item details.
+ *
+ * This activity is launched with a URI and various item details passed as Intent extras.
+ * It supports a basic immersive mode by toggling the visibility of system bars and info panels on tap.
+ */
 class FullScreenImageActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityFullScreenImageBinding
@@ -23,11 +28,10 @@ class FullScreenImageActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-        // On active la flèche de retour dans la barre d'outils
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = ""
 
-        // Récupération des données de l'intent
+        // Retrieve data from the intent
         val imageUriString = intent.getStringExtra(EXTRA_IMAGE_URI)
         val title = intent.getStringExtra(EXTRA_TITLE)
         val editor = intent.getStringExtra(EXTRA_EDITOR)
@@ -41,7 +45,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         val description = intent.getStringExtra(EXTRA_DESCRIPTION)
         val signature = intent.getByteArrayExtra(EXTRA_IMAGE_SIGNATURE)
 
-        // Affichage de l'image avec Coil
+        // Load the image using Coil
         if (imageUriString != null) {
             binding.fullScreenImageView.load(imageUriString) {
                 placeholder(R.mipmap.ic_launcher)
@@ -49,7 +53,7 @@ class FullScreenImageActivity : AppCompatActivity() {
             }
         }
 
-        // Affichage des informations textuelles avec libellés
+        // Populate the info overlay
         binding.imageInfoTitle.text = title
         
         fun setInfoText(textView: TextView, labelResId: Int, value: String?) {
@@ -81,7 +85,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         binding.imageInfoDescription.text = description
         binding.imageInfoDescription.visibility = if (description.isNullOrBlank()) View.GONE else View.VISIBLE
 
-        // On affiche les infos de debug si on est en mode "debug"
+        // Show debug info only in debug builds
         val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if (isDebuggable) {
             val sigInfo = SignatureUtils.formatSignaturePreview(this, signature)
@@ -91,26 +95,31 @@ class FullScreenImageActivity : AppCompatActivity() {
             binding.debugSignatureInfo.visibility = View.GONE
         }
 
-        // Gestion du clic pour le mode immersif
+        // Set up immersive mode toggle
         binding.fullScreenImageView.setOnClickListener {
             toggleSystemUI()
         }
     }
 
+    /**
+     * Toggles the visibility of the system bars (status bar, action bar) and the info overlay.
+     */
     private fun toggleSystemUI() {
         if (areSystemBarsVisible) {
-            // Masquer les barres
+            // Hide bars
             binding.toolbar.visibility = View.GONE
             binding.infoContainer.parent.let { if(it is View) it.visibility = View.GONE }
         } else {
-            // Afficher les barres
+            // Show bars
             binding.toolbar.visibility = View.VISIBLE
             binding.infoContainer.parent.let { if(it is View) it.visibility = View.VISIBLE }
         }
         areSystemBarsVisible = !areSystemBarsVisible
     }
 
-    // On gère le clic sur la flèche de retour
+    /**
+     * Handles the back arrow click in the toolbar.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             finish()
@@ -120,17 +129,29 @@ class FullScreenImageActivity : AppCompatActivity() {
     }
 
     companion object {
+        /** Key for the String extra that holds the image URI. */
         const val EXTRA_IMAGE_URI = "image_uri"
+        /** Key for the String extra that holds the item title. */
         const val EXTRA_TITLE = "title"
+        /** Key for the String extra that holds the item editor. */
         const val EXTRA_EDITOR = "editor"
+        /** Key for the Int extra that holds the item year. */
         const val EXTRA_YEAR = "year"
+        /** Key for the Int extra that holds the item month. */
         const val EXTRA_MONTH = "month"
+        /** Key for the String extra that holds the item super-category. */
         const val EXTRA_SUPER_CATEGORY = "super_category"
+        /** Key for the String extra that holds the item category. */
         const val EXTRA_CATEGORY = "category"
+        /** Key for the String extra that holds the item material. */
         const val EXTRA_MATERIAL = "material"
+        /** Key for the String extra that holds the item print run. */
         const val EXTRA_RUN = "run"
+        /** Key for the String extra that holds the item dimensions. */
         const val EXTRA_DIMENSIONS = "dimensions"
+        /** Key for the String extra that holds the item description. */
         const val EXTRA_DESCRIPTION = "description"
+        /** Key for the ByteArray extra that holds the item's image signature. */
         const val EXTRA_IMAGE_SIGNATURE = "image_signature"
     }
 }

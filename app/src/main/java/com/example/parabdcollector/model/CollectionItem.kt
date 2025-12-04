@@ -18,7 +18,7 @@ import kotlinx.parcelize.Parcelize
  * @property annee The year of publication or creation.
  * @property mois The month of publication or creation.
  * @property categorie The specific category of the item (e.g., "Affiches", "Albums collectifs").
- * @property superCategorie The standardized, broader category (e.g., "Image", "Album"). See [CategoryMapper].
+ * @property superCategorie The standardized, broader category (e.g., "Image", "Album"). See [com.example.parabdcollector.utils.CategoryMapper].
  * @property materiau The material the item is made of (e.g., "Papier Velin").
  * @property tirage The print run or edition size (e.g., "500 ex.").
  * @property dimensions The physical dimensions of the item (e.g., "50x70cm").

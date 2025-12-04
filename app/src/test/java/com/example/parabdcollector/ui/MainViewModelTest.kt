@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.ui.viewmodel.MainViewModel
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
@@ -15,7 +16,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 /**
- * Unit tests for the [MainViewModel].
+ * Unit tests for the [com.example.parabdcollector.ui.viewmodel.MainViewModel].
  *
  * These tests verify that the ViewModel correctly exposes data from the [CollectionRepository].
  */

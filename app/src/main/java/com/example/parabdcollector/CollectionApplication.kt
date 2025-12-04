@@ -6,16 +6,33 @@ import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
 
+/**
+ * The base Application class for the project.
+ *
+ * This class serves as a dependency container, providing singleton instances of the database
+ * and repositories to the rest of the application. It is made `open` to allow for replacement
+ * of its properties during instrumented testing.
+ */
 open class CollectionApplication : Application() {
-    // L'utilisation de "lazy" garantit que la base de données et le repository ne sont créés qu'une seule fois.
+    /**
+     * Lazily-initialized singleton instance of the Room database.
+     */
     val database by lazy { AppDatabase.getDatabase(this) }
     
-    // On utilise "open" et on fournit un setter visible pour les tests
-    // pour pouvoir injecter des mocks.
+    /**
+     * The singleton instance of the [CollectionRepository].
+     * This property is `open` and has a public setter annotated with [VisibleForTesting]
+     * to allow a mock or test-specific repository to be injected during instrumented tests.
+     */
     @VisibleForTesting
     open var repository: CollectionRepository? = null
         get() = field ?: CollectionRepository(database.collectionDao())
 
+    /**
+     * The singleton instance of the [LocationRepository].
+     * This property is `open` and has a public setter annotated with [VisibleForTesting]
+     * to allow a mock or test-specific repository to be injected during instrumented tests.
+     */
     @VisibleForTesting
     open var locationRepository: LocationRepository? = null
         get() = field ?: LocationRepository(database.locationDao())

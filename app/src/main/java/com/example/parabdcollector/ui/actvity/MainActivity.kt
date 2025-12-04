@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.ui.actvity
 
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -18,8 +18,20 @@ import androidx.core.view.isVisible
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityMainBinding
+import com.example.parabdcollector.ui.viewmodel.ImportViewModel
+import com.example.parabdcollector.ui.viewmodel.MainViewModel
+import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 import com.google.android.material.navigation.NavigationView
 
+/**
+ * The main entry point of the application, displaying the dashboard and navigation.
+ *
+ * This activity is responsible for:
+ * - Displaying the main dashboard with collection statistics.
+ * - Handling the navigation drawer for accessing different features.
+ * - Providing entry points for adding new items and searching.
+ * - Handling the CSV import process.
+ */
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
@@ -60,13 +72,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.navView.setNavigationItemSelectedListener(this)
 
         binding.fabAdd.setOnClickListener {
-            // On ajoute un petit délai pour laisser l'animation du ripple se jouer.
             Handler(Looper.getMainLooper()).postDelayed({
                 startActivity(Intent(this, EditItemActivity::class.java))
-            }, 200) // 200 millisecondes de délai
+            }, 200)
         }
 
-        // On observe les trois informations pour le tableau de bord.
+        observeDashboardData()
+        setupDebugView()
+    }
+
+    /**
+     * Sets up observers on the ViewModel's LiveData to update the dashboard UI.
+     */
+    private fun observeDashboardData() {
         viewModel.possessedItems.observe(this) { items ->
             possessedCounterTextView?.text = items.size.toString()
             binding.possessedItemsText.text = getString(R.string.possessed_items_label, items.size)
@@ -80,11 +98,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel.totalItemsCount.observe(this) { count ->
             binding.totalItemsText.text = getString(R.string.total_items_label, count)
         }
-
-        // On active le mode débogage si nécessaire
-        setupDebugView()
     }
 
+    /**
+     * Sets up the debug information view, which is only visible in debug builds.
+     */
     private fun setupDebugView() {
         val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         binding.debugSection.isVisible = isDebuggable
@@ -99,7 +117,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 binding.tvSignaturesMissing.text = getString(R.string.report_signatures_missing, stats.missingCount)
                 binding.tvSignaturesMissing.setTextColor(ContextCompat.getColor(this, R.color.status_error))
 
-                // Mise à jour du compteur dans la barre d'outils
+                // Update the counter in the toolbar
                 val showMissing = stats.missingCount > 0
                 missingSignatureCounterTextView?.text = stats.missingCount.toString()
                 missingSignatureCounterTextView?.isVisible = showMissing
@@ -108,6 +126,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    /**
+     * Inflates the options menu and initializes the counter views in the toolbar.
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.counter_menu, menu)
         
@@ -118,12 +139,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         missingSignatureCounterTextView = actionView?.findViewById(R.id.missing_signature_counter)
         missingSignatureSeparator = actionView?.findViewById(R.id.missing_signature_separator)
         
+        // Set initial counts
         val possessedCount = viewModel.possessedItems.value?.size ?: 0
         val soughtCount = viewModel.soughtItems.value?.size ?: 0
         possessedCounterTextView?.text = possessedCount.toString()
         soughtCounterTextView?.text = soughtCount.toString()
 
-        // On met à jour le compteur de signatures manquantes au cas où les données sont déjà là
         val missingCount = viewModel.signatureStats.value?.missingCount ?: 0
         val showMissing = missingCount > 0
         missingSignatureCounterTextView?.text = missingCount.toString()
@@ -133,11 +154,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+    /**
+     * Handles clicks on items in the navigation drawer.
+     */
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_home -> { 
-                // Ne fait rien, car nous sommes déjà sur l'écran d'accueil.
-            }
+            R.id.nav_home -> { /* Do nothing, already home */ }
             R.id.nav_products -> {
                 val intent = Intent(this, CategoryListActivity::class.java)
                 intent.putExtra(CategoryListActivity.EXTRA_IS_POSSESSED, true)
@@ -162,6 +184,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+    /**
+     * Handles clicks on items in the options menu (toolbar).
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (toggle.onOptionsItemSelected(item)) {
             return true
