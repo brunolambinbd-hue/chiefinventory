@@ -89,7 +89,7 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         imageUri = imageUrl,
                         imageEmbedding = existingItem?.imageEmbedding, // On préserve l'ancienne signature
                         locationId = null,
-                        isPossessed = true
+                        isPossessed = false // <<<<<<<<<< CHANGEMENT : Par défaut, on ne possède pas l'objet
                     )
 
                     val imageUriString = itemToSave.imageUri // Crée une référence stable AVANT le if

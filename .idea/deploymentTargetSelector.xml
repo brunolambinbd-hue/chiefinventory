@@ -16,9 +16,6 @@
       <SelectionState runConfigName="ImportViewModelInstrumentedTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="EditItemActivityTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="SearchActivityTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
