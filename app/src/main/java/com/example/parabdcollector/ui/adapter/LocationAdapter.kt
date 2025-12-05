@@ -18,7 +18,7 @@ import com.example.parabdcollector.ui.model.ExpandableLocation
  *
  * @param onToggleExpand A lambda function invoked when the user clicks an item to expand or collapse it.
  * @param onEdit A lambda function invoked when the user clicks the edit icon for an item.
- * @param onItemCountClick A lambda function invoked when the user clicks the item count text.
+ * @param onItemCountClick A lambda function invoked when the user clicks the item count text, or the item itself if it has no children.
  */
 class LocationAdapter(
     private val onToggleExpand: (Long) -> Unit,
@@ -39,17 +39,23 @@ class LocationAdapter(
      */
     override fun onBindViewHolder(holder: LocationViewHolder, position: Int) {
         val current = getItem(position)
-        // Clicking the whole item toggles expansion if it has children.
+        
+        // The entire item view is now a primary click target.
         holder.itemView.setOnClickListener { 
-            if (current.hasChildren) {
-                onToggleExpand(current.location.id)
+            when {
+                // Priority 1: If the location has children, clicking it toggles expansion.
+                current.hasChildren -> onToggleExpand(current.location.id)
+                // Priority 2: If no children but has items, clicking it shows the item list.
+                current.itemCount > 0 -> onItemCountClick(current.location.id)
             }
         }
-        // Clicking the edit icon triggers the edit action.
+
+        // The edit icon retains its specific, separate action.
         holder.binding.editIcon.setOnClickListener { 
             onEdit(current.location.id)
         }
-        // Clicking the item count text triggers the navigation to the item list.
+
+        // The item count text also navigates, reinforcing the affordance.
         holder.binding.locationItemCount.setOnClickListener {
             if (current.itemCount > 0) {
                 onItemCountClick(current.location.id)

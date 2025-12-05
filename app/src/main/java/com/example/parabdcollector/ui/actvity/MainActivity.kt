@@ -3,8 +3,6 @@ package com.example.parabdcollector.ui.actvity
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
@@ -14,24 +12,16 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
-import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
+import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityMainBinding
 import com.example.parabdcollector.ui.viewmodel.ImportViewModel
 import com.example.parabdcollector.ui.viewmodel.MainViewModel
 import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 import com.google.android.material.navigation.NavigationView
 
-/**
- * The main entry point of the application, displaying the dashboard and navigation.
- *
- * This activity is responsible for:
- * - Displaying the main dashboard with collection statistics.
- * - Handling the navigation drawer for accessing different features.
- * - Providing entry points for adding new items and searching.
- * - Handling the CSV import process.
- */
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
@@ -63,46 +53,62 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
-
-        toggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.open, R.string.close)
-        binding.drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-
-        binding.navView.setNavigationItemSelectedListener(this)
-
-        binding.fabAdd.setOnClickListener {
-            Handler(Looper.getMainLooper()).postDelayed({
-                startActivity(Intent(this, EditItemActivity::class.java))
-            }, 200)
-        }
-
-        observeDashboardData()
+        setupToolbarAndDrawer()
+        setupClickListeners()
+        observeViewModel()
         setupDebugView()
     }
 
-    /**
-     * Sets up observers on the ViewModel's LiveData to update the dashboard UI.
-     */
-    private fun observeDashboardData() {
-        viewModel.possessedItems.observe(this) { items ->
-            possessedCounterTextView?.text = items.size.toString()
-            binding.possessedItemsText.text = getString(R.string.possessed_items_label, items.size)
+    private fun setupToolbarAndDrawer() {
+        setSupportActionBar(binding.toolbar)
+        toggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.open, R.string.close)
+        binding.drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+        binding.navView.setNavigationItemSelectedListener(this)
+    }
+
+    private fun setupClickListeners() {
+        binding.fabAdd.setOnClickListener {
+            startActivity(Intent(this, EditItemActivity::class.java))
         }
 
-        viewModel.soughtItems.observe(this) { items ->
-            soughtCounterTextView?.text = items.size.toString()
-            binding.soughtItemsText.text = getString(R.string.sought_items_label, items.size)
+        binding.possessedItemsText.setOnClickListener {
+            val intent = Intent(this, CategoryListActivity::class.java).apply {
+                putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_POSSESSED)
+            }
+            startActivity(intent)
         }
 
-        viewModel.totalItemsCount.observe(this) { count ->
-            binding.totalItemsText.text = getString(R.string.total_items_label, count)
+        binding.soughtItemsText.setOnClickListener {
+            val intent = Intent(this, CategoryListActivity::class.java).apply {
+                putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_SOUGHT)
+            }
+            startActivity(intent)
+        }
+
+        binding.totalItemsText.setOnClickListener {
+            Toast.makeText(this, "Affichage de tous les objets (à implémenter)", Toast.LENGTH_SHORT).show()
         }
     }
 
-    /**
-     * Sets up the debug information view, which is only visible in debug builds.
-     */
+    private fun observeViewModel() {
+        viewModel.totalItemsCount.observe(this) { count ->
+            binding.totalItemsText.text = getString(R.string.total_items_label, count ?: 0)
+        }
+
+        viewModel.possessedItems.observe(this) { items ->
+            val count = items?.size ?: 0
+            binding.possessedItemsText.text = getString(R.string.possessed_items_label, count)
+            possessedCounterTextView?.text = count.toString()
+        }
+
+        viewModel.soughtItems.observe(this) { items ->
+            val count = items?.size ?: 0
+            binding.soughtItemsText.text = getString(R.string.sought_items_label, count)
+            soughtCounterTextView?.text = count.toString()
+        }
+    }
+    
     private fun setupDebugView() {
         val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         binding.debugSection.isVisible = isDebuggable
@@ -110,14 +116,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (isDebuggable) {
             viewModel.signatureStats.observe(this) { stats ->
                 binding.tvSignaturesOk.text = getString(R.string.report_signatures_ok, stats.validCount)
-                
+
                 binding.tvSignaturesEmpty.text = getString(R.string.report_signatures_empty, stats.emptyCount)
                 binding.tvSignaturesEmpty.setTextColor(ContextCompat.getColor(this, R.color.status_warning))
 
                 binding.tvSignaturesMissing.text = getString(R.string.report_signatures_missing, stats.missingCount)
                 binding.tvSignaturesMissing.setTextColor(ContextCompat.getColor(this, R.color.status_error))
 
-                // Update the counter in the toolbar
                 val showMissing = stats.missingCount > 0
                 missingSignatureCounterTextView?.text = stats.missingCount.toString()
                 missingSignatureCounterTextView?.isVisible = showMissing
@@ -126,9 +131,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    /**
-     * Inflates the options menu and initializes the counter views in the toolbar.
-     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.counter_menu, menu)
         
@@ -140,10 +142,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         missingSignatureSeparator = actionView?.findViewById(R.id.missing_signature_separator)
         
         // Set initial counts
-        val possessedCount = viewModel.possessedItems.value?.size ?: 0
-        val soughtCount = viewModel.soughtItems.value?.size ?: 0
-        possessedCounterTextView?.text = possessedCount.toString()
-        soughtCounterTextView?.text = soughtCount.toString()
+        possessedCounterTextView?.text = viewModel.possessedItems.value?.size?.toString() ?: "0"
+        soughtCounterTextView?.text = viewModel.soughtItems.value?.size?.toString() ?: "0"
 
         val missingCount = viewModel.signatureStats.value?.missingCount ?: 0
         val showMissing = missingCount > 0
@@ -154,39 +154,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    /**
-     * Handles clicks on items in the navigation drawer.
-     */
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
         when (item.itemId) {
-            R.id.nav_home -> { /* Do nothing, already home */ }
+            R.id.nav_home -> { /* Do nothing, we are already here */ }
             R.id.nav_products -> {
-                val intent = Intent(this, CategoryListActivity::class.java)
-                intent.putExtra(CategoryListActivity.EXTRA_IS_POSSESSED, true)
+                val intent = Intent(this, CategoryListActivity::class.java).apply {
+                    putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_POSSESSED)
+                }
                 startActivity(intent)
             }
             R.id.nav_searches -> {
-                val intent = Intent(this, CategoryListActivity::class.java)
-                intent.putExtra(CategoryListActivity.EXTRA_IS_POSSESSED, false)
+                val intent = Intent(this, CategoryListActivity::class.java).apply {
+                    putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_SOUGHT)
+                }
                 startActivity(intent)
             }
             R.id.nav_locations -> {
-                startActivity(Intent(this, LocationManagementActivity::class.java))
+                val intent = Intent(this, LocationManagementActivity::class.java)
+                startActivity(intent)
             }
             R.id.nav_import -> {
                 importCsvLauncher.launch("text/comma-separated-values")
             }
-            R.id.nav_signature_report -> {
-                startActivity(Intent(this, SignatureReportActivity::class.java))
+            R.id.nav_signatures -> {
+                val intent = Intent(this, SignatureReportActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.nav_backup -> {
+                val intent = Intent(this, BackupActivity::class.java)
+                startActivity(intent)
             }
         }
-        binding.drawerLayout.closeDrawers()
         return true
     }
 
-    /**
-     * Handles clicks on items in the options menu (toolbar).
-     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (toggle.onOptionsItemSelected(item)) {
             return true

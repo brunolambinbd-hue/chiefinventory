@@ -11,7 +11,6 @@ import com.example.parabdcollector.databinding.ActivityCategoryListBinding
 import com.example.parabdcollector.ui.adapter.CategoryAdapter
 import com.example.parabdcollector.ui.viewmodel.MainViewModel
 import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
-import com.example.parabdcollector.utils.observeOnce
 
 /**
  * An activity that displays a list of categories.
@@ -40,7 +39,9 @@ class CategoryListActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        isPossessed = intent.getBooleanExtra(EXTRA_IS_POSSESSED, true)
+        // CORRECTIF : Lire la bonne clé d'Intent ("list_type") envoyée par MainActivity.
+        val listType = intent.getIntExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_POSSESSED)
+        isPossessed = listType == ItemListActivity.TYPE_POSSESSED
         superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
 
         setupRecyclerView()
@@ -78,23 +79,16 @@ class CategoryListActivity : AppCompatActivity() {
 
     /**
      * Handles a click on a super-category.
-     * If the super-category contains only one sub-category, it navigates directly to the item list.
-     * Otherwise, it re-launches this activity to display the sub-categories.
+     * It ALWAYS navigates to the sub-category list to ensure a consistent user experience.
      * @param categoryName The name of the clicked super-category.
      */
     private fun handleSuperCategoryClick(categoryName: String) {
-        viewModel.getCategoryInfoForSuperCategory(categoryName, isPossessed)
-            .observeOnce(this) { subCategories ->
-                if (subCategories.size == 1) {
-                    navigateToItemList(categoryName, subCategories.first().name)
-                } else {
-                    val intent = Intent(this, CategoryListActivity::class.java).apply {
-                        putExtra(EXTRA_IS_POSSESSED, isPossessed)
-                        putExtra(EXTRA_SUPER_CATEGORY, categoryName)
-                    }
-                    startActivity(intent)
-                }
-            }
+        val intent = Intent(this, CategoryListActivity::class.java).apply {
+            val listType = if (isPossessed) ItemListActivity.TYPE_POSSESSED else ItemListActivity.TYPE_SOUGHT
+            putExtra(ItemListActivity.EXTRA_LIST_TYPE, listType)
+            putExtra(EXTRA_SUPER_CATEGORY, categoryName)
+        }
+        startActivity(intent)
     }
 
     /**
@@ -129,8 +123,6 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     companion object {
-        /** Key for the boolean extra indicating if the list should display possessed or sought items. */
-        const val EXTRA_IS_POSSESSED = "is_possessed"
         /** Key for the string extra that holds the name of the super-category to display. */
         const val EXTRA_SUPER_CATEGORY = "super_category"
     }

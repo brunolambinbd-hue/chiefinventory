@@ -48,14 +48,13 @@ class ItemListActivity : AppCompatActivity() {
         val superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
         val category = intent.getStringExtra(EXTRA_CATEGORY)
         val locationId = intent.getLongExtra(EXTRA_LOCATION_ID, -1L)
+        val locationName = intent.getStringExtra(EXTRA_LOCATION_NAME)
 
         setupRecyclerView()
 
         when {
             locationId != -1L -> {
-                // Display items for a specific location
-                // Note: The title could be improved by fetching the location name.
-                supportActionBar?.title = "Objets dans l'emplacement"
+                supportActionBar?.title = locationName ?: "Objets dans l'emplacement"
                 viewModel.getItemsByLocationId(locationId).observe(this) { items ->
                     val searchResults = items.map(::SearchResultItem)
                     adapter.submitList(searchResults)
@@ -119,6 +118,8 @@ class ItemListActivity : AppCompatActivity() {
         const val EXTRA_CATEGORY = "category"
         /** Key for the Long extra that holds the location ID to filter by. */
         const val EXTRA_LOCATION_ID = "location_id"
+        /** Key for the String extra that holds the full, human-readable location name for the title. */
+        const val EXTRA_LOCATION_NAME = "location_name"
 
         /** Value for EXTRA_LIST_TYPE to show possessed items. */
         const val TYPE_POSSESSED = 1

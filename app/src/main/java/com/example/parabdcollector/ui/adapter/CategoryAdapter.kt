@@ -1,79 +1,91 @@
 package com.example.parabdcollector.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.parabdcollector.R
+import com.example.parabdcollector.databinding.ItemCollectionBinding
 import com.example.parabdcollector.ui.model.CategoryInfo
 
 /**
- * An adapter for displaying a list of categories or super-categories in a RecyclerView.
+ * A RecyclerView adapter for displaying a list of categories (either super-categories or sub-categories).
  *
- * This adapter takes a list of [CategoryInfo] objects, which contain the category name and the count of items in it.
- * It uses a simple layout to display the formatted string.
+ * This adapter takes a list of [CategoryInfo] objects and displays them, showing the category name and the
+ * number of items within that category. It re-uses the item_collection layout for display.
  *
- * @param onItemClicked A lambda function to be invoked when an item in the list is clicked.
- *                      It receives the name of the clicked category as a String.
+ * @param onItemClicked A lambda function that is invoked with the category name when an item is clicked.
  */
-class CategoryAdapter(private val onItemClicked: (String) -> Unit) : ListAdapter<CategoryInfo, CategoryAdapter.VH>(DIFF_CALLBACK) {
+class CategoryAdapter(private val onItemClicked: (String) -> Unit) :
+    ListAdapter<CategoryInfo, CategoryAdapter.CategoryViewHolder>(DiffCallback) {
 
     /**
-     * Creates and returns a new ViewHolder.
+     * Creates a new [CategoryViewHolder].
      */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val itemView = LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_1, parent, false)
-        return VH(itemView as TextView)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
+        val binding = ItemCollectionBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return CategoryViewHolder(binding)
     }
 
     /**
-     * Binds the data at the specified position to the ViewHolder.
+     * Binds a [CategoryInfo] item to a [CategoryViewHolder] and sets its click listener.
+     * The listener is set unconditionally to allow navigation into empty categories.
      */
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        val categoryInfo = getItem(position)
-        holder.bind(categoryInfo)
+    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
+        val current = getItem(position)
+        holder.itemView.setOnClickListener {
+            onItemClicked(current.name)
+        }
+        holder.bind(current)
     }
 
     /**
      * ViewHolder for a single category item.
-     * @param textView The TextView that represents the entire list item layout.
+     * @param binding The view binding for the item's layout.
      */
-    inner class VH(private val textView: TextView) : RecyclerView.ViewHolder(textView) {
-        init {
-            // Set up the click listener for the item view.
-            textView.setOnClickListener {
-                val position = bindingAdapterPosition
-                // Ensure the position is valid before handling the click.
-                if (position != RecyclerView.NO_POSITION) {
-                    onItemClicked(getItem(position).name)
-                }
-            }
-        }
+    class CategoryViewHolder(private var binding: ItemCollectionBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         /**
-         * Binds a [CategoryInfo] object to the TextView, formatting the display string.
+         * Binds the [CategoryInfo] data to the views.
          * @param categoryInfo The data to display.
          */
         fun bind(categoryInfo: CategoryInfo) {
-            textView.text = textView.context.getString(R.string.category_item_format, categoryInfo.name, categoryInfo.count)
+            // Use the correct view ID 'itemName' from item_collection.xml
+            binding.itemName.text =
+                binding.root.context.getString(R.string.category_item_format, categoryInfo.name, categoryInfo.count)
+
+            // Hide all other views from the item_collection.xml layout as they are not relevant for a category
+            binding.itemImage.visibility = View.GONE
+            binding.itemRemoteId.visibility = View.GONE
+            binding.itemSimilarity.visibility = View.GONE
+            binding.itemNotes.visibility = View.GONE
+            binding.itemEditeur.visibility = View.GONE
+            binding.itemYear.visibility = View.GONE
+            binding.itemCategoryHierarchy.visibility = View.GONE
+            binding.itemMaterial.visibility = View.GONE
+            binding.itemDimensions.visibility = View.GONE
+            binding.itemTirage.visibility = View.GONE
+            binding.debugInfo.visibility = View.GONE
         }
     }
 
     companion object {
         /**
-         * A DiffUtil.ItemCallback for calculating the difference between two non-null items in a list.
-         * This allows the ListAdapter to determine which items have changed, been added, or been removed.
+         * A DiffUtil.ItemCallback implementation to efficiently update the list.
          */
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<CategoryInfo>() {
+        private val DiffCallback = object : DiffUtil.ItemCallback<CategoryInfo>() {
             override fun areItemsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
-                // Items are considered the same if their names are identical, as name is the unique key.
                 return oldItem.name == newItem.name
             }
 
             override fun areContentsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
-                // Content is the same if the objects are equal (data class implements this check).
                 return oldItem == newItem
             }
         }

@@ -1,21 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/nav_home"
-        android:title="@string/menu_home_title" />
-    <item
-        android:id="@+id/nav_products"
-        android:title="@string/menu_products_title" />
-    <item
-        android:id="@+id/nav_searches"
-        android:title="@string/menu_searches_title" />
-    <item
-        android:id="@+id/nav_locations"
-        android:title="@string/locations_management_title" />
-    <item
-        android:id="@+id/nav_import"
-        android:title="@string/menu_import_title" />
-    <item
-        android:id="@+id/nav_signature_report"
-        android:title="@string/rapport_signatures" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@android:drawable/ic_menu_myplaces"
+            android:title="@string/menu_home_title" />
+        <item
+            android:id="@+id/nav_products"
+            android:icon="@android:drawable/ic_menu_directions"
+            android:title="@string/menu_products_title" />
+        <item
+            android:id="@+id/nav_searches"
+            android:icon="@android:drawable/ic_menu_compass"
+            android:title="@string/menu_searches_title" />
+        <item
+            android:id="@+id/nav_locations"
+            android:icon="@android:drawable/ic_menu_mapmode"
+            android:title="@string/menu_locations_title" />
+        <item
+            android:id="@+id/nav_import"
+            android:icon="@android:drawable/ic_menu_upload"
+            android:title="@string/menu_import_title" />
+        <item
+            android:id="@+id/nav_backup"
+            android:icon="@android:drawable/ic_menu_save"
+            android:title="@string/menu_backup_title" />
+        <item
+            android:id="@+id/nav_signatures"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:title="@string/rapport_signatures" />
+    </group>
 </menu>

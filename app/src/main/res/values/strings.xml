@@ -27,7 +27,7 @@
     <string name="edit_location_description">Modifier l\'emplacement</string>
     <string name="child_location_indicator" translatable="false">└─ </string>
 
-    <!-- Textes pour l'écran d'édition -->
+    <!-- Textes pour l\'écran d\'édition -->
     <string name="edit_item_title_new">Nouvel Objet</string>
     <string name="edit_item_title_editing">Édition : %1$s</string>
     <string name="take_picture_button">Prendre une photo</string>
@@ -49,7 +49,7 @@
     <string name="item_notes_hint">Description</string>
     <string name="item_location_hint">Localisation</string>
 
-    <!-- Textes pour l'écran de recherche -->
+    <!-- Textes pour l\'écran de recherche -->
     <string name="search_button">Rechercher</string>
     <string name="search_hint" tools:ignore="UnusedResources">Entrez un titre, un univers…</string>
     <string name="simple_search_hint">Recherche rapide…</string>
@@ -62,9 +62,9 @@
         <item quantity="other">%1$d résultats trouvés</item>
     </plurals>
     <plurals name="search_results_count_with_criteria">
-        <item quantity="one">%1$d résultat pour "%2$s"</item>
-        <item quantity="many">%1$d résultats pour "%2$s"</item>
-        <item quantity="other">%1$d résultats pour "%2$s"</item>
+        <item quantity="one">%1$d résultat pour \"%2$s\"</item>
+        <item quantity="many">%1$d résultats pour \"%2$s\"</item>
+        <item quantity="other">%1$d résultats pour \"%2$s\"</item>
     </plurals>
     <string name="similarity_score_format">Similarité : %.1f%%</string>
 
@@ -76,6 +76,7 @@
     <string name="menu_searches_title">Mes Recherches</string>
     <string name="menu_locations_title">Mes Emplacements</string>
     <string name="menu_import_title">Importer / Mettre à jour</string>
+    <string name="menu_backup_title">Sauvegarde / Restauration</string>
     <string name="refine_search_title">Affiner la recherche</string>
     <string name="new_search_title">Nouvelle recherche</string>
     <string name="locations_management_title">Gestion des emplacements</string>
@@ -101,7 +102,7 @@
     <string name="annuler">Annuler</string>
     <string name="la_racine">À la racine</string>
     <string name="nouvel_emplacement">Nouvel Emplacement</string>
-    <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour "%1$s"</string>
+    <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour \"%1$s\"</string>
     <string name="modifier_l_emplacement">Modifier l\'emplacement</string>
     <string name="supprimer_l_emplacement">Supprimer l\'emplacement</string>
     <string name="modifier_le_nom">Modifier le nom</string>

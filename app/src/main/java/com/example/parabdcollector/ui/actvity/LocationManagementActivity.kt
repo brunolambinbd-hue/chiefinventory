@@ -154,6 +154,24 @@ class LocationManagementActivity : AppCompatActivity() {
     }
 
     /**
+     * Constructs the full hierarchical path for a given location ID (e.g., "Office > Shelf > Box").
+     * @param locationId The ID of the leaf location.
+     * @param allLocations A flat list of all displayable locations.
+     * @return A string representing the full, human-readable path.
+     */
+    private fun getFullPath(locationId: Long, allLocations: List<DisplayLocation>): String {
+        val locationMap = allLocations.associateBy { it.location.id }
+        val pathParts = mutableListOf<String>()
+        var currentId: Long? = locationId
+        while (currentId != null) {
+            val currentLocation = locationMap[currentId]?.location
+            pathParts.add(0, currentLocation?.name ?: "Unknown")
+            currentId = currentLocation?.parentLocationId
+        }
+        return pathParts.joinToString(" > ")
+    }
+
+    /**
      * Shows a dialog for adding a new location.
      * @param parentLocation The parent for the new location, or null to create a root location.
      */
@@ -231,10 +249,14 @@ class LocationManagementActivity : AppCompatActivity() {
                 location?.let { showLocationOptionsDialog(it) }
             },
             onItemCountClick = { locationId ->
-                val intent = Intent(this, ItemListActivity::class.java).apply {
-                    putExtra(ItemListActivity.EXTRA_LOCATION_ID, locationId)
+                viewModel.displayLocations.observeOnce(this) { allDisplayLocations ->
+                    val fullPath = getFullPath(locationId, allDisplayLocations)
+                    val intent = Intent(this, ItemListActivity::class.java).apply {
+                        putExtra(ItemListActivity.EXTRA_LOCATION_ID, locationId)
+                        putExtra(ItemListActivity.EXTRA_LOCATION_NAME, fullPath)
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
             }
         )
         binding.rvLocations.apply {
