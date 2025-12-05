@@ -229,6 +229,12 @@ class LocationManagementActivity : AppCompatActivity() {
                 val location =
                     locationAdapter.currentList.find { it.location.id == locationId }?.location
                 location?.let { showLocationOptionsDialog(it) }
+            },
+            onItemCountClick = { locationId ->
+                val intent = Intent(this, ItemListActivity::class.java).apply {
+                    putExtra(ItemListActivity.EXTRA_LOCATION_ID, locationId)
+                }
+                startActivity(intent)
             }
         )
         binding.rvLocations.apply {

@@ -71,6 +71,14 @@ interface CollectionDao {
     fun getItemCountByLocation(): LiveData<List<ItemCountForLocation>>
 
     /**
+     * Selects all items for a given location ID.
+     * @param locationId The ID of the location to filter by.
+     * @return A LiveData list of matching [CollectionItem]s.
+     */
+    @Query("SELECT * FROM collection_items WHERE locationId = :locationId ORDER BY titre ASC")
+    fun getItemsByLocationId(locationId: Long): LiveData<List<CollectionItem>>
+
+    /**
      * Selects a single item by its primary key.
      * @param id The local ID of the item.
      * @return A [LiveData] holding the requested [CollectionItem].

@@ -20,6 +20,7 @@ import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
  * - A list of items filtered by a specific super-category and category.
  * - A list of all possessed items.
  * - A list of all sought items.
+ * - A list of all items in a specific location.
  */
 class ItemListActivity : AppCompatActivity() {
 
@@ -46,10 +47,20 @@ class ItemListActivity : AppCompatActivity() {
         val listType = intent.getIntExtra(EXTRA_LIST_TYPE, TYPE_POSSESSED)
         val superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
         val category = intent.getStringExtra(EXTRA_CATEGORY)
+        val locationId = intent.getLongExtra(EXTRA_LOCATION_ID, -1L)
 
         setupRecyclerView()
 
         when {
+            locationId != -1L -> {
+                // Display items for a specific location
+                // Note: The title could be improved by fetching the location name.
+                supportActionBar?.title = "Objets dans l'emplacement"
+                viewModel.getItemsByLocationId(locationId).observe(this) { items ->
+                    val searchResults = items.map(::SearchResultItem)
+                    adapter.submitList(searchResults)
+                }
+            }
             superCategory != null && category != null -> {
                 // Display items for a specific category and super-category
                 supportActionBar?.title = category
@@ -106,6 +117,8 @@ class ItemListActivity : AppCompatActivity() {
         const val EXTRA_SUPER_CATEGORY = "super_category"
         /** Key for the String extra that holds the detailed category to filter by. */
         const val EXTRA_CATEGORY = "category"
+        /** Key for the Long extra that holds the location ID to filter by. */
+        const val EXTRA_LOCATION_ID = "location_id"
 
         /** Value for EXTRA_LIST_TYPE to show possessed items. */
         const val TYPE_POSSESSED = 1

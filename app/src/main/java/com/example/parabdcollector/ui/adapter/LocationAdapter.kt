@@ -7,7 +7,6 @@ import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ItemLocationBinding
 import com.example.parabdcollector.ui.model.ExpandableLocation
 
@@ -19,10 +18,12 @@ import com.example.parabdcollector.ui.model.ExpandableLocation
  *
  * @param onToggleExpand A lambda function invoked when the user clicks an item to expand or collapse it.
  * @param onEdit A lambda function invoked when the user clicks the edit icon for an item.
+ * @param onItemCountClick A lambda function invoked when the user clicks the item count text.
  */
 class LocationAdapter(
     private val onToggleExpand: (Long) -> Unit,
-    private val onEdit: (Long) -> Unit
+    private val onEdit: (Long) -> Unit,
+    private val onItemCountClick: (Long) -> Unit
 ) : ListAdapter<ExpandableLocation, LocationAdapter.LocationViewHolder>(DiffCallback) {
 
     /**
@@ -47,6 +48,12 @@ class LocationAdapter(
         // Clicking the edit icon triggers the edit action.
         holder.binding.editIcon.setOnClickListener { 
             onEdit(current.location.id)
+        }
+        // Clicking the item count text triggers the navigation to the item list.
+        holder.binding.locationItemCount.setOnClickListener {
+            if (current.itemCount > 0) {
+                onItemCountClick(current.location.id)
+            }
         }
         holder.bind(current)
     }

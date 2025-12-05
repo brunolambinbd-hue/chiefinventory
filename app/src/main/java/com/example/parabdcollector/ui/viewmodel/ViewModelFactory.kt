@@ -46,6 +46,8 @@ class ViewModelFactory(
                 EditItemViewModel(application, collectionRepository, locationRepository) as T
             modelClass.isAssignableFrom(InventoryViewModel::class.java) ->
                 InventoryViewModel(application, collectionRepository) as T
+            modelClass.isAssignableFrom(BackupViewModel::class.java) ->
+                BackupViewModel(application) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

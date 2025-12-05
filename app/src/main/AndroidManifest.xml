@@ -39,6 +39,7 @@
             android:theme="@style/Theme.ParaBDCollector.FullScreen" />
         <activity android:name=".ui.actvity.InventoryScannerActivity" />
         <activity android:name=".ui.actvity.InventoryResultActivity" />
+        <activity android:name=".ui.actvity.BackupActivity" />
 
         <!-- Déclaration de l'activité de la librairie de recadrage avec un thème approprié -->
         <activity

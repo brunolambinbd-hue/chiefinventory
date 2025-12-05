@@ -40,6 +40,15 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     /**
+     * Retrieves all items for a given location ID.
+     * @param locationId The ID of the location.
+     * @return A [LiveData] list of items in that location.
+     */
+    fun getItemsByLocationId(locationId: Long): LiveData<List<CollectionItem>> {
+        return collectionDao.getItemsByLocationId(locationId)
+    }
+
+    /**
      * Computes and returns live statistics about the state of image embeddings in the collection.
      * This is a transformation on the `getAll()` LiveData.
      * @return A [LiveData] object containing the [SignatureStats].
