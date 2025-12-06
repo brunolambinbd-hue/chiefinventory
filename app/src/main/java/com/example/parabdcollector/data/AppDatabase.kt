@@ -58,5 +58,17 @@ abstract class AppDatabase : RoomDatabase() {
                 instance
             }
         }
+
+        /**
+         * Closes the database connection and invalidates the singleton instance.
+         *
+         * This is a critical step to perform before any operation that replaces the database file,
+         * such as a restore from backup. It ensures that the app "forgets" the old database
+         * and is forced to create a fresh connection on next access.
+         */
+        fun closeInstance() {
+            INSTANCE?.close()
+            INSTANCE = null
+        }
     }
 }

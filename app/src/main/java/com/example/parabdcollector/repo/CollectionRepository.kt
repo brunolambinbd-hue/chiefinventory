@@ -256,43 +256,47 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     /**
-     * Returns statistical information about super-categories for either possessed or sought items.
-     * This implementation ensures that ALL super-categories are displayed, even those with a count of 0.
-     * @param isPossessed True to get stats for possessed items, false for sought items.
+     * Returns statistical information about super-categories, including possessed and total counts.
+     * This implementation ensures that ALL super-categories from the [CategoryMapper] are displayed,
+     * even those with a total count of 0.
      * @return A [LiveData] list of [CategoryInfo] objects.
      */
-    fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>> {
+    fun getSuperCategoryInfo(): LiveData<List<CategoryInfo>> {
         val allSuperCategories = CategoryMapper.getSuperCategories()
-        val categoryInfoFromDb = collectionDao.getSuperCategoryInfo(isPossessed)
+        val categoryInfoFromDb = collectionDao.getSuperCategoryInfo()
 
         return categoryInfoFromDb.map { dbCounts ->
             val dbCountsMap = dbCounts.associateBy { it.name }
             allSuperCategories.map { superCategoryName ->
+                val counts = dbCountsMap[superCategoryName]
                 CategoryInfo(
                     name = superCategoryName,
-                    count = dbCountsMap[superCategoryName]?.count ?: 0
+                    possessedCount = counts?.possessedCount ?: 0,
+                    totalCount = counts?.totalCount ?: 0
                 )
-            }.filter { it.count > 0 } // On ne garde que les catégories qui ont au moins un élément
+            }
         }
     }
 
     /**
      * Returns statistical information about detailed categories within a given super-category.
-     * This implementation ensures that ALL sub-categories are displayed, even those with a count of 0.
+     * This implementation ensures that ALL sub-categories from the [CategoryMapper] are displayed,
+     * even those with a total count of 0.
      * @param superCategory The name of the super-category to filter by.
-     * @param isPossessed True to get stats for possessed items, false for sought items.
      * @return A [LiveData] list of [CategoryInfo] objects.
      */
-    fun getCategoryInfoForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<CategoryInfo>> {
+    fun getCategoryInfoForSuperCategory(superCategory: String): LiveData<List<CategoryInfo>> {
         val allSubCategories = CategoryMapper.getCategoriesFor(superCategory)
-        val categoryInfoFromDb = collectionDao.getCategoryInfoForSuperCategory(superCategory, isPossessed)
+        val categoryInfoFromDb = collectionDao.getCategoryInfoForSuperCategory(superCategory)
 
         return categoryInfoFromDb.map { dbCounts ->
             val dbCountsMap = dbCounts.associateBy { it.name }
             allSubCategories.map { subCategoryName ->
+                val counts = dbCountsMap[subCategoryName]
                 CategoryInfo(
                     name = subCategoryName,
-                    count = dbCountsMap[subCategoryName]?.count ?: 0
+                    possessedCount = counts?.possessedCount ?: 0,
+                    totalCount = counts?.totalCount ?: 0
                 )
             }
         }

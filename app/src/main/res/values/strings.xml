@@ -11,6 +11,8 @@
     <string name="possessed_items_title" tools:ignore="UnusedResources">Mes Produits (%1$d)</string>
     <string name="sought_items_title" tools:ignore="UnusedResources">Mes Recherches (%1$d)</string>
     <string name="category_item_format">%1$s (%2$d)</string>
+    <string name="category_item_format_sought">%1$s (%2$d / %3$d)</string>
+    <string name="location_item_count_format">(%1$d)</string>
 
     <!-- Strings pour le tableau de bord -->
     <string name="total_items_label">Objets Totaux: %1$d</string>
@@ -27,7 +29,7 @@
     <string name="edit_location_description">Modifier l\'emplacement</string>
     <string name="child_location_indicator" translatable="false">└─ </string>
 
-    <!-- Textes pour l\'écran d\'édition -->
+    <!-- Textes pour l'écran d\'édition -->
     <string name="edit_item_title_new">Nouvel Objet</string>
     <string name="edit_item_title_editing">Édition : %1$s</string>
     <string name="take_picture_button">Prendre une photo</string>
@@ -80,6 +82,10 @@
     <string name="refine_search_title">Affiner la recherche</string>
     <string name="new_search_title">Nouvelle recherche</string>
     <string name="locations_management_title">Gestion des emplacements</string>
+
+    <!-- Sauvegarde et Restauration -->
+    <string name="backup_button_backup">Sauvegarder la collection</string>
+    <string name="backup_button_restore">Restaurer une sauvegarde</string>
 
     <!-- Messages (Toast) -->
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>

@@ -70,6 +70,7 @@
     <string name="menu_searches_title">Mes Recherches</string>
     <string name="menu_locations_title">Mes Emplacements</string>
     <string name="menu_import_title">Importer / Mettre à jour</string>
+    <string name="menu_backup_title">Sauvegarde / Restauration</string>
     <string name="refine_search_title">Affiner la recherche</string>
 
     <!-- Messages (Toast) -->
@@ -106,6 +107,8 @@
     <string name="expand_location_description">Déplier/Replier l\'emplacement</string>
     <string name="edit_location_description">Modifier l\'emplacement</string>
     <string name="new_search_title">Nouvelle recherche</string>
+    <string name="scan_inventory">Scanner l\'inventaire</string>
+    <string name="inventory_for_location">Inventaire pour : %1$s</string>
 
 
 </resources>

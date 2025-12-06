@@ -245,7 +245,7 @@ class EditItemActivity : AppCompatActivity() {
         }
 
         if (!item.superCategorie.isNullOrBlank()) {
-            val categories = CategoryMapper.getCategoriesFor(item.superCategorie!!)
+            val categories = CategoryMapper.getCategoriesFor(item.superCategorie)
             val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, categories)
             binding.etCategory.setAdapter(categoryAdapter)
             binding.categoryLayout.isEnabled = true

@@ -7,6 +7,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ItemLocationBinding
 import com.example.parabdcollector.ui.model.ExpandableLocation
 
@@ -40,27 +41,30 @@ class LocationAdapter(
     override fun onBindViewHolder(holder: LocationViewHolder, position: Int) {
         val current = getItem(position)
         
-        // The entire item view is now a primary click target.
-        holder.itemView.setOnClickListener { 
-            when {
-                // Priority 1: If the location has children, clicking it toggles expansion.
-                current.hasChildren -> onToggleExpand(current.location.id)
-                // Priority 2: If no children but has items, clicking it shows the item list.
-                current.itemCount > 0 -> onItemCountClick(current.location.id)
+        // The expand icon's only job is to toggle expansion.
+        holder.binding.expandIcon.setOnClickListener {
+            if (current.hasChildren) {
+                onToggleExpand(current.location.id)
             }
         }
+
+        // Clicking the main body of the row navigates to the item list.
+        val navigationClickListener = View.OnClickListener {
+            if (current.itemCount > 0) {
+                onItemCountClick(current.location.id)
+            }
+        }
+        holder.binding.locationName.setOnClickListener(navigationClickListener)
+        holder.binding.locationItemCount.setOnClickListener(navigationClickListener)
 
         // The edit icon retains its specific, separate action.
         holder.binding.editIcon.setOnClickListener { 
             onEdit(current.location.id)
         }
 
-        // The item count text also navigates, reinforcing the affordance.
-        holder.binding.locationItemCount.setOnClickListener {
-            if (current.itemCount > 0) {
-                onItemCountClick(current.location.id)
-            }
-        }
+        // Nullify the parent listener to avoid conflicting behaviors
+        holder.itemView.setOnClickListener(null)
+        
         holder.bind(current)
     }
 
@@ -96,7 +100,7 @@ class LocationAdapter(
             // Display the item count if it's greater than zero.
             if (item.itemCount > 0) {
                 binding.locationItemCount.visibility = View.VISIBLE
-                binding.locationItemCount.text = "(${item.itemCount})"
+                binding.locationItemCount.text = binding.root.context.getString(R.string.location_item_count_format, item.itemCount)
             } else {
                 binding.locationItemCount.visibility = View.GONE
             }

@@ -119,21 +119,37 @@ interface CollectionDao {
     suspend fun advancedSearch(query: SupportSQLiteQuery): List<CollectionItem>
 
     /**
-     * Groups items by super-category and counts them.
-     * @param isPossessed True to count possessed items, false for sought items.
+     * Groups items by super-category and provides counts for both possessed and total items.
      * @return A [LiveData] list of [CategoryInfo] objects for super-categories.
      */
-    @Query("SELECT superCategorie as name, COUNT(*) as count FROM collection_items WHERE isPossessed = :isPossessed AND superCategorie IS NOT NULL AND superCategorie != '' GROUP BY superCategorie ORDER BY superCategorie ASC")
-    fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>>
+    @Query("""
+        SELECT 
+            superCategorie as name, 
+            SUM(isPossessed) as possessedCount, 
+            COUNT(*) as totalCount 
+        FROM collection_items 
+        WHERE superCategorie IS NOT NULL AND superCategorie != '' 
+        GROUP BY superCategorie 
+        ORDER BY superCategorie ASC
+    """)
+    fun getSuperCategoryInfo(): LiveData<List<CategoryInfo>>
 
     /**
-     * Groups items by detailed category within a given super-category and counts them.
+     * Groups items by detailed category within a given super-category, providing possessed and total counts.
      * @param superCategory The super-category to filter by.
-     * @param isPossessed True to count possessed items, false for sought items.
      * @return A [LiveData] list of [CategoryInfo] objects for detailed categories.
      */
-    @Query("SELECT categorie as name, COUNT(*) as count FROM collection_items WHERE superCategorie = :superCategory AND isPossessed = :isPossessed AND categorie IS NOT NULL AND categorie != '' GROUP BY categorie ORDER BY categorie ASC")
-    fun getCategoryInfoForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<CategoryInfo>>
+    @Query("""
+        SELECT 
+            categorie as name, 
+            SUM(isPossessed) as possessedCount, 
+            COUNT(*) as totalCount 
+        FROM collection_items 
+        WHERE superCategorie = :superCategory AND categorie IS NOT NULL AND categorie != '' 
+        GROUP BY categorie 
+        ORDER BY categorie ASC
+    """)
+    fun getCategoryInfoForSuperCategory(superCategory: String): LiveData<List<CategoryInfo>>
 
     /**
      * Selects all items belonging to a specific super-category and detailed category.

@@ -30,22 +30,20 @@ class MainViewModel(private val repository: CollectionRepository) : ViewModel() 
     val signatureStats: LiveData<SignatureStats> = repository.getSignatureStats()
 
     /**
-     * Returns statistical information about super-categories for either possessed or sought items.
-     * @param isPossessed True to get stats for possessed items, false for sought items.
-     * @return A [LiveData] list of [CategoryInfo] objects.
+     * Returns statistical information about super-categories.
+     * @return A [LiveData] list of [CategoryInfo] objects with possessed and total counts.
      */
-    fun getSuperCategoryInfo(isPossessed: Boolean): LiveData<List<CategoryInfo>> {
-        return repository.getSuperCategoryInfo(isPossessed)
+    fun getSuperCategoryInfo(): LiveData<List<CategoryInfo>> {
+        return repository.getSuperCategoryInfo()
     }
 
     /**
      * Returns statistical information about detailed categories within a given super-category.
      * @param superCategory The name of the super-category to filter by.
-     * @param isPossessed True to get stats for possessed items, false for sought items.
-     * @return A [LiveData] list of [CategoryInfo] objects.
+     * @return A [LiveData] list of [CategoryInfo] objects with possessed and total counts.
      */
-    fun getCategoryInfoForSuperCategory(superCategory: String, isPossessed: Boolean): LiveData<List<CategoryInfo>> {
-        return repository.getCategoryInfoForSuperCategory(superCategory, isPossessed)
+    fun getCategoryInfoForSuperCategory(superCategory: String): LiveData<List<CategoryInfo>> {
+        return repository.getCategoryInfoForSuperCategory(superCategory)
     }
 
     /**

@@ -75,6 +75,7 @@
     <string name="menu_searches_title">My Searches</string>
     <string name="menu_locations_title">My Locations</string>
     <string name="menu_import_title">Import / Update</string>
+    <string name="menu_backup_title">Backup/Restore</string>
     <string name="refine_search_title">Refine search</string>
     <string name="new_search_title">New search</string>
     <string name="locations_management_title">Location Management</string>
@@ -108,5 +109,7 @@
     <string name="ajouter_un_sous_emplacement">Ajouter un sous-emplacement</string>
     <string name="changer_de_parent">Changer de parent</string>
     <string name="supprimer">Supprimer</string>
+    <string name="scan_inventory">scan_inventory</string>
+    <string name="inventory_for_location">inventory_for_location</string>
 
 </resources>

@@ -39,7 +39,6 @@ class CategoryListActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // CORRECTIF : Lire la bonne clé d'Intent ("list_type") envoyée par MainActivity.
         val listType = intent.getIntExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_POSSESSED)
         isPossessed = listType == ItemListActivity.TYPE_POSSESSED
         superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
@@ -55,10 +54,10 @@ class CategoryListActivity : AppCompatActivity() {
     private fun observeViewModel() {
         if (superCategory == null) {
             supportActionBar?.title = if (isPossessed) "Mes Produits" else "Mes Recherches"
-            viewModel.getSuperCategoryInfo(isPossessed).observe(this) { adapter.submitList(it) }
+            viewModel.getSuperCategoryInfo().observe(this) { adapter.submitList(it) }
         } else {
             supportActionBar?.title = superCategory
-            viewModel.getCategoryInfoForSuperCategory(superCategory!!, isPossessed).observe(this) { adapter.submitList(it) }
+            viewModel.getCategoryInfoForSuperCategory(superCategory!!).observe(this) { adapter.submitList(it) }
         }
     }
 
@@ -66,7 +65,8 @@ class CategoryListActivity : AppCompatActivity() {
      * Initializes the RecyclerView and its adapter, and defines the click handling logic.
      */
     private fun setupRecyclerView() {
-        adapter = CategoryAdapter { categoryName ->
+        val isSoughtMode = !isPossessed
+        adapter = CategoryAdapter(isSoughtMode) { categoryName ->
             if (superCategory == null) {
                 handleSuperCategoryClick(categoryName)
             } else {
