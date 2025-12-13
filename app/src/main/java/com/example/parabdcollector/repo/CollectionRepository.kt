@@ -72,7 +72,7 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
                     else -> valid++
                 }
             }
-            Log.i("SignatureStats", "Calcul terminé: Valides=$valid, Vides=$empty, Manquantes=$missing, Total=$total")
+            Log.i("SignatureStats", "Calculation complete: Valid=$valid, Empty=$empty, Missing=$missing, Total=$total")
             SignatureStats(total, valid, empty, missing)
         }
     }

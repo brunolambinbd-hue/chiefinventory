@@ -88,7 +88,6 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         description = description,
                         imageUri = imageUrl,
                         imageEmbedding = existingItem?.imageEmbedding, // On préserve l'ancienne signature
-                        locationId = null,
                         isPossessed = false // <<<<<<<<<< CHANGEMENT : Par défaut, on ne possède pas l'objet
                     )
 

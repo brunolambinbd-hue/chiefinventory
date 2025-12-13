@@ -62,7 +62,7 @@ object SignatureUtils {
      * @param bytes The raw byte array from the database.
      * @return The resulting [FloatArray].
      */
-    @Suppress("UseGetOrSet")
+    @Suppress("UseGetOrSet", "kotlin:S3776")
     private fun toFloatArray(bytes: ByteArray): FloatArray {
         val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
         val floatArray = FloatArray(bytes.size / 4)

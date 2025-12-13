@@ -2,10 +2,12 @@ package com.example.parabdcollector.ui.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.parabdcollector.R
 import com.example.parabdcollector.data.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,8 +33,8 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun backupDatabase(destinationUri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
+            val context = getApplication<Application>()
             try {
-                val context = getApplication<Application>()
                 val dbFile = context.getDatabasePath(AppDatabase.DATABASE_NAME)
 
                 context.contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
@@ -40,10 +42,10 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
                         inputStream.copyTo(outputStream)
                     }
                 }
-                _operationStatus.postValue("Sauvegarde réussie !")
+                _operationStatus.postValue(context.getString(R.string.backup_success))
             } catch (e: Exception) {
-                e.printStackTrace()
-                _operationStatus.postValue("Échec de la sauvegarde : ${e.message}")
+                Log.e(TAG, "Backup failed", e)
+                _operationStatus.postValue(context.getString(R.string.backup_failed, e.message))
             }
         }
     }
@@ -63,24 +65,24 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
     fun restoreDatabase(sourceUri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             val context = getApplication<Application>()
-            val dbPath = context.getDatabasePath(AppDatabase.DATABASE_NAME).parent
+            val dbPath = context.getDatabasePath(AppDatabase.DATABASE_NAME).parent ?: return@launch
             val dbFile = File(dbPath, AppDatabase.DATABASE_NAME)
+            val walFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-wal")
+            val shmFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-shm")
 
             // This is the most critical step. We must close the database and clear the singleton
             // instance to ensure the app creates a new connection on next launch.
             AppDatabase.closeInstance()
 
-            // Delete the old database files, including journal files.
-            if (dbFile.exists()) {
-                dbFile.delete()
-            }
-            val walFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-wal")
-            if (walFile.exists()) {
-                walFile.delete()
-            }
-            val shmFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-shm")
-            if (shmFile.exists()) {
-                shmFile.delete()
+            // Delete the old database files. If any deletion fails, abort the restore.
+            val deleteSuccess = (!dbFile.exists() || dbFile.delete()) &&
+                                (!walFile.exists() || walFile.delete()) &&
+                                (!shmFile.exists() || shmFile.delete())
+
+            if (!deleteSuccess) {
+                Log.e(TAG, "Failed to delete one or more old database files. Aborting restore.")
+                _operationStatus.postValue(context.getString(R.string.restore_failed_delete))
+                return@launch
             }
 
             // Now, copy the backup file to the database location.
@@ -90,11 +92,15 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
                         inputStream.copyTo(outputStream)
                     }
                 }
-                _operationStatus.postValue("Restauration réussie ! Veuillez redémarrer l'application.")
+                _operationStatus.postValue(context.getString(R.string.restore_success))
             } catch (e: Exception) {
-                e.printStackTrace()
-                _operationStatus.postValue("Échec de la restauration : ${e.message}")
+                Log.e(TAG, "Restore failed during copy", e)
+                _operationStatus.postValue(context.getString(R.string.restore_failed, e.message))
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "BackupViewModel"
     }
 }

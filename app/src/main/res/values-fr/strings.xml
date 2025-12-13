@@ -75,7 +75,6 @@
     <string name="refine_search_title">Affiner la recherche</string>
 
     <!-- Messages (Toast) -->
-<!--    <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>-->
     <string name="locations_management_title">Gestion des emplacements</string>
     <string name="backup_button_restore">Restaurer une sauvegarde</string>
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>

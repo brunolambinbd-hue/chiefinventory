@@ -88,8 +88,8 @@ class LocationViewModelTest {
     }
 
     @Test
-    fun `toggleExpansion should add and remove id from expanded set`() {
-        // GIVEN: A list of locations is available.
+    fun `toggleExpansion should correctly flip the expanded state`() {
+        // GIVEN: A parent and child location are provided.
         val locations = listOf(
             Location(id = 1, name = "Parent", parentLocationId = null),
             Location(id = 2, name = "Child", parentLocationId = 1)
@@ -97,15 +97,20 @@ class LocationViewModelTest {
         allLocationsLiveData.value = locations
         itemCountLiveData.value = emptyList()
 
-        // WHEN: We toggle a location twice.
-        viewModel.toggleExpansion(1L) // Expand
-        val isExpanded = viewModel.visibleLocations.value?.find { it.location.id == 1L }?.isExpanded
-        
-        viewModel.toggleExpansion(1L) // Collapse
-        val isCollapsed = viewModel.visibleLocations.value?.find { it.location.id == 1L }?.isExpanded
+        // THEN: The parent node should be expanded by default due to the ViewModel's init logic.
+        val isInitiallyExpanded = viewModel.visibleLocations.value?.find { it.location.id == 1L }?.isExpanded
+        assertEquals("Parent should be expanded by default", true, isInitiallyExpanded)
 
-        // THEN: The expanded state should change accordingly.
-        assertEquals(true, isExpanded)
-        assertEquals(false, isCollapsed)
+        // WHEN: We toggle the parent location (which should collapse it).
+        viewModel.toggleExpansion(1L)
+        val isNowCollapsed = viewModel.visibleLocations.value?.find { it.location.id == 1L }?.isExpanded
+
+        // AND WHEN: We toggle it again (which should re-expand it).
+        viewModel.toggleExpansion(1L)
+        val isNowReExpanded = viewModel.visibleLocations.value?.find { it.location.id == 1L }?.isExpanded
+
+        // THEN: The states should have flipped correctly.
+        assertEquals("First toggle should collapse the location", false, isNowCollapsed)
+        assertEquals("Second toggle should expand the location again", true, isNowReExpanded)
     }
 }

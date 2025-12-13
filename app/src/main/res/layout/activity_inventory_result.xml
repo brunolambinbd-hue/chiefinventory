@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
-        android:text="Objet non trouvé ? Créer une nouvelle entrée" />
+        android:text="@string/inventory_create_new_button" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_inventory_results"

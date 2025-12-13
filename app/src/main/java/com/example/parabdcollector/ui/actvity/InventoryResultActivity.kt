@@ -1,12 +1,11 @@
 package com.example.parabdcollector.ui.actvity
 
-import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityInventoryResultBinding
@@ -27,6 +26,7 @@ class InventoryResultActivity : AppCompatActivity() {
 
     private val viewModel: InventoryViewModel by viewModels {
         val app = application as CollectionApplication
+        @Suppress("VisibleForTests")
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
@@ -41,7 +41,13 @@ class InventoryResultActivity : AppCompatActivity() {
 
         locationId = intent.getLongExtra(EXTRA_LOCATION_ID, -1L)
         scannedImageUri = intent.getStringExtra(EXTRA_SCANNED_IMAGE_URI)
-        val similarItems = intent.getParcelableArrayListExtra<SearchResultItem>(EXTRA_SIMILAR_ITEMS)
+        
+        val similarItems = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableArrayListExtra(EXTRA_SIMILAR_ITEMS, SearchResultItem::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableArrayListExtra<SearchResultItem>(EXTRA_SIMILAR_ITEMS)
+        }
 
         setupRecyclerView()
         adapter.submitList(similarItems)
@@ -61,7 +67,7 @@ class InventoryResultActivity : AppCompatActivity() {
         adapter = CollectionAdapter { searchResult ->
             // Mettre à jour l'emplacement et le statut de l'objet
             viewModel.updateItemLocationAndStatus(searchResult.item.id, locationId)
-            setResult(Activity.RESULT_OK)
+            setResult(RESULT_OK)
             finish()
         }
         binding.rvInventoryResults.adapter = adapter

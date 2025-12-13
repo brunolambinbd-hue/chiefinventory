@@ -226,12 +226,12 @@ class LocationManagementActivity : AppCompatActivity() {
     private fun showDeleteConfirmationDialog(location: Location) {
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.supprimer_l_emplacement))
-            .setMessage("Êtes-vous sûr de vouloir supprimer \"${location.name}\"? Cette action est irréversible.")
-            .setPositiveButton("Supprimer") { dialog, _ ->
+            .setMessage(getString(R.string.delete_location_confirmation_message, location.name))
+            .setPositiveButton(getString(R.string.supprimer)) { dialog, _ ->
                 viewModel.delete(location)
                 dialog.dismiss()
             }
-            .setNegativeButton("Annuler", null)
+            .setNegativeButton(getString(R.string.annuler), null)
             .show()
     }
 
@@ -244,8 +244,7 @@ class LocationManagementActivity : AppCompatActivity() {
                 viewModel.toggleExpansion(locationId)
             },
             onEdit = { locationId ->
-                val location =
-                    locationAdapter.currentList.find { it.location.id == locationId }?.location
+                val location = locationAdapter.currentList.find { it.location.id == locationId }?.location
                 location?.let { showLocationOptionsDialog(it) }
             },
             onItemCountClick = { locationId ->

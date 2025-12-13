@@ -1,7 +1,6 @@
 package com.example.parabdcollector.ui.actvity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -10,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityInventoryScannerBinding
-import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.ui.viewmodel.InventoryViewModel
 import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 import com.example.parabdcollector.utils.BitmapUtils

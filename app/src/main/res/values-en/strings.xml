@@ -84,11 +84,16 @@
     <!-- Backup and Restore -->
     <string name="backup_button_backup">Backup</string>
     <string name="backup_button_restore">Restore</string>
-    <string name="version_info_format">App v%1$s (DB v%2$d)\nAPI URL: %3$s</string>
+    <string name="backup_success">Backup successful!</string>
+    <string name="backup_failed">Backup failed: %1$s</string>
+    <string name="restore_success">Restore successful! Please restart the application.</string>
+    <string name="restore_failed">Restore failed: %1$s</string>
+    <string name="restore_failed_delete">Restore failed: could not delete old database files.</string>
 
     <!-- Toast Messages -->
     <string name="toast_camera_permission_denied">Camera permission denied</string>
     <string name="toast_title_is_mandatory">Title is mandatory</string>
+    <string name="toast_crop_error">Cropping error: %1$s</string>
     <string name="rapport_signatures">Signature Report</string>
 
     <!-- Signature Report -->
@@ -108,14 +113,19 @@
     <string name="annuler">Cancel</string>
     <string name="la_racine">Root</string>
     <string name="nouvel_emplacement">New location</string>
-    <string name="nouveau_sous_emplacement_pour">New sub-location</string>
+    <string name="nouveau_sous_emplacement_pour">New sub-location for "%1$s"</string>
     <string name="modifier_l_emplacement">Modify location</string>
     <string name="supprimer_l_emplacement">Remove the location</string>
+    <string name="delete_location_confirmation_message">Are you sure you want to delete "%1$s"? This action is irreversible.</string>
     <string name="modifier_le_nom">Modify the name</string>
     <string name="ajouter_un_sous_emplacement">Add a sub-location</string>
     <string name="changer_de_parent">Change of parent</string>
     <string name="supprimer">Remove</string>
     <string name="scan_inventory">Inventory par scan</string>
+
+    <!-- Inventory Scanner -->
     <string name="inventory_for_location">Inventory for : %1$s</string>
+    <string name="inventory_create_new_button">Item not found? Create a new entry</string>
+    <string name="scan_item_button">Scan an item</string>
 
 </resources>

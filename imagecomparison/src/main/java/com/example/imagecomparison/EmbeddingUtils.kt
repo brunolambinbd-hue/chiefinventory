@@ -1,5 +1,6 @@
 package com.example.imagecomparison // Changed package name
 
+import android.util.Log
 import com.google.mediapipe.tasks.components.containers.Embedding
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -49,6 +50,8 @@ data class MyEmbedding(
  */
 object EmbeddingUtils {
 
+    private const val TAG = "EmbeddingUtils"
+
     /**
      * Converts a MediaPipe [Embedding] object to a [ByteArray] for database storage.
      *
@@ -68,10 +71,8 @@ object EmbeddingUtils {
         // Sinon, on vérifie l'embedding float
         val floats = embedding.floatEmbedding()
 
-        // Vérification cruciale : si le tableau de floats est nul ou vide, c'est une erreur.
-        if (floats == null || floats.isEmpty()) {
-            throw IllegalArgumentException("L'embedding est vide ou nul, impossible de le convertir.")
-        }
+        // Crucial check: if the float array is null or empty, this is an error.
+        require(floats != null && floats.isNotEmpty()) { "Embedding is null or empty, cannot convert." }
 
         val buffer = ByteBuffer.allocate(floats.size * 4).order(ByteOrder.LITTLE_ENDIAN)
         for (f in floats) buffer.putFloat(f)
@@ -92,7 +93,7 @@ object EmbeddingUtils {
             val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
             val floats = FloatArray(bytes.size / 4)
             for (i in floats.indices) floats[i] = buffer.getFloat()
-            MyEmbedding(floatValues = floats, isQuantized = false)
+            MyEmbedding(floatValues = floats)
         }
     }
 
@@ -105,6 +106,6 @@ object EmbeddingUtils {
         val bytes = embeddingToByteArray(embedding)
         val restored = byteArrayToMyEmbedding(bytes, fromQuantized = embedding.quantizedEmbedding() != null)
 
-        println("Original : ${bytes.size} bytes, restauré : ${if (restored.isQuantized) "quantized" else "float"}")
+        Log.d(TAG, "Original : ${bytes.size} bytes, restauré : ${if (restored.isQuantized) "quantized" else "float"}")
     }
 }

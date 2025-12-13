@@ -51,6 +51,9 @@ android {
     testOptions {
         animationsDisabled = true
         unitTests.isReturnDefaultValues = true // Ajout pour mocker les classes Android dans les tests unitaires
+        unitTests.all {
+            it.jvmArgs("-XX:+EnableDynamicAgentLoading")
+        }
     }
 }
 

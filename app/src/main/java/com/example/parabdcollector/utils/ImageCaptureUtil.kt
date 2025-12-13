@@ -49,7 +49,7 @@ class ImageCaptureUtil(
         } else {
             // Handle cropping error.
             val exception = result.error
-            Toast.makeText(activity, "Erreur de recadrage: ${exception?.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, activity.getString(R.string.toast_crop_error, exception?.message), Toast.LENGTH_SHORT).show()
             onImageReady(null)
         }
     }

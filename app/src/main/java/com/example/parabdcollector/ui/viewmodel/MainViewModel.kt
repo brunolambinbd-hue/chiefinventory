@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.ui.actvity.ItemListActivity
+import com.example.parabdcollector.ui.actvity.MainActivity
 import com.example.parabdcollector.ui.model.CategoryInfo
 
 /**

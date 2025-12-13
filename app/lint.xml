@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Ignore all checks in the build folder -->
+    <issue id="all">
+        <ignore path="**/build/**" />
+    </issue>
+
+    <!-- Ignore all checks in generated files -->
+    <issue id="all">
+        <ignore path="**/generated/**" />
+    </issue>
+</lint>
