@@ -33,6 +33,7 @@ class CategoryListActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
+        @Suppress("VisibleForTests")
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
@@ -146,6 +147,7 @@ class CategoryListActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    @Suppress("KDocMissingDocumentation")
     companion object {
         /** Key for the string extra that holds the name of the super-category to display. */
         const val EXTRA_SUPER_CATEGORY = "super_category"

@@ -46,6 +46,7 @@ class SearchActivity : AppCompatActivity() {
 
     private val viewModel: SearchViewModel by viewModels {
         val app = application as CollectionApplication
+        @Suppress("VisibleForTests")
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 

@@ -33,6 +33,7 @@ class ItemListActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
+        @Suppress("VisibleForTests")
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
@@ -66,15 +67,14 @@ class ItemListActivity : AppCompatActivity() {
                 }
             }
             superCategory != null && category != null -> {
-                val titleText = category
                 val contextText = if (rootTitle != null) " ($rootTitle)" else ""
-                val fullTitle = titleText + contextText
+                val fullTitle = category + contextText
                 val spannable = SpannableString(fullTitle)
 
                 if (contextText.isNotEmpty()) {
                     spannable.setSpan(
                         RelativeSizeSpan(0.8f),
-                        titleText.length,
+                        category.length,
                         fullTitle.length,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
@@ -126,6 +126,8 @@ class ItemListActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+
 
     companion object {
         /** Key for the Int extra that determines the general list type (possessed or sought). */

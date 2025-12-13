@@ -84,7 +84,7 @@
     <!-- Backup and Restore -->
     <string name="backup_button_backup">Backup</string>
     <string name="backup_button_restore">Restore</string>
-    <string name="version_info_format">App v%1$s (DB v%2$s)\nAPI URL: %3$s</string>
+    <string name="version_info_format">App v%1$s (DB v%2$d)\nAPI URL: %3$s</string>
 
     <!-- Toast Messages -->
     <string name="toast_camera_permission_denied">Camera permission denied</string>
@@ -115,7 +115,7 @@
     <string name="ajouter_un_sous_emplacement">Add a sub-location</string>
     <string name="changer_de_parent">Change of parent</string>
     <string name="supprimer">Remove</string>
-    <string name="scan_inventory">Invantory par scan</string>
-    <string name="inventory_for_location">Invantory for : %1$s</string>
+    <string name="scan_inventory">Inventory par scan</string>
+    <string name="inventory_for_location">Inventory for : %1$s</string>
 
 </resources>
