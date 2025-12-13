@@ -147,11 +147,11 @@ class CategoryListActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    @Suppress("KDocMissingDocumentation")
+    @Suppress("RedundantVisibilityModifier")
     companion object {
         /** Key for the string extra that holds the name of the super-category to display. */
-        const val EXTRA_SUPER_CATEGORY = "super_category"
+        public const val EXTRA_SUPER_CATEGORY = "super_category"
         /** Key for the string extra that holds the root title for context (e.g., "Mes Produits"). */
-        const val EXTRA_ROOT_TITLE = "root_title"
+        public const val EXTRA_ROOT_TITLE = "root_title"
     }
 }
