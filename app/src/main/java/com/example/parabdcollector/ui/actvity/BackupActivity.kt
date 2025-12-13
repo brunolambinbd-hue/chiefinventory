@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parabdcollector.BuildConfig
 import com.example.parabdcollector.CollectionApplication
+import com.example.parabdcollector.R
 import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.databinding.ActivityBackupBinding
 import com.example.parabdcollector.ui.viewmodel.BackupViewModel
@@ -87,15 +88,18 @@ class BackupActivity : AppCompatActivity() {
     }
 
     /**
-     * Retrieves and displays the application and database version numbers in the UI.
+     * Retrieves and displays the application version, database version, and API URL in the UI.
      */
     private fun displayVersionInfo() {
         // Retrieve app version from BuildConfig
         val appVersion = BuildConfig.VERSION_NAME
         // Retrieve database version from our AppDatabase constant
         val dbVersion = AppDatabase.DATABASE_VERSION
-        // Format the string and set it to the TextView
-        binding.tvVersionInfo.text = "App v$appVersion (DB v$dbVersion)"
+        // Retrieve API URL from BuildConfig
+        val apiUrl = BuildConfig.API_URL
+
+        // Format the string using the resource and set it to the TextView
+        binding.tvVersionInfo.text = getString(R.string.version_info_format, appVersion, dbVersion, apiUrl)
     }
 
     /**

@@ -11,6 +11,7 @@
     <string name="category_item_format">%1$s (%2$d)</string>
 
     <!-- Strings pour le tableau de bord -->
+    <string name="location_items_title">Objets dans l\'emplacement</string>
     <string name="total_items_label">Objets Totaux: %1$d</string>
     <string name="possessed_items_label">Objets Possédés: %1$d</string>
     <string name="sought_items_label">Objets Recherchés: %1$d</string>

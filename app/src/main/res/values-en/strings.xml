@@ -14,6 +14,7 @@
     <string name="category_item_format">%1$s (%2$d)</string>
 
     <!-- Dashboard -->
+    <string name="location_items_title">Objects in location</string>
     <string name="total_items_label">Total Items: %1$d</string>
     <string name="possessed_items_label">Possessed Items: %1$d</string>
     <string name="sought_items_label">Sought Items: %1$d</string>
@@ -79,9 +80,13 @@
     <string name="refine_search_title">Refine search</string>
     <string name="new_search_title">New search</string>
     <string name="locations_management_title">Location Management</string>
+    
+    <!-- Backup and Restore -->
+    <string name="backup_button_backup">Backup</string>
+    <string name="backup_button_restore">Restore</string>
+    <string name="version_info_format">App v%1$s (DB v%2$s)\nAPI URL: %3$s</string>
 
     <!-- Toast Messages -->
-    <string name="backup_button_restore">Restotre</string>
     <string name="toast_camera_permission_denied">Camera permission denied</string>
     <string name="toast_title_is_mandatory">Title is mandatory</string>
     <string name="rapport_signatures">Signature Report</string>
@@ -112,6 +117,5 @@
     <string name="supprimer">Remove</string>
     <string name="scan_inventory">Invantory par scan</string>
     <string name="inventory_for_location">Invantory for : %1$s</string>
-    <string name="backup_button_backup">Backup</string>
 
 </resources>

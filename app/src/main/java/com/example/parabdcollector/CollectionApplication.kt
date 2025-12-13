@@ -18,22 +18,20 @@ open class CollectionApplication : Application() {
      * Lazily-initialized singleton instance of the Room database.
      */
     val database by lazy { AppDatabase.getDatabase(this) }
-    
+
     /**
      * The singleton instance of the [CollectionRepository].
-     * This property is `open` and has a public setter annotated with [VisibleForTesting]
-     * to allow a mock or test-specific repository to be injected during instrumented tests.
+     * This property is `open` for testing and `internal` to restrict access to this module.
      */
     @VisibleForTesting
-    open var repository: CollectionRepository? = null
+    internal open var repository: CollectionRepository? = null
         get() = field ?: CollectionRepository(database.collectionDao())
 
     /**
      * The singleton instance of the [LocationRepository].
-     * This property is `open` and has a public setter annotated with [VisibleForTesting]
-     * to allow a mock or test-specific repository to be injected during instrumented tests.
+     * This property is `open` for testing and `internal` to restrict access to this module.
      */
     @VisibleForTesting
-    open var locationRepository: LocationRepository? = null
+    internal open var locationRepository: LocationRepository? = null
         get() = field ?: LocationRepository(database.locationDao())
 }

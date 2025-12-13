@@ -11,8 +11,8 @@
     <string name="possessed_items_title" tools:ignore="UnusedResources">Mes Produits (%1$d)</string>
     <string name="sought_items_title" tools:ignore="UnusedResources">Mes Recherches (%1$d)</string>
     <string name="category_item_format">%1$s (%2$d)</string>
-    <string name="category_item_format_sought">%1$s (%2$d / %3$d)</string>
-    <string name="location_item_count_format">(%1$d)</string>
+    <string name="category_item_format_sought" translatable="false">%1$s (%2$d / %3$d)</string>
+    <string name="location_item_count_format" translatable="false">(%1$d)</string>
     <string name="location_items_title">Objets dans l\'emplacement</string>
 
     <!-- Strings pour le tableau de bord -->
@@ -87,6 +87,7 @@
     <!-- Sauvegarde et Restauration -->
     <string name="backup_button_backup">Sauvegarder la collection</string>
     <string name="backup_button_restore">Restaurer une sauvegarde</string>
+    <string name="version_info_format" translatable="false">App v%1$s (DB v%2$d)\nAPI URL: %3$s</string>
 
     <!-- Messages (Toast) -->
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>

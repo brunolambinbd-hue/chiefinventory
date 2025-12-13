@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Couleurs sémantiques pour le thème -->
-    <color name="colorPrimary">#FF6200EE</color>
-    <color name="colorPrimaryVariant">#FF3700B3</color>
-    <color name="colorOnPrimary">#FFFFFFFF</color>
+    <!-- Thème Vert Forêt -->
+    <color name="colorPrimary">#FF2E7D32</color> <!-- Vert Forêt Foncé -->
+    <color name="colorPrimaryVariant">#FF1B5E20</color> <!-- Vert Forêt Très Foncé (pour la status bar) -->
+    <color name="colorOnPrimary">#FFFFFFFF</color> <!-- Texte sur le vert (blanc) -->
 
-    <color name="colorSecondary">#FF03DAC5</color>
-    <color name="colorSecondaryVariant">#FF018786</color>
-    <color name="colorOnSecondary">#FF000000</color>
+    <color name="colorSecondary">#FF4CAF50</color> <!-- Vert Moyen (pour les accents) -->
+    <color name="colorSecondaryVariant">#FF388E3C</color> <!-- Variante du vert moyen -->
+    <color name="colorOnSecondary">#FF000000</color> <!-- Texte sur le vert moyen (noir) -->
+
+    <!-- Couleur d'erreur personnalisée avec un meilleur contraste sur le vert -->
+    <color name="colorError">#FFC107</color> <!-- Ambre -->
+    <color name="colorOnError">#FF000000</color> <!-- Texte sur l'ambre (noir) -->
 
     <!-- Couleurs de statut -->
     <color name="status_error">#FFFF0000</color> <!-- Rouge -->
     <color name="status_warning">#FFFFA500</color> <!-- Orange -->
-    <color name="status_ok">#FF008000</color> <!-- Vert -->
+    <color name="status_ok">#FF008000</color> <!-- Vert (déjà ok) -->
 
 </resources>
