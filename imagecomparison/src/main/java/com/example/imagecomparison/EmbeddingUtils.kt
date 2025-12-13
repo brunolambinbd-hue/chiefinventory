@@ -62,6 +62,7 @@ object EmbeddingUtils {
      * @return A [ByteArray] representation of the embedding.
      * @throws IllegalArgumentException if the embedding is null or empty.
      */
+    @Suppress("kotlin:S6529") // isNullOrEmpty() is not available for FloatArray, so this check is necessary.
     fun embeddingToByteArray(embedding: Embedding): ByteArray {
         // Vérifie d'abord l'embedding quantifié
         embedding.quantizedEmbedding()?.let {
@@ -69,13 +70,13 @@ object EmbeddingUtils {
         }
 
         // Sinon, on vérifie l'embedding float
-        val floats = embedding.floatEmbedding()
+        val floatArray = embedding.floatEmbedding()
 
         // Crucial check: if the float array is null or empty, this is an error.
-        require(floats != null && floats.isNotEmpty()) { "Embedding is null or empty, cannot convert." }
+        require(floatArray != null && floatArray.isNotEmpty()) { "Embedding is null or empty, cannot convert." }
 
-        val buffer = ByteBuffer.allocate(floats.size * 4).order(ByteOrder.LITTLE_ENDIAN)
-        for (f in floats) buffer.putFloat(f)
+        val buffer = ByteBuffer.allocate(floatArray.size * 4).order(ByteOrder.LITTLE_ENDIAN)
+        for (f in floatArray) buffer.putFloat(f)
         return buffer.array()
     }
 

@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.parabdcollector.R
 import com.example.parabdcollector.data.AppDatabase
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -30,9 +31,10 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
      * Creates a backup of the current database to the specified destination URI.
      *
      * @param destinationUri The URI chosen by the user via the file picker.
+     * @param dispatcher The coroutine dispatcher to use for the operation. Defaults to [Dispatchers.IO].
      */
-    fun backupDatabase(destinationUri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun backupDatabase(destinationUri: Uri, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             val context = getApplication<Application>()
             try {
                 val dbFile = context.getDatabasePath(AppDatabase.DATABASE_NAME)
@@ -61,9 +63,10 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
      * The app must be restarted after this operation for the changes to take effect.
      *
      * @param sourceUri The URI of the backup file chosen by the user.
+     * @param dispatcher The coroutine dispatcher to use for the operation. Defaults to [Dispatchers.IO].
      */
-    fun restoreDatabase(sourceUri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun restoreDatabase(sourceUri: Uri, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             val context = getApplication<Application>()
             val dbPath = context.getDatabasePath(AppDatabase.DATABASE_NAME).parent ?: return@launch
             val dbFile = File(dbPath, AppDatabase.DATABASE_NAME)
