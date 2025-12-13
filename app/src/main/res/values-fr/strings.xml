@@ -76,6 +76,7 @@
     <!-- Messages (Toast) -->
 <!--    <string name="toast_error_saving_image">Erreur lors de la sauvegarde de l\'image</string>-->
     <string name="locations_management_title">Gestion des emplacements</string>
+    <string name="backup_button_restore">Restaurer une sauvegarde</string>
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
     <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
     <string name="rapport_signatures">Rapport des signatures</string>
@@ -109,6 +110,7 @@
     <string name="new_search_title">Nouvelle recherche</string>
     <string name="scan_inventory">Scanner l\'inventaire</string>
     <string name="inventory_for_location">Inventaire pour : %1$s</string>
+    <string name="backup_button_backup">Sauvegarder la collection</string>
 
 
 </resources>

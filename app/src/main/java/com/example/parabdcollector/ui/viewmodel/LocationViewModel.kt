@@ -32,6 +32,9 @@ class LocationViewModel(
     private val itemCountByLocation: LiveData<List<ItemCountForLocation>> = collectionRepository.getItemCountByLocation()
     private val _expandedState = MutableLiveData<Set<Long>>(emptySet())
 
+    // A flag to ensure the initial "expand all" state is only set once.
+    private var initialStateSet = false
+
     private val _visibleLocations = MediatorLiveData<List<ExpandableLocation>>()
     /** The final, flattened list of locations to be displayed in the RecyclerView, reflecting the current expanded/collapsed state. */
     val visibleLocations: LiveData<List<ExpandableLocation>> = _visibleLocations
@@ -45,7 +48,19 @@ class LocationViewModel(
         fun updateVisibleList() {
             val locations = allLocations.value ?: return
             val counts = itemCountByLocation.value ?: emptyList()
-            val expandedIds = _expandedState.value ?: emptySet()
+            var expandedIds = _expandedState.value ?: emptySet()
+
+            // If we haven't set the initial state and there are locations to process...
+            if (!initialStateSet && locations.isNotEmpty()) {
+                // ...calculate the initial expanded set (all locations that are parents)...
+                val parentIds = locations.mapNotNull { it.parentLocationId }.toSet()
+                // ...and use it for this calculation.
+                expandedIds = parentIds
+                // IMPORTANT: Also update the LiveData so that subsequent user toggles work correctly.
+                _expandedState.value = parentIds
+                initialStateSet = true
+            }
+
             _visibleLocations.value = buildVisibleList(locations, counts, expandedIds)
         }
 

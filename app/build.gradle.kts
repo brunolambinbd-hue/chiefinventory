@@ -11,6 +11,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     defaultConfig {
@@ -24,7 +25,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_URL", "\"https://dev.api.com\"")
+            buildConfigField("boolean", "ENABLE_LOGS", "true")
+        }
         release {
+            buildConfigField("String", "API_URL", "\"https://prod.api.com\"")
+            buildConfigField("boolean", "ENABLE_LOGS", "false")
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

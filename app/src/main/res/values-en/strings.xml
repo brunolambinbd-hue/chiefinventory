@@ -81,6 +81,7 @@
     <string name="locations_management_title">Location Management</string>
 
     <!-- Toast Messages -->
+    <string name="backup_button_restore">Restotre</string>
     <string name="toast_camera_permission_denied">Camera permission denied</string>
     <string name="toast_title_is_mandatory">Title is mandatory</string>
     <string name="rapport_signatures">Signature Report</string>
@@ -99,17 +100,18 @@
     <string name="debug_signature_info_fullscreen">Signature: %1$s</string>
     <string name="generic_field_format">%1$s: %2$s</string>
     <string name="signature_preview_format">[%1$s,…]</string>
-    <string name="annuler">Annuler</string>
-    <string name="la_racine">À la racine</string>
-    <string name="nouvel_emplacement">Nouvel Emplacement</string>
-    <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour \"%1$s\"</string>
-    <string name="modifier_l_emplacement">Modifier l\'emplacement</string>
-    <string name="supprimer_l_emplacement">Supprimer l\'emplacement</string>
-    <string name="modifier_le_nom">Modifier le nom</string>
-    <string name="ajouter_un_sous_emplacement">Ajouter un sous-emplacement</string>
-    <string name="changer_de_parent">Changer de parent</string>
-    <string name="supprimer">Supprimer</string>
-    <string name="scan_inventory">scan_inventory</string>
-    <string name="inventory_for_location">inventory_for_location</string>
+    <string name="annuler">Cancel</string>
+    <string name="la_racine">Root</string>
+    <string name="nouvel_emplacement">New location</string>
+    <string name="nouveau_sous_emplacement_pour">New sub-location</string>
+    <string name="modifier_l_emplacement">Modify location</string>
+    <string name="supprimer_l_emplacement">Remove the location</string>
+    <string name="modifier_le_nom">Modify the name</string>
+    <string name="ajouter_un_sous_emplacement">Add a sub-location</string>
+    <string name="changer_de_parent">Change of parent</string>
+    <string name="supprimer">Remove</string>
+    <string name="scan_inventory">Invantory par scan</string>
+    <string name="inventory_for_location">Invantory for : %1$s</string>
+    <string name="backup_button_backup">Backup</string>
 
 </resources>

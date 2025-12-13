@@ -31,7 +31,16 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun locationDao(): LocationDao
 
     companion object {
+        /**
+         * The name of the database file.
+         */
         const val DATABASE_NAME = "collection_database"
+
+        /**
+         * The current version of the database schema.
+         * This must be incremented when the schema changes.
+         */
+        const val DATABASE_VERSION = 9
 
         @Volatile
         private var INSTANCE: AppDatabase? = null

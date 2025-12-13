@@ -2,10 +2,14 @@ package com.example.parabdcollector.ui.actvity
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.RelativeSizeSpan
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.parabdcollector.R
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityCategoryListBinding
 import com.example.parabdcollector.ui.adapter.CategoryAdapter
@@ -25,6 +29,7 @@ class CategoryListActivity : AppCompatActivity() {
     private lateinit var adapter: CategoryAdapter
     private var isPossessed: Boolean = true
     private var superCategory: String? = null
+    private lateinit var rootTitle: String
 
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
@@ -43,20 +48,36 @@ class CategoryListActivity : AppCompatActivity() {
         isPossessed = listType == ItemListActivity.TYPE_POSSESSED
         superCategory = intent.getStringExtra(EXTRA_SUPER_CATEGORY)
 
+        // Determine the root title, either from the previous screen or by figuring it out itself.
+        rootTitle = intent.getStringExtra(EXTRA_ROOT_TITLE)
+            ?: if (isPossessed) getString(R.string.menu_products_title) else getString(R.string.menu_searches_title)
+
         setupRecyclerView()
         observeViewModel()
     }
 
     /**
-     * Sets up the observers on the ViewModel based on whether we are displaying
-     * super-categories or sub-categories.
+     * Sets up the observers on the ViewModel and configures the toolbar title.
+     * The title now includes the root context in a smaller font size (e.g., "Image (Mes Produits)").
      */
     private fun observeViewModel() {
         if (superCategory == null) {
-            supportActionBar?.title = if (isPossessed) "Mes Produits" else "Mes Recherches"
+            supportActionBar?.title = rootTitle
             viewModel.getSuperCategoryInfo().observe(this) { adapter.submitList(it) }
         } else {
-            supportActionBar?.title = superCategory
+            val titleText = superCategory!!
+            val contextText = " ($rootTitle)"
+            val fullTitle = titleText + contextText
+            val spannable = SpannableString(fullTitle)
+
+            spannable.setSpan(
+                RelativeSizeSpan(0.8f), // Make the context text 80% of the original size
+                titleText.length,
+                fullTitle.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+            supportActionBar?.title = spannable
             viewModel.getCategoryInfoForSuperCategory(superCategory!!).observe(this) { adapter.submitList(it) }
         }
     }
@@ -79,7 +100,7 @@ class CategoryListActivity : AppCompatActivity() {
 
     /**
      * Handles a click on a super-category.
-     * It ALWAYS navigates to the sub-category list to ensure a consistent user experience.
+     * It navigates to the sub-category list, passing the root title along.
      * @param categoryName The name of the clicked super-category.
      */
     private fun handleSuperCategoryClick(categoryName: String) {
@@ -87,6 +108,7 @@ class CategoryListActivity : AppCompatActivity() {
             val listType = if (isPossessed) ItemListActivity.TYPE_POSSESSED else ItemListActivity.TYPE_SOUGHT
             putExtra(ItemListActivity.EXTRA_LIST_TYPE, listType)
             putExtra(EXTRA_SUPER_CATEGORY, categoryName)
+            putExtra(EXTRA_ROOT_TITLE, rootTitle) // Pass the root title to the next screen
         }
         startActivity(intent)
     }
@@ -101,7 +123,8 @@ class CategoryListActivity : AppCompatActivity() {
     }
 
     /**
-     * Navigates to the [ItemListActivity] for a given super-category and category.
+     * Navigates to the [ItemListActivity] for a given super-category and category,
+     * passing the root title for context.
      * @param superCat The super-category to filter by.
      * @param cat The detailed category to filter by.
      */
@@ -110,6 +133,7 @@ class CategoryListActivity : AppCompatActivity() {
             putExtra(ItemListActivity.EXTRA_LIST_TYPE, if (isPossessed) ItemListActivity.TYPE_POSSESSED else ItemListActivity.TYPE_SOUGHT)
             putExtra(ItemListActivity.EXTRA_SUPER_CATEGORY, superCat)
             putExtra(ItemListActivity.EXTRA_CATEGORY, cat)
+            putExtra(EXTRA_ROOT_TITLE, rootTitle) // Pass the root title to the final screen
         }
         startActivity(intent)
     }
@@ -125,5 +149,7 @@ class CategoryListActivity : AppCompatActivity() {
     companion object {
         /** Key for the string extra that holds the name of the super-category to display. */
         const val EXTRA_SUPER_CATEGORY = "super_category"
+        /** Key for the string extra that holds the root title for context (e.g., "Mes Produits"). */
+        const val EXTRA_ROOT_TITLE = "root_title"
     }
 }

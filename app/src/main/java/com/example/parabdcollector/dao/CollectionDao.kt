@@ -103,11 +103,11 @@ interface CollectionDao {
     fun findByRemoteId(remoteId: Int): CollectionItem?
 
     /**
-     * Performs a simple full-text search across several key fields.
+     * Performs a simple full-text search across several key fields for items the user does not possess.
      * @param query The search term to find.
-     * @return A list of matching [CollectionItem]s.
+     * @return A list of matching, unpossessed [CollectionItem]s.
      */
-    @Query("SELECT * FROM collection_items WHERE titre LIKE :query OR editeur LIKE :query OR CAST(annee AS TEXT) LIKE :query OR categorie LIKE :query OR materiau LIKE :query OR tirage LIKE :query OR dimensions LIKE :query ORDER BY annee DESC, mois DESC")
+    @Query("SELECT * FROM collection_items WHERE isPossessed = 0 AND (titre LIKE :query OR editeur LIKE :query OR CAST(annee AS TEXT) LIKE :query OR categorie LIKE :query OR materiau LIKE :query OR tirage LIKE :query OR dimensions LIKE :query) ORDER BY annee DESC, mois DESC")
     suspend fun search(query: String): List<CollectionItem>
 
     /**

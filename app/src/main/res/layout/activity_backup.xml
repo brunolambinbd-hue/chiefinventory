@@ -44,6 +44,18 @@
             android:textAppearance="?attr/textAppearanceBody1"
             tools:text="Dernière sauvegarde : 26/07/2024 10:30"/>
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_version_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceCaption"
+            tools:text="App v1.0 (DB v9)" />
+
     </LinearLayout>
 
 </LinearLayout>

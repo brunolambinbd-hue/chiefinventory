@@ -2,11 +2,15 @@ package com.example.parabdcollector.ui.actvity
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.RelativeSizeSpan
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parabdcollector.CollectionApplication
+import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityItemListBinding
 import com.example.parabdcollector.ui.adapter.CollectionAdapter
 import com.example.parabdcollector.ui.model.SearchResultItem
@@ -34,7 +38,7 @@ class ItemListActivity : AppCompatActivity() {
 
     /**
      * Initializes the activity, toolbar, and RecyclerView.
-     * It determines which list of items to display based on the intent extras.
+     * It determines which list of items to display and sets the toolbar title, including the root context.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,34 +53,48 @@ class ItemListActivity : AppCompatActivity() {
         val category = intent.getStringExtra(EXTRA_CATEGORY)
         val locationId = intent.getLongExtra(EXTRA_LOCATION_ID, -1L)
         val locationName = intent.getStringExtra(EXTRA_LOCATION_NAME)
+        val rootTitle = intent.getStringExtra(EXTRA_ROOT_TITLE)
 
         setupRecyclerView()
 
         when {
             locationId != -1L -> {
-                supportActionBar?.title = locationName ?: "Objets dans l'emplacement"
+                supportActionBar?.title = locationName ?: getString(R.string.location_items_title)
                 viewModel.getItemsByLocationId(locationId).observe(this) { items ->
                     val searchResults = items.map(::SearchResultItem)
                     adapter.submitList(searchResults)
                 }
             }
             superCategory != null && category != null -> {
-                // Display items for a specific category and super-category
-                supportActionBar?.title = category
+                val titleText = category
+                val contextText = if (rootTitle != null) " ($rootTitle)" else ""
+                val fullTitle = titleText + contextText
+                val spannable = SpannableString(fullTitle)
+
+                if (contextText.isNotEmpty()) {
+                    spannable.setSpan(
+                        RelativeSizeSpan(0.8f),
+                        titleText.length,
+                        fullTitle.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                supportActionBar?.title = spannable
+
                 viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, listType == TYPE_POSSESSED).observe(this) { items ->
                     val searchResults = items.map(::SearchResultItem)
                     adapter.submitList(searchResults)
                 }
             }
             listType == TYPE_POSSESSED -> {
-                supportActionBar?.title = "Mes Produits"
+                supportActionBar?.title = getString(R.string.menu_products_title)
                 viewModel.possessedItems.observe(this) { items ->
                     val searchResults = items.map(::SearchResultItem)
                     adapter.submitList(searchResults)
                 }
             }
             else -> {
-                supportActionBar?.title = "Mes Recherches"
+                supportActionBar?.title = getString(R.string.menu_searches_title)
                 viewModel.soughtItems.observe(this) { items ->
                     val searchResults = items.map(::SearchResultItem)
                     adapter.submitList(searchResults)
@@ -120,6 +138,8 @@ class ItemListActivity : AppCompatActivity() {
         const val EXTRA_LOCATION_ID = "location_id"
         /** Key for the String extra that holds the full, human-readable location name for the title. */
         const val EXTRA_LOCATION_NAME = "location_name"
+        /** Key for the string extra that holds the root title for context (e.g., "Mes Produits"). */
+        const val EXTRA_ROOT_TITLE = "root_title"
 
         /** Value for EXTRA_LIST_TYPE to show possessed items. */
         const val TYPE_POSSESSED = 1

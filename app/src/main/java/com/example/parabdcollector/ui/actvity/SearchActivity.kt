@@ -166,29 +166,35 @@ class SearchActivity : AppCompatActivity() {
     }
 
     /**
-     * Gathers search criteria from the UI, hides the keyboard, and triggers the search via the ViewModel.
-     * It handles both simple and advanced search modes.
+     * Gathers search criteria, hides the keyboard, collapses the advanced search UI if needed,
+     * and triggers the search via the ViewModel.
      */
     private fun performSearch() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
         searchHasBeenPerformed = true
 
-        val simpleQuery = binding.etSearchSimple.text.toString()
+        val simpleQuery = binding.etSearchSimple.text.toString().trim()
         if (simpleQuery.isNotBlank()) {
             currentSearchDescription = simpleQuery
             viewModel.search(simpleQuery)
         } else {
+            // Hide the advanced search panel to make room for results
+            if (binding.advancedSearchContainer.isVisible) {
+                binding.advancedSearchContainer.isGone = true
+                binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
+            }
+
             val criteria = SearchCriteria(
-                titre = binding.etSearchTitre.text.toString().takeIf { it.isNotBlank() },
-                editeur = binding.etSearchEditor.text.toString().takeIf { it.isNotBlank() },
-                annee = binding.etSearchYear.text.toString().toIntOrNull(),
-                mois = binding.etSearchedMonth.text.toString().toIntOrNull(),
-                superCategorie = binding.etSearchSuperCategory.text.toString().takeIf { it.isNotBlank() },
-                categorie = binding.etSearchCategory.text.toString().takeIf { it.isNotBlank() },
-                description = binding.etSearchDescription.text.toString().takeIf { it.isNotBlank() },
-                tirage = binding.etSearchTirage.text.toString().takeIf { it.isNotBlank() },
-                dimensions = binding.etSearchDimensions.text.toString().takeIf { it.isNotBlank() }
+                titre = binding.etSearchTitre.text.toString().trim().takeIf { it.isNotBlank() },
+                editeur = binding.etSearchEditor.text.toString().trim().takeIf { it.isNotBlank() },
+                annee = binding.etSearchYear.text.toString().trim().toIntOrNull(),
+                mois = binding.etSearchedMonth.text.toString().trim().toIntOrNull(),
+                superCategorie = binding.etSearchSuperCategory.text.toString().trim().takeIf { it.isNotBlank() },
+                categorie = binding.etSearchCategory.text.toString().trim().takeIf { it.isNotBlank() },
+                description = binding.etSearchDescription.text.toString().trim().takeIf { it.isNotBlank() },
+                tirage = binding.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() },
+                dimensions = binding.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }
             )
 
             val descriptionParts = listOfNotNull(

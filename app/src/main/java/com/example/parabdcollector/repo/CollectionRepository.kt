@@ -129,7 +129,7 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     /**
-     * Performs a simple, full-text search across multiple fields.
+     * Performs a simple, full-text search across multiple fields for items the user does not possess.
      * @param query The search term.
      * @return A list of matching [CollectionItem]s.
      */
@@ -138,18 +138,17 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     /**
-     * Performs a complex search based on a set of criteria and an optional image embedding.
+     * Performs a complex search for items the user does not possess, based on a set of criteria and an optional image embedding.
      *
      * This method dynamically builds a SQL query based on the provided [SearchCriteria].
-     * If an image embedding is provided, it first filters by text criteria and then calculates
-     * the cosine similarity to find the most visually similar items.
+     * It now includes a permanent filter for `isPossessed = 0`.
      *
      * @param criteria The set of text-based search criteria.
      * @param queryEmbedding The float array of the image to search for, or null.
      * @return A list of [SearchResultItem], potentially including similarity scores.
      */
     suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
-        val queryBuilder = StringBuilder("SELECT * FROM collection_items WHERE 1=1")
+        val queryBuilder = StringBuilder("SELECT * FROM collection_items WHERE isPossessed = 0")
         val args = mutableListOf<Any?>()
 
         criteria.titre?.takeIf { it.isNotBlank() }?.let {
