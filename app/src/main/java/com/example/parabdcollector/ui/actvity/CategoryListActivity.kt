@@ -9,10 +9,12 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import com.example.parabdcollector.R
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityCategoryListBinding
-import com.example.parabdcollector.ui.adapter.CategoryAdapter
+import com.example.parabdcollector.ui.adapter.CategoryAdapterRevised
+import com.example.parabdcollector.ui.model.CategoryInfo
 import com.example.parabdcollector.ui.viewmodel.MainViewModel
 import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 
@@ -26,7 +28,8 @@ import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 class CategoryListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCategoryListBinding
-    private lateinit var adapter: CategoryAdapter
+    // private lateinit var adapter: CategoryAdapter
+    private lateinit var adapter: ListAdapter<CategoryInfo, *>
     private var isPossessed: Boolean = true
     private var superCategory: String? = null
     private lateinit var rootTitle: String
@@ -64,7 +67,7 @@ class CategoryListActivity : AppCompatActivity() {
     private fun observeViewModel() {
         if (superCategory == null) {
             supportActionBar?.title = rootTitle
-            viewModel.getSuperCategoryInfo().observe(this) { adapter.submitList(it) }
+            viewModel.getSuperCategoryInfo().observe(this) { adapter.submitList(it as List<CategoryInfo>?) }
         } else {
             val titleText = superCategory!!
             val contextText = " ($rootTitle)"
@@ -79,7 +82,7 @@ class CategoryListActivity : AppCompatActivity() {
             )
 
             supportActionBar?.title = spannable
-            viewModel.getCategoryInfoForSuperCategory(superCategory!!).observe(this) { adapter.submitList(it) }
+            viewModel.getCategoryInfoForSuperCategory(superCategory!!).observe(this) { adapter.submitList(it as List<CategoryInfo>?) }
         }
     }
 
@@ -88,7 +91,8 @@ class CategoryListActivity : AppCompatActivity() {
      */
     private fun setupRecyclerView() {
         val isSoughtMode = !isPossessed
-        adapter = CategoryAdapter(isSoughtMode) { categoryName ->
+        // adapter = CategoryAdapter(isSoughtMode) { categoryName ->
+        adapter = CategoryAdapterRevised(isSoughtMode) { categoryName ->
             if (superCategory == null) {
                 handleSuperCategoryClick(categoryName)
             } else {
