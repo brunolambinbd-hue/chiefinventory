@@ -12,6 +12,7 @@ coil = "2.7.0"
 download = "5.6.0"
 work = "2.9.0"
 imageCropper = "4.6.0"
+truth = "1.4.2"
 
 # Nouvelle version pour MediaPipe
 mediaPipe = "0.10.29"
@@ -58,6 +59,7 @@ androidx-lifecycle-testing = { group = "androidx.lifecycle", name = "lifecycle-r
 
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -65,4 +67,3 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 download = { id = "de.undercouch.download", version.ref = "download" }
-

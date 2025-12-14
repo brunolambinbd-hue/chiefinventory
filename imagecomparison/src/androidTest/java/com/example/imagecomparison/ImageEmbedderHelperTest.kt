@@ -2,8 +2,11 @@ package com.example.imagecomparison
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Truth.assertThat
+import com.example.imagecomparison.test.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -98,6 +101,27 @@ class ImageEmbedderHelperTest {
 
         assertNotNull("Result bundle should not be null", resultBundle)
         assertEquals(1.0, resultBundle!!.similarity, 0.001)
+
+        imageEmbedderHelper.clearImageEmbedder()
+    }
+    
+    @Test
+    fun embed_shouldReturnHighSimilarityForSimilarRealImages() {
+        val imageEmbedderHelper = ImageEmbedderHelper(context, null)
+
+        // Load real images from test resources
+        val bitmap1 = BitmapFactory.decodeResource(context.resources, R.drawable.frank2533_1)
+        val bitmap2 = BitmapFactory.decodeResource(context.resources, R.drawable.frank2533_1_rotation)
+
+        assertNotNull("Bitmap 1 should not be null", bitmap1)
+        assertNotNull("Bitmap 2 should not be null", bitmap2)
+
+        val resultBundle = imageEmbedderHelper.embed(bitmap1, bitmap2)
+
+        assertNotNull("Result bundle should not be null for real images", resultBundle)
+        // Check that similarity is high, but not perfect
+        assertThat(resultBundle!!.similarity).isGreaterThan(0.8)
+        assertThat(resultBundle.similarity).isLessThan(1.0)
 
         imageEmbedderHelper.clearImageEmbedder()
     }

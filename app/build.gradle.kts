@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,6 +11,20 @@ plugins {
 android {
     namespace = "com.example.parabdcollector"
     compileSdk = 35
+
+    signingConfigs {
+        create("release") {
+            val keystorePropertiesFile = rootProject.file("keystore.properties")
+            if (keystorePropertiesFile.exists()) {
+                val keystoreProperties = Properties()
+                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+            }
+        }
+    }
 
     buildFeatures {
         viewBinding = true
@@ -37,6 +54,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     
@@ -82,6 +100,7 @@ dependencies {
     androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.lifecycle.testing)
     androidTestImplementation(libs.kotlinx.coroutines.test) // Ajout pour les tests instrumentés
+    androidTestImplementation(libs.truth)
 }
 
 // Ajout de la "Porte de Qualité" (Quality Gate)
