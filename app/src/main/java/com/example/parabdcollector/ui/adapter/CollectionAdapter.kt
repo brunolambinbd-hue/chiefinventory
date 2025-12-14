@@ -1,8 +1,10 @@
 package com.example.parabdcollector.ui.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -37,7 +39,7 @@ class CollectionAdapter(private val onItemClicked: (SearchResultItem) -> Unit) :
     override fun onBindViewHolder(holder: CollectionViewHolder, position: Int) {
         val current = getItem(position)
         holder.itemView.setOnClickListener { onItemClicked(current) }
-        holder.bind(current)
+        holder.bind(current, position)
     }
 
     /**
@@ -50,9 +52,16 @@ class CollectionAdapter(private val onItemClicked: (SearchResultItem) -> Unit) :
          * This function sets the text for each field and manages its visibility, hiding fields that are null or blank.
          * @param searchResult The data to display.
          */
-        fun bind(searchResult: SearchResultItem) {
+        fun bind(searchResult: SearchResultItem, position: Int) {
             val item = searchResult.item
             val context = binding.root.context
+
+            // Apply zebra striping for better readability
+            if (position % 2 == 0) {
+                binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.zebra_stripe_color))
+            } else {
+                binding.root.setBackgroundColor(Color.TRANSPARENT)
+            }
 
             binding.itemName.text = item.titre
 

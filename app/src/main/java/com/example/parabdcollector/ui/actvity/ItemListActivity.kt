@@ -4,8 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.text.style.RelativeSizeSpan
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -54,7 +58,7 @@ class ItemListActivity : AppCompatActivity() {
         val category = intent.getStringExtra(EXTRA_CATEGORY)
         val locationId = intent.getLongExtra(EXTRA_LOCATION_ID, -1L)
         val locationName = intent.getStringExtra(EXTRA_LOCATION_NAME)
-        val rootTitle = intent.getStringExtra(EXTRA_ROOT_TITLE)
+        val rootTitle = intent.getStringExtra(CategoryListActivity.EXTRA_ROOT_TITLE)
 
         setupRecyclerView()
 
@@ -78,8 +82,21 @@ class ItemListActivity : AppCompatActivity() {
                         fullTitle.length,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
+
+                    val clickableSpan = object : ClickableSpan() {
+                        override fun onClick(widget: View) {
+                            finish() // Simply go back to the previous category list
+                        }
+                    }
+                    spannable.setSpan(
+                        clickableSpan,
+                        category.length,
+                        fullTitle.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
                 }
                 supportActionBar?.title = spannable
+                findToolbarTitleView()?.movementMethod = LinkMovementMethod.getInstance()
 
                 viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, listType == TYPE_POSSESSED).observe(this) { items ->
                     val searchResults = items.map(::SearchResultItem)
@@ -101,6 +118,16 @@ class ItemListActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun findToolbarTitleView(): TextView? {
+        for (i in 0 until binding.toolbar.childCount) {
+            val child = binding.toolbar.getChildAt(i)
+            if (child is TextView) {
+                return child
+            }
+        }
+        return null
     }
 
     /**

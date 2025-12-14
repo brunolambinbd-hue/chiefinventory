@@ -17,6 +17,11 @@ import com.example.parabdcollector.ui.adapter.CategoryAdapterRevised
 import com.example.parabdcollector.ui.model.CategoryInfo
 import com.example.parabdcollector.ui.viewmodel.MainViewModel
 import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.util.Log
+import android.view.View
+import android.widget.TextView
 
 /**
  * An activity that displays a list of categories.
@@ -66,24 +71,59 @@ class CategoryListActivity : AppCompatActivity() {
      */
     private fun observeViewModel() {
         if (superCategory == null) {
+            // This is the super-category list (Page 2)
+            Log.d("CategoryListActivity", "Page 2 - superCategory: rootTitle: $rootTitle")
             supportActionBar?.title = rootTitle
-            viewModel.getSuperCategoryInfo().observe(this) { adapter.submitList(it as List<CategoryInfo>?) }
+            viewModel.getSuperCategoryInfo().observe(this) { adapter.submitList(it) }
         } else {
+            // This is the category list (Page 3)
+            Log.d("CategoryListActivity", "Page 3 - superCategory: $superCategory, rootTitle: $rootTitle")
+
             val titleText = superCategory!!
             val contextText = " ($rootTitle)"
             val fullTitle = titleText + contextText
+            Log.d("CategoryListActivity", "Page 3 - Full title being set: $fullTitle")
+
             val spannable = SpannableString(fullTitle)
 
+            // Style for the context part (e.g., "(Mes Recherches)")
             spannable.setSpan(
-                RelativeSizeSpan(0.8f), // Make the context text 80% of the original size
+                RelativeSizeSpan(0.8f),
+                titleText.length,
+                fullTitle.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+            // Clickable span for the context part
+            val clickableSpan = object : ClickableSpan() {
+                override fun onClick(widget: View) {
+                    finish() // Go back to Page 2
+                }
+            }
+            spannable.setSpan(
+                clickableSpan,
                 titleText.length,
                 fullTitle.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
 
             supportActionBar?.title = spannable
-            viewModel.getCategoryInfoForSuperCategory(superCategory!!).observe(this) { adapter.submitList(it as List<CategoryInfo>?) }
+            findToolbarTitleView()?.movementMethod = LinkMovementMethod.getInstance()
+
+            viewModel.getCategoryInfoForSuperCategory(superCategory!!).observe(this) { adapter.submitList(it) }
         }
+    }
+
+    private fun findToolbarTitleView(): TextView? {
+        // This is a robust way to get the toolbar title TextView, as it doesn't have a public ID.
+        val toolbar = binding.toolbar
+        for (i in 0 until toolbar.childCount) {
+            val child = toolbar.getChildAt(i)
+            if (child is TextView) {
+                return child
+            }
+        }
+        return null
     }
 
     /**
@@ -124,6 +164,7 @@ class CategoryListActivity : AppCompatActivity() {
      * @param categoryName The name of the clicked sub-category.
      */
     private fun handleCategoryClick(currentSuperCategory: String, categoryName: String) {
+        Log.d("CategoryListActivity", "Navigating to Page 4 with superCategory: $currentSuperCategory, category: $categoryName")
         navigateToItemList(currentSuperCategory, categoryName)
     }
 

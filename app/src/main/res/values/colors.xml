@@ -23,4 +23,7 @@
     <color name="progress_orange">#FFFFBB33</color>
     <color name="progress_green">#FF99CC00</color>
 
+    <!-- Couleur pour les lignes alternées -->
+    <color name="zebra_stripe_color">#0D000000</color> <!-- Noir très transparent pour un effet subtil -->
+
 </resources>

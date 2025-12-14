@@ -38,6 +38,7 @@ class CategoryAdapterRevised(private val isSoughtMode: Boolean, private val onIt
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(categoryInfo: CategoryInfo) {
+            val context = binding.root.context
             binding.revisedCategoryName.text = categoryInfo.name
 
             val possessedCount = categoryInfo.possessedCount
@@ -46,7 +47,7 @@ class CategoryAdapterRevised(private val isSoughtMode: Boolean, private val onIt
 
             val countToShow = if (isSoughtMode) soughtCount else possessedCount
 
-            binding.revisedCategoryCount.text = "($countToShow/$totalCount)"
+            binding.revisedCategoryCount.text = context.getString(R.string.category_count_format, countToShow, totalCount)
 
             if (totalCount > 0) {
                 binding.revisedCategoryProgress.max = totalCount
@@ -67,7 +68,7 @@ class CategoryAdapterRevised(private val isSoughtMode: Boolean, private val onIt
                         else -> R.color.status_ok
                     }
                 }
-                val color = ContextCompat.getColor(binding.root.context, progressColorRes)
+                val color = ContextCompat.getColor(context, progressColorRes)
                 binding.revisedCategoryProgress.progressDrawable.colorFilter = 
                     PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
 
