@@ -1,5 +1,6 @@
 package com.example.parabdcollector.ui.adapter
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -56,9 +57,9 @@ class CollectionAdapter(private val onItemClicked: (SearchResultItem) -> Unit) :
             val item = searchResult.item
             val context = binding.root.context
 
-            // Apply zebra striping for better readability
+            // Apply zebra striping for better readability, compatible with dark and light themes.
             if (position % 2 == 0) {
-                binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.zebra_stripe_color))
+                binding.root.setBackgroundColor(ContextCompat.getColor(context, R.color.zebra_stripe_background))
             } else {
                 binding.root.setBackgroundColor(Color.TRANSPARENT)
             }

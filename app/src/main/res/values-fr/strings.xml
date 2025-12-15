@@ -8,7 +8,6 @@
     <!-- Titres formatables pour les pages -->
     <string name="possessed_items_title" tools:ignore="UnusedResources">Mes Produits (%1$d)</string>
     <string name="sought_items_title" tools:ignore="UnusedResources">Mes Recherches (%1$d)</string>
-    <string name="category_item_format">%1$s (%2$d)</string>
 
     <!-- Strings pour le tableau de bord -->
     <string name="location_items_title">Objets dans l\'emplacement</string>
@@ -77,8 +76,10 @@
     <!-- Messages (Toast) -->
     <string name="locations_management_title">Gestion des emplacements</string>
     <string name="backup_button_restore">Restaurer une sauvegarde</string>
+    <string name="restore_failed_delete">Échec de la restauration : impossible de supprimer les anciens fichiers de base de données.</string>
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
     <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
+    <string name="toast_crop_error">Erreur de recadrage: %1$s</string>
     <string name="rapport_signatures">Rapport des signatures</string>
 
     <!-- Nouvelles chaînes pour le rapport de signature -->
@@ -100,6 +101,7 @@
     <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour \"%1$s\"</string>
     <string name="modifier_l_emplacement">Modifier l\'emplacement</string>
     <string name="supprimer_l_emplacement">Supprimer l\'emplacement</string>
+    <string name="delete_location_confirmation_message">Êtes-vous sûr de vouloir supprimer \"%1$s\"? Cette action est irréversible.</string>
     <string name="modifier_le_nom">Modifier le nom</string>
     <string name="ajouter_un_sous_emplacement">Ajouter un sous-emplacement</string>
     <string name="changer_de_parent">Changer de parent</string>
@@ -111,6 +113,12 @@
     <string name="scan_inventory">Scanner l\'inventaire</string>
     <string name="inventory_for_location">Inventaire pour : %1$s</string>
     <string name="backup_button_backup">Sauvegarder la collection</string>
+    <string name="backup_success">Sauvegarde réussie !</string>
+    <string name="backup_failed">Échec de la sauvegarde : %1$s</string>
+    <string name="restore_success">Restauration réussie ! Veuillez redémarrer l\'application.</string>
+    <string name="restore_failed">Échec de la restauration : %1$s</string>
+    <string name="inventory_create_new_button">Objet non trouvé ? Créer une nouvelle entrée</string>
+    <string name="scan_item_button">Scanner un objet</string>
 
 
 </resources>

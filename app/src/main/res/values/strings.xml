@@ -10,11 +10,11 @@
     <!-- Titres formatables pour les pages -->
     <string name="possessed_items_title" tools:ignore="UnusedResources">Mes Produits (%1$d)</string>
     <string name="sought_items_title" tools:ignore="UnusedResources">Mes Recherches (%1$d)</string>
-    <string name="category_item_format">%1$s (%2$d)</string>
+    <string name="category_item_format" translatable="false">%1$s (%2$d)</string>
     <string name="category_item_format_sought" translatable="false">%1$s (%2$d / %3$d)</string>
     <string name="location_item_count_format" translatable="false">(%1$d)</string>
     <string name="location_items_title">Objets dans l\'emplacement</string>
-    <string name="category_count_format">(%1$d/%2$d)</string>
+    <string name="category_count_format" translatable="false">(%1$d/%2$d)</string>
 
     <!-- Strings pour le tableau de bord -->
     <string name="total_items_label">Objets Totaux: %1$d</string>

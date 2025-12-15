@@ -11,7 +11,6 @@
     <!-- Page Titles -->
     <string name="possessed_items_title">My Items (%1$d)</string>
     <string name="sought_items_title">My Searches (%1$d)</string>
-    <string name="category_item_format">%1$s (%2$d)</string>
 
     <!-- Dashboard -->
     <string name="location_items_title">Objects in location</string>
