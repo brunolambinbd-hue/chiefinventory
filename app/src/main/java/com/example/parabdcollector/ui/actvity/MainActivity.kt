@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -57,6 +58,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setupClickListeners()
         observeViewModel()
         setupDebugView()
+
+        // Make the debug section visible and set up the crash button for testing
+        binding.debugSection.visibility = View.VISIBLE
+        binding.btnTestCrash.setOnClickListener {
+            throw RuntimeException("Test Crash")
+        }
     }
 
     private fun setupToolbarAndDrawer() {

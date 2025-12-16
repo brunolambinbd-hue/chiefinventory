@@ -75,7 +75,7 @@ class SearchActivityTest {
         val uniqueTitle = "Objet de Test pour Recherche"
         val testItem = CollectionItem(
             id = 1, titre = uniqueTitle, editeur = "", annee = 2023, description = "",
-            isPossessed = true, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "",
+            isPossessed = false, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "",
             prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", imageEmbedding = null, locationId = null, remoteId = null
         )
         dao.insert(testItem)
@@ -96,12 +96,12 @@ class SearchActivityTest {
         // GIVEN: Two items, one of which will match the search criteria.
         val matchingItem = CollectionItem(
             id = 1, titre = "Matching Item", editeur = "Matching Editor", annee = 2023, description = "",
-            isPossessed = true, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "",
+            isPossessed = false, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "",
             prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", imageEmbedding = null, locationId = null, remoteId = null
         )
         val nonMatchingItem = CollectionItem(
             id = 2, titre = "Non-Matching Item", editeur = "Non-Matching Editor", annee = 2020, description = "",
-            isPossessed = true, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "",
+            isPossessed = false, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "",
             prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", imageEmbedding = null, locationId = null, remoteId = null
         )
         dao.insert(matchingItem)
@@ -119,5 +119,26 @@ class SearchActivityTest {
         onView(allOf(withText("Matching Item"), isDescendantOfA(withId(R.id.rv_search_results))))
             .check(matches(isDisplayed()))
         onView(withText("Non-Matching Item")).check(doesNotExist())
+    }
+
+    @Test
+    fun searchError_displaysErrorView() {
+        // GIVEN a repository that will always throw an exception
+        val errorRepository = object : CollectionRepository(dao) {
+            override suspend fun search(query: String): List<CollectionItem> {
+                throw RuntimeException("Database unavailable")
+            }
+        }
+        val app = ApplicationProvider.getApplicationContext<CollectionApplication>()
+        app.repository = errorRepository
+
+        // WHEN the activity is launched and a search is performed
+        ActivityScenario.launch(SearchActivity::class.java)
+        onView(withId(R.id.et_search_simple)).perform(replaceText("any query"), closeSoftKeyboard())
+        onView(withId(R.id.btn_search)).perform(click())
+
+        // THEN the error container should be displayed
+        onView(withId(R.id.error_container)).check(matches(isDisplayed()))
+        onView(withId(R.id.tv_error_message)).check(matches(withText("La recherche textuelle a échoué.")))
     }
 }

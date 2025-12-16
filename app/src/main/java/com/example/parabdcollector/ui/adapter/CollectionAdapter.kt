@@ -2,6 +2,7 @@ package com.example.parabdcollector.ui.adapter
 
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,6 +57,11 @@ class CollectionAdapter(private val onItemClicked: (SearchResultItem) -> Unit) :
         fun bind(searchResult: SearchResultItem, position: Int) {
             val item = searchResult.item
             val context = binding.root.context
+
+            Log.d("CollectionAdapter", "Binding item at position $position: ${item.titre}")
+            Log.d("CollectionAdapter", "  -> Dimensions: ${item.dimensions}")
+            Log.d("CollectionAdapter", "  -> Tirage: ${item.tirage}")
+            Log.d("CollectionAdapter", "  -> Material: ${item.materiau}")
 
             // Apply zebra striping for better readability, compatible with dark and light themes.
             if (position % 2 == 0) {

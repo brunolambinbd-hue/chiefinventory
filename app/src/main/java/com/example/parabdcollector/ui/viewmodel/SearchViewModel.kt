@@ -8,11 +8,24 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.imagecomparison.ImageEmbedderHelper
+import com.example.parabdcollector.R
 import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.utils.SignatureUtils
 import kotlinx.coroutines.launch
+
+/**
+ * Represents the state of a search operation.
+ */
+sealed class SearchResultState {
+    /** The search is in progress. */
+    object Loading : SearchResultState()
+    /** The search completed successfully. */
+    data class Success(val results: List<SearchResultItem>) : SearchResultState()
+    /** The search failed. */
+    data class Error(val message: String) : SearchResultState()
+}
 
 /**
  * ViewModel for the search screen ([com.example.parabdcollector.ui.actvity.SearchActivity]).
@@ -25,9 +38,9 @@ import kotlinx.coroutines.launch
  */
 class SearchViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
-    private val _searchResults = MutableLiveData<List<SearchResultItem>>()
-    /** The results of the most recent search, exposed as LiveData. */
-    val searchResults: LiveData<List<SearchResultItem>> = _searchResults
+    private val _searchResultState = MutableLiveData<SearchResultState>()
+    /** The state of the most recent search, exposed as LiveData. */
+    val searchResultState: LiveData<SearchResultState> = _searchResultState
 
     private val _signaturePreview = MutableLiveData<String>()
     /** A formatted string preview of the last computed image signature. */
@@ -38,6 +51,7 @@ class SearchViewModel(application: Application, private val repository: Collecti
         listener = object : ImageEmbedderHelper.EmbedderListener {
             override fun onError(error: String, errorCode: Int) {
                 Log.e("SearchViewModel", "ImageEmbedderHelper Error ($errorCode): $error")
+                _searchResultState.postValue(SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_image_analysis)))
             }
         }
     )
@@ -58,9 +72,15 @@ class SearchViewModel(application: Application, private val repository: Collecti
      * @param query The search term.
      */
     fun search(query: String) {
+        _searchResultState.value = SearchResultState.Loading
         viewModelScope.launch {
-            val results = repository.search(query)
-            _searchResults.value = results.map { SearchResultItem(it) }
+            try {
+                val results = repository.search(query)
+                _searchResultState.value = SearchResultState.Success(results.map { SearchResultItem(it) })
+            } catch (e: Exception) {
+                Log.e("SearchViewModel", "Simple search failed", e)
+                _searchResultState.value = SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_simple))
+            }
         }
     }
 
@@ -70,10 +90,16 @@ class SearchViewModel(application: Application, private val repository: Collecti
      * @param bitmap The optional image to use for similarity search.
      */
     fun advancedSearch(criteria: SearchCriteria, bitmap: Bitmap?) {
+        _searchResultState.value = SearchResultState.Loading
         viewModelScope.launch {
-            val queryEmbedding = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
-            val results = repository.advancedSearch(criteria, queryEmbedding)
-            _searchResults.value = results
+            try {
+                val queryEmbedding = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
+                val results = repository.advancedSearch(criteria, queryEmbedding)
+                _searchResultState.value = SearchResultState.Success(results)
+            } catch (e: Exception) {
+                Log.e("SearchViewModel", "Advanced search failed", e)
+                _searchResultState.value = SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_advanced))
+            }
         }
     }
 
@@ -81,7 +107,7 @@ class SearchViewModel(application: Application, private val repository: Collecti
      * Clears the current search results and signature preview from the UI.
      */
     fun clearSearchResults() {
-        _searchResults.value = emptyList()
+        _searchResultState.value = SearchResultState.Success(emptyList())
         _signaturePreview.value = ""
     }
 

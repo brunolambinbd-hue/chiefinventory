@@ -19,21 +19,13 @@ import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
 import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.ui.adapter.CollectionAdapter
+import com.example.parabdcollector.ui.viewmodel.SearchResultState
 import com.example.parabdcollector.ui.viewmodel.SearchViewModel
 import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 import com.example.parabdcollector.utils.BitmapUtils
 import com.example.parabdcollector.utils.CategoryMapper
 import com.example.parabdcollector.utils.ImageCaptureUtil
 
-/**
- * An activity dedicated to searching the collection.
- *
- * This screen provides multiple ways to search:
- * - A simple, single-field text search.
- * - An advanced search with multiple, specific criteria.
- * - An image-based similarity search.
- * Results are displayed in a RecyclerView.
- */
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
@@ -42,7 +34,9 @@ class SearchActivity : AppCompatActivity() {
 
     private var currentSearchDescription: String = ""
     private var searchImageBitmap: Bitmap? = null
-    private var searchHasBeenPerformed: Boolean = false
+    private var lastSearchWasSimple: Boolean = true
+    private var lastSimpleQuery: String? = null
+    private var lastAdvancedCriteria: SearchCriteria? = null
 
     private val viewModel: SearchViewModel by viewModels {
         val app = application as CollectionApplication
@@ -50,9 +44,6 @@ class SearchActivity : AppCompatActivity() {
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
-    /**
-     * Initializes the activity, sets up the toolbar, RecyclerView, spinners, and click listeners.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
@@ -81,28 +72,37 @@ class SearchActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupCategorySpinners()
+        setupClickListeners()
+        observeViewModel()
+    }
 
+    private fun setupClickListeners() {
         binding.btnSearch.setOnClickListener { performSearch() }
         binding.btnSearchByImage.setOnClickListener { imageCaptureUtil.start() }
-
         binding.tvToggleAdvancedSearch.setOnClickListener { toggleAdvancedSearch() }
+        binding.btnRetrySearch.setOnClickListener { retryLastSearch() }
+    }
 
-        viewModel.searchResults.observe(this) { results ->
-            adapter.submitList(results)
-            if (!searchHasBeenPerformed) {
-                binding.tvResultsCount.isVisible = false
-                return@observe
-            }
+    private fun observeViewModel() {
+        viewModel.searchResultState.observe(this) { state ->
+            // Hide views based on the new state
+            binding.progressBar.isVisible = state is SearchResultState.Loading
+            binding.resultsContainer.isVisible = state is SearchResultState.Success
+            binding.errorContainer.isVisible = state is SearchResultState.Error
+            // The search form is visible only if there is no other state being displayed
+            binding.searchFormContainer.isVisible = state !is SearchResultState.Loading && state !is SearchResultState.Success && state !is SearchResultState.Error
 
-            val count = results.size
-            binding.tvResultsCount.isVisible = true
-
-            if (count == 0 && searchImageBitmap != null) {
-                binding.tvResultsCount.text = getString(R.string.search_no_similar_results)
-            } else if (currentSearchDescription.isNotBlank()) {
-                binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
-            } else {
-                binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count, count, count)
+            when (state) {
+                is SearchResultState.Success -> {
+                    adapter.submitList(state.results)
+                    updateResultCount(state.results.size)
+                }
+                is SearchResultState.Error -> {
+                    binding.tvErrorMessage.text = state.message
+                }
+                is SearchResultState.Loading -> {
+                    // Nothing extra to do, progress bar visibility is handled above
+                }
             }
         }
 
@@ -116,25 +116,47 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Resets all search fields and results to their initial state.
-     */
+    private fun updateResultCount(count: Int) {
+        binding.tvResultsCount.isVisible = true
+        if (count == 0 && currentSearchDescription.isBlank()) {
+             binding.tvResultsCount.text = getString(R.string.search_no_results)
+        } else if (count == 0 && searchImageBitmap != null) {
+            binding.tvResultsCount.text = getString(R.string.search_no_similar_results)
+        } else if (currentSearchDescription.isNotBlank()) {
+            binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, count, count, currentSearchDescription)
+        } else {
+            binding.tvResultsCount.text = resources.getQuantityString(R.plurals.search_results_count, count, count)
+        }
+    }
+
     private fun resetSearchState() {
         binding.etSearchSimple.setText("")
         binding.etSearchTitre.setText("")
         binding.etSearchEditor.setText("")
-        // ... (le reste des resets)
         searchImageBitmap = null
         binding.ivSearchThumbnail.visibility = View.GONE
         binding.tvSearchThumbnailSignature.visibility = View.GONE
         currentSearchDescription = ""
-        searchHasBeenPerformed = false
+        lastSimpleQuery = null
+        lastAdvancedCriteria = null
         viewModel.clearSearchResults()
+        // Make the form visible again
+        binding.searchFormContainer.isVisible = true
+        binding.resultsContainer.isVisible = false
+        binding.errorContainer.isVisible = false
+        binding.progressBar.isVisible = false
     }
 
-    /**
-     * Toggles the visibility of the advanced search container.
-     */
+    private fun retryLastSearch() {
+        if (lastSearchWasSimple && lastSimpleQuery != null) {
+            viewModel.search(lastSimpleQuery!!)
+        } else if (!lastSearchWasSimple && lastAdvancedCriteria != null) {
+            viewModel.advancedSearch(lastAdvancedCriteria!!, searchImageBitmap)
+        } else {
+            resetSearchState()
+        }
+    }
+
     private fun toggleAdvancedSearch() {
         if (binding.advancedSearchContainer.isGone) {
             binding.advancedSearchContainer.isVisible = true
@@ -145,9 +167,6 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Sets up the dependent dropdown menus for super-category and category in the advanced search section.
-     */
     private fun setupCategorySpinners() {
         val superCategories = CategoryMapper.getSuperCategories()
         val superCategoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, superCategories)
@@ -166,26 +185,17 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Gathers search criteria, hides the keyboard, collapses the advanced search UI if needed,
-     * and triggers the search via the ViewModel.
-     */
     private fun performSearch() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
-        searchHasBeenPerformed = true
 
         val simpleQuery = binding.etSearchSimple.text.toString().trim()
         if (simpleQuery.isNotBlank()) {
             currentSearchDescription = simpleQuery
+            lastSearchWasSimple = true
+            lastSimpleQuery = simpleQuery
             viewModel.search(simpleQuery)
         } else {
-            // Hide the advanced search panel to make room for results
-            if (binding.advancedSearchContainer.isVisible) {
-                binding.advancedSearchContainer.isGone = true
-                binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
-            }
-
             val criteria = SearchCriteria(
                 titre = binding.etSearchTitre.text.toString().trim().takeIf { it.isNotBlank() },
                 editeur = binding.etSearchEditor.text.toString().trim().takeIf { it.isNotBlank() },
@@ -197,6 +207,8 @@ class SearchActivity : AppCompatActivity() {
                 tirage = binding.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() },
                 dimensions = binding.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }
             )
+            lastAdvancedCriteria = criteria
+            lastSearchWasSimple = false
 
             val descriptionParts = listOfNotNull(
                 criteria.titre,
@@ -212,9 +224,6 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Initializes the RecyclerView and its adapter.
-     */
     private fun setupRecyclerView() {
         adapter = CollectionAdapter { searchResult ->
             val intent = Intent(this, EditItemActivity::class.java)
@@ -225,17 +234,11 @@ class SearchActivity : AppCompatActivity() {
         binding.rvSearchResults.layoutManager = LinearLayoutManager(this)
     }
 
-    /**
-     * Inflates the options menu for the search screen.
-     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.search_menu, menu)
         return true
     }
 
-    /**
-     * Handles clicks on items in the options menu (toolbar).
-     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
@@ -243,6 +246,8 @@ class SearchActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_refine_search -> {
+                binding.searchFormContainer.isVisible = true
+                binding.resultsContainer.isVisible = false
                 if (binding.advancedSearchContainer.isGone) {
                     toggleAdvancedSearch()
                 }

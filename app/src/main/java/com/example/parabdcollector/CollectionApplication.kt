@@ -5,6 +5,7 @@ import androidx.annotation.VisibleForTesting
 import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
+import com.example.parabdcollector.utils.GlobalExceptionHandler
 
 /**
  * The base Application class for the project.
@@ -34,4 +35,9 @@ open class CollectionApplication : Application() {
     @VisibleForTesting
     internal open var locationRepository: LocationRepository? = null
         get() = field ?: LocationRepository(database.locationDao())
+
+    override fun onCreate() {
+        super.onCreate()
+        Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHandler(this))
+    }
 }

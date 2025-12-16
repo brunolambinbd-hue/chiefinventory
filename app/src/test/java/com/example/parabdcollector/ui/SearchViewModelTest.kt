@@ -4,8 +4,9 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchCriteria
-import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.ui.model.SearchResultItem
+import com.example.parabdcollector.ui.viewmodel.SearchResultState
 import com.example.parabdcollector.ui.viewmodel.SearchViewModel
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,6 +43,8 @@ class SearchViewModelTest {
         // Mock des dépendances
         repository = mock()
         application = mock() // AndroidViewModel a besoin d'une Application
+        // Configure the mock to return a dummy string for any string resource
+        whenever(application.getString(any())).thenReturn("dummy error message")
 
         // Création du ViewModel avec les mocks
         viewModel = SearchViewModel(application, repository)
@@ -59,7 +62,9 @@ class SearchViewModelTest {
 
         // THEN: Le LiveData des résultats doit être mis à jour avec les données du repository.
         val expectedSearchResults = mockResults.map { SearchResultItem(it) }
-        assertEquals(expectedSearchResults, viewModel.searchResults.value)
+        val state = viewModel.searchResultState.value
+        assertTrue(state is SearchResultState.Success)
+        assertEquals(expectedSearchResults, (state as SearchResultState.Success).results)
     }
 
     @Test
@@ -73,7 +78,9 @@ class SearchViewModelTest {
         viewModel.advancedSearch(criteria, null)
 
         // THEN: Le LiveData des résultats doit être mis à jour.
-        assertEquals(mockResults, viewModel.searchResults.value)
+        val state = viewModel.searchResultState.value
+        assertTrue(state is SearchResultState.Success)
+        assertEquals(mockResults, (state as SearchResultState.Success).results)
         // On vérifie que la bonne méthode du repository a été appelée.
         verify(repository).advancedSearch(criteria, null)
     }
@@ -86,7 +93,9 @@ class SearchViewModelTest {
         viewModel.clearSearchResults()
 
         // THEN: Les LiveData des résultats et de la prévisualisation doivent être vides.
-        assertTrue(viewModel.searchResults.value?.isEmpty() ?: true)
+        val state = viewModel.searchResultState.value
+        assertTrue(state is SearchResultState.Success)
+        assertTrue((state as SearchResultState.Success).results.isEmpty())
         assertTrue(viewModel.signaturePreview.value?.isEmpty() ?: true)
     }
 }

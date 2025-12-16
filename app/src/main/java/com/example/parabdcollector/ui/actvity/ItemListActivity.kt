@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityItemListBinding
@@ -141,6 +142,26 @@ class ItemListActivity : AppCompatActivity() {
         }
         binding.rvItemList.adapter = adapter
         binding.rvItemList.layoutManager = LinearLayoutManager(this)
+
+        binding.rvItemList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                // Show the button if scrolling down, hide if scrolling up
+                if (dy > 0) {
+                    if (!binding.fabScrollToTop.isShown) {
+                        binding.fabScrollToTop.show()
+                    }
+                } else if (dy < 0) {
+                    if (binding.fabScrollToTop.isShown) {
+                        binding.fabScrollToTop.hide()
+                    }
+                }
+            }
+        })
+
+        binding.fabScrollToTop.setOnClickListener {
+            binding.rvItemList.smoothScrollToPosition(0)
+        }
     }
 
     /**

@@ -22,7 +22,7 @@ import com.example.parabdcollector.utils.CategoryMapper
  *
  * @property collectionDao The Data Access Object for collection items, provided via constructor injection.
  */
-class CollectionRepository(private val collectionDao: CollectionDao) {
+open class CollectionRepository(private val collectionDao: CollectionDao) {
 
     /**
      * Retrieves all collection items from the database.
@@ -133,7 +133,7 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
      * @param query The search term.
      * @return A list of matching [CollectionItem]s.
      */
-    suspend fun search(query: String): List<CollectionItem> {
+    open suspend fun search(query: String): List<CollectionItem> {
         return collectionDao.search("%${query}%")
     }
 
@@ -147,7 +147,7 @@ class CollectionRepository(private val collectionDao: CollectionDao) {
      * @param queryEmbedding The float array of the image to search for, or null.
      * @return A list of [SearchResultItem], potentially including similarity scores.
      */
-    suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
+    open suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
         val queryBuilder = StringBuilder("SELECT * FROM collection_items WHERE isPossessed = 0")
         val args = mutableListOf<Any?>()
 

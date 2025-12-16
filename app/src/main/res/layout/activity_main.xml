@@ -82,6 +82,12 @@
                         android:layout_height="wrap_content"
                         tools:text="Signatures Manquantes : 0" />
 
+                    <Button
+                        android:id="@+id/btn_test_crash"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Test Crash" />
+
                 </LinearLayout>
 
             </LinearLayout>

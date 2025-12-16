@@ -60,6 +60,11 @@
     <string name="advanced_search_show">Recherche avancée</string>
     <string name="advanced_search_hide">Masquer la recherche avancée</string>
     <string name="search_by_image_description">Rechercher par image</string>
+    <string name="retry">Réessayer</string>
+    <string name="search_no_results">Aucun résultat</string>
+    <string name="search_error_simple">La recherche textuelle a échoué.</string>
+    <string name="search_error_advanced">La recherche avancée a échoué.</string>
+    <string name="search_error_image_analysis">Erreur lors de l\'analyse de l\'image.</string>
     <plurals name="search_results_count">
         <item quantity="one">%1$d résultat trouvé</item>
         <item quantity="many">%1$d résultats trouvés</item>
@@ -131,5 +136,7 @@
     <string name="inventory_for_location">Inventaire pour : %1$s</string>
     <string name="inventory_create_new_button">Objet non trouvé ? Créer une nouvelle entrée</string>
     <string name="scan_item_button">Scanner un objet</string>
+    <string name="la_recherche_textuelle_a_chou">La recherche textuelle a échoué.</string>
+    <string name="erreur_lors_de_l_analyse_de_l_image">Erreur lors de l\'analyse de l\'image.</string>
 
 </resources>

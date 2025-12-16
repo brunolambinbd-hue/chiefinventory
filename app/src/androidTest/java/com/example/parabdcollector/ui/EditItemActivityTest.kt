@@ -26,6 +26,7 @@ import com.example.parabdcollector.repo.LocationRepository
 import com.example.parabdcollector.ui.actvity.EditItemActivity
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -83,7 +84,7 @@ class EditItemActivityTest {
         onView(withId(R.id.btnSave)).perform(click())
 
         // THEN: The activity should finish and the item should be in the database.
-        Thread.sleep(500) // Give time for activity to close
+        delay(500) // Give time for activity to close
         assertTrue(scenario.state == Lifecycle.State.DESTROYED)
 
         val savedItem = dao.search(testTitle).firstOrNull()
@@ -117,9 +118,19 @@ class EditItemActivityTest {
         onView(withId(R.id.btnSave)).perform(click())
 
         // THEN: The changes should be saved in the database.
-        Thread.sleep(500) // Give time for activity to close and DB to update
-        val updatedItemInDb = dao.search(updatedTitle).firstOrNull()
-        assertNotNull("Item should be found in DB after update", updatedItemInDb)
+        var updatedItemInDb: CollectionItem? = null
+        val timeout = 3000L // 3 seconds timeout
+        val pollInterval = 200L // check every 200ms
+        var timeElapsed = 0L
+        while (updatedItemInDb == null && timeElapsed < timeout) {
+            updatedItemInDb = dao.search(updatedTitle).firstOrNull()
+            if (updatedItemInDb == null) {
+                delay(pollInterval)
+                timeElapsed += pollInterval
+            }
+        }
+
+        assertNotNull("Item should be found in DB after update (timed out after ${timeout}ms)", updatedItemInDb)
         assertEquals(updatedTitle, updatedItemInDb?.titre)
         assertEquals(1L, updatedItemInDb?.id) // Check ID is preserved
     }

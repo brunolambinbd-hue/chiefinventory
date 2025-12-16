@@ -119,6 +119,8 @@
     <string name="restore_failed">Échec de la restauration : %1$s</string>
     <string name="inventory_create_new_button">Objet non trouvé ? Créer une nouvelle entrée</string>
     <string name="scan_item_button">Scanner un objet</string>
+    <string name="la_recherche_textuelle_a_chou">La recherche textuelle a échoué.</string>
+    <string name="erreur_lors_de_l_analyse_de_l_image">Erreur lors de l\'analyse de l\'image.</string>
 
 
 </resources>
