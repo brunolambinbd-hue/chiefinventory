@@ -64,7 +64,7 @@
     <string name="search_no_results">Aucun résultat</string>
     <string name="search_error_simple">La recherche textuelle a échoué.</string>
     <string name="search_error_advanced">La recherche avancée a échoué.</string>
-    <string name="search_error_image_analysis">Erreur lors de l\'analyse de l\'image.</string>
+    <string name="search_error_image_analysis" translatable="false">Erreur lors de l\'analyse de l\'image.</string>
     <plurals name="search_results_count">
         <item quantity="one">%1$d résultat trouvé</item>
         <item quantity="many">%1$d résultats trouvés</item>
@@ -138,5 +138,9 @@
     <string name="scan_item_button">Scanner un objet</string>
     <string name="la_recherche_textuelle_a_chou">La recherche textuelle a échoué.</string>
     <string name="erreur_lors_de_l_analyse_de_l_image">Erreur lors de l\'analyse de l\'image.</string>
+    <string name="red_marrer_l_application">Redémarrer l\'application</string>
+    <string name="une_erreur_inattendue_s_est_produite">Une erreur inattendue s\'est produite.</string>
+    <string name="remonter_en_haut_de_la_liste">Remonter en haut de la liste</string>
+    <string name="test_crash">Test Crash</string>
 
 </resources>

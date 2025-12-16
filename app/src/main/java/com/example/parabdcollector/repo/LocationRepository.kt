@@ -45,4 +45,13 @@ class LocationRepository(private val locationDao: LocationDao) {
     suspend fun delete(location: Location) {
         locationDao.delete(location)
     }
+
+    /**
+     * Updates the parent of a given location.
+     * @param locationId The ID of the location to move.
+     * @param newParentId The ID of the new parent. Can be null to move to the root.
+     */
+    suspend fun updateLocationParent(locationId: Long, newParentId: Long?) {
+        locationDao.updateLocationParent(locationId, newParentId)
+    }
 }

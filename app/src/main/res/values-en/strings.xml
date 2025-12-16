@@ -126,5 +126,14 @@
     <string name="inventory_for_location">Inventory for : %1$s</string>
     <string name="inventory_create_new_button">Item not found? Create a new entry</string>
     <string name="scan_item_button">Scan an item</string>
+    <string name="retry">Retry</string>
+    <string name="search_no_results">No result</string>
+    <string name="search_error_simple">The basic research has failed</string>
+    <string name="search_error_advanced">The advanced research has failed</string>
+    <string name="erreur_lors_de_l_analyse_de_l_image">Error during analyis of image</string>
+    <string name="red_marrer_l_application">Restart application</string>
+    <string name="la_recherche_textuelle_a_chou">Textual research has failed</string>
+    <string name="une_erreur_inattendue_s_est_produite">Unexpected error</string>
+    <string name="remonter_en_haut_de_la_liste">Go up on top of list</string>
 
 </resources>

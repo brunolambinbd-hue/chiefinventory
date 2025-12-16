@@ -1,16 +1,18 @@
 package com.example.parabdcollector.repo
 
 import android.util.Log
+import androidx.annotation.ColorRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.imagecomparison.EmbeddingUtils
+import com.example.parabdcollector.R
 import com.example.parabdcollector.dao.CollectionDao
+import com.example.parabdcollector.dao.ItemCountForLocation
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.ui.model.CategoryInfo
-import com.example.parabdcollector.ui.model.ItemCountForLocation
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.utils.CategoryMapper
 
@@ -254,13 +256,33 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         return dotProduct / (normaSqrt * normbSqrt)
     }
 
+    @ColorRes
+    private fun getStatusColor(possessedCount: Int, totalCount: Int, isSoughtMode: Boolean): Int {
+        if (totalCount == 0) return R.color.status_error
+
+        val percentage = (possessedCount * 100) / totalCount
+        return if (isSoughtMode) {
+            when {
+                percentage > 75 -> R.color.status_ok // Almost complete, few sought
+                percentage > 25 -> R.color.status_warning
+                else -> R.color.status_error // Not complete at all, many sought
+            }
+        } else {
+            when {
+                percentage < 25 -> R.color.status_error
+                percentage < 75 -> R.color.status_warning
+                else -> R.color.status_ok
+            }
+        }
+    }
+
     /**
      * Returns statistical information about super-categories, including possessed and total counts.
      * This implementation ensures that ALL super-categories from the [CategoryMapper] are displayed,
      * even those with a total count of 0.
      * @return A [LiveData] list of [CategoryInfo] objects.
      */
-    fun getSuperCategoryInfo(): LiveData<List<CategoryInfo>> {
+    fun getSuperCategoryInfo(isSoughtMode: Boolean): LiveData<List<CategoryInfo>> {
         val allSuperCategories = CategoryMapper.getSuperCategories()
         val categoryInfoFromDb = collectionDao.getSuperCategoryInfo()
 
@@ -268,10 +290,13 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
             val dbCountsMap = dbCounts.associateBy { it.name }
             allSuperCategories.map { superCategoryName ->
                 val counts = dbCountsMap[superCategoryName]
+                val possessed = counts?.possessedCount ?: 0
+                val total = counts?.totalCount ?: 0
                 CategoryInfo(
                     name = superCategoryName,
-                    possessedCount = counts?.possessedCount ?: 0,
-                    totalCount = counts?.totalCount ?: 0
+                    possessedCount = possessed,
+                    totalCount = total,
+                    statusColorRes = getStatusColor(possessed, total, isSoughtMode)
                 )
             }
         }
@@ -284,7 +309,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
      * @param superCategory The name of the super-category to filter by.
      * @return A [LiveData] list of [CategoryInfo] objects.
      */
-    fun getCategoryInfoForSuperCategory(superCategory: String): LiveData<List<CategoryInfo>> {
+    fun getCategoryInfoForSuperCategory(superCategory: String, isSoughtMode: Boolean): LiveData<List<CategoryInfo>> {
         val allSubCategories = CategoryMapper.getCategoriesFor(superCategory)
         val categoryInfoFromDb = collectionDao.getCategoryInfoForSuperCategory(superCategory)
 
@@ -292,10 +317,13 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
             val dbCountsMap = dbCounts.associateBy { it.name }
             allSubCategories.map { subCategoryName ->
                 val counts = dbCountsMap[subCategoryName]
+                val possessed = counts?.possessedCount ?: 0
+                val total = counts?.totalCount ?: 0
                 CategoryInfo(
                     name = subCategoryName,
-                    possessedCount = counts?.possessedCount ?: 0,
-                    totalCount = counts?.totalCount ?: 0
+                    possessedCount = possessed,
+                    totalCount = total,
+                    statusColorRes = getStatusColor(possessed, total, isSoughtMode)
                 )
             }
         }
@@ -305,11 +333,11 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
      * Returns a list of items belonging to a specific category and super-category.
      * @param superCategory The name of the super-category.
      * @param category The name of the detailed category.
-     * @param isPossessed True to get possessed items, false for sought items.
+     * @param isSoughtMode True to get possessed items, false for sought items.
      * @return A [LiveData] list of matching [CollectionItem]s.
      */
-    fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>> {
-        return collectionDao.getItemsBySuperCategoryAndCategory(superCategory, category, isPossessed)
+    fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isSoughtMode: Boolean): LiveData<List<CollectionItem>> {
+        return collectionDao.getItemsBySuperCategoryAndCategory(superCategory, category, isSoughtMode)
     }
 
     /**

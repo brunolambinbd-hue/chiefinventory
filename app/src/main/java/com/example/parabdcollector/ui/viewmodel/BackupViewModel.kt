@@ -16,23 +16,11 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-/**
- * ViewModel for the database backup and restore functionality.
- *
- * This class handles the file I/O operations required to copy the Room database files
- * to and from an external location chosen by the user.
- */
 class BackupViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _operationStatus = MutableLiveData<String>()
     val operationStatus: LiveData<String> = _operationStatus
 
-    /**
-     * Creates a backup of the current database to the specified destination URI.
-     *
-     * @param destinationUri The URI chosen by the user via the file picker.
-     * @param dispatcher The coroutine dispatcher to use for the operation. Defaults to [Dispatchers.IO].
-     */
     fun backupDatabase(destinationUri: Uri, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
         viewModelScope.launch(dispatcher) {
             val context = getApplication<Application>()
@@ -52,19 +40,6 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /**
-     * Restores the database from a specified backup file URI.
-     *
-     * This is a sensitive operation that involves several critical steps:
-     * 1. Close the current database connection AND destroy the singleton instance.
-     * 2. Delete the existing database files, including the main .db file and its
-     *    journaling files (-shm and -wal), to prevent data corruption.
-     * 3. Copy the backup file into the app's database directory.
-     * The app must be restarted after this operation for the changes to take effect.
-     *
-     * @param sourceUri The URI of the backup file chosen by the user.
-     * @param dispatcher The coroutine dispatcher to use for the operation. Defaults to [Dispatchers.IO].
-     */
     fun restoreDatabase(sourceUri: Uri, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
         viewModelScope.launch(dispatcher) {
             val context = getApplication<Application>()
@@ -73,11 +48,12 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
             val walFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-wal")
             val shmFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-shm")
 
-            // This is the most critical step. We must close the database and clear the singleton
-            // instance to ensure the app creates a new connection on next launch.
+            // CRITICAL STEP: Close the database connection and destroy the singleton instance.
             AppDatabase.closeInstance()
 
-            // Delete the old database files. If any deletion fails, abort the restore.
+            // Allow some time for the system to release file locks.
+            Thread.sleep(500)
+
             val deleteSuccess = (!dbFile.exists() || dbFile.delete()) &&
                                 (!walFile.exists() || walFile.delete()) &&
                                 (!shmFile.exists() || shmFile.delete())
@@ -88,7 +64,6 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
                 return@launch
             }
 
-            // Now, copy the backup file to the database location.
             try {
                 context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
                     FileOutputStream(dbFile).use { outputStream ->

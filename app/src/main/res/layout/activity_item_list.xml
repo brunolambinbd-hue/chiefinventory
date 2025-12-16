@@ -35,6 +35,6 @@
         android:visibility="gone"
         app:backgroundTint="?attr/colorSecondary"
         app:tint="?attr/colorOnSecondary"
-        android:contentDescription="Remonter en haut de la liste" />
+        android:contentDescription="@string/remonter_en_haut_de_la_liste" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

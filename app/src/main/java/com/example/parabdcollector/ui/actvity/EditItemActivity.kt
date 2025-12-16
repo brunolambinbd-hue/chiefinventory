@@ -3,7 +3,6 @@ package com.example.parabdcollector.ui.actvity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -24,13 +23,6 @@ import com.example.parabdcollector.utils.CategoryMapper
 import com.example.parabdcollector.utils.ImageCaptureUtil
 import kotlinx.coroutines.launch
 
-/**
- * Activity for creating a new collection item or editing an existing one.
- *
- * This screen provides a form with numerous fields to input item details.
- * Its mode (create or edit) is determined by the presence of an "itemId" in the launch Intent.
- * It also supports pre-filling certain fields (location, image) when launched from the inventory scanner.
- */
 class EditItemActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditItemBinding
@@ -154,7 +146,7 @@ class EditItemActivity : AppCompatActivity() {
             val currentLocation = locationMap[currentId]?.location
             if (currentLocation != null) {
                 pathParts.add(0, currentLocation.name)
-                currentId = currentLocation.parentLocationId
+                currentId = currentLocation.parentId
             } else {
                 break
             }
@@ -296,40 +288,22 @@ class EditItemActivity : AppCompatActivity() {
                 materiau = binding.etMaterial.text.toString(),
                 tirage = binding.etPrintRun.text.toString(),
                 dimensions = binding.etDimensions.text.toString(),
+                description = binding.etDescription.text.toString(),
                 prixAchat = binding.etPurchasePrice.text.toString().toDoubleOrNull(),
                 valeurEstimee = binding.etEstimatedValue.text.toString().toDoubleOrNull(),
                 lieuAchat = binding.etPurchaseLocation.text.toString(),
-                description = binding.etDescription.text.toString(),
-                locationId = selectedLocationId,
                 imageUri = viewModel.imageUri.value?.toString(),
-                imageEmbedding = imageEmbedding
+                imageEmbedding = imageEmbedding,
+                locationId = selectedLocationId
             )
-
-            if (isNewItem) {
-                viewModel.insert(itemToSave)
-            } else {
-                viewModel.update(itemToSave)
-            }
+            viewModel.saveItem(itemToSave)
             finish()
-        }
-    }
-
-    /**
-     * Handles action bar item clicks. Specifically handles the "Up" button.
-     */
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 
     companion object {
         const val EXTRA_ITEM_ID = "itemId"
-        const val EXTRA_PREFILL_LOCATION_ID = "prefill_location_id"
-        const val EXTRA_PREFILL_IMAGE_URI = "prefill_image_uri"
+        const val EXTRA_PREFILL_LOCATION_ID = "prefillLocationId"
+        const val EXTRA_PREFILL_IMAGE_URI = "prefillImageUri"
     }
 }

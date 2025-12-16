@@ -1,6 +1,5 @@
 package com.example.parabdcollector.ui.adapter
 
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater

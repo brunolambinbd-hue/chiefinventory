@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Process
 import com.example.parabdcollector.ui.actvity.CrashActivity
-import com.example.parabdcollector.ui.actvity.MainActivity
 import java.io.File
 import java.io.FileWriter
 import java.text.SimpleDateFormat

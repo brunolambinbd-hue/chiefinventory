@@ -4,56 +4,47 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.dao.LocationDao
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.Location
 
-/**
- * The main Room database class for the application.
- *
- * This abstract class defines the database configuration and serves as the main access point
- * to the persisted data. It lists the entities (tables) and provides abstract methods for each DAO.
- */
-@Database(entities = [CollectionItem::class, Location::class], version = 9, exportSchema = false)
+// Set the definitive new version to 13 to fix schema inconsistencies.
+@Database(entities = [CollectionItem::class, Location::class], version = 13, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-
-    /**
-     * Provides access to the Data Access Object for [CollectionItem]s.
-     * @return The [CollectionDao] instance.
-     */
     abstract fun collectionDao(): CollectionDao
-
-    /**
-     * Provides access to the Data Access Object for [Location]s.
-     * @return The [LocationDao] instance.
-     */
     abstract fun locationDao(): LocationDao
 
     companion object {
-        /**
-         * The name of the database file.
-         */
+        const val DATABASE_VERSION = 13
         const val DATABASE_NAME = "collection_database"
-
-        /**
-         * The current version of the database schema.
-         * This must be incremented when the schema changes.
-         */
-        const val DATABASE_VERSION = 9
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        /**
-         * Gets the singleton instance of the [AppDatabase].
-         *
-         * This method uses a synchronized block to ensure thread safety, guaranteeing that only one
-         * instance of the database is ever created.
-         *
-         * @param context The application context.
-         * @return The singleton [AppDatabase] instance.
-         */
+        private fun performRepairMigration(database: SupportSQLiteDatabase) {
+            // This migration rebuilds the locations table to fix any schema inconsistencies.
+            // This will reset the locations hierarchy but preserve all collection items.
+            database.execSQL("DROP TABLE IF EXISTS locations")
+            database.execSQL("CREATE TABLE `locations` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `parentId` INTEGER)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_locations_parentId` ON `locations` (`parentId`)")
+        }
+
+        val MIGRATION_9_13: Migration = object : Migration(9, 13) {
+            override fun migrate(database: SupportSQLiteDatabase) = performRepairMigration(database)
+        }
+        val MIGRATION_10_13: Migration = object : Migration(10, 13) {
+            override fun migrate(database: SupportSQLiteDatabase) = performRepairMigration(database)
+        }
+        val MIGRATION_11_13: Migration = object : Migration(11, 13) {
+            override fun migrate(database: SupportSQLiteDatabase) = performRepairMigration(database)
+        }
+        val MIGRATION_12_13: Migration = object : Migration(12, 13) {
+            override fun migrate(database: SupportSQLiteDatabase) = performRepairMigration(database)
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -61,20 +52,15 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .fallbackToDestructiveMigration()
+                // This provides a recovery path from any recent version to the new stable version 13.
+                // It will reset the locations hierarchy but preserve all collection items.
+                .addMigrations(MIGRATION_9_13, MIGRATION_10_13, MIGRATION_11_13, MIGRATION_12_13)
                 .build()
                 INSTANCE = instance
                 instance
             }
         }
 
-        /**
-         * Closes the database connection and invalidates the singleton instance.
-         *
-         * This is a critical step to perform before any operation that replaces the database file,
-         * such as a restore from backup. It ensures that the app "forgets" the old database
-         * and is forced to create a fresh connection on next access.
-         */
         fun closeInstance() {
             INSTANCE?.close()
             INSTANCE = null

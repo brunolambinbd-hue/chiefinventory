@@ -53,8 +53,11 @@ class LocationManagementActivity : AppCompatActivity() {
             locationAdapter.submitList(it)
         }
 
-        binding.fabAddLocation.setOnClickListener {
-            showAddLocationDialog(null) // No parent for a root location
+        // Expand all parent locations the first time the list is loaded.
+        viewModel.displayLocations.observeOnce(this) { locations ->
+            if (locations.isNotEmpty()) {
+                viewModel.expandAll()
+            }
         }
     }
 
@@ -125,8 +128,7 @@ class LocationManagementActivity : AppCompatActivity() {
                     } else {
                         possibleParents[which - 1].location.id
                     }
-                    val updatedLocation = locationToMove.copy(parentLocationId = newParentId)
-                    viewModel.update(updatedLocation)
+                    viewModel.updateLocationParent(locationToMove.id, newParentId)
                     dialog.dismiss()
                 }
                 .setNegativeButton("Annuler", null)
@@ -143,12 +145,12 @@ class LocationManagementActivity : AppCompatActivity() {
      */
     private fun isDescendant(potentialChild: Location, locationToMove: Location, locationMap: Map<Long, DisplayLocation>): Boolean {
         var current: Location? = potentialChild
-        while (current?.parentLocationId != null) {
-            if (current.parentLocationId == locationToMove.id) {
+        while (current?.parentId != null) {
+            if (current.parentId == locationToMove.id) {
                 return true
             }
             // Traverse up the tree to find the next parent.
-            current = locationMap[current.parentLocationId]?.location
+            current = locationMap[current.parentId]?.location
         }
         return false
     }
@@ -166,7 +168,7 @@ class LocationManagementActivity : AppCompatActivity() {
         while (currentId != null) {
             val currentLocation = locationMap[currentId]?.location
             pathParts.add(0, currentLocation?.name ?: "Unknown")
-            currentId = currentLocation?.parentLocationId
+            currentId = currentLocation?.parentId
         }
         return pathParts.joinToString(" > ")
     }
@@ -187,7 +189,7 @@ class LocationManagementActivity : AppCompatActivity() {
             .setPositiveButton("Ajouter") { dialog, _ ->
                 val name = editText.text.toString()
                 if (name.isNotBlank()) {
-                    val newLocation = Location(name = name, parentLocationId = parentLocation?.id)
+                    val newLocation = Location(name = name, parentId = parentLocation?.id)
                     viewModel.insert(newLocation)
                 }
                 dialog.dismiss()

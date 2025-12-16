@@ -2,6 +2,7 @@ package com.example.parabdcollector.ui.adapter
 
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -12,20 +13,30 @@ import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ItemCategoryRevisedBinding
 import com.example.parabdcollector.ui.model.CategoryInfo
 
-/**
- * A RecyclerView adapter for displaying a list of categories.
- *
- * @param isSoughtMode A boolean flag to determine the display format.
- *                     If true (for "Mes Recherches"), shows "(sought/total)".
- *                     If false (for "Mes Produits"), shows "(possessed/total)".
- * @param onItemClicked A lambda function that is invoked with the category name when an item is clicked.
- */
-class CategoryAdapterRevised(private val isSoughtMode: Boolean, private val onItemClicked: (String) -> Unit) :
-    ListAdapter<CategoryInfo, CategoryAdapterRevised.CategoryViewHolder>(DiffCallback) {
+class CategoryAdapterRevised(
+    private val isSoughtMode: Boolean, 
+    private val onItemClicked: (String) -> Unit
+) : ListAdapter<CategoryInfo, CategoryAdapterRevised.CategoryViewHolder>(DiffCallback) {
+
+    // Enum to represent the possible changes in a payload.
+    private enum class Payload {
+        PROGRESS_UPDATE
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val binding = ItemCategoryRevisedBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return CategoryViewHolder(binding, isSoughtMode)
+    }
+
+    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            // No payload, do a full bind
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            // Payload present, do a partial update
+            val current = getItem(position)
+            holder.updateProgress(current)
+        }
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
@@ -38,9 +49,12 @@ class CategoryAdapterRevised(private val isSoughtMode: Boolean, private val onIt
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(categoryInfo: CategoryInfo) {
-            val context = binding.root.context
             binding.revisedCategoryName.text = categoryInfo.name
+            updateProgress(categoryInfo)
+        }
 
+        fun updateProgress(categoryInfo: CategoryInfo) {
+            val context = binding.root.context
             val possessedCount = categoryInfo.possessedCount
             val totalCount = categoryInfo.totalCount
             val soughtCount = totalCount - possessedCount
@@ -69,9 +83,7 @@ class CategoryAdapterRevised(private val isSoughtMode: Boolean, private val onIt
                     }
                 }
                 val color = ContextCompat.getColor(context, progressColorRes)
-                binding.revisedCategoryProgress.progressDrawable.colorFilter = 
-                    PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
-
+                binding.revisedCategoryProgress.progressDrawable.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
             } else {
                 binding.revisedCategoryProgress.max = 1
                 binding.revisedCategoryProgress.progress = 0
@@ -80,13 +92,21 @@ class CategoryAdapterRevised(private val isSoughtMode: Boolean, private val onIt
     }
 
     companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<CategoryInfo>() {
+        private object DiffCallback : DiffUtil.ItemCallback<CategoryInfo>() {
             override fun areItemsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
                 return oldItem.name == newItem.name
             }
 
             override fun areContentsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
-                return oldItem == newItem
+                return oldItem.possessedCount == newItem.possessedCount && oldItem.totalCount == newItem.totalCount
+            }
+
+            override fun getChangePayload(oldItem: CategoryInfo, newItem: CategoryInfo): Any? {
+                return if (oldItem.possessedCount != newItem.possessedCount || oldItem.totalCount != newItem.totalCount) {
+                    Payload.PROGRESS_UPDATE
+                } else {
+                    null
+                }
             }
         }
     }

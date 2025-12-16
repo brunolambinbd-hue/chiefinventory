@@ -70,11 +70,12 @@ class CategoryListActivity : AppCompatActivity() {
      * The title now includes the root context in a smaller font size (e.g., "Image (Mes Produits)").
      */
     private fun observeViewModel() {
+        val isSoughtMode = !isPossessed
         if (superCategory == null) {
             // This is the super-category list (Page 2)
             Log.d("CategoryListActivity", "Page 2 - superCategory: rootTitle: $rootTitle")
             supportActionBar?.title = rootTitle
-            viewModel.getSuperCategoryInfo().observe(this) { adapter.submitList(it) }
+            viewModel.getSuperCategoryInfo(isSoughtMode).observe(this) { adapter.submitList(it) }
         } else {
             // This is the category list (Page 3)
             Log.d("CategoryListActivity", "Page 3 - superCategory: $superCategory, rootTitle: $rootTitle")
@@ -110,7 +111,7 @@ class CategoryListActivity : AppCompatActivity() {
             supportActionBar?.title = spannable
             findToolbarTitleView()?.movementMethod = LinkMovementMethod.getInstance()
 
-            viewModel.getCategoryInfoForSuperCategory(superCategory!!).observe(this) { adapter.submitList(it) }
+            viewModel.getCategoryInfoForSuperCategory(superCategory!!, isSoughtMode).observe(this) { adapter.submitList(it) }
         }
     }
 

@@ -64,7 +64,7 @@ class EditItemViewModel(
      */
     private fun buildDisplayList(locations: List<Location>): List<DisplayLocation> {
         val displayList = mutableListOf<DisplayLocation>()
-        val locationsByParent = locations.groupBy { it.parentLocationId }
+        val locationsByParent = locations.groupBy { it.parentId }
 
         fun addChildren(parentId: Long?, depth: Int) {
             locationsByParent[parentId]?.sortedBy { it.name }?.forEach { location ->
@@ -107,6 +107,18 @@ class EditItemViewModel(
     suspend fun calculateSignature(bitmap: Bitmap, dispatcher: CoroutineDispatcher = Dispatchers.IO): ByteArray? = withContext(dispatcher) {
         val signature = imageEmbedderHelper.computeSignature(bitmap)
         signature?.let { EmbeddingUtils.embeddingToByteArray(it) }
+    }
+
+    /**
+     * Saves the given item to the database, either by inserting or updating it.
+     * @param item The [CollectionItem] to save.
+     */
+    fun saveItem(item: CollectionItem) = viewModelScope.launch {
+        if (item.id == 0L) {
+            collectionRepository.insert(item)
+        } else {
+            collectionRepository.update(item)
+        }
     }
 
     /**

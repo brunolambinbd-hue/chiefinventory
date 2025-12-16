@@ -41,7 +41,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(SignatureReportViewModel::class.java) ->
                 SignatureReportViewModel(collectionRepository) as T
             modelClass.isAssignableFrom(LocationViewModel::class.java) ->
-                LocationViewModel(locationRepository, collectionRepository) as T
+                LocationViewModel(locationRepository) as T
             modelClass.isAssignableFrom(EditItemViewModel::class.java) ->
                 EditItemViewModel(application, collectionRepository, locationRepository) as T
             modelClass.isAssignableFrom(InventoryViewModel::class.java) ->

@@ -35,8 +35,8 @@ class MainViewModel(private val repository: CollectionRepository) : ViewModel() 
      * Returns statistical information about super-categories.
      * @return A [LiveData] list of [CategoryInfo] objects with possessed and total counts.
      */
-    fun getSuperCategoryInfo(): LiveData<List<CategoryInfo>> {
-        return repository.getSuperCategoryInfo()
+    fun getSuperCategoryInfo(isSoughtMode: Boolean): LiveData<List<CategoryInfo>> {
+        return repository.getSuperCategoryInfo(isSoughtMode)
     }
 
     /**
@@ -44,8 +44,8 @@ class MainViewModel(private val repository: CollectionRepository) : ViewModel() 
      * @param superCategory The name of the super-category to filter by.
      * @return A [LiveData] list of [CategoryInfo] objects with possessed and total counts.
      */
-    fun getCategoryInfoForSuperCategory(superCategory: String): LiveData<List<CategoryInfo>> {
-        return repository.getCategoryInfoForSuperCategory(superCategory)
+    fun getCategoryInfoForSuperCategory(superCategory: String, isSoughtMode: Boolean): LiveData<List<CategoryInfo>> {
+        return repository.getCategoryInfoForSuperCategory(superCategory, isSoughtMode)
     }
 
     /**

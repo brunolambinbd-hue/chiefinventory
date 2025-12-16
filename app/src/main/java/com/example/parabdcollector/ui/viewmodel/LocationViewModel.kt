@@ -7,76 +7,68 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.parabdcollector.model.Location
-import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
-import com.example.parabdcollector.ui.actvity.LocationManagementActivity
 import com.example.parabdcollector.ui.model.DisplayLocation
-import com.example.parabdcollector.ui.model.ExpandableLocation
-import com.example.parabdcollector.ui.model.ItemCountForLocation
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for the location management screen ([LocationManagementActivity]).
- *
- * This class is responsible for managing the hierarchical state of locations, including which
- * items are expanded or collapsed, and for providing a flattened list for the UI to display.
- *
- * @property locationRepository The [LocationRepository] for accessing location data.
- * @property collectionRepository The [CollectionRepository] for accessing item data, used here to get item counts.
- */
-class LocationViewModel(
-    private val locationRepository: LocationRepository,
-    private val collectionRepository: CollectionRepository
-) : ViewModel() {
+class LocationViewModel(private val repository: LocationRepository) : ViewModel() {
 
-    private val allLocations: LiveData<List<Location>> = locationRepository.getAll()
-    private val itemCountByLocation: LiveData<List<ItemCountForLocation>> = collectionRepository.getItemCountByLocation()
-    private val _expandedState = MutableLiveData<Set<Long>>(emptySet())
+    val allLocations: LiveData<List<Location>> = repository.getAll()
 
-    // A flag to ensure the initial "expand all" state is only set once.
-    private var initialStateSet = false
+    private val _expandedStates = MutableLiveData<Set<Long>>(emptySet())
 
-    private val _visibleLocations = MediatorLiveData<List<ExpandableLocation>>()
-    /** The final, flattened list of locations to be displayed in the RecyclerView, reflecting the current expanded/collapsed state. */
-    val visibleLocations: LiveData<List<ExpandableLocation>> = _visibleLocations
+    /** A flat list of all locations, decorated with their depth for indented display. Used for dialogs. */
+    val displayLocations: LiveData<List<DisplayLocation>> = allLocations.map { buildDisplayList(it) }
 
-    val displayLocations: LiveData<List<DisplayLocation>> = allLocations.map {
-        buildDisplayList(it)
-    }
+    /** A filtered list of locations that should be visible based on the current expansion states. */
+    val visibleLocations: LiveData<List<DisplayLocation>> = MediatorLiveData<List<DisplayLocation>>().apply {
+        var allDisplayLocations: List<DisplayLocation> = emptyList()
+        var expandedIds: Set<Long> = emptySet()
 
-    init {
-        // This function will be called whenever any of the source LiveData changes.
-        fun updateVisibleList() {
-            val locations = allLocations.value ?: return
-            val counts = itemCountByLocation.value ?: emptyList()
-            var expandedIds = _expandedState.value ?: emptySet()
+        fun update() {
+            val visibleList = mutableListOf<DisplayLocation>()
+            val locationMap = allDisplayLocations.associateBy { it.location.id }
 
-            // If we haven't set the initial state and there are locations to process...
-            if (!initialStateSet && locations.isNotEmpty()) {
-                // ...calculate the initial expanded set (all locations that are parents)...
-                val parentIds = locations.mapNotNull { it.parentLocationId }.toSet()
-                // ...and use it for this calculation.
-                expandedIds = parentIds
-                // IMPORTANT: Also update the LiveData so that subsequent user toggles work correctly.
-                _expandedState.value = parentIds
-                initialStateSet = true
+            for (displayLocation in allDisplayLocations) {
+                // A location is visible if it is a root item, or if its direct parent is expanded.
+                val parentId = displayLocation.location.parentId
+                if (parentId == null) {
+                    visibleList.add(displayLocation)
+                } else if (expandedIds.contains(parentId)) {
+                    // To be visible, all its ancestors must also be expanded
+                    var isAncestorPathExpanded = true
+                    var currentParentId = locationMap[parentId]?.location?.parentId
+                    while (currentParentId != null) {
+                        if (!expandedIds.contains(currentParentId)) {
+                            isAncestorPathExpanded = false
+                            break
+                        }
+                        currentParentId = locationMap[currentParentId]?.location?.parentId
+                    }
+                    if (isAncestorPathExpanded) {
+                        visibleList.add(displayLocation)
+                    }
+                }
             }
-
-            _visibleLocations.value = buildVisibleList(locations, counts, expandedIds)
+            value = visibleList
         }
 
-        _visibleLocations.addSource(allLocations) { updateVisibleList() }
-        _visibleLocations.addSource(itemCountByLocation) { updateVisibleList() }
-        _visibleLocations.addSource(_expandedState) { updateVisibleList() }
+        addSource(displayLocations) {
+            allDisplayLocations = it
+            update()
+        }
+        addSource(_expandedStates) {
+            expandedIds = it
+            update()
+        }
     }
 
     /**
-     * Toggles the expanded/collapsed state of a given location.
-     * @param locationId The ID of the location to toggle.
+     * Toggles the expansion state for a given location ID.
      */
     fun toggleExpansion(locationId: Long) {
-        val currentExpanded = _expandedState.value ?: emptySet()
-        _expandedState.value = if (currentExpanded.contains(locationId)) {
+        val currentExpanded = _expandedStates.value ?: emptySet()
+        _expandedStates.value = if (locationId in currentExpanded) {
             currentExpanded - locationId
         } else {
             currentExpanded + locationId
@@ -84,54 +76,19 @@ class LocationViewModel(
     }
 
     /**
-     * Constructs the visible list of [ExpandableLocation]s based on the full list and the current expanded state.
-     * @param all The complete list of all locations.
-     * @param counts The list of item counts per location.
-     * @param expandedIds The set of IDs for locations that are currently expanded.
-     * @return A flattened list representing the visible portion of the location tree.
+     * Expands all parent locations to show their children.
      */
-    private fun buildVisibleList(
-        all: List<Location>,
-        counts: List<ItemCountForLocation>,
-        expandedIds: Set<Long>
-    ): List<ExpandableLocation> {
-        val visibleList = mutableListOf<ExpandableLocation>()
-        val locationsByParent = all.groupBy { it.parentLocationId }
-        val allChildrenMap = all.associate { it.id to locationsByParent.containsKey(it.id) }
-        val countsMap = counts.associateBy { it.locationId }
-
-        fun addChildren(parentId: Long?, depth: Int) {
-            val children = locationsByParent[parentId]?.sortedBy { it.name }
-            children?.forEach { location ->
-                val hasChildren = allChildrenMap[location.id] ?: false
-                val itemCount = countsMap[location.id]?.count ?: 0
-                visibleList.add(
-                    ExpandableLocation(
-                        location = location,
-                        depth = depth,
-                        isExpanded = expandedIds.contains(location.id),
-                        hasChildren = hasChildren,
-                        itemCount = itemCount
-                    )
-                )
-                if (expandedIds.contains(location.id)) {
-                    addChildren(location.id, depth + 1)
-                }
-            }
+    fun expandAll() {
+        displayLocations.value?.let { allLocations ->
+            // Find all unique parent IDs from the list of all locations.
+            val parentIds = allLocations.mapNotNull { it.location.parentId }.toSet()
+            _expandedStates.value = parentIds
         }
-
-        addChildren(null, 0)
-        return visibleList
     }
 
-    /**
-     * Recursively builds a flat list of [DisplayLocation]s from a hierarchical list of [Location]s for dropdown display.
-     * @param locations The complete list of locations from the database.
-     * @return A list of [DisplayLocation]s, ordered and with depth information.
-     */
     private fun buildDisplayList(locations: List<Location>): List<DisplayLocation> {
         val displayList = mutableListOf<DisplayLocation>()
-        val locationsByParent = locations.groupBy { it.parentLocationId }
+        val locationsByParent = locations.groupBy { it.parentId }
 
         fun addChildren(parentId: Long?, depth: Int) {
             locationsByParent[parentId]?.sortedBy { it.name }?.forEach { location ->
@@ -140,31 +97,23 @@ class LocationViewModel(
             }
         }
 
-        addChildren(null, 0)
+        addChildren(null, 0) // Start with root elements
         return displayList
     }
 
-    /**
-     * Inserts a new location into the database.
-     * @param location The [Location] to insert.
-     */
     fun insert(location: Location) = viewModelScope.launch {
-        locationRepository.insert(location)
+        repository.insert(location)
     }
 
-    /**
-     * Updates an existing location in the database.
-     * @param location The [Location] to update.
-     */
     fun update(location: Location) = viewModelScope.launch {
-        locationRepository.update(location)
+        repository.update(location)
     }
 
-    /**
-     * Deletes a location from the database.
-     * @param location The [Location] to delete.
-     */
     fun delete(location: Location) = viewModelScope.launch {
-        locationRepository.delete(location)
+        repository.delete(location)
+    }
+
+    fun updateLocationParent(locationId: Long, newParentId: Long?) = viewModelScope.launch {
+        repository.updateLocationParent(locationId, newParentId)
     }
 }

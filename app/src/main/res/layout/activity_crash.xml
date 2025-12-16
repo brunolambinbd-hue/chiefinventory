@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Une erreur inattendue s'est produite."
+        android:text="@string/une_erreur_inattendue_s_est_produite"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:layout_marginBottom="16dp" />
 
@@ -17,7 +17,7 @@
         android:id="@+id/btn_restart_app"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Redémarrer l'application" />
+        android:text="@string/red_marrer_l_application" />
 
     <ScrollView
         android:layout_width="match_parent"
