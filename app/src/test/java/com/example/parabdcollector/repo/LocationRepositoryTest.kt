@@ -50,7 +50,7 @@ class LocationRepositoryTest {
     fun `getAll should return all locations from dao`() {
         // GIVEN: A LiveData object that will be returned by the mock DAO.
         val liveData = MutableLiveData<List<Location>>()
-        val testData = listOf(Location(id = 1, name = "Salon", parentLocationId = null))
+        val testData = listOf(Location(id = 1, name = "Salon", parentId = null))
         liveData.value = testData
         whenever(locationDao.getAll()).thenReturn(liveData)
 
@@ -69,7 +69,7 @@ class LocationRepositoryTest {
     @Test
     fun `insert should call insert on dao`() = runBlocking {
         // GIVEN: A location object to insert.
-        val location = Location(name = "Cuisine", parentLocationId = null)
+        val location = Location(name = "Cuisine", parentId = null)
 
         // WHEN: The insert method is called on the repository.
         locationRepository.insert(location)
@@ -85,7 +85,7 @@ class LocationRepositoryTest {
     @Test
     fun `update should call update on dao`() = runBlocking {
         // GIVEN: A location object to update.
-        val location = Location(id = 1, name = "Salon V2", parentLocationId = null)
+        val location = Location(id = 1, name = "Salon V2", parentId = null)
 
         // WHEN: The update method is called on the repository.
         locationRepository.update(location)
@@ -101,7 +101,7 @@ class LocationRepositoryTest {
     @Test
     fun `delete should call delete on dao`() = runBlocking {
         // GIVEN: A location object to delete.
-        val location = Location(id = 1, name = "Salon", parentLocationId = null)
+        val location = Location(id = 1, name = "Salon", parentId = null)
 
         // WHEN: The delete method is called on the repository.
         locationRepository.delete(location)

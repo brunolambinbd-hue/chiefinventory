@@ -44,7 +44,7 @@ class LocationDaoTest {
 
     @Test
     fun insertLocationAndReadIt() = runTest {
-        val location = Location(id = 1, name = "Living Room Shelf", parentLocationId = null)
+        val location = Location(id = 1, name = "Living Room Shelf", parentId = null)
         locationDao.insert(location)
 
         val allLocations = locationDao.getAll().getOrAwaitValue()
@@ -53,7 +53,7 @@ class LocationDaoTest {
 
     @Test
     fun updateLocationAndCheck() = runTest {
-        val originalLocation = Location(id = 1, name = "Office Drawer", parentLocationId = null)
+        val originalLocation = Location(id = 1, name = "Office Drawer", parentId = null)
         locationDao.insert(originalLocation)
 
         val updatedLocation = originalLocation.copy(name = "Office - Top Drawer")
@@ -66,7 +66,7 @@ class LocationDaoTest {
 
     @Test
     fun deleteLocationAndVerifyAbsence() = runTest {
-        val location = Location(id = 1, name = "To Be Deleted", parentLocationId = null)
+        val location = Location(id = 1, name = "To Be Deleted", parentId = null)
         locationDao.insert(location)
 
         locationDao.delete(location)
@@ -76,52 +76,16 @@ class LocationDaoTest {
     }
 
     @Test
-    fun getRootLocations_returnsOnlyTopLevel() = runTest {
-        val root = Location(id = 1, name = "Root", parentLocationId = null)
-        val child = Location(id = 2, name = "Child", parentLocationId = 1)
-        locationDao.insert(root)
-        locationDao.insert(child)
+    fun updateLocationParent_shouldChangeParentId() = runTest {
+        val location1 = Location(id = 1, name = "Parent", parentId = null)
+        val location2 = Location(id = 2, name = "Child", parentId = null)
+        locationDao.insert(location1)
+        locationDao.insert(location2)
 
-        val rootLocations = locationDao.getRootLocations().getOrAwaitValue()
-        
-        assertThat(rootLocations).hasSize(1)
-        assertThat(rootLocations).contains(root)
-    }
+        locationDao.updateLocationParent(2, 1)
 
-    @Test
-    fun getChildren_returnsOnlyDirectChildren() = runTest {
-        val parent = Location(id = 1, name = "Parent", parentLocationId = null)
-        val child1 = Location(id = 2, name = "Child 1", parentLocationId = 1)
-        val child2 = Location(id = 3, name = "Child 2", parentLocationId = 1)
-        val grandChild = Location(id = 4, name = "Grandchild", parentLocationId = 2) // Child of child1
-        
-        locationDao.insert(parent)
-        locationDao.insert(child1)
-        locationDao.insert(child2)
-        locationDao.insert(grandChild)
-
-        val children = locationDao.getChildren(1).getOrAwaitValue()
-
-        assertThat(children).hasSize(2)
-        assertThat(children).containsExactly(child1, child2)
-    }
-
-    @Test
-    fun deleteParent_cascadesToDeleteChildren() = runTest {
-        val parent = Location(id = 1, name = "Parent", parentLocationId = null)
-        val child = Location(id = 2, name = "Child", parentLocationId = 1)
-        locationDao.insert(parent)
-        locationDao.insert(child)
-
-        // Verify both exist
-        var allLocations = locationDao.getAll().getOrAwaitValue()
-        assertThat(allLocations).hasSize(2)
-
-        // Delete the parent
-        locationDao.delete(parent)
-
-        // Verify both are gone
-        allLocations = locationDao.getAll().getOrAwaitValue()
-        assertThat(allLocations).isEmpty()
+        val allLocations = locationDao.getAll().getOrAwaitValue()
+        val updatedChild = allLocations.find { it.id == 2L }
+        assertThat(updatedChild?.parentId).isEqualTo(1L)
     }
 }

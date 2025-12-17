@@ -3,6 +3,7 @@ package com.example.parabdcollector.repo
 import android.util.Log
 import androidx.annotation.ColorRes
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.imagecomparison.EmbeddingUtils
@@ -15,6 +16,7 @@ import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.ui.model.CategoryInfo
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.utils.CategoryMapper
+import kotlinx.coroutines.Dispatchers
 
 /**
  * Repository for managing all data operations for [CollectionItem] entities.
@@ -53,30 +55,25 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
 
     /**
      * Computes and returns live statistics about the state of image embeddings in the collection.
-     * This is a transformation on the `getAll()` LiveData.
+     * The calculation is performed on a background thread using a coroutine.
      * @return A [LiveData] object containing the [SignatureStats].
      */
-    fun getSignatureStats(): LiveData<SignatureStats> {
-        return getAll().map { list ->
-            val total = list.size
-            var valid = 0
-            var empty = 0
-            var missing = 0
+    fun getSignatureStats(): LiveData<SignatureStats> = liveData(Dispatchers.IO) {
+        val list = collectionDao.getAllSuspend()
+        val total = list.size
+        var valid = 0
+        var empty = 0
+        var missing = 0
 
-            for (item in list) {
-                when {
-                    item.imageEmbedding == null -> {
-                        missing++
-                    }
-                    item.imageEmbedding.isEmpty() -> {
-                        empty++
-                    }
-                    else -> valid++
-                }
+        for (item in list) {
+            when {
+                item.imageEmbedding == null -> missing++
+                item.imageEmbedding.isEmpty() -> empty++
+                else -> valid++
             }
-            Log.i("SignatureStats", "Calculation complete: Valid=$valid, Empty=$empty, Missing=$missing, Total=$total")
-            SignatureStats(total, valid, empty, missing)
         }
+        Log.i("SignatureStats", "Calculation complete: Valid=$valid, Empty=$empty, Missing=$missing, Total=$total")
+        emit(SignatureStats(total, valid, empty, missing))
     }
 
     /**

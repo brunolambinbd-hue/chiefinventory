@@ -11,8 +11,15 @@ import com.example.parabdcollector.repo.LocationRepository
 import com.example.parabdcollector.ui.model.DisplayLocation
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel for the location management screen ([com.example.parabdcollector.ui.actvity.LocationManagementActivity]).
+ *
+ * This class manages the complex UI state for displaying a hierarchical list of locations,
+ * including expansion states and filtering for visibility.
+ */
 class LocationViewModel(private val repository: LocationRepository) : ViewModel() {
 
+    /** A LiveData list of all locations, fetched once from the repository. */
     val allLocations: LiveData<List<Location>> = repository.getAll()
 
     private val _expandedStates = MutableLiveData<Set<Long>>(emptySet())
@@ -65,6 +72,7 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
 
     /**
      * Toggles the expansion state for a given location ID.
+     * @param locationId The ID of the location to expand or collapse.
      */
     fun toggleExpansion(locationId: Long) {
         val currentExpanded = _expandedStates.value ?: emptySet()
@@ -86,6 +94,11 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
         }
     }
 
+    /**
+     * Recursively builds a flat list of [DisplayLocation]s from a hierarchical list of [Location]s.
+     * @param locations The complete list of locations from the database.
+     * @return A list of [DisplayLocation]s, ordered and with depth information.
+     */
     private fun buildDisplayList(locations: List<Location>): List<DisplayLocation> {
         val displayList = mutableListOf<DisplayLocation>()
         val locationsByParent = locations.groupBy { it.parentId }
@@ -101,18 +114,35 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
         return displayList
     }
 
+    /**
+     * Inserts a new location.
+     * @param location The [Location] to insert.
+     */
     fun insert(location: Location) = viewModelScope.launch {
         repository.insert(location)
     }
 
+    /**
+     * Updates an existing location.
+     * @param location The [Location] to update.
+     */
     fun update(location: Location) = viewModelScope.launch {
         repository.update(location)
     }
 
+    /**
+     * Deletes a location.
+     * @param location The [Location] to delete.
+     */
     fun delete(location: Location) = viewModelScope.launch {
         repository.delete(location)
     }
 
+    /**
+     * Updates the parent of a location.
+     * @param locationId The ID of the location to move.
+     * @param newParentId The ID of the new parent.
+     */
     fun updateLocationParent(locationId: Long, newParentId: Long?) = viewModelScope.launch {
         repository.updateLocationParent(locationId, newParentId)
     }

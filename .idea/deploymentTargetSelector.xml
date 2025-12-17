@@ -15,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="Run all instrumented Tests">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-12-05T11:12:23.929976400Z">
+        <DropdownSelection timestamp="2025-12-17T17:09:21.484134600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel-DevTest.avd" />
@@ -27,23 +27,6 @@
       <SelectionState runConfigName="ParaBDCollector">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="embed_shouldReturnHighSimilarityForSimilarRealImages()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="advancedSearch_shouldDisplayCorrectResults()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="SearchActivityTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-12-16T17:22:40.912267Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Medium_Phone.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
       <SelectionState runConfigName="EditItemActivityTest">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2025-12-16T17:59:33.964916300Z">
@@ -54,6 +37,9 @@
           </Target>
         </DropdownSelection>
         <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="emptyOrNullFields_areHidden()">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>

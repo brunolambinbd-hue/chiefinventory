@@ -135,5 +135,6 @@
     <string name="la_recherche_textuelle_a_chou">Textual research has failed</string>
     <string name="une_erreur_inattendue_s_est_produite">Unexpected error</string>
     <string name="remonter_en_haut_de_la_liste">Go up on top of list</string>
+    <string name="test_crash">Crash test</string>
 
 </resources>

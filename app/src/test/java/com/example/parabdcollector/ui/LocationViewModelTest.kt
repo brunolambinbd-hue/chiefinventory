@@ -4,9 +4,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.parabdcollector.model.Location
-import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
-import com.example.parabdcollector.ui.model.ExpandableLocation
+import com.example.parabdcollector.ui.model.DisplayLocation
 import com.example.parabdcollector.ui.viewmodel.LocationViewModel
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -17,100 +16,125 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 /**
- * Unit tests for the [com.example.parabdcollector.ui.viewmodel.LocationViewModel].
+ * Unit tests for [LocationViewModel].
+ *
+ * This class tests the logic for managing the visibility and expansion of the location hierarchy,
+ * using a mock [LocationRepository] to isolate the ViewModel.
  */
 class LocationViewModelTest {
 
+    /**
+     * This rule swaps the background executor used by the Architecture Components with a different one
+     * that executes each task synchronously.
+     */
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var locationRepository: LocationRepository
-    private lateinit var collectionRepository: CollectionRepository
     private lateinit var viewModel: LocationViewModel
 
-    // LiveData mocks
+    // Mocks for LiveData
     private val allLocationsLiveData = MutableLiveData<List<Location>>()
-    private val itemCountLiveData = MutableLiveData<List<com.example.parabdcollector.ui.model.ItemCountForLocation>>()
-    private val observer = Observer<List<ExpandableLocation>> { }
+    private val observer = Observer<List<DisplayLocation>> { }
 
+    /**
+     * Sets up the test environment before each test case.
+     * It mocks the dependencies and initializes the [LocationViewModel].
+     */
     @Before
     fun setup() {
         locationRepository = mock()
-        collectionRepository = mock()
 
-        // Whenever the repositories are asked for data, return our mock LiveData objects.
+        // Whenever the repository's getAll() is called, return our controlled LiveData instance.
         whenever(locationRepository.getAll()).thenReturn(allLocationsLiveData)
-        whenever(collectionRepository.getItemCountByLocation()).thenReturn(itemCountLiveData)
 
-        // Initialize the ViewModel with both mocked repositories
-        viewModel = LocationViewModel(locationRepository, collectionRepository)
+        // Initialize the ViewModel with the mock repository.
+        viewModel = LocationViewModel(locationRepository)
 
-        // Crucial: Attach an observer to trigger the MediatorLiveData computations.
+        // The MediatorLiveData `visibleLocations` is only activated when it has an active observer.
+        // We observe it forever to ensure its transformation logic is triggered during tests.
         viewModel.visibleLocations.observeForever(observer)
     }
 
+    /**
+     * Cleans up the environment after each test case.
+     * It removes the observer to prevent memory leaks and interference between tests.
+     */
     @After
     fun tearDown() {
-        // Clean up the observer to prevent test leaks.
         viewModel.visibleLocations.removeObserver(observer)
     }
 
+    /**
+     * Verifies that when the repository provides an empty list, the visible locations list is also empty.
+     */
     @Test
     fun `visibleLocations should be empty when no data is provided`() {
-        // GIVEN: The repositories provide empty lists.
+        // GIVEN: The repository provides an empty list.
         allLocationsLiveData.value = emptyList()
-        itemCountLiveData.value = emptyList()
 
         // THEN: The list of visible locations should not be null and should be empty.
         val visibleLocations = viewModel.visibleLocations.value
         assertEquals(0, visibleLocations?.size)
     }
 
+    /**
+     * Verifies that toggling an expansion on a parent correctly shows and then hides its child.
+     */
     @Test
-    fun `visibleLocations should contain root items with correct counts`() {
-        // GIVEN: The repositories provide a list of root locations and their item counts.
+    fun `toggleExpansion should make child visible and then hide it`() {
+        // GIVEN: A parent and child location, with the tree initially collapsed.
         val locations = listOf(
-            Location(id = 1, name = "Salon", parentLocationId = null),
-            Location(id = 2, name = "Bureau", parentLocationId = null)
-        )
-        val counts = listOf(
-            com.example.parabdcollector.ui.model.ItemCountForLocation(1, 5), // 5 items in Salon
-            com.example.parabdcollector.ui.model.ItemCountForLocation(2, 10)  // 10 items in Bureau
+            Location(id = 1, name = "Parent", parentId = null),
+            Location(id = 2, name = "Child", parentId = 1)
         )
         allLocationsLiveData.value = locations
-        itemCountLiveData.value = counts
+        // Ensure a collapsed state to start
+        viewModel.toggleExpansion(1L) // Expand
+        viewModel.toggleExpansion(1L) // Then collapse
 
-        // THEN: The visible list should contain two items with the correct counts.
-        val visible = viewModel.visibleLocations.value
+        // WHEN: We expand the parent.
+        viewModel.toggleExpansion(1L)
+
+        // THEN: The child should now be visible.
+        var visible = viewModel.visibleLocations.value
         assertEquals(2, visible?.size)
-        assertEquals(5, visible?.find { it.location.id == 1L }?.itemCount)
-        assertEquals(10, visible?.find { it.location.id == 2L }?.itemCount)
+        assertEquals(2L, visible?.get(1)?.location?.id)
+
+        // WHEN: We collapse the parent again.
+        viewModel.toggleExpansion(1L)
+
+        // THEN: The child should be hidden again.
+        visible = viewModel.visibleLocations.value
+        assertEquals(1, visible?.size)
     }
 
+    /**
+     * Verifies that `expandAll` correctly expands the entire tree, making all nodes visible.
+     * This reflects the new default behavior of the location management screen.
+     */
     @Test
-    fun `toggleExpansion should correctly flip the expanded state`() {
-        // GIVEN: A parent and child location are provided.
+    fun `expandAll_shouldMakeAllNodesVisible`() {
+        // GIVEN: A multi-level hierarchy of locations.
         val locations = listOf(
-            Location(id = 1, name = "Parent", parentLocationId = null),
-            Location(id = 2, name = "Child", parentLocationId = 1)
+            Location(id = 1, name = "Parent 1", parentId = null),
+            Location(id = 2, name = "Child 1.1", parentId = 1),
+            Location(id = 3, name = "Parent 2", parentId = null),
+            Location(id = 4, name = "Child 2.1", parentId = 3),
+            Location(id = 5, name = "Grandchild 2.1.1", parentId = 4)
         )
         allLocationsLiveData.value = locations
-        itemCountLiveData.value = emptyList()
 
-        // THEN: The parent node should be expanded by default due to the ViewModel's init logic.
-        val isInitiallyExpanded = viewModel.visibleLocations.value?.find { it.location.id == 1L }?.isExpanded
-        assertEquals("Parent should be expanded by default", true, isInitiallyExpanded)
+        // WHEN: We expand the entire tree.
+        viewModel.expandAll()
 
-        // WHEN: We toggle the parent location (which should collapse it).
-        viewModel.toggleExpansion(1L)
-        val isNowCollapsed = viewModel.visibleLocations.value?.find { it.location.id == 1L }?.isExpanded
+        // THEN: All 5 locations should be visible.
+        val visible = viewModel.visibleLocations.value
+        assertEquals("All 5 locations should be visible after expandAll", 5, visible?.size)
 
-        // AND WHEN: We toggle it again (which should re-expand it).
-        viewModel.toggleExpansion(1L)
-        val isNowReExpanded = viewModel.visibleLocations.value?.find { it.location.id == 1L }?.isExpanded
-
-        // THEN: The states should have flipped correctly.
-        assertEquals("First toggle should collapse the location", false, isNowCollapsed)
-        assertEquals("Second toggle should expand the location again", true, isNowReExpanded)
+        // AND: The IDs of visible locations should match the full set, proving deep expansion.
+        val visibleIds = visible?.map { it.location.id }?.toSet()
+        val expectedIds = setOf(1L, 2L, 3L, 4L, 5L)
+        assertEquals(expectedIds, visibleIds)
     }
 }
