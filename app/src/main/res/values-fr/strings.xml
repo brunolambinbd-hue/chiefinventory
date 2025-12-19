@@ -129,6 +129,11 @@
     <string name="search_error_simple">La recherche textuelle a échoué.</string>
     <string name="search_error_advanced">La recherche avancée a échoué.</string>
     <string name="test_crash">Test Crash</string>
+    <string name="crash_title">crash_title</string>
+    <string name="crash_subtitle">Sous-titre du crash</string>
+    <string name="restart_app">Redémarrage de l\'app</string>
+    <string name="crash_info">crash_info</string>
+    <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
 
 
 </resources>

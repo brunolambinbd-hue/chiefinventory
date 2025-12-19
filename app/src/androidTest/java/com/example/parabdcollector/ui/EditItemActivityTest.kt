@@ -19,6 +19,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.dao.CollectionDao
+import com.example.parabdcollector.dao.LocationDao
 import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
@@ -39,8 +40,9 @@ import org.junit.runner.RunWith
 
 /**
  * Instrumented UI and integration tests for the [EditItemActivity].
+ * This test class verifies the creation and editing of collection items.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
+@ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 class EditItemActivityTest {
 
@@ -51,7 +53,12 @@ class EditItemActivityTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var db: AppDatabase
-    private lateinit var dao: CollectionDao
+    private lateinit var collectionDao: CollectionDao
+    private lateinit var locationDao: LocationDao
+
+    // Repositories
+    private lateinit var collectionRepository: CollectionRepository
+    private lateinit var locationRepository: LocationRepository
 
     @Before
     fun setup() {
@@ -59,12 +66,17 @@ class EditItemActivityTest {
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        dao = db.collectionDao()
+        
+        collectionDao = db.collectionDao()
+        locationDao = db.locationDao()
 
-        // Inject the test repository into the application.
+        collectionRepository = CollectionRepository(collectionDao)
+        locationRepository = LocationRepository(locationDao)
+
+        // Inject the test repositories into the application so the ViewModelFactory picks them up.
         val app = context as CollectionApplication
-        app.repository = CollectionRepository(dao)
-        app.locationRepository = LocationRepository(db.locationDao())
+        app.repository = collectionRepository
+        app.locationRepository = locationRepository
     }
 
     @After
@@ -72,66 +84,62 @@ class EditItemActivityTest {
         db.close()
     }
 
+    /**
+     * Tests that creating a new item by entering a title and saving results
+     * in the item being correctly inserted into the database.
+     */
     @Test
     fun createNewItem_shouldSaveItemToDatabase() = runTest {
-        // GIVEN: The EditItemActivity is launched in 'new item' mode.
         val scenario = ActivityScenario.launch(EditItemActivity::class.java)
 
-        // WHEN: The user fills a field and clicks the save button.
-        val testTitle = "Titre UI Complet"
+        val testTitle = "New Test Item from UI"
         onView(withId(R.id.etTitle)).perform(scrollTo(), replaceText(testTitle), closeSoftKeyboard())
-
         onView(withId(R.id.btnSave)).perform(click())
 
-        // THEN: The activity should finish and the item should be in the database.
-        delay(500) // Give time for activity to close
-        assertTrue(scenario.state == Lifecycle.State.DESTROYED)
+        delay(500)
+        assertTrue("Activity should be destroyed after saving", scenario.state == Lifecycle.State.DESTROYED)
 
-        val savedItem = dao.search(testTitle).firstOrNull()
+        // The `search` function only finds unpossessed items. To verify creation, we must
+        // fetch all items and then find the one we just created.
+        val allItems = collectionDao.getAllSuspend()
+        val savedItem = allItems.find { it.titre == testTitle }
+
         assertNotNull("Item should be saved and found in DB", savedItem)
         assertEquals(testTitle, savedItem?.titre)
+        assertTrue("Newly created item should be possessed by default", savedItem?.isPossessed == true)
     }
 
+    /**
+     * Tests that when editing an existing item, the data is loaded correctly,
+     * changes are saved, and the original item is updated in the database.
+     */
     @Test
     fun editExistingItem_shouldLoadData_and_SaveChanges() = runTest {
-        // GIVEN: An item is pre-inserted in the database with all required fields.
         val initialItem = CollectionItem(
             id = 1, remoteId = null, titre = "Titre Initial", editeur = "Editeur Initial", annee = 2020, description = "Desc Init",
             isPossessed = true, mois = 1, categorie = "Cat Init", superCategorie = "SuperCat Init", materiau = "", tirage = "", dimensions = "",
             prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", imageEmbedding = null, locationId = null
         )
-        dao.insert(initialItem)
+        collectionDao.insert(initialItem)
 
-        // AND: The activity is launched with the item's ID.
         val intent = Intent(ApplicationProvider.getApplicationContext(), EditItemActivity::class.java).apply {
             putExtra("itemId", 1L)
         }
         ActivityScenario.launch<EditItemActivity>(intent)
 
-        // THEN: The UI should be pre-filled with the item's data.
         onView(withId(R.id.etTitle)).check(matches(withText("Titre Initial")))
         onView(withId(R.id.etEditor)).check(matches(withText("Editeur Initial")))
 
-        // WHEN: The user edits a field and saves.
         val updatedTitle = "Titre Mis à Jour"
         onView(withId(R.id.etTitle)).perform(scrollTo(), replaceText(updatedTitle), closeSoftKeyboard())
         onView(withId(R.id.btnSave)).perform(click())
+        
+        delay(500) 
 
-        // THEN: The changes should be saved in the database.
-        var updatedItemInDb: CollectionItem? = null
-        val timeout = 3000L // 3 seconds timeout
-        val pollInterval = 200L // check every 200ms
-        var timeElapsed = 0L
-        while (updatedItemInDb == null && timeElapsed < timeout) {
-            updatedItemInDb = dao.search(updatedTitle).firstOrNull()
-            if (updatedItemInDb == null) {
-                delay(pollInterval)
-                timeElapsed += pollInterval
-            }
-        }
-
-        assertNotNull("Item should be found in DB after update (timed out after ${timeout}ms)", updatedItemInDb)
+        val updatedItemInDb = collectionDao.getItemById(1)
+        assertNotNull("Item should be found in DB after update", updatedItemInDb)
         assertEquals(updatedTitle, updatedItemInDb?.titre)
-        assertEquals(1L, updatedItemInDb?.id) // Check ID is preserved
+        assertEquals(1L, updatedItemInDb?.id)
+        assertEquals("Editeur Initial", updatedItemInDb?.editeur)
     }
 }

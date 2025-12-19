@@ -1,38 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/crash_activity_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".ui.actvity.CrashActivity">
 
     <TextView
+        android:id="@+id/tv_crash_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/une_erreur_inattendue_s_est_produite"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:layout_marginBottom="16dp" />
+        android:text="@string/crash_title"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/btn_restart_app"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/tv_crash_subtitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/red_marrer_l_application" />
+        android:layout_marginTop="8dp"
+        android:text="@string/crash_subtitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_crash_title" />
 
     <ScrollView
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:background="#33AAAAAA"
+        app:layout_constraintBottom_toTopOf="@+id/btn_restart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_crash_subtitle">
 
         <TextView
-            android:id="@+id/tv_crash_details"
+            android:id="@+id/tv_error_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:padding="8dp"
-            android:background="#20000000"/>
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            tools:text="java.lang.RuntimeException: This is a long sample error trace...\n    at com.example.app.MyClass.myMethod(MyClass.java:123)\n    ..." />
 
     </ScrollView>
 
-</LinearLayout>
+    <Button
+        android:id="@+id/btn_restart"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/restart_app"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

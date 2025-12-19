@@ -12,39 +12,17 @@ import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.ui.viewmodel.ImportViewModel
-import kotlinx.coroutines.Dispatchers
+import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
 import org.junit.runner.RunWith
 import java.io.File
-
-/**
- * A local copy of the Test Rule for instrumented tests, as they don't share code with unit tests.
- */
-@ExperimentalCoroutinesApi
-class MainDispatcherRule(
-    val testDispatcher: TestDispatcher = UnconfinedTestDispatcher(),
-) : TestWatcher() {
-    override fun starting(description: Description) {
-        Dispatchers.setMain(testDispatcher)
-    }
-
-    override fun finished(description: Description) {
-        Dispatchers.resetMain()
-    }
-}
 
 /**
  * Instrumented integration tests for the [com.example.parabdcollector.ui.viewmodel.ImportViewModel].
@@ -107,7 +85,7 @@ class ImportViewModelInstrumentedTest {
         )
         dao.insert(existingItem)
         val csvContent = "remoteId;annee;mois;categorie;titre;editeur;description;col7;col8;col9;superCategorie\n" +
-                         "1002;2024;;;Updated Title;;;;;;"
+                         "1002;2024;;;Updated Title;;;;;"
         val csvUri = createTestCsvFile(csvContent)
 
         val importJob = viewModel.importCsv(csvUri, mainDispatcherRule.testDispatcher)
@@ -129,7 +107,7 @@ class ImportViewModelInstrumentedTest {
         )
         dao.insert(existingItem)
         val csvContent = "remoteId;annee;mois;categorie;titre;editeur;description;col7;col8;col9;superCategorie\n" +
-                         "1003;2024;;;Updated Title No Sig;;;;;;"
+                         "1003;2024;;;Updated Title No Sig;;;;;"
         val csvUri = createTestCsvFile(csvContent)
 
         val importJob = viewModel.importCsv(csvUri, mainDispatcherRule.testDispatcher)

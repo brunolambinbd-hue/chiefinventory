@@ -15,9 +15,9 @@ class CrashActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val crashInfo = intent.getStringExtra(EXTRA_CRASH_INFO)
-        binding.tvCrashDetails.text = crashInfo
+        binding.tvErrorDetails.text = crashInfo
 
-        binding.btnRestartApp.setOnClickListener {
+        binding.btnRestart.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
@@ -26,6 +26,6 @@ class CrashActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_CRASH_INFO = "crash_info"
+        const val EXTRA_CRASH_INFO = "EXTRA_CRASH_INFO"
     }
 }

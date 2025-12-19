@@ -10,7 +10,8 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 /**
- * A JUnit Test Rule that swaps the main dispatcher with a test dispatcher for instrumented tests.
+ * A JUnit Test Rule that swaps the main dispatcher with a test dispatcher.
+ * This is essential for testing coroutines and LiveData that use the main thread.
  */
 @ExperimentalCoroutinesApi
 class MainDispatcherRule(

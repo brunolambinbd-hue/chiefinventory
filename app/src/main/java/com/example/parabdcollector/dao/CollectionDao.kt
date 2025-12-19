@@ -53,10 +53,6 @@ interface CollectionDao {
     @RawQuery
     suspend fun advancedSearch(query: SupportSQLiteQuery): List<CollectionItem>
 
-    /**
-     * Gathers statistics for all super-categories.
-     * For each super-category, it counts the number of items possessed and the total number of items.
-     */
     @Query("""
         SELECT 
             superCategorie as name, 
@@ -68,10 +64,17 @@ interface CollectionDao {
     """)
     fun getSuperCategoryInfo(): LiveData<List<CategoryInfoFromDb>>
 
-    /**
-     * Gathers statistics for all detailed categories within a given super-category.
-     * @param superCategory The super-category to filter by.
-     */
+    @Query("""
+        SELECT 
+            superCategorie as name, 
+            SUM(CASE WHEN isPossessed = 1 THEN 1 ELSE 0 END) as possessedCount, 
+            COUNT(id) as totalCount 
+        FROM collection_items 
+        WHERE superCategorie IS NOT NULL AND superCategorie != '' 
+        GROUP BY superCategorie
+    """)
+    suspend fun getSuperCategoryInfoSuspend(): List<CategoryInfoFromDb>
+
     @Query("""
         SELECT 
             categorie as name, 
@@ -82,6 +85,17 @@ interface CollectionDao {
         GROUP BY categorie
     """)
     fun getCategoryInfoForSuperCategory(superCategory: String): LiveData<List<CategoryInfoFromDb>>
+
+    @Query("""
+        SELECT 
+            categorie as name, 
+            SUM(CASE WHEN isPossessed = 1 THEN 1 ELSE 0 END) as possessedCount, 
+            COUNT(id) as totalCount 
+        FROM collection_items 
+        WHERE superCategorie = :superCategory AND categorie IS NOT NULL AND categorie != ''
+        GROUP BY categorie
+    """)
+    suspend fun getCategoryInfoForSuperCategorySuspend(superCategory: String): List<CategoryInfoFromDb>
 
     @Query("SELECT * FROM collection_items WHERE superCategorie = :superCategory AND categorie = :category AND isPossessed = :isPossessed")
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>>

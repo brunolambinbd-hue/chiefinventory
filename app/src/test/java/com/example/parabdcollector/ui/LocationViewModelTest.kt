@@ -25,7 +25,7 @@ class LocationViewModelTest {
 
     /**
      * This rule swaps the background executor used by the Architecture Components with a different one
-     * that executes each task synchronously.
+     * that executes each task synchronously. This is crucial for testing LiveData.
      */
     @get:Rule
     val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
@@ -33,7 +33,7 @@ class LocationViewModelTest {
     private lateinit var locationRepository: LocationRepository
     private lateinit var viewModel: LocationViewModel
 
-    // Mocks for LiveData
+    // Mocks for LiveData and its observer
     private val allLocationsLiveData = MutableLiveData<List<Location>>()
     private val observer = Observer<List<DisplayLocation>> { }
 
@@ -58,7 +58,7 @@ class LocationViewModelTest {
 
     /**
      * Cleans up the environment after each test case.
-     * It removes the observer to prevent memory leaks and interference between tests.
+     * It removes the LiveData observer to prevent memory leaks and interference between tests.
      */
     @After
     fun tearDown() {
@@ -89,7 +89,7 @@ class LocationViewModelTest {
             Location(id = 2, name = "Child", parentId = 1)
         )
         allLocationsLiveData.value = locations
-        // Ensure a collapsed state to start
+        // Ensure a collapsed state to start by toggling twice.
         viewModel.toggleExpansion(1L) // Expand
         viewModel.toggleExpansion(1L) // Then collapse
 

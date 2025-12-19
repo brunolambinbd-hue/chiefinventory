@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.annotation.ColorRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.map
-import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.imagecomparison.EmbeddingUtils
 import com.example.parabdcollector.R
 import com.example.parabdcollector.dao.CollectionDao
@@ -28,36 +26,18 @@ import kotlinx.coroutines.Dispatchers
  */
 open class CollectionRepository(private val collectionDao: CollectionDao) {
 
-    /**
-     * Retrieves all collection items from the database.
-     * @return A [LiveData] list of all [CollectionItem]s.
-     */
     fun getAll(): LiveData<List<CollectionItem>> {
         return collectionDao.getAll()
     }
 
-    /**
-     * Counts the number of items in each location.
-     * @return A LiveData list of [ItemCountForLocation] objects.
-     */
     fun getItemCountByLocation(): LiveData<List<ItemCountForLocation>> {
         return collectionDao.getItemCountByLocation()
     }
 
-    /**
-     * Retrieves all items for a given location ID.
-     * @param locationId The ID of the location.
-     * @return A [LiveData] list of items in that location.
-     */
     fun getItemsByLocationId(locationId: Long): LiveData<List<CollectionItem>> {
         return collectionDao.getItemsByLocationId(locationId)
     }
 
-    /**
-     * Computes and returns live statistics about the state of image embeddings in the collection.
-     * The calculation is performed on a background thread using a coroutine.
-     * @return A [LiveData] object containing the [SignatureStats].
-     */
     fun getSignatureStats(): LiveData<SignatureStats> = liveData(Dispatchers.IO) {
         val list = collectionDao.getAllSuspend()
         val total = list.size
@@ -76,76 +56,34 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         emit(SignatureStats(total, valid, empty, missing))
     }
 
-    /**
-     * Retrieves all items that the user possesses.
-     * @return A [LiveData] list of possessed [CollectionItem]s.
-     */
     fun getAllPossessed(): LiveData<List<CollectionItem>> {
         return collectionDao.getAllPossessed()
     }
 
-    /**
-     * Retrieves all items that the user is seeking.
-     * @return A [LiveData] list of sought [CollectionItem]s.
-     */
     fun getAllSought(): LiveData<List<CollectionItem>> {
         return collectionDao.getAllSought()
     }
 
-    /**
-     * Gets the total number of items in the collection.
-     * @return A [LiveData] containing the total count.
-     */
     fun getTotalCount(): LiveData<Int> {
         return collectionDao.getTotalCount()
     }
 
-    /**
-     * Retrieves a single item by its local primary key.
-     * @param id The local database ID of the item.
-     * @return A [LiveData] object containing the requested [CollectionItem].
-     */
     fun getById(id: Long): LiveData<CollectionItem> {
         return collectionDao.getById(id)
     }
 
-    /**
-     * Synchronously retrieves a single item by its local primary key.
-     * @param id The local database ID of the item.
-     * @return The [CollectionItem], or null if not found.
-     */
     suspend fun getItemById(id: Long): CollectionItem? {
         return collectionDao.getItemById(id)
     }
 
-    /**
-     * Finds a single item by its external (remote) ID. This is a synchronous, blocking operation.
-     * @param remoteId The remote ID to search for.
-     * @return The matching [CollectionItem], or null if not found.
-     */
     fun findByRemoteId(remoteId: Int): CollectionItem? {
         return collectionDao.findByRemoteId(remoteId)
     }
 
-    /**
-     * Performs a simple, full-text search across multiple fields for items the user does not possess.
-     * @param query The search term.
-     * @return A list of matching [CollectionItem]s.
-     */
     open suspend fun search(query: String): List<CollectionItem> {
         return collectionDao.search("%${query}%")
     }
 
-    /**
-     * Performs a complex search for items the user does not possess, based on a set of criteria and an optional image embedding.
-     *
-     * This method dynamically builds a SQL query based on the provided [SearchCriteria].
-     * It now includes a permanent filter for `isPossessed = 0`.
-     *
-     * @param criteria The set of text-based search criteria.
-     * @param queryEmbedding The float array of the image to search for, or null.
-     * @return A list of [SearchResultItem], potentially including similarity scores.
-     */
     open suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
         val queryBuilder = StringBuilder("SELECT * FROM collection_items WHERE isPossessed = 0")
         val args = mutableListOf<Any?>()
@@ -189,7 +127,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
 
         queryBuilder.append(" ORDER BY annee DESC, mois DESC")
 
-        val sqlQuery = SimpleSQLiteQuery(queryBuilder.toString(), args.toTypedArray())
+        val sqlQuery = androidx.sqlite.db.SimpleSQLiteQuery(queryBuilder.toString(), args.toTypedArray())
         val textFilteredItems = collectionDao.advancedSearch(sqlQuery)
 
         return if (queryEmbedding != null) {
@@ -199,8 +137,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
                     val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
                     SearchResultItem(it, similarity.toDouble())
                 }
-                .filter { !(it.similarity?.isNaN() ?: true) }
-                .filter { (it.similarity ?: 0.0) >= 0.65 }
+                .filter { !(it.similarity?.isNaN() ?: true) && (it.similarity ?: 0.0) >= 0.65 }
                 .sortedByDescending { it.similarity }
                 .take(5)
         } else {
@@ -208,11 +145,6 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         }
     }
 
-    /**
-     * Finds the most visually similar items to a given image embedding.
-     * @param queryEmbedding The float array of the image to search for.
-     * @return A list of the top 3 most similar [SearchResultItem]s.
-     */
     suspend fun findMostSimilarItems(queryEmbedding: FloatArray): List<SearchResultItem> {
         val allItems = collectionDao.getAllItemsWithEmbeddings()
         return allItems
@@ -225,12 +157,6 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
             .take(3)
     }
 
-    /**
-     * Calculates the cosine similarity between two vectors.
-     * @param vec1 The first vector as a [FloatArray].
-     * @param vec2Bytes The second vector as a [ByteArray] from the database.
-     * @return The cosine similarity score as a [Float].
-     */
     private fun cosineSimilarity(vec1: FloatArray, vec2Bytes: ByteArray): Float {
         val vec2 = EmbeddingUtils.byteArrayToMyEmbedding(vec2Bytes).floatValues ?: return 0.0f
         
@@ -273,90 +199,56 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         }
     }
 
-    /**
-     * Returns statistical information about super-categories, including possessed and total counts.
-     * This implementation ensures that ALL super-categories from the [CategoryMapper] are displayed,
-     * even those with a total count of 0.
-     * @return A [LiveData] list of [CategoryInfo] objects.
-     */
-    fun getSuperCategoryInfo(isSoughtMode: Boolean): LiveData<List<CategoryInfo>> {
+    fun getSuperCategoryInfo(isSoughtMode: Boolean): LiveData<List<CategoryInfo>> = liveData(Dispatchers.IO) {
         val allSuperCategories = CategoryMapper.getSuperCategories()
-        val categoryInfoFromDb = collectionDao.getSuperCategoryInfo()
+        val dbCounts = collectionDao.getSuperCategoryInfoSuspend()
+        val dbCountsMap = dbCounts.associateBy { it.name }
 
-        return categoryInfoFromDb.map { dbCounts ->
-            val dbCountsMap = dbCounts.associateBy { it.name }
-            allSuperCategories.map { superCategoryName ->
-                val counts = dbCountsMap[superCategoryName]
-                val possessed = counts?.possessedCount ?: 0
-                val total = counts?.totalCount ?: 0
-                CategoryInfo(
-                    name = superCategoryName,
-                    possessedCount = possessed,
-                    totalCount = total,
-                    statusColorRes = getStatusColor(possessed, total, isSoughtMode)
-                )
-            }
+        val categoryInfos = allSuperCategories.map { superCategoryName ->
+            val counts = dbCountsMap[superCategoryName]
+            val possessed = counts?.possessedCount ?: 0
+            val total = counts?.totalCount ?: 0
+            CategoryInfo(
+                name = superCategoryName,
+                possessedCount = possessed,
+                totalCount = total,
+                statusColorRes = getStatusColor(possessed, total, isSoughtMode)
+            )
         }
+        emit(categoryInfos)
     }
 
-    /**
-     * Returns statistical information about detailed categories within a given super-category.
-     * This implementation ensures that ALL sub-categories from the [CategoryMapper] are displayed,
-     * even those with a total count of 0.
-     * @param superCategory The name of the super-category to filter by.
-     * @return A [LiveData] list of [CategoryInfo] objects.
-     */
-    fun getCategoryInfoForSuperCategory(superCategory: String, isSoughtMode: Boolean): LiveData<List<CategoryInfo>> {
+    fun getCategoryInfoForSuperCategory(superCategory: String, isSoughtMode: Boolean): LiveData<List<CategoryInfo>> = liveData(Dispatchers.IO) {
         val allSubCategories = CategoryMapper.getCategoriesFor(superCategory)
-        val categoryInfoFromDb = collectionDao.getCategoryInfoForSuperCategory(superCategory)
+        val dbCounts = collectionDao.getCategoryInfoForSuperCategorySuspend(superCategory)
+        val dbCountsMap = dbCounts.associateBy { it.name }
 
-        return categoryInfoFromDb.map { dbCounts ->
-            val dbCountsMap = dbCounts.associateBy { it.name }
-            allSubCategories.map { subCategoryName ->
-                val counts = dbCountsMap[subCategoryName]
-                val possessed = counts?.possessedCount ?: 0
-                val total = counts?.totalCount ?: 0
-                CategoryInfo(
-                    name = subCategoryName,
-                    possessedCount = possessed,
-                    totalCount = total,
-                    statusColorRes = getStatusColor(possessed, total, isSoughtMode)
-                )
-            }
+        val categoryInfos = allSubCategories.map { subCategoryName ->
+            val counts = dbCountsMap[subCategoryName]
+            val possessed = counts?.possessedCount ?: 0
+            val total = counts?.totalCount ?: 0
+            CategoryInfo(
+                name = subCategoryName,
+                possessedCount = possessed,
+                totalCount = total,
+                statusColorRes = getStatusColor(possessed, total, isSoughtMode)
+            )
         }
+        emit(categoryInfos)
     }
 
-    /**
-     * Returns a list of items belonging to a specific category and super-category.
-     * @param superCategory The name of the super-category.
-     * @param category The name of the detailed category.
-     * @param isSoughtMode True to get possessed items, false for sought items.
-     * @return A [LiveData] list of matching [CollectionItem]s.
-     */
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isSoughtMode: Boolean): LiveData<List<CollectionItem>> {
         return collectionDao.getItemsBySuperCategoryAndCategory(superCategory, category, isSoughtMode)
     }
 
-    /**
-     * Inserts a new item into the database. This is a suspending function.
-     * @param item The [CollectionItem] to insert.
-     */
     suspend fun insert(item: CollectionItem) {
         collectionDao.insert(item)
     }
 
-    /**
-     * Updates an existing item in the database. This is a suspending function.
-     * @param item The [CollectionItem] to update.
-     */
     suspend fun update(item: CollectionItem) {
         collectionDao.update(item)
     }
 
-    /**
-     * Deletes an item from the database. This is a suspending function.
-     * @param item The [CollectionItem] to delete.
-     */
     suspend fun delete(item: CollectionItem) {
         collectionDao.delete(item)
     }

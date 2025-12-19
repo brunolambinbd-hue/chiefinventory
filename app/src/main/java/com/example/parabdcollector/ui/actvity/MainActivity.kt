@@ -1,20 +1,16 @@
 package com.example.parabdcollector.ui.actvity
 
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.isVisible
 import com.example.parabdcollector.R
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.databinding.ActivityMainBinding
@@ -29,8 +25,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var toggle: ActionBarDrawerToggle
     private var possessedCounterTextView: TextView? = null
     private var soughtCounterTextView: TextView? = null
-    private var missingSignatureCounterTextView: TextView? = null
-    private var missingSignatureSeparator: TextView? = null
 
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
@@ -57,13 +51,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setupToolbarAndDrawer()
         setupClickListeners()
         observeViewModel()
-        setupDebugView()
-
-        // Make the debug section visible and set up the crash button for testing
-        binding.debugSection.visibility = View.VISIBLE
-        binding.btnTestCrash.setOnClickListener {
-            throw RuntimeException("Test Crash")
-        }
     }
 
     private fun setupToolbarAndDrawer() {
@@ -115,28 +102,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             soughtCounterTextView?.text = count.toString()
         }
     }
-    
-    private fun setupDebugView() {
-        val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        binding.debugSection.isVisible = isDebuggable
-
-        if (isDebuggable) {
-            viewModel.signatureStats.observe(this) { stats ->
-                binding.tvSignaturesOk.text = getString(R.string.report_signatures_ok, stats.validCount)
-
-                binding.tvSignaturesEmpty.text = getString(R.string.report_signatures_empty, stats.emptyCount)
-                binding.tvSignaturesEmpty.setTextColor(ContextCompat.getColor(this, R.color.status_warning))
-
-                binding.tvSignaturesMissing.text = getString(R.string.report_signatures_missing, stats.missingCount)
-                binding.tvSignaturesMissing.setTextColor(ContextCompat.getColor(this, R.color.status_error))
-
-                val showMissing = stats.missingCount > 0
-                missingSignatureCounterTextView?.text = stats.missingCount.toString()
-                missingSignatureCounterTextView?.isVisible = showMissing
-                missingSignatureSeparator?.isVisible = showMissing
-            }
-        }
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.counter_menu, menu)
@@ -145,18 +110,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val actionView = counterItem?.actionView
         possessedCounterTextView = actionView?.findViewById(R.id.possessed_counter)
         soughtCounterTextView = actionView?.findViewById(R.id.sought_counter)
-        missingSignatureCounterTextView = actionView?.findViewById(R.id.missing_signature_counter)
-        missingSignatureSeparator = actionView?.findViewById(R.id.missing_signature_separator)
         
         // Set initial counts
         possessedCounterTextView?.text = viewModel.possessedItems.value?.size?.toString() ?: "0"
         soughtCounterTextView?.text = viewModel.soughtItems.value?.size?.toString() ?: "0"
-
-        val missingCount = viewModel.signatureStats.value?.missingCount ?: 0
-        val showMissing = missingCount > 0
-        missingSignatureCounterTextView?.text = missingCount.toString()
-        missingSignatureCounterTextView?.isVisible = showMissing
-        missingSignatureSeparator?.isVisible = showMissing
         
         return true
     }

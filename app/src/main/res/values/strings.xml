@@ -143,4 +143,10 @@
     <string name="remonter_en_haut_de_la_liste">Remonter en haut de la liste</string>
     <string name="test_crash">Test Crash</string>
 
+    <!-- Crash Activity -->
+    <string name="crash_title">Oups ! Une erreur est survenue</string>
+    <string name="crash_subtitle">L\'application a rencontré un problème inattendu. Voici les détails techniques :</string>
+    <string name="restart_app">Redémarrer l\'application</string>
+    <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
+
 </resources>
