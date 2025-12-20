@@ -148,5 +148,6 @@
     <string name="crash_subtitle">L\'application a rencontré un problème inattendu. Voici les détails techniques :</string>
     <string name="restart_app">Redémarrer l\'application</string>
     <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
+    <string name="crash_info">Crash Info</string>
 
 </resources>

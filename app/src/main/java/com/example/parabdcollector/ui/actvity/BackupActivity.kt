@@ -77,6 +77,10 @@ class BackupActivity : AppCompatActivity() {
         binding.btnRestore.setOnClickListener {
             openDocumentLauncher.launch(arrayOf("application/x-sqlite3", "application/octet-stream"))
         }
+
+        binding.btnTestCrash.setOnClickListener {
+            throw RuntimeException("Test Crash triggered from BackupActivity")
+        }
     }
 
     /**

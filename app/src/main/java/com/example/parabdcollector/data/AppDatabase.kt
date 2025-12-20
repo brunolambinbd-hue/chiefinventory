@@ -25,20 +25,32 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         /**
-         * A hollow migration from version 9 to 13.
-         * This is for production devices that are already on a correct schema but with an old version number.
-         * The schema already contains the parentId column, so no SQL commands are needed.
+         * A safe, defensive migration from version 9 to 13.
+         * It checks if the `parentId` column exists before attempting to add it, making it safe
+         * for any production device, regardless of its exact schema state.
          */
         val MIGRATION_9_13: Migration = object : Migration(9, 13) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // No schema changes needed. The schema from version 9 was already correct.
-                // This migration just bumps the version number.
+                val cursor = database.query("PRAGMA table_info(locations)")
+                val columns = mutableListOf<String>()
+                val nameIndex = cursor.getColumnIndex("name")
+                if (nameIndex >= 0) {
+                    while (cursor.moveToNext()) {
+                        columns.add(cursor.getString(nameIndex))
+                    }
+                }
+                cursor.close()
+
+                if (!columns.contains("parentId")) {
+                    database.execSQL("ALTER TABLE locations ADD COLUMN parentId INTEGER DEFAULT NULL")
+                }
             }
         }
 
         // The 12->13 migration is for development devices that might have been left in a broken state.
         val MIGRATION_12_13: Migration = object : Migration(12, 13) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                // This migration can be simpler because we know v12 was broken and needs the column.
                 database.execSQL("ALTER TABLE locations ADD COLUMN parentId INTEGER DEFAULT NULL")
             }
         }
