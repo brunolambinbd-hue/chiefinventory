@@ -25,33 +25,64 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         /**
-         * A safe, defensive migration from version 9 to 13.
-         * It checks if the `parentId` column exists before attempting to add it, making it safe
-         * for any production device, regardless of its exact schema state.
+         * A robust migration from version 9 to 13.
+         * It handles the complex case where the database contains both `parentId` and `parentLocationId`,
+         * along with unexpected foreign keys and indices.
+         *
+         * Strategy: Create a new clean table, copy/merge data, and swap tables.
          */
         val MIGRATION_9_13: Migration = object : Migration(9, 13) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                // 1. Create the new table with the correct schema (as expected by Room)
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `locations_new` (" +
+                            "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`name` TEXT NOT NULL, " +
+                            "`parentId` INTEGER)"
+                )
+
+                // 2. Copy data from the old table to the new one.
+                // We use COALESCE to merge data: if `parentId` is null, we take `parentLocationId`.
+                // This ensures we preserve relationships regardless of which column was used.
+                // We check if the source columns exist to build the correct INSERT statement.
                 val cursor = database.query("PRAGMA table_info(locations)")
                 val columns = mutableListOf<String>()
-                val nameIndex = cursor.getColumnIndex("name")
-                if (nameIndex >= 0) {
-                    while (cursor.moveToNext()) {
-                        columns.add(cursor.getString(nameIndex))
-                    }
+                while (cursor.moveToNext()) {
+                    columns.add(cursor.getString(cursor.getColumnIndex("name")))
                 }
                 cursor.close()
 
-                if (!columns.contains("parentId")) {
-                    database.execSQL("ALTER TABLE locations ADD COLUMN parentId INTEGER DEFAULT NULL")
+                val hasParentId = columns.contains("parentId")
+                val hasParentLocationId = columns.contains("parentLocationId")
+
+                val parentSource = when {
+                    hasParentId && hasParentLocationId -> "COALESCE(parentId, parentLocationId)"
+                    hasParentId -> "parentId"
+                    hasParentLocationId -> "parentLocationId"
+                    else -> "NULL"
                 }
+
+                database.execSQL(
+                    "INSERT INTO `locations_new` (id, name, parentId) " +
+                            "SELECT id, name, $parentSource FROM locations"
+                )
+
+                // 3. Drop the old table
+                database.execSQL("DROP TABLE locations")
+
+                // 4. Rename the new table to the original name
+                database.execSQL("ALTER TABLE locations_new RENAME TO locations")
+
+                // 5. Create the required index
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_locations_parentId ON locations(parentId)")
             }
         }
 
         // The 12->13 migration is for development devices that might have been left in a broken state.
         val MIGRATION_12_13: Migration = object : Migration(12, 13) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // This migration can be simpler because we know v12 was broken and needs the column.
                 database.execSQL("ALTER TABLE locations ADD COLUMN parentId INTEGER DEFAULT NULL")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_locations_parentId ON locations(parentId)")
             }
         }
 

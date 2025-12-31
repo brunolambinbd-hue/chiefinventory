@@ -85,44 +85,49 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     open suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
-        val queryBuilder = StringBuilder("SELECT * FROM collection_items WHERE isPossessed = 0")
+        val queryBuilder = StringBuilder("SELECT * FROM collection_items")
         val args = mutableListOf<Any?>()
+        var conditions = mutableListOf<String>()
 
         criteria.titre?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND titre LIKE ?")
+            conditions.add("titre LIKE ?")
             args.add("%$it%")
         }
         criteria.editeur?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND editeur LIKE ?")
+            conditions.add("editeur LIKE ?")
             args.add("%$it%")
         }
         criteria.annee?.let {
-            queryBuilder.append(" AND annee = ?")
+            conditions.add("annee = ?")
             args.add(it)
         }
         criteria.mois?.let {
-            queryBuilder.append(" AND mois = ?")
+            conditions.add("mois = ?")
             args.add(it)
         }
         criteria.superCategorie?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND superCategorie = ?")
+            conditions.add("superCategorie = ?")
             args.add(it)
         }
         criteria.categorie?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND categorie LIKE ?")
+            conditions.add("categorie LIKE ?")
             args.add("%$it%")
         }
         criteria.description?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND description LIKE ?")
+            conditions.add("description LIKE ?")
             args.add("%$it%")
         }
         criteria.tirage?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND tirage LIKE ?")
+            conditions.add("tirage LIKE ?")
             args.add("%$it%")
         }
         criteria.dimensions?.takeIf { it.isNotBlank() }?.let {
-            queryBuilder.append(" AND dimensions LIKE ?")
+            conditions.add("dimensions LIKE ?")
             args.add("%$it%")
+        }
+        
+        if (conditions.isNotEmpty()) {
+            queryBuilder.append(" WHERE ").append(conditions.joinToString(" AND "))
         }
 
         queryBuilder.append(" ORDER BY annee DESC, mois DESC")
@@ -137,7 +142,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
                     val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
                     SearchResultItem(it, similarity.toDouble())
                 }
-                .filter { !(it.similarity?.isNaN() ?: true) && (it.similarity ?: 0.0) >= 0.65 }
+                .filter { it.similarity != null && it.similarity >= 0.65 }
                 .sortedByDescending { it.similarity }
                 .take(5)
         } else {
@@ -145,8 +150,13 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         }
     }
 
+    /**
+     * Finds the most visually similar items to a given image embedding, searching through ALL items.
+     * @param queryEmbedding The float array of the image to search for.
+     * @return A list of the top 3 most similar [SearchResultItem]s, including their ownership status.
+     */
     suspend fun findMostSimilarItems(queryEmbedding: FloatArray): List<SearchResultItem> {
-        val allItems = collectionDao.getAllItemsWithEmbeddings()
+        val allItems = collectionDao.getAllItemsWithEmbeddings() // This fetches all items with a signature
         return allItems
             .map { 
                 val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)

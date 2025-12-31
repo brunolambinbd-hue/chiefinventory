@@ -47,7 +47,7 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE remoteId = :remoteId")
     fun findByRemoteId(remoteId: Int): CollectionItem?
 
-    @Query("SELECT * FROM collection_items WHERE isPossessed = 0 AND (titre LIKE :query OR editeur LIKE :query OR description LIKE :query) ORDER BY annee DESC, mois DESC")
+    @Query("SELECT * FROM collection_items WHERE (titre LIKE :query OR editeur LIKE :query OR description LIKE :query) ORDER BY annee DESC, mois DESC")
     suspend fun search(query: String): List<CollectionItem>
 
     @RawQuery

@@ -26,4 +26,8 @@
     <!-- Couleur pour les lignes alternées -->
     <color name="zebra_stripe_color">#0D000000</color> <!-- Noir très transparent pour un effet subtil -->
 
+    <!-- Couleurs pour le "Zebra Striping" dans les listes -->
+    <color name="stripe_even">#00000000</color> <!-- Transparent -->
+    <color name="stripe_odd">#1A000000</color>  <!-- Noir un peu plus visible (10% alpha) -->
+
 </resources>

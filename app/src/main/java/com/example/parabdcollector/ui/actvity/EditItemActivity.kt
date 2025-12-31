@@ -3,6 +3,7 @@ package com.example.parabdcollector.ui.actvity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -71,6 +72,14 @@ class EditItemActivity : AppCompatActivity() {
         binding.btnSave.setOnClickListener { saveItem() }
         binding.itemImage.setOnClickListener { navigateToFullScreenImage() }
     }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle the back button click
+        if (item.itemId == android.R.id.home) {
+            finish() // Go back to the previous activity
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     /**
      * Checks for pre-fill extras from the inventory scanner and populates the form.
@@ -101,7 +110,7 @@ class EditItemActivity : AppCompatActivity() {
                 viewModel.setImageUri(permanentUri)
                 newBitmap = BitmapUtils.getBitmapFromUri(this, permanentUri)
             } else {
-                Toast.makeText(this, "Erreur lors de la sauvegarde de l\'image", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Erreur lors de la sauvegarde de l'image", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -280,30 +289,31 @@ class EditItemActivity : AppCompatActivity() {
                 remoteId = currentItem?.remoteId,
                 titre = title,
                 isPossessed = binding.switchPossessed.isChecked,
-                superCategorie = binding.etSuperCategory.text.toString(),
-                categorie = binding.etCategory.text.toString(),
-                editeur = binding.etEditor.text.toString(),
+                superCategorie = binding.etSuperCategory.text.toString().takeIf { it.isNotBlank() },
+                categorie = binding.etCategory.text.toString().takeIf { it.isNotBlank() },
+                editeur = binding.etEditor.text.toString().takeIf { it.isNotBlank() },
                 annee = binding.etYear.text.toString().toIntOrNull(),
                 mois = binding.etMonth.text.toString().toIntOrNull(),
-                materiau = binding.etMaterial.text.toString(),
-                tirage = binding.etPrintRun.text.toString(),
-                dimensions = binding.etDimensions.text.toString(),
-                description = binding.etDescription.text.toString(),
+                materiau = binding.etMaterial.text.toString().takeIf { it.isNotBlank() },
+                tirage = binding.etPrintRun.text.toString().takeIf { it.isNotBlank() },
+                dimensions = binding.etDimensions.text.toString().takeIf { it.isNotBlank() },
+                description = binding.etDescription.text.toString().takeIf { it.isNotBlank() },
                 prixAchat = binding.etPurchasePrice.text.toString().toDoubleOrNull(),
+                lieuAchat = binding.etPurchaseLocation.text.toString().takeIf { it.isNotBlank() },
                 valeurEstimee = binding.etEstimatedValue.text.toString().toDoubleOrNull(),
-                lieuAchat = binding.etPurchaseLocation.text.toString(),
+                locationId = selectedLocationId,
                 imageUri = viewModel.imageUri.value?.toString(),
-                imageEmbedding = imageEmbedding,
-                locationId = selectedLocationId
+                imageEmbedding = imageEmbedding
             )
+
             viewModel.saveItem(itemToSave)
-            finish()
+            finish() // Go back after saving
         }
     }
 
     companion object {
         const val EXTRA_ITEM_ID = "itemId"
-        const val EXTRA_PREFILL_LOCATION_ID = "prefillLocationId"
-        const val EXTRA_PREFILL_IMAGE_URI = "prefillImageUri"
+        const val EXTRA_PREFILL_LOCATION_ID = "prefill_location_id"
+        const val EXTRA_PREFILL_IMAGE_URI = "prefill_image_uri"
     }
 }
