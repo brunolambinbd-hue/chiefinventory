@@ -15,10 +15,10 @@
       </SelectionState>
       <SelectionState runConfigName="Run all instrumented Tests">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-12-19T17:20:32.241950100Z">
+        <DropdownSelection timestamp="2026-01-01T21:20:06.931858700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Medium_Phone.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel-DevTest.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -37,9 +37,6 @@
           </Target>
         </DropdownSelection>
         <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="emptyOrNullFields_areHidden()">
-        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="FullScreenImageActivityTest">
         <option name="selectionMode" value="DROPDOWN" />

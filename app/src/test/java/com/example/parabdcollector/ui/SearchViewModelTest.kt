@@ -86,7 +86,7 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun `clearSearchResults should clear live data`() {
+    fun `clearSearchResults should set state to Idle and clear preview`() {
         // GIVEN: Le ViewModel est dans un état quelconque.
 
         // WHEN: La fonction de nettoyage est appelée.
@@ -94,8 +94,7 @@ class SearchViewModelTest {
 
         // THEN: Les LiveData des résultats et de la prévisualisation doivent être vides.
         val state = viewModel.searchResultState.value
-        assertTrue(state is SearchResultState.Success)
-        assertTrue((state as SearchResultState.Success).results.isEmpty())
-        assertTrue(viewModel.signaturePreview.value?.isEmpty() ?: true)
+        assertTrue("State should be Idle after clearing", state is SearchResultState.Idle)
+        assertTrue("Signature preview should be empty", viewModel.signaturePreview.value?.isEmpty() ?: true)
     }
 }

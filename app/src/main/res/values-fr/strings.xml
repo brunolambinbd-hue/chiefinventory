@@ -134,6 +134,10 @@
     <string name="restart_app">Redémarrage de l\'app</string>
     <string name="crash_info">crash_info</string>
     <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
+    <string name="importation_en_cours">Importation en cours...</string>
+    <string name="affichage_de_tous_les_objets_impl_menter">Affichage de tous les objets (à implémenter)</string>
+    <string name="possessed_status">POSSÉDÉ</string>
+    <string name="sought_status">RECHERCHÉ</string>
 
 
 </resources>

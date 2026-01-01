@@ -141,5 +141,9 @@
     <string name="restart_app">restart_app</string>
     <string name="crash_info">crash_info</string>
     <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
+    <string name="importation_en_cours">Import in progress...</string>
+    <string name="affichage_de_tous_les_objets_impl_menter">Display of all objects (to be implemented)</string>
+    <string name="possessed_status">GOT IT</string>
+    <string name="sought_status">SEARCHED</string>
 
 </resources>

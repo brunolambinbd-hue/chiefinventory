@@ -94,11 +94,11 @@ class CollectionDaoTest {
     }
 
     @Test
-    fun searchItems_returnsMatchingUnpossessedItems_inCorrectOrder() = runTest {
+    fun searchItems_returnsAllMatchingItems_inCorrectOrder() = runTest {
         // Arrange: Insert a variety of items
         val item1 = baseItem.copy(id = 1, titre = "Blueberry 1", editeur = "Dargaud", annee = 1980, isPossessed = false)
         val item2 = baseItem.copy(id = 2, titre = "Thorgal 5", editeur = "Lombard", annee = 1982, isPossessed = false)
-        val item3 = baseItem.copy(id = 3, titre = "Blueberry 2", editeur = "Dargaud", annee = 1981, isPossessed = true) // Possessed, should not be found
+        val item3 = baseItem.copy(id = 3, titre = "Blueberry 2", editeur = "Dargaud", annee = 1981, isPossessed = true) // Possessed, should now be found
         val item4 = baseItem.copy(id = 4, titre = "XIII 1", editeur = "Dargaud", annee = 1984, isPossessed = false)
 
         collectionDao.insert(item1)
@@ -110,10 +110,9 @@ class CollectionDaoTest {
         val searchResults = collectionDao.search("%Dargaud%")
 
         // Assert: Check the results
-        assertThat(searchResults).hasSize(2)
+        assertThat(searchResults).hasSize(3)
         // Verify that the order is descending by year
-        assertThat(searchResults).containsExactly(item4, item1).inOrder()
+        assertThat(searchResults).containsExactly(item4, item3, item1).inOrder()
         assertThat(searchResults).doesNotContain(item2)
-        assertThat(searchResults).doesNotContain(item3)
     }
 }
