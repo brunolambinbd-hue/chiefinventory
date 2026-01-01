@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.Editable
-import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,8 +18,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivitySearchBinding
@@ -63,22 +62,24 @@ class SearchActivity : AppCompatActivity() {
         handleWindowInsets()
 
         imageCaptureUtil = ImageCaptureUtil(this) { permanentUri ->
-            if (permanentUri != null) {
-                val bitmap = BitmapUtils.getBitmapFromUri(this, permanentUri)
+            // A null URI indicates the user cancelled the camera action.
+            if (permanentUri == null) {
+                // Do nothing if user cancels.
+                return@ImageCaptureUtil
+            }
+
+            val bitmap = BitmapUtils.getBitmapFromUri(this, permanentUri)
+            if (bitmap != null) {
                 searchImageBitmap = bitmap
                 binding.ivSearchImagePreview.setImageBitmap(bitmap)
-                if (bitmap != null) {
-                    binding.advancedSearchFields.isVisible = true
-                    binding.ivSearchImagePreview.visibility = View.VISIBLE
-                    viewModel.calculateSignatureForPreview(bitmap)
-                } else {
-                    binding.ivSearchImagePreview.visibility = View.GONE
-                    Toast.makeText(this, "Erreur de décodage de l\'image", Toast.LENGTH_SHORT).show()
-                }
-                validateSearchButton()
+                binding.advancedSearchFields.isVisible = true
+                binding.ivSearchImagePreview.visibility = View.VISIBLE
+                viewModel.calculateSignatureForPreview(bitmap)
             } else {
-                Toast.makeText(this, "Erreur lors de la sauvegarde de l\'image", Toast.LENGTH_SHORT).show()
+                binding.ivSearchImagePreview.visibility = View.GONE
+                Toast.makeText(this, "Erreur de décodage de l\'image", Toast.LENGTH_SHORT).show()
             }
+            validateSearchButton()
         }
 
         setupRecyclerView()
@@ -92,7 +93,6 @@ class SearchActivity : AppCompatActivity() {
     private fun handleWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Apply insets as padding to the root view
             view.updatePadding(left = insets.left, top = insets.top, right = insets.right, bottom = insets.bottom)
             WindowInsetsCompat.CONSUMED
         }
@@ -110,24 +110,18 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupTextWatchers() {
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                validateSearchButton()
-            }
-        }
+        val afterTextChanged = { _: Editable? -> validateSearchButton() }
 
-        binding.etSearchSimple.addTextChangedListener(textWatcher)
-        binding.etSearchTitle.addTextChangedListener(textWatcher)
-        binding.etSearchSuperCategory.addTextChangedListener(textWatcher)
-        binding.etSearchCategory.addTextChangedListener(textWatcher)
-        binding.etSearchEditor.addTextChangedListener(textWatcher)
-        binding.etSearchYear.addTextChangedListener(textWatcher)
-        binding.etSearchMonth.addTextChangedListener(textWatcher)
-        binding.etSearchDescription.addTextChangedListener(textWatcher)
-        binding.etSearchTirage.addTextChangedListener(textWatcher)
-        binding.etSearchDimensions.addTextChangedListener(textWatcher)
+        binding.etSearchSimple.doAfterTextChanged(afterTextChanged)
+        binding.etSearchTitle.doAfterTextChanged(afterTextChanged)
+        binding.etSearchSuperCategory.doAfterTextChanged(afterTextChanged)
+        binding.etSearchCategory.doAfterTextChanged(afterTextChanged)
+        binding.etSearchEditor.doAfterTextChanged(afterTextChanged)
+        binding.etSearchYear.doAfterTextChanged(afterTextChanged)
+        binding.etSearchMonth.doAfterTextChanged(afterTextChanged)
+        binding.etSearchDescription.doAfterTextChanged(afterTextChanged)
+        binding.etSearchTirage.doAfterTextChanged(afterTextChanged)
+        binding.etSearchDimensions.doAfterTextChanged(afterTextChanged)
     }
 
     private fun validateSearchButton() {
@@ -161,12 +155,15 @@ class SearchActivity : AppCompatActivity() {
             binding.progressBar.isVisible = state is SearchResultState.Loading
             binding.resultsListContainer.isVisible = state is SearchResultState.Success
             binding.errorContainer.isVisible = state is SearchResultState.Error
-            binding.tvNoResults.isVisible = state is SearchResultState.Success && state.results.isEmpty()
+            binding.tvNoResults.isVisible = state is SearchResultState.Success && state.results.isEmpty() && state !is SearchResultState.Idle
             binding.fabScrollToTop.isVisible = state is SearchResultState.Success && state.results.isNotEmpty()
 
             if (state is SearchResultState.Success) {
                 adapter.submitList(state.results)
                 updateResultSummary(state.results.size)
+            } else if (state is SearchResultState.Idle) {
+                adapter.submitList(emptyList())
+                updateResultSummary(0)
             }
         }
 
@@ -254,47 +251,53 @@ class SearchActivity : AppCompatActivity() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 
-        val simpleQuery = binding.etSearchSimple.text.toString().trim()
-        if (simpleQuery.isNotBlank()) {
-            currentSearchDescription = simpleQuery
-            lastSearchWasSimple = true
-            lastSimpleQuery = simpleQuery
-            viewModel.search(simpleQuery)
-            return
-        }
-        
-        val criteria = SearchCriteria(
-            titre = binding.etSearchTitle.text.toString().trim().takeIf { it.isNotBlank() },
-            superCategorie = binding.etSearchSuperCategory.text.toString().trim().takeIf { it.isNotBlank() },
-            categorie = binding.etSearchCategory.text.toString().trim().takeIf { it.isNotBlank() },
-            editeur = binding.etSearchEditor.text.toString().trim().takeIf { it.isNotBlank() },
-            annee = binding.etSearchYear.text.toString().trim().toIntOrNull(),
-            mois = binding.etSearchMonth.text.toString().trim().toIntOrNull(),
-            description = binding.etSearchDescription.text.toString().trim().takeIf { it.isNotBlank() },
-            tirage = binding.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() },
-            dimensions = binding.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }
-        )
-        lastAdvancedCriteria = criteria
-        lastSearchWasSimple = false
+        // Decide whether it's a simple or advanced search
+        val isAdvancedSearch = binding.advancedSearchFields.isVisible
 
-        val descriptionParts = listOfNotNull(
-            criteria.titre,
-            criteria.superCategorie,
-            criteria.categorie,
-            criteria.editeur,
-            criteria.annee?.toString(),
-            criteria.mois?.toString(),
-            criteria.description,
-            criteria.tirage,
-            criteria.dimensions,
-            if (searchImageBitmap != null) "Image" else null
-        )
-        currentSearchDescription = descriptionParts.joinToString(", ").ifBlank { "Recherche avancée" }
+        if (isAdvancedSearch) {
+            // --- ADVANCED SEARCH LOGIC ---
+            
+            val criteria = SearchCriteria(
+                titre = binding.etSearchTitle.text.toString().trim().takeIf { it.isNotBlank() },
+                superCategorie = binding.etSearchSuperCategory.text.toString().trim().takeIf { it.isNotBlank() },
+                categorie = binding.etSearchCategory.text.toString().trim().takeIf { it.isNotBlank() },
+                editeur = binding.etSearchEditor.text.toString().trim().takeIf { it.isNotBlank() },
+                annee = binding.etSearchYear.text.toString().trim().toIntOrNull(),
+                mois = binding.etSearchMonth.text.toString().trim().toIntOrNull(),
+                description = binding.etSearchDescription.text.toString().trim().takeIf { it.isNotBlank() },
+                tirage = binding.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() },
+                dimensions = binding.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }
+            )
+            lastAdvancedCriteria = criteria
+            lastSearchWasSimple = false
 
-        viewModel.advancedSearch(criteria, searchImageBitmap)
-        
-        if (binding.advancedSearchFields.isVisible) {
-            toggleAdvancedSearch()
+            val descriptionParts = listOfNotNull(
+                criteria.titre,
+                criteria.superCategorie,
+                criteria.categorie,
+                criteria.editeur,
+                criteria.annee?.toString(),
+                criteria.mois?.toString(),
+                criteria.description,
+                criteria.tirage,
+                criteria.dimensions,
+                if (searchImageBitmap != null) "Image" else null
+            )
+            currentSearchDescription = descriptionParts.joinToString(", ").ifBlank { "Recherche avancée" }
+
+            viewModel.advancedSearch(criteria, searchImageBitmap)
+
+            toggleAdvancedSearch() // This will hide it.
+
+        } else {
+            // --- SIMPLE SEARCH LOGIC ---
+            val simpleQuery = binding.etSearchSimple.text.toString().trim()
+            if (simpleQuery.isNotBlank()) {
+                currentSearchDescription = simpleQuery
+                lastSearchWasSimple = true
+                lastSimpleQuery = simpleQuery
+                viewModel.search(simpleQuery)
+            }
         }
     }
 

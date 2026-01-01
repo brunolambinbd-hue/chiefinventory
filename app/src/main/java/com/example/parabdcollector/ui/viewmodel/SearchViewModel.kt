@@ -13,12 +13,16 @@ import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.utils.SignatureUtils
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Represents the state of a search operation.
  */
 sealed class SearchResultState {
+    /** The screen is waiting for a search to be initiated. */
+    object Idle : SearchResultState()
     /** The search is in progress. */
     object Loading : SearchResultState()
     /** The search completed successfully. */
@@ -38,13 +42,15 @@ sealed class SearchResultState {
  */
 class SearchViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
 
-    private val _searchResultState = MutableLiveData<SearchResultState>()
+    private val _searchResultState = MutableLiveData<SearchResultState>(SearchResultState.Idle)
     /** The state of the most recent search, exposed as LiveData. */
     val searchResultState: LiveData<SearchResultState> = _searchResultState
 
     private val _signaturePreview = MutableLiveData<String>()
     /** A formatted string preview of the last computed image signature. */
     val signaturePreview: LiveData<String> = _signaturePreview
+
+    private var searchJob: Job? = null
 
     private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(
         context = application,
@@ -72,11 +78,16 @@ class SearchViewModel(application: Application, private val repository: Collecti
      * @param query The search term.
      */
     fun search(query: String) {
+        searchJob?.cancel()
         _searchResultState.value = SearchResultState.Loading
-        viewModelScope.launch {
+        searchJob = viewModelScope.launch {
             try {
                 val results = repository.search(query)
                 _searchResultState.value = SearchResultState.Success(results.map { SearchResultItem(it) })
+            } catch (e: CancellationException) {
+                Log.i("SearchViewModel", "Simple search cancelled.")
+                // Propagate cancellation to ensure the coroutine stops cleanly
+                throw e
             } catch (e: Exception) {
                 Log.e("SearchViewModel", "Simple search failed", e)
                 _searchResultState.value = SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_simple))
@@ -90,12 +101,16 @@ class SearchViewModel(application: Application, private val repository: Collecti
      * @param bitmap The optional image to use for similarity search.
      */
     fun advancedSearch(criteria: SearchCriteria, bitmap: Bitmap?) {
+        searchJob?.cancel()
         _searchResultState.value = SearchResultState.Loading
-        viewModelScope.launch {
+        searchJob = viewModelScope.launch {
             try {
                 val queryEmbedding = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
                 val results = repository.advancedSearch(criteria, queryEmbedding)
                 _searchResultState.value = SearchResultState.Success(results)
+            } catch (e: CancellationException) {
+                Log.i("SearchViewModel", "Advanced search cancelled.")
+                throw e
             } catch (e: Exception) {
                 Log.e("SearchViewModel", "Advanced search failed", e)
                 _searchResultState.value = SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_advanced))
@@ -107,7 +122,8 @@ class SearchViewModel(application: Application, private val repository: Collecti
      * Clears the current search results and signature preview from the UI.
      */
     fun clearSearchResults() {
-        _searchResultState.value = SearchResultState.Success(emptyList())
+        searchJob?.cancel()
+        _searchResultState.value = SearchResultState.Idle
         _signaturePreview.value = ""
     }
 
