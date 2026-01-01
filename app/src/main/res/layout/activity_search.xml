@@ -121,6 +121,7 @@
                         android:gravity="center"
                         android:padding="4dp"
                         android:textSize="10sp"
+                        tools:ignore="SmallSp"
                         tools:text="[0.12, -0.45, ...]" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -146,7 +147,9 @@
                         <AutoCompleteTextView
                             android:id="@+id/et_search_super_category"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:hint="@string/item_super_category_hint"
+                            android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -160,7 +163,9 @@
                         <AutoCompleteTextView
                             android:id="@+id/et_search_category"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:hint="@string/item_category_hint"
+                            android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -180,6 +185,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:baselineAligned="false"
                         android:layout_marginTop="8dp">
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -228,6 +234,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:baselineAligned="false"
                         android:layout_marginTop="8dp">
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -240,8 +247,7 @@
                                 android:id="@+id/et_search_tirage"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/item_run_hint"
-                                android:inputType="number" />
+                                android:hint="@string/item_run_hint"/>
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
