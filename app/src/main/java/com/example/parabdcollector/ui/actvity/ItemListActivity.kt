@@ -23,13 +23,15 @@ import com.example.parabdcollector.ui.viewmodel.MainViewModel
 import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 
 /**
- * An activity that displays a filtered list of collection items.
+ * An activity to display a list of collection items based on various filter criteria.
  *
- * This activity's behavior is controlled by extras passed in its Intent. It can display:
- * - A list of items filtered by a specific super-category and category.
- * - A list of all possessed items.
- * - A list of all sought items.
- * - A list of all items in a specific location.
+ * This activity can display items filtered by:
+ * - A specific location ([EXTRA_LOCATION_ID]).
+ * - A combination of super-category and category ([EXTRA_SUPER_CATEGORY], [EXTRA_CATEGORY]).
+ * - Possession status ([EXTRA_LIST_TYPE] = [TYPE_POSSESSED] or [TYPE_SOUGHT]).
+ * - Unlocated status ([EXTRA_LIST_TYPE] = [TYPE_UNLOCATED]).
+ *
+ * The title of the activity is dynamically updated to reflect the current filter.
  */
 class ItemListActivity : AppCompatActivity() {
 
@@ -43,8 +45,12 @@ class ItemListActivity : AppCompatActivity() {
     }
 
     /**
-     * Initializes the activity, toolbar, and RecyclerView.
-     * It determines which list of items to display and sets the toolbar title, including the root context.
+     * Initializes the activity, toolbar, and RecyclerView. It then observes the ViewModel
+     * for the appropriate item list based on the intent extras.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in [onSaveInstanceState]. Otherwise it is null.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +70,13 @@ class ItemListActivity : AppCompatActivity() {
         setupRecyclerView()
 
         when {
+            listType == TYPE_UNLOCATED -> {
+                supportActionBar?.title = "Objets non localisés"
+                viewModel.unlocatedItems.observe(this) { items ->
+                    val searchResults = items.map(::SearchResultItem)
+                    adapter.submitList(searchResults)
+                }
+            }
             locationId != -1L -> {
                 supportActionBar?.title = locationName ?: getString(R.string.location_items_title)
                 viewModel.getItemsByLocationId(locationId).observe(this) { items ->
@@ -121,6 +134,12 @@ class ItemListActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Finds the toolbar's title TextView by iterating through its children.
+     * This is necessary to make parts of the title clickable, as the title view has no public ID.
+     *
+     * @return The [TextView] used for the title, or null if it cannot be found.
+     */
     private fun findToolbarTitleView(): TextView? {
         for (i in 0 until binding.toolbar.childCount) {
             val child = binding.toolbar.getChildAt(i)
@@ -132,7 +151,9 @@ class ItemListActivity : AppCompatActivity() {
     }
 
     /**
-     * Initializes the RecyclerView and its adapter, and defines the item click behavior.
+     * Initializes the RecyclerView, its adapter, and scroll listeners.
+     * The adapter is configured to open [EditItemActivity] on item click.
+     * A scroll listener is added to show/hide a "scroll to top" FAB.
      */
     private fun setupRecyclerView() {
         adapter = CollectionAdapter { searchResult ->
@@ -146,7 +167,6 @@ class ItemListActivity : AppCompatActivity() {
         binding.rvItemList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                // Show the button if scrolling down, hide if scrolling up
                 if (dy > 0) {
                     if (!binding.fabScrollToTop.isShown) {
                         binding.fabScrollToTop.show()
@@ -165,7 +185,11 @@ class ItemListActivity : AppCompatActivity() {
     }
 
     /**
-     * Handles the back arrow click in the toolbar.
+     * Handles action bar item selections. In this case, it handles the "Up" button
+     * to navigate back to the previous screen.
+     *
+     * @param item The menu item that was selected.
+     * @return True if the item was handled, false otherwise.
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
@@ -175,25 +199,15 @@ class ItemListActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-
-
     companion object {
-        /** Key for the Int extra that determines the general list type (possessed or sought). */
         const val EXTRA_LIST_TYPE = "list_type"
-        /** Key for the String extra that holds the super-category to filter by. */
         const val EXTRA_SUPER_CATEGORY = "super_category"
-        /** Key for the String extra that holds the detailed category to filter by. */
         const val EXTRA_CATEGORY = "category"
-        /** Key for the Long extra that holds the location ID to filter by. */
         const val EXTRA_LOCATION_ID = "location_id"
-        /** Key for the String extra that holds the full, human-readable location name for the title. */
         const val EXTRA_LOCATION_NAME = "location_name"
-        /** Key for the string extra that holds the root title for context (e.g., "Mes Produits"). */
         const val EXTRA_ROOT_TITLE = "root_title"
-
-        /** Value for EXTRA_LIST_TYPE to show possessed items. */
         const val TYPE_POSSESSED = 1
-        /** Value for EXTRA_LIST_TYPE to show sought items. */
         const val TYPE_SOUGHT = 2
+        const val TYPE_UNLOCATED = 3
     }
 }

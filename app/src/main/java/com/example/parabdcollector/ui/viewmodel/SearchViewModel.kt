@@ -26,7 +26,7 @@ sealed class SearchResultState {
     /** The search is in progress. */
     object Loading : SearchResultState()
     /** The search completed successfully. */
-    data class Success(val results: List<SearchResultItem>) : SearchResultState()
+    data class Success(val results: List<SearchResultItem>, val totalCount: Int = results.size) : SearchResultState()
     /** The search failed. */
     data class Error(val message: String) : SearchResultState()
 }
@@ -106,8 +106,8 @@ class SearchViewModel(application: Application, private val repository: Collecti
         searchJob = viewModelScope.launch {
             try {
                 val queryEmbedding = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
-                val results = repository.advancedSearch(criteria, queryEmbedding)
-                _searchResultState.value = SearchResultState.Success(results)
+                val searchResult = repository.advancedSearch(criteria, queryEmbedding)
+                _searchResultState.value = SearchResultState.Success(searchResult.results, searchResult.totalCount)
             } catch (e: CancellationException) {
                 Log.i("SearchViewModel", "Advanced search cancelled.")
                 throw e

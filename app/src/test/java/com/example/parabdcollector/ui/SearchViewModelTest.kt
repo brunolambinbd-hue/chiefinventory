@@ -2,6 +2,7 @@ package com.example.parabdcollector.ui
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.parabdcollector.model.AdvancedSearchResult
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.repo.CollectionRepository
@@ -71,8 +72,9 @@ class SearchViewModelTest {
     fun `advancedSearch without image should call repository and update results`() = runTest {
         // GIVEN: Des critères de recherche et des résultats mockés.
         val criteria = SearchCriteria(titre = "Advanced")
-        val mockResults = listOf(SearchResultItem(CollectionItem(id = 2, titre = "Advanced Result", isPossessed = true, description = "", editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, imageUri = null, imageEmbedding = null, locationId = null, remoteId = null)))
-        whenever(repository.advancedSearch(any(), anyOrNull())).thenReturn(mockResults)
+        val mockList = listOf(SearchResultItem(CollectionItem(id = 2, titre = "Advanced Result", isPossessed = true, description = "", editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, imageUri = null, imageEmbedding = null, locationId = null, remoteId = null)))
+        val mockResult = AdvancedSearchResult(mockList, mockList.size)
+        whenever(repository.advancedSearch(any(), anyOrNull())).thenReturn(mockResult)
 
         // WHEN: La recherche avancée est appelée sans bitmap.
         viewModel.advancedSearch(criteria, null)
@@ -80,7 +82,8 @@ class SearchViewModelTest {
         // THEN: Le LiveData des résultats doit être mis à jour.
         val state = viewModel.searchResultState.value
         assertTrue(state is SearchResultState.Success)
-        assertEquals(mockResults, (state as SearchResultState.Success).results)
+        assertEquals(mockList, (state as SearchResultState.Success).results)
+        assertEquals(mockList.size, state.totalCount)
         // On vérifie que la bonne méthode du repository a été appelée.
         verify(repository).advancedSearch(criteria, null)
     }

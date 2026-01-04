@@ -35,6 +35,9 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE isPossessed = 0")
     fun getAllSought(): LiveData<List<CollectionItem>>
 
+    @Query("SELECT * FROM collection_items WHERE locationId IS NULL AND isPossessed = 1")
+    fun getUnlocatedItems(): LiveData<List<CollectionItem>>
+
     @Query("SELECT COUNT(id) FROM collection_items")
     fun getTotalCount(): LiveData<Int>
 
@@ -47,11 +50,14 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE remoteId = :remoteId")
     fun findByRemoteId(remoteId: Int): CollectionItem?
 
-    @Query("SELECT * FROM collection_items WHERE (titre LIKE :query OR editeur LIKE :query OR description LIKE :query) ORDER BY annee DESC, mois DESC")
+    @Query("SELECT * FROM collection_items WHERE (titre LIKE :query OR editeur LIKE :query OR description LIKE :query) ORDER BY annee DESC, mois DESC LIMIT 50")
     suspend fun search(query: String): List<CollectionItem>
 
     @RawQuery
     suspend fun advancedSearch(query: SupportSQLiteQuery): List<CollectionItem>
+
+    @RawQuery
+    suspend fun countAdvancedSearch(query: SupportSQLiteQuery): Int
 
     @Query("""
         SELECT 

@@ -77,6 +77,12 @@
         <item quantity="other">%1$d résultats pour \"%2$s\"</item>
     </plurals>
     <string name="similarity_score_format">Similarité : %.1f%%</string>
+    <string name="search_status_hint">Statut</string>
+    <string-array name="search_status_options">
+        <item>Tous</item>
+        <item>Possédés</item>
+        <item>Recherchés</item>
+    </string-array>
 
     <!-- Textes pour les menus -->
     <string name="menu_search_title">Recherche</string>
@@ -94,6 +100,7 @@
     <!-- Sauvegarde et Restauration -->
     <string name="backup_button_backup">Sauvegarder la collection</string>
     <string name="backup_button_restore">Restaurer une sauvegarde</string>
+    <string name="show_unlocated_items_button">Objets non localisés</string>
     <string name="version_info_format" translatable="false">App v%1$s (DB v%2$d)\nAPI URL: %3$s</string>
     <string name="backup_success">Sauvegarde réussie !</string>
     <string name="backup_failed">Échec de la sauvegarde : %1$s</string>
@@ -150,7 +157,7 @@
     <string name="restart_app">Redémarrer l\'application</string>
     <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
     <string name="crash_info">Info de Crash</string>
-    <string name="importation_en_cours">Importation en cours...</string>
+    <string name="importation_en_cours">Importation en cours…</string>
     <string name="affichage_de_tous_les_objets_impl_menter">Affichage de tous les objets (à implémenter)</string>
     <string name="possessed_status">POSSÉDÉ</string>
     <string name="sought_status">RECHERCHÉ</string>

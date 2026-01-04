@@ -25,6 +25,9 @@ class MainViewModel(private val repository: CollectionRepository) : ViewModel() 
     /** A LiveData list of all items the user is seeking. */
     val soughtItems: LiveData<List<CollectionItem>> = repository.getAllSought()
 
+    /** A LiveData list of all items that have no location assigned. */
+    val unlocatedItems: LiveData<List<CollectionItem>> = repository.getUnlocatedItems()
+
     /** A LiveData object holding the total number of items in the collection. */
     val totalItemsCount: LiveData<Int> = repository.getTotalCount()
 

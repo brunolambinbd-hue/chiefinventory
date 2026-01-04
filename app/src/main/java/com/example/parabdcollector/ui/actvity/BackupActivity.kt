@@ -1,5 +1,6 @@
 package com.example.parabdcollector.ui.actvity
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
@@ -80,6 +81,13 @@ class BackupActivity : AppCompatActivity() {
 
         binding.btnTestCrash.setOnClickListener {
             throw RuntimeException("Test Crash triggered from BackupActivity")
+        }
+
+        binding.btnUnlocatedItems.setOnClickListener { // Corrected ID
+            val intent = Intent(this, ItemListActivity::class.java).apply {
+                putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_UNLOCATED)
+            }
+            startActivity(intent)
         }
     }
 

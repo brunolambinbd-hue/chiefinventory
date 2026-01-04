@@ -49,6 +49,10 @@ class LocationManagementActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
+        binding.fabAddLocation.setOnClickListener { 
+            showAddLocationDialog(null) // Passing null for a root location
+        }
+
         viewModel.visibleLocations.observe(this) {
             locationAdapter.submitList(it)
         }

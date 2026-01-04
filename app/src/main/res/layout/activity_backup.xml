@@ -50,6 +50,13 @@
             android:layout_weight="1" />
 
         <Button
+            android:id="@+id/btn_unlocated_items"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/show_unlocated_items_button" />
+
+        <Button
             android:id="@+id/btn_test_crash"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

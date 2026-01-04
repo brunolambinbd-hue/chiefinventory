@@ -62,9 +62,7 @@ class SearchActivity : AppCompatActivity() {
         handleWindowInsets()
 
         imageCaptureUtil = ImageCaptureUtil(this) { permanentUri ->
-            // A null URI indicates the user cancelled the camera action.
             if (permanentUri == null) {
-                // Do nothing if user cancels.
                 return@ImageCaptureUtil
             }
 
@@ -72,7 +70,9 @@ class SearchActivity : AppCompatActivity() {
             if (bitmap != null) {
                 searchImageBitmap = bitmap
                 binding.ivSearchImagePreview.setImageBitmap(bitmap)
-                binding.advancedSearchFields.isVisible = true
+                if (binding.advancedSearchFields.isGone) {
+                    toggleAdvancedSearch()
+                }
                 binding.ivSearchImagePreview.visibility = View.VISIBLE
                 viewModel.calculateSignatureForPreview(bitmap)
             } else {
@@ -83,7 +83,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         setupRecyclerView()
-        setupCategorySpinners()
+        setupSpinners()
         setupClickListeners()
         setupTextWatchers()
         observeViewModel()
@@ -122,32 +122,35 @@ class SearchActivity : AppCompatActivity() {
         binding.etSearchDescription.doAfterTextChanged(afterTextChanged)
         binding.etSearchTirage.doAfterTextChanged(afterTextChanged)
         binding.etSearchDimensions.doAfterTextChanged(afterTextChanged)
+        binding.etSearchStatus.doAfterTextChanged(afterTextChanged)
     }
 
     private fun validateSearchButton() {
-        var isAnyFieldFilled = false
-        val fields: List<EditText> = listOf(
-            binding.etSearchSimple,
-            binding.etSearchTitle,
-            binding.etSearchSuperCategory,
-            binding.etSearchCategory,
-            binding.etSearchEditor,
-            binding.etSearchYear,
-            binding.etSearchMonth,
-            binding.etSearchDescription,
-            binding.etSearchTirage,
-            binding.etSearchDimensions
-        )
+        val isAdvancedVisible = binding.advancedSearchFields.isVisible
+        var isSearchPossible = false
 
-        for (field in fields) {
-            if (field.text.toString().isNotBlank()) {
-                isAnyFieldFilled = true
-                break
-            }
+        if (isAdvancedVisible) {
+            val advancedFields: List<EditText> = listOf(
+                binding.etSearchTitle,
+                binding.etSearchSuperCategory,
+                binding.etSearchCategory,
+                binding.etSearchEditor,
+                binding.etSearchYear,
+                binding.etSearchMonth,
+                binding.etSearchDescription,
+                binding.etSearchTirage,
+                binding.etSearchDimensions
+            )
+            val isAnyAdvancedFieldFilled = advancedFields.any { !it.text.isNullOrBlank() }
+            val isImageSelected = searchImageBitmap != null
+            val statusOptions = resources.getStringArray(R.array.search_status_options)
+            val isStatusSelected = !binding.etSearchStatus.text.isNullOrBlank() && binding.etSearchStatus.text.toString() != statusOptions.firstOrNull()
+            isSearchPossible = isAnyAdvancedFieldFilled || isImageSelected || isStatusSelected
+        } else {
+            isSearchPossible = !binding.etSearchSimple.text.isNullOrBlank()
         }
-
-        val isImageSelected = searchImageBitmap != null
-        binding.btnSearch.isEnabled = isAnyFieldFilled || isImageSelected
+        
+        binding.btnSearch.isEnabled = isSearchPossible
     }
 
     private fun observeViewModel() {
@@ -159,8 +162,11 @@ class SearchActivity : AppCompatActivity() {
             binding.fabScrollToTop.isVisible = state is SearchResultState.Success && state.results.isNotEmpty()
 
             if (state is SearchResultState.Success) {
+                if (state.totalCount > state.results.size) {
+                    Toast.makeText(this, "${state.totalCount} résultats trouvés. Seuls les 200 premiers sont affichés.", Toast.LENGTH_LONG).show()
+                }
                 adapter.submitList(state.results)
-                updateResultSummary(state.results.size)
+                updateResultSummary(state.totalCount) // Use totalCount for the summary
             } else if (state is SearchResultState.Idle) {
                 adapter.submitList(emptyList())
                 updateResultSummary(0)
@@ -186,9 +192,10 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun resetSearchState() {
-        binding.etSearchSimple.setText("")
+    private fun clearAdvancedSearchFields() {
         binding.etSearchTitle.setText("")
+        val statusOptions = resources.getStringArray(R.array.search_status_options)
+        binding.etSearchStatus.setText(statusOptions.firstOrNull() ?: "", false)
         binding.etSearchSuperCategory.setText("", false)
         binding.etSearchCategory.setText("", false)
         binding.etSearchEditor.setText("")
@@ -200,6 +207,20 @@ class SearchActivity : AppCompatActivity() {
         searchImageBitmap = null
         binding.ivSearchImagePreview.visibility = View.GONE
         binding.tvSignaturePreview.visibility = View.GONE
+    }
+
+    private fun resetSearchState() {
+        // Reset to the default state: simple search enabled, advanced search hidden and cleared.
+        binding.etSearchSimple.setText("")
+        binding.etSearchSimple.isEnabled = true
+        binding.etSearchSimple.alpha = 1.0f
+
+        if (binding.advancedSearchFields.isVisible) {
+            binding.advancedSearchFields.isGone = true
+            binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
+        }
+        clearAdvancedSearchFields()
+        
         currentSearchDescription = ""
         lastSimpleQuery = null
         lastAdvancedCriteria = null
@@ -218,17 +239,33 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun toggleAdvancedSearch() {
-        if (binding.advancedSearchFields.isGone) {
+        val isOpening = binding.advancedSearchFields.isGone
+        if (isOpening) {
+            // Open Advanced Search: disable and clear simple search
             binding.advancedSearchFields.isVisible = true
             binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_hide)
+            binding.etSearchSimple.setText("")
+            binding.etSearchSimple.isEnabled = false
+            binding.etSearchSimple.alpha = 0.5f
         } else {
+            // Close Advanced Search: re-enable simple search and clear advanced fields
             binding.advancedSearchFields.isGone = true
             binding.tvToggleAdvancedSearch.text = getString(R.string.advanced_search_show)
+            binding.etSearchSimple.isEnabled = true
+            binding.etSearchSimple.alpha = 1.0f
+            clearAdvancedSearchFields()
         }
         validateSearchButton()
     }
 
-    private fun setupCategorySpinners() {
+    private fun setupSpinners() {
+        // Status Spinner
+        val statusOptions = resources.getStringArray(R.array.search_status_options)
+        val statusAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, statusOptions)
+        binding.etSearchStatus.setAdapter(statusAdapter)
+        binding.etSearchStatus.setText(statusOptions.firstOrNull() ?: "", false) // Default to first item ("Tous")
+
+        // Category Spinners
         val superCategories = CategoryMapper.getSuperCategories()
         val superCategoryAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, superCategories)
         binding.etSearchSuperCategory.setAdapter(superCategoryAdapter)
@@ -251,12 +288,18 @@ class SearchActivity : AppCompatActivity() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 
-        // Decide whether it's a simple or advanced search
         val isAdvancedSearch = binding.advancedSearchFields.isVisible
 
         if (isAdvancedSearch) {
-            // --- ADVANCED SEARCH LOGIC ---
-            
+            val statusOptions = resources.getStringArray(R.array.search_status_options)
+            val selectedStatus = binding.etSearchStatus.text.toString()
+
+            val isPossessed: Boolean? = when (selectedStatus) {
+                statusOptions.getOrNull(1) -> true // "Possédés"
+                statusOptions.getOrNull(2) -> false // "Recherchés"
+                else -> null // "Tous"
+            }
+
             val criteria = SearchCriteria(
                 titre = binding.etSearchTitle.text.toString().trim().takeIf { it.isNotBlank() },
                 superCategorie = binding.etSearchSuperCategory.text.toString().trim().takeIf { it.isNotBlank() },
@@ -266,13 +309,15 @@ class SearchActivity : AppCompatActivity() {
                 mois = binding.etSearchMonth.text.toString().trim().toIntOrNull(),
                 description = binding.etSearchDescription.text.toString().trim().takeIf { it.isNotBlank() },
                 tirage = binding.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() },
-                dimensions = binding.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }
+                dimensions = binding.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() },
+                isPossessed = isPossessed
             )
             lastAdvancedCriteria = criteria
             lastSearchWasSimple = false
 
             val descriptionParts = listOfNotNull(
                 criteria.titre,
+                selectedStatus,
                 criteria.superCategorie,
                 criteria.categorie,
                 criteria.editeur,
@@ -287,10 +332,7 @@ class SearchActivity : AppCompatActivity() {
 
             viewModel.advancedSearch(criteria, searchImageBitmap)
 
-            toggleAdvancedSearch() // This will hide it.
-
         } else {
-            // --- SIMPLE SEARCH LOGIC ---
             val simpleQuery = binding.etSearchSimple.text.toString().trim()
             if (simpleQuery.isNotBlank()) {
                 currentSearchDescription = simpleQuery

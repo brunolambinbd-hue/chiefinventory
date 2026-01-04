@@ -26,6 +26,6 @@ class CrashActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_CRASH_INFO = "EXTRA_CRASH_INFO"
+        const val EXTRA_CRASH_INFO: String = "EXTRA_CRASH_INFO"
     }
 }

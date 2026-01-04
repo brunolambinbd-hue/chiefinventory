@@ -56,6 +56,12 @@
     <string name="advanced_search_show">Advanced search</string>
     <string name="advanced_search_hide">Hide advanced search</string>
     <string name="search_by_image_description">Search by image</string>
+    <string name="search_status_hint">Status</string>
+    <string-array name="search_status_options">
+        <item>All</item>
+        <item>Possessed</item>
+        <item>Sought</item>
+    </string-array>
     <plurals name="search_results_count">
         <item quantity="one">%1$d result found</item>
         <item quantity="other">%1$d results found</item>

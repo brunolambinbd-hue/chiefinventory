@@ -8,6 +8,7 @@ import com.example.imagecomparison.EmbeddingUtils
 import com.example.parabdcollector.R
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.dao.ItemCountForLocation
+import com.example.parabdcollector.model.AdvancedSearchResult
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.model.SignatureStats
@@ -28,6 +29,10 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
 
     fun getAll(): LiveData<List<CollectionItem>> {
         return collectionDao.getAll()
+    }
+
+    fun getUnlocatedItems(): LiveData<List<CollectionItem>> {
+        return collectionDao.getUnlocatedItems()
     }
 
     fun getItemCountByLocation(): LiveData<List<ItemCountForLocation>> {
@@ -84,11 +89,11 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         return collectionDao.search("%${query}%")
     }
 
-    open suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): List<SearchResultItem> {
-        val queryBuilder = StringBuilder("SELECT * FROM collection_items")
+    open suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): AdvancedSearchResult {
+        val conditions = mutableListOf<String>()
         val args = mutableListOf<Any?>()
-        var conditions = mutableListOf<String>()
 
+        // Build the WHERE clause dynamically
         criteria.titre?.takeIf { it.isNotBlank() }?.let {
             conditions.add("titre LIKE ?")
             args.add("%$it%")
@@ -125,17 +130,26 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
             conditions.add("dimensions LIKE ?")
             args.add("%$it%")
         }
-        
-        if (conditions.isNotEmpty()) {
-            queryBuilder.append(" WHERE ").append(conditions.joinToString(" AND "))
+        criteria.isPossessed?.let {
+            conditions.add("isPossessed = ?")
+            args.add(if (it) 1 else 0)
         }
+        
+        val whereClause = if (conditions.isNotEmpty()) " WHERE ${conditions.joinToString(" AND ")}" else ""
 
-        queryBuilder.append(" ORDER BY annee DESC, mois DESC")
+        // 1. Get the total count first
+        val countQuery = androidx.sqlite.db.SimpleSQLiteQuery("SELECT COUNT(*) FROM collection_items" + whereClause, args.toTypedArray())
+        val totalCount = collectionDao.countAdvancedSearch(countQuery)
 
-        val sqlQuery = androidx.sqlite.db.SimpleSQLiteQuery(queryBuilder.toString(), args.toTypedArray())
-        val textFilteredItems = collectionDao.advancedSearch(sqlQuery)
+        // 2. Get the actual data, but with a limit
+        val dataQueryBuilder = StringBuilder("SELECT * FROM collection_items")
+        dataQueryBuilder.append(whereClause)
+        dataQueryBuilder.append(" ORDER BY annee DESC, mois DESC LIMIT 200")
 
-        return if (queryEmbedding != null) {
+        val dataQuery = androidx.sqlite.db.SimpleSQLiteQuery(dataQueryBuilder.toString(), args.toTypedArray())
+        val textFilteredItems = collectionDao.advancedSearch(dataQuery)
+
+        val results = if (queryEmbedding != null) {
             textFilteredItems
                 .filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
                 .map { 
@@ -148,6 +162,8 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         } else {
             textFilteredItems.map { SearchResultItem(it) }
         }
+
+        return AdvancedSearchResult(results, totalCount)
     }
 
     /**
