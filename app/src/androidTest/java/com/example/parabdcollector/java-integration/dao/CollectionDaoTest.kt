@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.utils.getOrAwaitValue
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -114,5 +115,47 @@ class CollectionDaoTest {
         // Verify that the order is descending by year
         assertThat(searchResults).containsExactly(item4, item3, item1).inOrder()
         assertThat(searchResults).doesNotContain(item2)
+    }
+
+    @Test
+    fun getUnlocatedItems_returnsOnlyPossessedAndUnlocatedItems() = runTest {
+        // GIVEN
+        val unlocatedPossessed = baseItem.copy(id = 1, titre = "Unlocated & Possessed", locationId = null, isPossessed = true)
+        val locatedPossessed = baseItem.copy(id = 2, titre = "Located & Possessed", locationId = 100, isPossessed = true)
+        val unlocatedNotPossessed = baseItem.copy(id = 3, titre = "Unlocated & Not Possessed", locationId = null, isPossessed = false)
+        val locatedNotPossessed = baseItem.copy(id = 4, titre = "Located & Not Possessed", locationId = 100, isPossessed = false)
+
+        collectionDao.insert(unlocatedPossessed)
+        collectionDao.insert(locatedPossessed)
+        collectionDao.insert(unlocatedNotPossessed)
+        collectionDao.insert(locatedNotPossessed)
+
+        // WHEN
+        val results = collectionDao.getUnlocatedItems().getOrAwaitValue()
+
+        // THEN
+        assertThat(results).hasSize(1)
+        assertThat(results).containsExactly(unlocatedPossessed)
+    }
+
+    @Test
+    fun getLocatedNotPossessedItems_returnsOnlyLocatedAndNotPossessedItems() = runTest {
+        // GIVEN
+        val unlocatedPossessed = baseItem.copy(id = 1, titre = "Unlocated & Possessed", locationId = null, isPossessed = true)
+        val locatedPossessed = baseItem.copy(id = 2, titre = "Located & Possessed", locationId = 100, isPossessed = true)
+        val unlocatedNotPossessed = baseItem.copy(id = 3, titre = "Unlocated & Not Possessed", locationId = null, isPossessed = false)
+        val locatedNotPossessed = baseItem.copy(id = 4, titre = "Located & Not Possessed", locationId = 100, isPossessed = false)
+
+        collectionDao.insert(unlocatedPossessed)
+        collectionDao.insert(locatedPossessed)
+        collectionDao.insert(unlocatedNotPossessed)
+        collectionDao.insert(locatedNotPossessed)
+
+        // WHEN
+        val results = collectionDao.getLocatedNotPossessedItems().getOrAwaitValue()
+
+        // THEN
+        assertThat(results).hasSize(1)
+        assertThat(results).containsExactly(locatedNotPossessed)
     }
 }

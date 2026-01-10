@@ -24,14 +24,6 @@ import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 
 /**
  * An activity to display a list of collection items based on various filter criteria.
- *
- * This activity can display items filtered by:
- * - A specific location ([EXTRA_LOCATION_ID]).
- * - A combination of super-category and category ([EXTRA_SUPER_CATEGORY], [EXTRA_CATEGORY]).
- * - Possession status ([EXTRA_LIST_TYPE] = [TYPE_POSSESSED] or [TYPE_SOUGHT]).
- * - Unlocated status ([EXTRA_LIST_TYPE] = [TYPE_UNLOCATED]).
- *
- * The title of the activity is dynamically updated to reflect the current filter.
  */
 class ItemListActivity : AppCompatActivity() {
 
@@ -44,14 +36,6 @@ class ItemListActivity : AppCompatActivity() {
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
-    /**
-     * Initializes the activity, toolbar, and RecyclerView. It then observes the ViewModel
-     * for the appropriate item list based on the intent extras.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in [onSaveInstanceState]. Otherwise it is null.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityItemListBinding.inflate(layoutInflater)
@@ -70,18 +54,34 @@ class ItemListActivity : AppCompatActivity() {
         setupRecyclerView()
 
         when {
+            listType == TYPE_RECENT_POSSESSED -> {
+                supportActionBar?.title = "Dernières trouvailles"
+                viewModel.recentPossessedItems.observe(this) { items ->
+                    adapter.submitList(items.map(::SearchResultItem))
+                }
+            }
+            listType == TYPE_RECENT_LOCATED -> {
+                supportActionBar?.title = "Derniers rangements"
+                viewModel.recentLocatedItems.observe(this) { items ->
+                    adapter.submitList(items.map(::SearchResultItem))
+                }
+            }
             listType == TYPE_UNLOCATED -> {
                 supportActionBar?.title = "Objets non localisés"
                 viewModel.unlocatedItems.observe(this) { items ->
-                    val searchResults = items.map(::SearchResultItem)
-                    adapter.submitList(searchResults)
+                    adapter.submitList(items.map(::SearchResultItem))
+                }
+            }
+            listType == TYPE_LOCATED_NOT_POSSESSED -> {
+                supportActionBar?.title = "Objets localisés non possédés"
+                viewModel.locatedNotPossessedItems.observe(this) { items ->
+                    adapter.submitList(items.map(::SearchResultItem))
                 }
             }
             locationId != -1L -> {
                 supportActionBar?.title = locationName ?: getString(R.string.location_items_title)
                 viewModel.getItemsByLocationId(locationId).observe(this) { items ->
-                    val searchResults = items.map(::SearchResultItem)
-                    adapter.submitList(searchResults)
+                    adapter.submitList(items.map(::SearchResultItem))
                 }
             }
             superCategory != null && category != null -> {
@@ -90,107 +90,52 @@ class ItemListActivity : AppCompatActivity() {
                 val spannable = SpannableString(fullTitle)
 
                 if (contextText.isNotEmpty()) {
-                    spannable.setSpan(
-                        RelativeSizeSpan(0.8f),
-                        category.length,
-                        fullTitle.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-
+                    spannable.setSpan(RelativeSizeSpan(0.8f), category.length, fullTitle.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                     val clickableSpan = object : ClickableSpan() {
-                        override fun onClick(widget: View) {
-                            finish() // Simply go back to the previous category list
-                        }
+                        override fun onClick(widget: View) { finish() }
                     }
-                    spannable.setSpan(
-                        clickableSpan,
-                        category.length,
-                        fullTitle.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
+                    spannable.setSpan(clickableSpan, category.length, fullTitle.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 supportActionBar?.title = spannable
                 findToolbarTitleView()?.movementMethod = LinkMovementMethod.getInstance()
 
                 viewModel.getItemsBySuperCategoryAndCategory(superCategory, category, listType == TYPE_POSSESSED).observe(this) { items ->
-                    val searchResults = items.map(::SearchResultItem)
-                    adapter.submitList(searchResults)
+                    adapter.submitList(items.map(::SearchResultItem))
                 }
             }
             listType == TYPE_POSSESSED -> {
                 supportActionBar?.title = getString(R.string.menu_products_title)
                 viewModel.possessedItems.observe(this) { items ->
-                    val searchResults = items.map(::SearchResultItem)
-                    adapter.submitList(searchResults)
+                    adapter.submitList(items.map(::SearchResultItem))
                 }
             }
             else -> {
                 supportActionBar?.title = getString(R.string.menu_searches_title)
                 viewModel.soughtItems.observe(this) { items ->
-                    val searchResults = items.map(::SearchResultItem)
-                    adapter.submitList(searchResults)
+                    adapter.submitList(items.map(::SearchResultItem))
                 }
             }
         }
     }
 
-    /**
-     * Finds the toolbar's title TextView by iterating through its children.
-     * This is necessary to make parts of the title clickable, as the title view has no public ID.
-     *
-     * @return The [TextView] used for the title, or null if it cannot be found.
-     */
     private fun findToolbarTitleView(): TextView? {
         for (i in 0 until binding.toolbar.childCount) {
             val child = binding.toolbar.getChildAt(i)
-            if (child is TextView) {
-                return child
-            }
+            if (child is TextView) return child
         }
         return null
     }
 
-    /**
-     * Initializes the RecyclerView, its adapter, and scroll listeners.
-     * The adapter is configured to open [EditItemActivity] on item click.
-     * A scroll listener is added to show/hide a "scroll to top" FAB.
-     */
     private fun setupRecyclerView() {
         adapter = CollectionAdapter { searchResult ->
             val intent = Intent(this, EditItemActivity::class.java)
-            intent.putExtra("itemId", searchResult.item.id)
+            intent.putExtra(EditItemActivity.EXTRA_ITEM_ID, searchResult.item.id)
             startActivity(intent)
         }
         binding.rvItemList.adapter = adapter
         binding.rvItemList.layoutManager = LinearLayoutManager(this)
-
-        binding.rvItemList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (dy > 0) {
-                    if (!binding.fabScrollToTop.isShown) {
-                        binding.fabScrollToTop.show()
-                    }
-                } else if (dy < 0) {
-                    if (binding.fabScrollToTop.isShown) {
-                        binding.fabScrollToTop.hide()
-                    }
-                }
-            }
-        })
-
-        binding.fabScrollToTop.setOnClickListener {
-            binding.rvItemList.smoothScrollToPosition(0)
-        }
     }
 
-    /**
-     * Handles action bar item selections. In this case, it handles the "Up" button
-     * to navigate back to the previous screen.
-     *
-     * @param item The menu item that was selected.
-     * @return True if the item was handled, false otherwise.
-     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             finish()
@@ -209,5 +154,8 @@ class ItemListActivity : AppCompatActivity() {
         const val TYPE_POSSESSED = 1
         const val TYPE_SOUGHT = 2
         const val TYPE_UNLOCATED = 3
+        const val TYPE_LOCATED_NOT_POSSESSED = 4
+        const val TYPE_RECENT_POSSESSED = 5
+        const val TYPE_RECENT_LOCATED = 6
     }
 }

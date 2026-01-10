@@ -68,7 +68,7 @@ android {
 
     testOptions {
         animationsDisabled = true
-        unitTests.isReturnDefaultValues = true // Ajout pour mocker les classes Android dans les tests unitaires
+        unitTests.isReturnDefaultValues = true
         unitTests.all {
             it.jvmArgs("-XX:+EnableDynamicAgentLoading")
         }
@@ -99,13 +99,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.lifecycle.testing)
-    androidTestImplementation(libs.kotlinx.coroutines.test) // Ajout pour les tests instrumentés
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.truth)
 }
 
-// Ajout de la "Porte de Qualité" (Quality Gate)
-// On utilise afterEvaluate pour s'assurer que toutes les tâches ont été créées
-// avant d'essayer de leur ajouter une dépendance.
 afterEvaluate {
     tasks.named("assembleRelease") {
         dependsOn(tasks.named("testReleaseUnitTest"))

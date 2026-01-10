@@ -5,68 +5,53 @@ import androidx.lifecycle.ViewModel
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.repo.CollectionRepository
-import com.example.parabdcollector.ui.actvity.ItemListActivity
-import com.example.parabdcollector.ui.actvity.MainActivity
 import com.example.parabdcollector.ui.model.CategoryInfo
 
 /**
- * The main ViewModel for the application's primary screens ([MainActivity], [ItemListActivity], etc.).
- *
- * This ViewModel acts as an intermediary between the UI controllers and the [CollectionRepository],
- * exposing various data streams as [LiveData] objects for the UI to observe.
- *
- * @property repository The single source of truth for collection data.
+ * ViewModel for the main dashboard and general collection statistics.
  */
 class MainViewModel(private val repository: CollectionRepository) : ViewModel() {
 
-    /** A LiveData list of all items the user possesses. */
-    val possessedItems: LiveData<List<CollectionItem>> = repository.getAllPossessed()
-
-    /** A LiveData list of all items the user is seeking. */
-    val soughtItems: LiveData<List<CollectionItem>> = repository.getAllSought()
-
-    /** A LiveData list of all items that have no location assigned. */
-    val unlocatedItems: LiveData<List<CollectionItem>> = repository.getUnlocatedItems()
-
-    /** A LiveData object holding the total number of items in the collection. */
+    /** Total count of items in the collection. */
     val totalItemsCount: LiveData<Int> = repository.getTotalCount()
 
-    /** A LiveData object holding statistics about the quality of image signatures. */
+    /** List of all possessed items. */
+    val possessedItems: LiveData<List<CollectionItem>> = repository.getAllPossessed()
+
+    /** List of all sought (not possessed) items. */
+    val soughtItems: LiveData<List<CollectionItem>> = repository.getAllSought()
+
+    /** List of all unlocated items (possessed but no location). */
+    val unlocatedItems: LiveData<List<CollectionItem>> = repository.getUnlocatedItems()
+
+    /** List of items that have a location but are not possessed. */
+    val locatedNotPossessedItems: LiveData<List<CollectionItem>> = repository.getLocatedNotPossessedItems()
+
+    /** The 50 most recently updated possessed items (Recent Finds). */
+    val recentPossessedItems: LiveData<List<CollectionItem>> = repository.getRecentPossessed()
+
+    /** The 50 most recently updated items with a location (Recent Organizations). */
+    val recentLocatedItems: LiveData<List<CollectionItem>> = repository.getRecentLocated()
+
+    /** Statistics about image signatures in the collection. */
     val signatureStats: LiveData<SignatureStats> = repository.getSignatureStats()
 
-    /**
-     * Returns statistical information about super-categories.
-     * @return A [LiveData] list of [CategoryInfo] objects with possessed and total counts.
-     */
+    /** Gets statistics for super-categories. */
     fun getSuperCategoryInfo(isSoughtMode: Boolean): LiveData<List<CategoryInfo>> {
         return repository.getSuperCategoryInfo(isSoughtMode)
     }
 
-    /**
-     * Returns statistical information about detailed categories within a given super-category.
-     * @param superCategory The name of the super-category to filter by.
-     * @return A [LiveData] list of [CategoryInfo] objects with possessed and total counts.
-     */
+    /** Gets statistics for sub-categories within a super-category. */
     fun getCategoryInfoForSuperCategory(superCategory: String, isSoughtMode: Boolean): LiveData<List<CategoryInfo>> {
         return repository.getCategoryInfoForSuperCategory(superCategory, isSoughtMode)
     }
 
-    /**
-     * Returns a list of items belonging to a specific category and super-category.
-     * @param superCategory The name of the super-category.
-     * @param category The name of the detailed category.
-     * @param isPossessed True to get possessed items, false for sought items.
-     * @return A [LiveData] list of matching [CollectionItem]s.
-     */
+    /** Gets items by category and possession status. */
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>> {
         return repository.getItemsBySuperCategoryAndCategory(superCategory, category, isPossessed)
     }
 
-    /**
-     * Returns a list of items belonging to a specific location.
-     * @param locationId The ID of the location.
-     * @return A [LiveData] list of matching [CollectionItem]s.
-     */
+    /** Gets items for a specific location. */
     fun getItemsByLocationId(locationId: Long): LiveData<List<CollectionItem>> {
         return repository.getItemsByLocationId(locationId)
     }

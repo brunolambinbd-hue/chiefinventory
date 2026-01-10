@@ -22,8 +22,10 @@
     <string name="possessed_items_label">Objets Possédés: %1$d</string>
     <string name="sought_items_label">Objets Recherchés: %1$d</string>
     <string name="add_item_description">Ajouter un objet</string>
+    <string name="recent_finds_label">Dernières trouvailles</string>
+    <string name="recent_organizations_label">Derniers rangements</string>
 
-    <!-- Descriptions pour l'accessibilité -->
+    <!-- Descriptions pour l\'accessibilité -->
     <string name="item_image_preview_description">Aperçu de l\'image de l\'objet</string>
     <string name="item_thumbnail_description_generic">Image de l\'objet</string>
     <string name="full_screen_image_description">Image en plein écran de l\'objet</string>
@@ -92,7 +94,7 @@
     <string name="menu_searches_title">Mes Recherches</string>
     <string name="menu_locations_title">Mes Emplacements</string>
     <string name="menu_import_title">Importer / Mettre à jour</string>
-    <string name="menu_backup_title">Sauvegarde / Restauration</string>
+    <string name="menu_backup_title">Maintenance / Sauvegarde</string>
     <string name="refine_search_title">Affiner la recherche</string>
     <string name="new_search_title">Nouvelle recherche</string>
     <string name="locations_management_title">Gestion des emplacements</string>
@@ -101,12 +103,34 @@
     <string name="backup_button_backup">Sauvegarder la collection</string>
     <string name="backup_button_restore">Restaurer une sauvegarde</string>
     <string name="show_unlocated_items_button">Objets non localisés</string>
+    <string name="show_located_not_possessed_items_button">Objets localisés non possédés</string>
     <string name="version_info_format" translatable="false">App v%1$s (DB v%2$d)\nAPI URL: %3$s</string>
     <string name="backup_success">Sauvegarde réussie !</string>
     <string name="backup_failed">Échec de la sauvegarde : %1$s</string>
     <string name="restore_success">Restauration réussie ! Veuillez redémarrer l\'application.</string>
     <string name="restore_failed">Échec de la restauration : %1$s</string>
     <string name="restore_failed_delete">Échec de la restauration : impossible de supprimer les anciens fichiers de base de données.</string>
+
+    <!-- Assistant de Mise à jour par lot -->
+    <string name="batch_update_title">Mise à jour par lot (Séries)</string>
+    <string name="batch_series_name_hint">Nom de la série (ex: Spirou)</string>
+    <string name="batch_start_number_hint">Numéro de début</string>
+    <string name="batch_end_number_hint">Numéro de fin</string>
+    <string name="batch_analyze_button">Analyser la série</string>
+    <string name="batch_update_button">Marquer comme possédés</string>
+    <string name="batch_summary_format">Trouvé : %1$d magazine(s) sur une plage de %2$d numéros.</string>
+    <string name="batch_update_success_format">%1$d objets mis à jour avec succès.</string>
+    <string name="batch_no_items_found">Aucun magazine trouvé dans cette plage.</string>
+
+    <!-- Audit des Catégories -->
+    <string name="category_audit_button">Audit des Catégories</string>
+    <string name="category_audit_title">Audit et Réparation</string>
+    <string name="category_audit_description">Cet outil compare les Super-Catégories de vos objets avec les règles actuelles du système.</string>
+    <string name="category_audit_analyze_button">Lancer l\'audit</string>
+    <string name="category_audit_fix_button">Réparer les incohérences</string>
+    <string name="category_audit_summary_format">Trouvé : %1$d objet(s) avec une Super-Catégorie erronée ou manquante (ex: N/D).</string>
+    <string name="category_audit_no_issues">Toutes les catégories sont cohérentes. Aucune réparation nécessaire.</string>
+    <string name="category_audit_success_format">%1$d objets ont été reclassés avec succès.</string>
 
     <!-- Messages (Toast) -->
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>

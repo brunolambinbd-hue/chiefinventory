@@ -1,16 +1,27 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-//    id("de.undercouch.download")
 }
 
 android {
     namespace = "com.example.imagecomparison"
     compileSdk = 34
 
+    // Déclaration des répertoires de tests instrumentés
+    sourceSets {
+        getByName("androidTest") {
+            java.srcDirs(
+                "src/androidTest/java",
+                "src/androidTest/java-integration"
+            )
+        }
+        getByName("test") {
+            resources.srcDirs("src/test/resources")
+        }
+    }
+
     defaultConfig {
         minSdk = 26
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -31,29 +42,15 @@ android {
     kotlinOptions {
         jvmTarget = "18"
     }
-
-    // Ajout pour que Gradle lise le dossier resources des tests
-    sourceSets {
-        getByName("test") {
-            resources.srcDirs("src/test/resources")
-        }
-    }
 }
 
 dependencies {
-    // Use 'api' with the version catalog to expose this dependency to the main app module correctly
     api(libs.mediapipe.tasks.vision)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.truth)
 }
-
-// On définit la variable pour le script et on l'applique
-//extra.set("ASSET_DIR", project.file("src/main/assets"))
-//apply(from = rootProject.file("download_models.gradle"))

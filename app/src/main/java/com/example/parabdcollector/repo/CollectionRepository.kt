@@ -2,16 +2,11 @@ package com.example.parabdcollector.repo
 
 import android.util.Log
 import androidx.annotation.ColorRes
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
+import androidx.lifecycle.*
 import com.example.imagecomparison.EmbeddingUtils
 import com.example.parabdcollector.R
 import com.example.parabdcollector.dao.CollectionDao
-import com.example.parabdcollector.dao.ItemCountForLocation
-import com.example.parabdcollector.model.AdvancedSearchResult
-import com.example.parabdcollector.model.CollectionItem
-import com.example.parabdcollector.model.SearchCriteria
-import com.example.parabdcollector.model.SignatureStats
+import com.example.parabdcollector.model.*
 import com.example.parabdcollector.ui.model.CategoryInfo
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.utils.CategoryMapper
@@ -19,263 +14,94 @@ import kotlinx.coroutines.Dispatchers
 
 /**
  * Repository for managing all data operations for [CollectionItem] entities.
- *
- * This class acts as a single source of truth for all collection data, abstracting the data sources
- * (in this case, the [CollectionDao]) from the ViewModels.
- *
- * @property collectionDao The Data Access Object for collection items, provided via constructor injection.
  */
 open class CollectionRepository(private val collectionDao: CollectionDao) {
+    fun getAll(): LiveData<List<CollectionItem>> = collectionDao.getAll()
+    fun getUnlocatedItems(): LiveData<List<CollectionItem>> = collectionDao.getUnlocatedItems()
+    fun getLocatedNotPossessedItems(): LiveData<List<CollectionItem>> = collectionDao.getLocatedNotPossessedItems()
+    fun getItemCountByLocation(): LiveData<List<com.example.parabdcollector.dao.ItemCountForLocation>> = collectionDao.getItemCountByLocation()
+    fun getItemsByLocationId(lId: Long): LiveData<List<CollectionItem>> = collectionDao.getItemsByLocationId(lId)
+    
+    /** Retrieves the 50 most recently updated possessed items. */
+    fun getRecentPossessed(): LiveData<List<CollectionItem>> = collectionDao.getRecentPossessed()
 
-    fun getAll(): LiveData<List<CollectionItem>> {
-        return collectionDao.getAll()
-    }
+    /** Retrieves the 50 most recently updated items with a location. */
+    fun getRecentLocated(): LiveData<List<CollectionItem>> = collectionDao.getRecentLocated()
 
-    fun getUnlocatedItems(): LiveData<List<CollectionItem>> {
-        return collectionDao.getUnlocatedItems()
-    }
-
-    fun getItemCountByLocation(): LiveData<List<ItemCountForLocation>> {
-        return collectionDao.getItemCountByLocation()
-    }
-
-    fun getItemsByLocationId(locationId: Long): LiveData<List<CollectionItem>> {
-        return collectionDao.getItemsByLocationId(locationId)
-    }
+    suspend fun getAllItemsSuspend(): List<CollectionItem> = collectionDao.getAllSuspend()
 
     fun getSignatureStats(): LiveData<SignatureStats> = liveData(Dispatchers.IO) {
         val list = collectionDao.getAllSuspend()
-        val total = list.size
-        var valid = 0
-        var empty = 0
-        var missing = 0
+        var v = 0; var e = 0; var m = 0
+        for (i in list) { when { i.imageEmbedding == null -> m++; i.imageEmbedding.isEmpty() -> e++; else -> v++ } }
+        emit(SignatureStats(list.size, v, e, m))
+    }
+    fun getAllPossessed(): LiveData<List<CollectionItem>> = collectionDao.getAllPossessed()
+    fun getAllSought(): LiveData<List<CollectionItem>> = collectionDao.getAllSought()
+    fun getTotalCount(): LiveData<Int> = collectionDao.getTotalCount()
+    fun getById(id: Long): LiveData<CollectionItem> = collectionDao.getById(id)
+    suspend fun getItemById(id: Long): CollectionItem? = collectionDao.getItemById(id)
+    fun findByRemoteId(rId: Int): CollectionItem? = collectionDao.findByRemoteId(rId)
+    suspend fun search(q: String): List<CollectionItem> = collectionDao.search("%$q%")
+    suspend fun getAllByTitle(t: String): List<CollectionItem> = collectionDao.getAllByTitle("%$t%")
 
-        for (item in list) {
-            when {
-                item.imageEmbedding == null -> missing++
-                item.imageEmbedding.isEmpty() -> empty++
-                else -> valid++
-            }
-        }
-        Log.i("SignatureStats", "Calculation complete: Valid=$valid, Empty=$empty, Missing=$missing, Total=$total")
-        emit(SignatureStats(total, valid, empty, missing))
+    suspend fun advancedSearch(cr: SearchCriteria, qE: FloatArray?): AdvancedSearchResult {
+        val conds = mutableListOf<String>(); val args = mutableListOf<Any?>()
+        cr.titre?.takeIf { it.isNotBlank() }?.let { conds.add("titre LIKE ?"); args.add("%$it%") }
+        cr.editeur?.takeIf { it.isNotBlank() }?.let { conds.add("editeur LIKE ?"); args.add("%$it%") }
+        cr.annee?.let { conds.add("annee = ?"); args.add(it) }
+        cr.mois?.let { conds.add("mois = ?"); args.add(it) }
+        cr.superCategorie?.takeIf { it.isNotBlank() }?.let { conds.add("superCategorie = ?"); args.add(it) }
+        cr.categorie?.takeIf { it.isNotBlank() }?.let { conds.add("categorie LIKE ?"); args.add("%$it%") }
+        cr.description?.takeIf { it.isNotBlank() }?.let { conds.add("description LIKE ?"); args.add("%$it%") }
+        cr.tirage?.takeIf { it.isNotBlank() }?.let { conds.add("tirage LIKE ?"); args.add("%$it%") }
+        cr.dimensions?.takeIf { it.isNotBlank() }?.let { conds.add("dimensions LIKE ?"); args.add("%$it%") }
+        cr.isPossessed?.let { conds.add("isPossessed = ?"); args.add(if (it) 1 else 0) }
+        val wh = if (conds.isNotEmpty()) " WHERE ${conds.joinToString(" AND ")}" else ""
+        val countQ = androidx.sqlite.db.SimpleSQLiteQuery("SELECT COUNT(*) FROM collection_items$wh", args.toTypedArray())
+        val total = collectionDao.countAdvancedSearch(countQ)
+        val dataQ = androidx.sqlite.db.SimpleSQLiteQuery("SELECT * FROM collection_items$wh ORDER BY annee DESC, mois DESC LIMIT 200", args.toTypedArray())
+        val items = collectionDao.advancedSearch(dataQ)
+        val res = if (qE != null) {
+            items.filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
+                .map { SearchResultItem(it, cosineSimilarity(qE, it.imageEmbedding!!).toDouble()) }
+                .filter { it.similarity != null && it.similarity >= 0.65 }.sortedByDescending { it.similarity }.take(5)
+        } else items.map { SearchResultItem(it) }
+        return AdvancedSearchResult(res, total)
     }
 
-    fun getAllPossessed(): LiveData<List<CollectionItem>> {
-        return collectionDao.getAllPossessed()
+    suspend fun findMostSimilarItems(qE: FloatArray): List<SearchResultItem> {
+        return collectionDao.getAllItemsWithEmbeddings().map { SearchResultItem(it, cosineSimilarity(qE, it.imageEmbedding!!).toDouble()) }
+            .filter { !(it.similarity?.isNaN() ?: true) }.sortedByDescending { it.similarity }.take(3)
     }
 
-    fun getAllSought(): LiveData<List<CollectionItem>> {
-        return collectionDao.getAllSought()
+    private fun cosineSimilarity(v1: FloatArray, v2B: ByteArray): Float {
+        val v2 = EmbeddingUtils.byteArrayToMyEmbedding(v2B).floatValues ?: return 0.0f
+        var dP = 0.0f; var nA = 0.0f; var nB = 0.0f
+        for (i in v1.indices) { dP += v1[i] * v2[i]; nA += v1[i] * v1[i]; nB += v2[i] * v2[i] }
+        val den = kotlin.math.sqrt(nA) * kotlin.math.sqrt(nB)
+        return if (den == 0.0f) 0.0f else dP / den
     }
 
-    fun getTotalCount(): LiveData<Int> {
-        return collectionDao.getTotalCount()
+    @ColorRes private fun getStatusColor(p: Int, t: Int, sM: Boolean): Int {
+        if (t == 0) return R.color.status_error
+        val pct = (p * 100) / t
+        return if (sM) { if (pct > 75) R.color.status_ok else if (pct > 25) R.color.status_warning else R.color.status_error }
+        else { if (pct < 25) R.color.status_error else if (pct < 75) R.color.status_warning else R.color.status_ok }
     }
 
-    fun getById(id: Long): LiveData<CollectionItem> {
-        return collectionDao.getById(id)
+    fun getSuperCategoryInfo(sM: Boolean): LiveData<List<CategoryInfo>> = liveData(Dispatchers.IO) {
+        val all = CategoryMapper.getSuperCategories(); val dbC = collectionDao.getSuperCategoryInfoSuspend().associateBy { it.name }
+        emit(all.map { n -> val c = dbC[n]; val p = c?.possessedCount ?: 0; val t = c?.totalCount ?: 0; CategoryInfo(n, p, t, getStatusColor(p, t, sM)) })
     }
 
-    suspend fun getItemById(id: Long): CollectionItem? {
-        return collectionDao.getItemById(id)
+    fun getCategoryInfoForSuperCategory(sC: String, sM: Boolean): LiveData<List<CategoryInfo>> = liveData(Dispatchers.IO) {
+        val all = CategoryMapper.getCategoriesFor(sC); val dbC = collectionDao.getCategoryInfoForSuperCategorySuspend(sC).associateBy { it.name }
+        emit(all.map { n -> val c = dbC[n]; val p = c?.possessedCount ?: 0; val t = c?.totalCount ?: 0; CategoryInfo(n, p, t, getStatusColor(p, t, sM)) })
     }
 
-    fun findByRemoteId(remoteId: Int): CollectionItem? {
-        return collectionDao.findByRemoteId(remoteId)
-    }
-
-    open suspend fun search(query: String): List<CollectionItem> {
-        return collectionDao.search("%${query}%")
-    }
-
-    open suspend fun advancedSearch(criteria: SearchCriteria, queryEmbedding: FloatArray?): AdvancedSearchResult {
-        val conditions = mutableListOf<String>()
-        val args = mutableListOf<Any?>()
-
-        // Build the WHERE clause dynamically
-        criteria.titre?.takeIf { it.isNotBlank() }?.let {
-            conditions.add("titre LIKE ?")
-            args.add("%$it%")
-        }
-        criteria.editeur?.takeIf { it.isNotBlank() }?.let {
-            conditions.add("editeur LIKE ?")
-            args.add("%$it%")
-        }
-        criteria.annee?.let {
-            conditions.add("annee = ?")
-            args.add(it)
-        }
-        criteria.mois?.let {
-            conditions.add("mois = ?")
-            args.add(it)
-        }
-        criteria.superCategorie?.takeIf { it.isNotBlank() }?.let {
-            conditions.add("superCategorie = ?")
-            args.add(it)
-        }
-        criteria.categorie?.takeIf { it.isNotBlank() }?.let {
-            conditions.add("categorie LIKE ?")
-            args.add("%$it%")
-        }
-        criteria.description?.takeIf { it.isNotBlank() }?.let {
-            conditions.add("description LIKE ?")
-            args.add("%$it%")
-        }
-        criteria.tirage?.takeIf { it.isNotBlank() }?.let {
-            conditions.add("tirage LIKE ?")
-            args.add("%$it%")
-        }
-        criteria.dimensions?.takeIf { it.isNotBlank() }?.let {
-            conditions.add("dimensions LIKE ?")
-            args.add("%$it%")
-        }
-        criteria.isPossessed?.let {
-            conditions.add("isPossessed = ?")
-            args.add(if (it) 1 else 0)
-        }
-        
-        val whereClause = if (conditions.isNotEmpty()) " WHERE ${conditions.joinToString(" AND ")}" else ""
-
-        // 1. Get the total count first
-        val countQuery = androidx.sqlite.db.SimpleSQLiteQuery("SELECT COUNT(*) FROM collection_items" + whereClause, args.toTypedArray())
-        val totalCount = collectionDao.countAdvancedSearch(countQuery)
-
-        // 2. Get the actual data, but with a limit
-        val dataQueryBuilder = StringBuilder("SELECT * FROM collection_items")
-        dataQueryBuilder.append(whereClause)
-        dataQueryBuilder.append(" ORDER BY annee DESC, mois DESC LIMIT 200")
-
-        val dataQuery = androidx.sqlite.db.SimpleSQLiteQuery(dataQueryBuilder.toString(), args.toTypedArray())
-        val textFilteredItems = collectionDao.advancedSearch(dataQuery)
-
-        val results = if (queryEmbedding != null) {
-            textFilteredItems
-                .filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
-                .map { 
-                    val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
-                    SearchResultItem(it, similarity.toDouble())
-                }
-                .filter { it.similarity != null && it.similarity >= 0.65 }
-                .sortedByDescending { it.similarity }
-                .take(5)
-        } else {
-            textFilteredItems.map { SearchResultItem(it) }
-        }
-
-        return AdvancedSearchResult(results, totalCount)
-    }
-
-    /**
-     * Finds the most visually similar items to a given image embedding, searching through ALL items.
-     * @param queryEmbedding The float array of the image to search for.
-     * @return A list of the top 3 most similar [SearchResultItem]s, including their ownership status.
-     */
-    suspend fun findMostSimilarItems(queryEmbedding: FloatArray): List<SearchResultItem> {
-        val allItems = collectionDao.getAllItemsWithEmbeddings() // This fetches all items with a signature
-        return allItems
-            .map { 
-                val similarity = cosineSimilarity(queryEmbedding, it.imageEmbedding!!)
-                SearchResultItem(it, similarity.toDouble())
-            }
-            .filter { !(it.similarity?.isNaN() ?: true) }
-            .sortedByDescending { it.similarity }
-            .take(3)
-    }
-
-    private fun cosineSimilarity(vec1: FloatArray, vec2Bytes: ByteArray): Float {
-        val vec2 = EmbeddingUtils.byteArrayToMyEmbedding(vec2Bytes).floatValues ?: return 0.0f
-        
-        var dotProduct = 0.0f
-        var normA = 0.0f
-        var normB = 0.0f
-        for (i in vec1.indices) {
-            dotProduct += vec1[i] * vec2[i]
-            normA += vec1[i] * vec1[i]
-            normB += vec2[i] * vec2[i]
-        }
-        
-        val normaSqrt = kotlin.math.sqrt(normA)
-        val normbSqrt = kotlin.math.sqrt(normB)
-
-        if (normaSqrt == 0.0f || normbSqrt == 0.0f) {
-            return 0.0f
-        }
-
-        return dotProduct / (normaSqrt * normbSqrt)
-    }
-
-    @ColorRes
-    private fun getStatusColor(possessedCount: Int, totalCount: Int, isSoughtMode: Boolean): Int {
-        if (totalCount == 0) return R.color.status_error
-
-        val percentage = (possessedCount * 100) / totalCount
-        return if (isSoughtMode) {
-            when {
-                percentage > 75 -> R.color.status_ok // Almost complete, few sought
-                percentage > 25 -> R.color.status_warning
-                else -> R.color.status_error // Not complete at all, many sought
-            }
-        } else {
-            when {
-                percentage < 25 -> R.color.status_error
-                percentage < 75 -> R.color.status_warning
-                else -> R.color.status_ok
-            }
-        }
-    }
-
-    fun getSuperCategoryInfo(isSoughtMode: Boolean): LiveData<List<CategoryInfo>> = liveData(Dispatchers.IO) {
-        val allSuperCategories = CategoryMapper.getSuperCategories()
-        val dbCounts = collectionDao.getSuperCategoryInfoSuspend()
-        val dbCountsMap = dbCounts.associateBy { it.name }
-
-        val categoryInfos = allSuperCategories.map { superCategoryName ->
-            val counts = dbCountsMap[superCategoryName]
-            val possessed = counts?.possessedCount ?: 0
-            val total = counts?.totalCount ?: 0
-            CategoryInfo(
-                name = superCategoryName,
-                possessedCount = possessed,
-                totalCount = total,
-                statusColorRes = getStatusColor(possessed, total, isSoughtMode)
-            )
-        }
-        emit(categoryInfos)
-    }
-
-    fun getCategoryInfoForSuperCategory(superCategory: String, isSoughtMode: Boolean): LiveData<List<CategoryInfo>> = liveData(Dispatchers.IO) {
-        val allSubCategories = CategoryMapper.getCategoriesFor(superCategory)
-        val dbCounts = collectionDao.getCategoryInfoForSuperCategorySuspend(superCategory)
-        val dbCountsMap = dbCounts.associateBy { it.name }
-
-        val categoryInfos = allSubCategories.map { subCategoryName ->
-            val counts = dbCountsMap[subCategoryName]
-            val possessed = counts?.possessedCount ?: 0
-            val total = counts?.totalCount ?: 0
-            CategoryInfo(
-                name = subCategoryName,
-                possessedCount = possessed,
-                totalCount = total,
-                statusColorRes = getStatusColor(possessed, total, isSoughtMode)
-            )
-        }
-        emit(categoryInfos)
-    }
-
-    fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isSoughtMode: Boolean): LiveData<List<CollectionItem>> {
-        return collectionDao.getItemsBySuperCategoryAndCategory(superCategory, category, isSoughtMode)
-    }
-
-    suspend fun insert(item: CollectionItem) {
-        collectionDao.insert(item)
-    }
-
-    suspend fun update(item: CollectionItem) {
-        collectionDao.update(item)
-    }
-
-    suspend fun delete(item: CollectionItem) {
-        collectionDao.delete(item)
-    }
+    fun getItemsBySuperCategoryAndCategory(s: String, c: String, p: Boolean): LiveData<List<CollectionItem>> = collectionDao.getItemsBySuperCategoryAndCategory(s, c, p)
+    suspend fun insert(item: CollectionItem) = collectionDao.insert(item.copy(updatedAt = System.currentTimeMillis()))
+    suspend fun update(item: CollectionItem) = collectionDao.update(item.copy(updatedAt = System.currentTimeMillis()))
+    suspend fun delete(item: CollectionItem) = collectionDao.delete(item)
 }

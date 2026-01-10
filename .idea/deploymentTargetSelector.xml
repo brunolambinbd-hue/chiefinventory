@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-01-04T09:25:04.637419300Z">
+        <DropdownSelection timestamp="2026-01-10T09:36:21.498645200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Medium_Phone.avd" />
@@ -15,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="Run all instrumented Tests">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-01-04T14:37:03.716479400Z">
+        <DropdownSelection timestamp="2026-01-10T11:31:39.829041800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel-DevTest.avd" />
@@ -27,37 +27,26 @@
       <SelectionState runConfigName="ParaBDCollector">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="createNewItem_shouldSaveItemToDatabase()">
+      <SelectionState runConfigName="Run All Integration Tests">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-12-19T16:20:59.650030800Z">
+      </SelectionState>
+      <SelectionState runConfigName="BatchPossessionActivityTest">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-01-10T09:35:58.843555900Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Medium_Phone.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="CategoryAuditActivityTest">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-01-10T11:34:52.590556600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel-DevTest.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="SearchActivityTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="CollectionDaoTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-01-01T21:24:02.241662900Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Medium_Phone.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="ImageCaptureUtilInstrumentedTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-01-02T14:42:22.199541200Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Medium_Phone.avd" />
             </handle>
           </Target>
         </DropdownSelection>

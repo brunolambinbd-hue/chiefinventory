@@ -50,11 +50,32 @@
             android:layout_weight="1" />
 
         <Button
+            android:id="@+id/btn_batch_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/batch_update_title" />
+
+        <Button
+            android:id="@+id/btn_category_audit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/category_audit_button" />
+
+        <Button
             android:id="@+id/btn_unlocated_items"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:text="@string/show_unlocated_items_button" />
+
+        <Button
+            android:id="@+id/btn_located_not_possessed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/show_located_not_possessed_items_button" />
 
         <Button
             android:id="@+id/btn_test_crash"

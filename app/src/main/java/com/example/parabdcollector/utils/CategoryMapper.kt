@@ -15,6 +15,7 @@ object CategoryMapper {
     private const val SUPER_CAT_PROMOS = "Promos - Publicités"
     private const val SUPER_CAT_DIVERS = "Divers"
     private const val SUPER_CAT_ILLUSTRATION = "Illustration"
+    private const val SUPER_CAT_PRESSE = "Presse"
 
     /**
      * The definitive mapping of specific categories to their standardized super-category.
@@ -22,7 +23,7 @@ object CategoryMapper {
      */
     private val categoryMap = mapOf(
         "Affiches" to SUPER_CAT_IMAGE,
-        "ALBUMS" to SUPER_CAT_ALBUM,
+        "Albums" to SUPER_CAT_ALBUM,
         "Albums collectifs" to SUPER_CAT_ALBUM,
         "Albums éditions étrangères" to SUPER_CAT_ALBUM,
         "Autocollant" to SUPER_CAT_OBJETS,
@@ -48,11 +49,12 @@ object CategoryMapper {
         "Marque-pages" to SUPER_CAT_CARTE,
         "Objets-divers" to SUPER_CAT_OBJETS,
         "Offsets" to SUPER_CAT_IMAGE,
-        "PORTFOLIOS" to SUPER_CAT_IMAGE,
+        "Portfolios" to SUPER_CAT_IMAGE,
         "Programmes festivals" to SUPER_CAT_PROMOS,
         "Promos-divers" to SUPER_CAT_PROMOS,
         "Sérigraphies" to SUPER_CAT_IMAGE,
-        "T-shirt" to SUPER_CAT_OBJETS
+        "T-shirt" to SUPER_CAT_OBJETS,
+        "Travaux pour Spirou" to SUPER_CAT_PRESSE
     )
 
     /**
@@ -70,5 +72,14 @@ object CategoryMapper {
      */
     fun getCategoriesFor(superCategory: String): List<String> {
         return categoryMap.filterValues { it == superCategory }.keys.sorted()
+    }
+
+    /**
+     * Returns the standardized super-category for a given raw category.
+     * @param category The raw category name.
+     * @return The matching super-category name, or null if no rule exists.
+     */
+    fun getSuperCategoryFor(category: String): String? {
+        return categoryMap[category]
     }
 }

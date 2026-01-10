@@ -8,13 +8,6 @@ import com.example.parabdcollector.repo.LocationRepository
 
 /**
  * A centralized factory for creating all ViewModel instances in the application.
- *
- * This class allows for the injection of dependencies (like repositories) into the ViewModels,
- * which is crucial for both the app's architecture and for testing.
- *
- * @param application The application instance, required for ViewModels that need a context.
- * @param collectionRepository The repository for collection item data.
- * @param locationRepository The repository for location data.
  */
 class ViewModelFactory(
     private val application: Application,
@@ -22,13 +15,6 @@ class ViewModelFactory(
     private val locationRepository: LocationRepository
 ) : ViewModelProvider.Factory {
     
-    /**
-     * Creates a new instance of the given [ViewModel] class.
-     *
-     * @param modelClass A class whose instance is requested.
-     * @return A newly created ViewModel.
-     * @throws IllegalArgumentException if the provided modelClass is unknown.
-     */
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
@@ -48,6 +34,10 @@ class ViewModelFactory(
                 InventoryViewModel(application, collectionRepository) as T
             modelClass.isAssignableFrom(BackupViewModel::class.java) ->
                 BackupViewModel(application) as T
+            modelClass.isAssignableFrom(BatchPossessionViewModel::class.java) ->
+                BatchPossessionViewModel(collectionRepository) as T
+            modelClass.isAssignableFrom(CategoryAuditViewModel::class.java) ->
+                CategoryAuditViewModel(collectionRepository) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

@@ -1,0 +1,105 @@
+package com.example.parabdcollector.ui.actvity
+
+import android.content.Context
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Lifecycle
+import androidx.room.Room
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.parabdcollector.CollectionApplication
+import com.example.parabdcollector.R
+import com.example.parabdcollector.data.AppDatabase
+import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.repo.LocationRepository
+import com.example.parabdcollector.util.MainDispatcherRule
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
+import org.hamcrest.CoreMatchers.containsString
+import org.junit.After
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/**
+ * Instrumented UI tests for [BatchPossessionActivity].
+ */
+@ExperimentalCoroutinesApi
+@RunWith(AndroidJUnit4::class)
+class BatchPossessionActivityTest {
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    private lateinit var db: AppDatabase
+    private lateinit var repository: CollectionRepository
+
+    @Before
+    fun setup() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        // Utilisation d'une base de données en mémoire pour les tests
+        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        
+        repository = CollectionRepository(db.collectionDao())
+        
+        // Injection du repository de test dans l'application
+        val app = context as CollectionApplication
+        app.repository = repository
+        app.locationRepository = LocationRepository(db.locationDao())
+    }
+
+    @After
+    fun tearDown() {
+        db.close()
+    }
+
+    @Test
+    fun analyzeAndClickUpdate_shouldFinishActivity() = runTest {
+        // GIVEN: Un magazine Spirou non possédé en base
+        val item = CollectionItem(
+            id = 1, titre = "Spirou n°1500", isPossessed = false,
+            editeur = "Dupuis", annee = 1980, mois = 1, categorie = "Spirou", superCategorie = "Magazines"
+        )
+        db.collectionDao().insert(item)
+
+        // WHEN: On lance l'activité et on effectue la recherche
+        val scenario = ActivityScenario.launch(BatchPossessionActivity::class.java)
+
+        onView(withId(R.id.et_series_name)).perform(replaceText("Spirou"), closeSoftKeyboard())
+        onView(withId(R.id.et_start_number)).perform(replaceText("1400"), closeSoftKeyboard())
+        onView(withId(R.id.et_end_number)).perform(replaceText("1600"), closeSoftKeyboard())
+        
+        onView(withId(R.id.btn_analyze)).perform(click())
+
+        // THEN: Le résumé doit s'afficher avec le bon compte
+        onView(withId(R.id.cv_summary)).check(matches(isDisplayed()))
+        onView(withId(R.id.tv_batch_summary)).check(matches(withText(containsString("1"))))
+
+        // AND: Cliquer sur le bouton de mise à jour doit fermer l'activité
+        onView(withId(R.id.btn_confirm_update)).perform(click())
+        
+        // On laisse un peu de temps pour le traitement asynchrone
+        Thread.sleep(500)
+        assertTrue(scenario.state == Lifecycle.State.DESTROYED)
+    }
+
+    @Test
+    fun emptyFields_shouldShowErrorToast() {
+        ActivityScenario.launch(BatchPossessionActivity::class.java)
+        
+        // Cliquer sur analyser sans rien remplir
+        onView(withId(R.id.btn_analyze)).perform(click())
+
+        // Le résumé ne doit pas être visible
+        onView(withId(R.id.cv_summary)).check(matches(withEffectiveVisibility(Visibility.GONE)))
+    }
+}

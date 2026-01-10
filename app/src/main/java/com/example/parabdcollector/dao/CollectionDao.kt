@@ -38,6 +38,21 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE locationId IS NULL AND isPossessed = 1")
     fun getUnlocatedItems(): LiveData<List<CollectionItem>>
 
+    @Query("SELECT * FROM collection_items WHERE locationId IS NOT NULL AND isPossessed = 0")
+    fun getLocatedNotPossessedItems(): LiveData<List<CollectionItem>>
+
+    /**
+     * Retrieves the 50 most recently updated items that are possessed.
+     */
+    @Query("SELECT * FROM collection_items WHERE isPossessed = 1 ORDER BY updatedAt DESC LIMIT 50")
+    fun getRecentPossessed(): LiveData<List<CollectionItem>>
+
+    /**
+     * Retrieves the 50 most recently updated items that have a location.
+     */
+    @Query("SELECT * FROM collection_items WHERE locationId IS NOT NULL ORDER BY updatedAt DESC LIMIT 50")
+    fun getRecentLocated(): LiveData<List<CollectionItem>>
+
     @Query("SELECT COUNT(id) FROM collection_items")
     fun getTotalCount(): LiveData<Int>
 
@@ -52,6 +67,9 @@ interface CollectionDao {
 
     @Query("SELECT * FROM collection_items WHERE (titre LIKE :query OR editeur LIKE :query OR description LIKE :query) ORDER BY annee DESC, mois DESC LIMIT 50")
     suspend fun search(query: String): List<CollectionItem>
+
+    @Query("SELECT * FROM collection_items WHERE titre LIKE :query")
+    suspend fun getAllByTitle(query: String): List<CollectionItem>
 
     @RawQuery
     suspend fun advancedSearch(query: SupportSQLiteQuery): List<CollectionItem>

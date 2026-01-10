@@ -62,7 +62,7 @@ class BackupActivity : AppCompatActivity() {
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Sauvegarde / Restauration"
+        supportActionBar?.title = "Maintenance / Sauvegarde"
     }
 
     /**
@@ -83,11 +83,26 @@ class BackupActivity : AppCompatActivity() {
             throw RuntimeException("Test Crash triggered from BackupActivity")
         }
 
-        binding.btnUnlocatedItems.setOnClickListener { // Corrected ID
+        binding.btnUnlocatedItems.setOnClickListener { 
             val intent = Intent(this, ItemListActivity::class.java).apply {
                 putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_UNLOCATED)
             }
             startActivity(intent)
+        }
+
+        binding.btnLocatedNotPossessed.setOnClickListener { 
+            val intent = Intent(this, ItemListActivity::class.java).apply {
+                putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_LOCATED_NOT_POSSESSED)
+            }
+            startActivity(intent)
+        }
+
+        binding.btnBatchUpdate.setOnClickListener {
+            startActivity(Intent(this, BatchPossessionActivity::class.java))
+        }
+
+        binding.btnCategoryAudit.setOnClickListener {
+            startActivity(Intent(this, CategoryAuditActivity::class.java))
         }
     }
 

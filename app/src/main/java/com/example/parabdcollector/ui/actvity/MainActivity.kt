@@ -28,11 +28,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
+        @Suppress("VisibleForTests")
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
     private val importViewModel: ImportViewModel by viewModels {
         val app = application as CollectionApplication
+        @Suppress("VisibleForTests")
         ViewModelFactory(app, app.repository!!, app.locationRepository!!)
     }
 
@@ -83,6 +85,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.totalItemsText.setOnClickListener {
             Toast.makeText(this, "Affichage de tous les objets (à implémenter)", Toast.LENGTH_SHORT).show()
         }
+
+        binding.btnRecentFinds.setOnClickListener {
+            navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
+        }
+
+        binding.btnRecentOrganizations.setOnClickListener {
+            navigateToRecent(ItemListActivity.TYPE_RECENT_LOCATED)
+        }
+    }
+
+    private fun navigateToRecent(type: Int) {
+        val intent = Intent(this, ItemListActivity::class.java).apply {
+            putExtra(ItemListActivity.EXTRA_LIST_TYPE, type)
+        }
+        startActivity(intent)
     }
 
     private fun observeViewModel() {
@@ -111,7 +128,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         possessedCounterTextView = actionView?.findViewById(R.id.possessed_counter)
         soughtCounterTextView = actionView?.findViewById(R.id.sought_counter)
         
-        // Set initial counts
         possessedCounterTextView?.text = viewModel.possessedItems.value?.size?.toString() ?: "0"
         soughtCounterTextView?.text = viewModel.soughtItems.value?.size?.toString() ?: "0"
         
@@ -121,13 +137,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         when (item.itemId) {
-            R.id.nav_home -> { /* Do nothing, we are already here */ }
+            R.id.nav_home -> { /* Already here */ }
             R.id.nav_products -> {
                 val intent = Intent(this, CategoryListActivity::class.java).apply {
                     putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_POSSESSED)
                 }
                 startActivity(intent)
             }
+            R.id.nav_recent_finds -> navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
+            R.id.nav_recent_organizations -> navigateToRecent(ItemListActivity.TYPE_RECENT_LOCATED)
             R.id.nav_searches -> {
                 val intent = Intent(this, CategoryListActivity::class.java).apply {
                     putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_SOUGHT)
@@ -142,29 +160,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 importCsvLauncher.launch("text/comma-separated-values")
             }
             R.id.nav_signatures -> {
-                val intent = Intent(this, SignatureReportActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, SignatureReportActivity::class.java))
             }
             R.id.nav_backup -> {
-                val intent = Intent(this, BackupActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, BackupActivity::class.java))
             }
         }
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (toggle.onOptionsItemSelected(item)) {
+        if (toggle.onOptionsItemSelected(item)) return true
+        if (item.itemId == R.id.action_search) {
+            startActivity(Intent(this, SearchActivity::class.java))
             return true
         }
-
-        when (item.itemId) {
-            R.id.action_search -> {
-                startActivity(Intent(this, SearchActivity::class.java))
-                return true
-            }
-        }
-
         return super.onOptionsItemSelected(item)
     }
 }

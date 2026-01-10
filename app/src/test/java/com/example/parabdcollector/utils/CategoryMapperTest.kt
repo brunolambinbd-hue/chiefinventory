@@ -14,7 +14,7 @@ class CategoryMapperTest {
         val superCategories = CategoryMapper.getSuperCategories()
 
         // THEN: The list should be sorted and contain no duplicates.
-        val expected = listOf("Album", "Carte", "Divers", "Illustration", "Image", "Objets", "Promos - Publicités")
+        val expected = listOf("Album", "Carte", "Divers", "Illustration", "Image", "Objets", "Presse", "Promos - Publicités")
         assertEquals("The list of super-categories should be distinct and sorted alphabetically", expected, superCategories)
     }
 
@@ -24,8 +24,19 @@ class CategoryMapperTest {
         val imageCategories = CategoryMapper.getCategoriesFor("Image")
 
         // THEN: The list should contain all and only the categories mapped to "Image", sorted alphabetically.
-        val expected = listOf("Affiches", "Ex-libris", "Offsets", "PORTFOLIOS", "Sérigraphies")
+        // "Portfolios" has been renamed from "PORTFOLIOS" to match database consistency.
+        val expected = listOf("Affiches", "Ex-libris", "Offsets", "Portfolios", "Sérigraphies")
         assertEquals("The list of categories for 'Image' should match the expected sorted list", expected, imageCategories)
+    }
+
+    @Test
+    fun `getCategoriesFor should return correct sorted sub-categories for Presse`() {
+        // WHEN: We request the categories for the new "Presse" super-category.
+        val categories = CategoryMapper.getCategoriesFor("Presse")
+
+        // THEN: It should return "Travaux pour Spirou".
+        val expected = listOf("Travaux pour Spirou")
+        assertEquals("The list of categories for 'Presse' should match", expected, categories)
     }
 
     @Test

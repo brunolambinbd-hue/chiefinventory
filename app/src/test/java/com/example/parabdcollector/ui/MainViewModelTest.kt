@@ -39,60 +39,73 @@ class MainViewModelTest {
 
     @Test
     fun `possessedItems LiveData exposes data from repository`() {
-        // GIVEN: The repository is programmed to return a specific list of possessed items.
-        val testData = listOf(CollectionItem(id = 1, titre = "Item 1", isPossessed = true, description = null, editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, imageUri = null, imageEmbedding = null, locationId = null, remoteId = null))
-        val liveData = MutableLiveData(testData)
-        whenever(repository.getAllPossessed()).thenReturn(liveData)
+        val testData = listOf(createMockItem(1, true))
+        whenever(repository.getAllPossessed()).thenReturn(MutableLiveData(testData))
 
-        // WHEN: The ViewModel is created.
         viewModel = MainViewModel(repository)
-        val result = viewModel.possessedItems.value
-
-        // THEN: The value of the ViewModel's LiveData should match the repository's data.
-        assertEquals(testData, result)
+        assertEquals(testData, viewModel.possessedItems.value)
     }
 
     @Test
     fun `soughtItems LiveData exposes data from repository`() {
-        // GIVEN: The repository is programmed to return a specific list of sought items.
-        val testData = listOf(CollectionItem(id = 2, titre = "Item 2", isPossessed = false, description = null, editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, imageUri = null, imageEmbedding = null, locationId = null, remoteId = null))
-        val liveData = MutableLiveData(testData)
-        whenever(repository.getAllSought()).thenReturn(liveData)
+        val testData = listOf(createMockItem(2, false))
+        whenever(repository.getAllSought()).thenReturn(MutableLiveData(testData))
 
-        // WHEN: The ViewModel is created.
         viewModel = MainViewModel(repository)
-        val result = viewModel.soughtItems.value
-
-        // THEN: The value of the ViewModel's LiveData should match the repository's data.
-        assertEquals(testData, result)
+        assertEquals(testData, viewModel.soughtItems.value)
     }
 
     @Test
     fun `totalItemsCount LiveData exposes data from repository`() {
-        // GIVEN: The repository is programmed to return a specific total count.
-        val liveData = MutableLiveData(42)
-        whenever(repository.getTotalCount()).thenReturn(liveData)
+        whenever(repository.getTotalCount()).thenReturn(MutableLiveData(42))
 
-        // WHEN: The ViewModel is created.
         viewModel = MainViewModel(repository)
-        val result = viewModel.totalItemsCount.value
-
-        // THEN: The value should match the repository's data.
-        assertEquals(42, result)
+        assertEquals(42, viewModel.totalItemsCount.value)
     }
 
     @Test
     fun `signatureStats LiveData exposes data from repository`() {
-        // GIVEN: The repository is programmed to return specific signature stats.
         val stats = SignatureStats(totalCount = 10, validCount = 5, emptyCount = 2, missingCount = 3)
-        val liveData = MutableLiveData(stats)
-        whenever(repository.getSignatureStats()).thenReturn(liveData)
+        whenever(repository.getSignatureStats()).thenReturn(MutableLiveData(stats))
 
-        // WHEN: The ViewModel is created.
         viewModel = MainViewModel(repository)
-        val result = viewModel.signatureStats.value
+        assertEquals(stats, viewModel.signatureStats.value)
+    }
 
-        // THEN: The value should match the repository's data.
-        assertEquals(stats, result)
+    @Test
+    fun `recentPossessedItems LiveData exposes data from repository`() {
+        // GIVEN: Le repository renvoie une liste d'objets possédés récents.
+        val testData = listOf(createMockItem(3, true))
+        whenever(repository.getRecentPossessed()).thenReturn(MutableLiveData(testData))
+
+        // WHEN: On initialise le ViewModel.
+        viewModel = MainViewModel(repository)
+
+        // THEN: La propriété doit exposer ces données.
+        assertEquals(testData, viewModel.recentPossessedItems.value)
+    }
+
+    @Test
+    fun `recentLocatedItems LiveData exposes data from repository`() {
+        // GIVEN: Le repository renvoie une liste d'objets localisés récents.
+        val testData = listOf(createMockItem(4, true).copy(locationId = 100L))
+        whenever(repository.getRecentLocated()).thenReturn(MutableLiveData(testData))
+
+        // WHEN: On initialise le ViewModel.
+        viewModel = MainViewModel(repository)
+
+        // THEN: La propriété doit exposer ces données.
+        assertEquals(testData, viewModel.recentLocatedItems.value)
+    }
+
+    private fun createMockItem(id: Long, possessed: Boolean): CollectionItem {
+        return CollectionItem(
+            id = id, titre = "Item $id", isPossessed = possessed,
+            description = null, editeur = null, annee = null, mois = null,
+            categorie = null, superCategorie = null, materiau = null,
+            tirage = null, dimensions = null, prixAchat = null,
+            valeurEstimee = null, lieuAchat = null, imageUri = null,
+            imageEmbedding = null, locationId = null, remoteId = null
+        )
     }
 }
