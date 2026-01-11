@@ -17,8 +17,6 @@ import org.mockito.kotlin.whenever
 
 /**
  * Unit tests for the [com.example.parabdcollector.ui.viewmodel.MainViewModel].
- *
- * These tests verify that the ViewModel correctly exposes data from the [CollectionRepository].
  */
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
@@ -74,27 +72,20 @@ class MainViewModelTest {
 
     @Test
     fun `recentPossessedItems LiveData exposes data from repository`() {
-        // GIVEN: Le repository renvoie une liste d'objets possédés récents.
         val testData = listOf(createMockItem(3, true))
+        // On s'assure que la référence est bien résolue en appelant la méthode du repository
         whenever(repository.getRecentPossessed()).thenReturn(MutableLiveData(testData))
 
-        // WHEN: On initialise le ViewModel.
         viewModel = MainViewModel(repository)
-
-        // THEN: La propriété doit exposer ces données.
         assertEquals(testData, viewModel.recentPossessedItems.value)
     }
 
     @Test
     fun `recentLocatedItems LiveData exposes data from repository`() {
-        // GIVEN: Le repository renvoie une liste d'objets localisés récents.
         val testData = listOf(createMockItem(4, true).copy(locationId = 100L))
         whenever(repository.getRecentLocated()).thenReturn(MutableLiveData(testData))
 
-        // WHEN: On initialise le ViewModel.
         viewModel = MainViewModel(repository)
-
-        // THEN: La propriété doit exposer ces données.
         assertEquals(testData, viewModel.recentLocatedItems.value)
     }
 

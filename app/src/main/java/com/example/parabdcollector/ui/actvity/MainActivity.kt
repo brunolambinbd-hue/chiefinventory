@@ -86,6 +86,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(this, "Affichage de tous les objets (à implémenter)", Toast.LENGTH_SHORT).show()
         }
 
+        // Branchement des nouveaux boutons du tableau de bord
         binding.btnRecentFinds.setOnClickListener {
             navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
         }
@@ -144,8 +145,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 startActivity(intent)
             }
+            // Branchement des nouveaux items du menu latéral
             R.id.nav_recent_finds -> navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
             R.id.nav_recent_organizations -> navigateToRecent(ItemListActivity.TYPE_RECENT_LOCATED)
+            
             R.id.nav_searches -> {
                 val intent = Intent(this, CategoryListActivity::class.java).apply {
                     putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_SOUGHT)

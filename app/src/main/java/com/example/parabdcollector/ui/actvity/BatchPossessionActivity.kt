@@ -3,6 +3,7 @@ package com.example.parabdcollector.ui.actvity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,11 +11,14 @@ import androidx.core.view.isVisible
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityBatchPossessionBinding
+import com.example.parabdcollector.ui.model.DisplayLocation
 import com.example.parabdcollector.ui.viewmodel.BatchPossessionViewModel
 import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 
 class BatchPossessionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBatchPossessionBinding
+    private var displayLocs = emptyList<DisplayLocation>()
+
     private val viewModel: BatchPossessionViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
@@ -26,7 +30,25 @@ class BatchPossessionActivity : AppCompatActivity() {
         binding = ActivityBatchPossessionBinding.inflate(layoutInflater); setContentView(binding.root)
         setSupportActionBar(binding.toolbar); supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.batch_update_title)
+        setupLocationDropdown()
         setupClickListeners(); observeViewModel()
+    }
+
+    private fun setupLocationDropdown() {
+        // Force l'affichage immédiat lors du clic
+        binding.etLocation.threshold = 0
+        binding.etLocation.setOnClickListener { binding.etLocation.showDropDown() }
+
+        viewModel.displayLocations.observe(this) { locs ->
+            displayLocs = locs
+            val names = locs.map { "    ".repeat(it.depth) + it.location.name }
+            val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, names)
+            binding.etLocation.setAdapter(adapter)
+        }
+
+        binding.etLocation.setOnItemClickListener { _, _, position, _ ->
+            viewModel.selectedLocationId = displayLocs.getOrNull(position)?.location?.id
+        }
     }
 
     private fun setupClickListeners() {
@@ -66,10 +88,7 @@ class BatchPossessionActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
+        if (item.itemId == android.R.id.home) { finish(); return true }
         return super.onOptionsItemSelected(item)
     }
 }

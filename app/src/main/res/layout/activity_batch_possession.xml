@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:text="Cet outil permet de marquer comme 'Possédés' une série d'objets déjà présents dans votre base en fonction de leur numéro."
+                android:text="Marquer comme 'Possédés' et attribuer un emplacement à une série d'objets."
                 android:textAppearance="?attr/textAppearanceBody1" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -84,6 +84,22 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
+
+            <!-- Nouveau champ pour la localisation -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/location_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/item_location_hint">
+
+                <AutoCompleteTextView
+                    android:id="@+id/et_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Button
                 android:id="@+id/btn_analyze"

@@ -8,9 +8,26 @@ plugins {
     id("kotlin-parcelize")
 }
 
+// Méthode robuste pour récupérer le hash Git (correction syntaxe KTS)
+val gitCommitHash = try {
+    Runtime.getRuntime().exec("git rev-parse --short HEAD").inputStream.bufferedReader().readText().trim()
+} catch (e: Exception) {
+    "unknown"
+}
+
 android {
     namespace = "com.example.parabdcollector"
     compileSdk = 35
+
+    sourceSets {
+        getByName("androidTest") {
+            java.srcDirs(
+                "src/androidTest/java",
+                "src/androidTest/java-ui",
+                "src/androidTest/java-integration"
+            )
+        }
+    }
 
     signingConfigs {
         create("release") {
@@ -39,6 +56,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Injection du hash Git dans le BuildConfig
+        buildConfigField("String", "GIT_COMMIT_HASH", "\"$gitCommitHash\"")
     }
 
     buildTypes {

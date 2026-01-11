@@ -27,34 +27,27 @@ class CategoryAuditViewModel(private val repository: CollectionRepository) : Vie
 
     /**
      * Scans the database to find items whose current super-category doesn't match the Mapper rules.
-     * Targets items with missing or placeholder super-categories (N/D, #N/D, Non Défini).
+     * Only targets items with missing or placeholder super-categories (N/D).
      */
     fun performAudit() {
         viewModelScope.launch {
-            // We use the full retrieval method to ensure we don't miss anything
-            val allItems = repository.getAllItemsSuspend()
+            // We use the non-limited search function we added for batch processing
+            val allItems = repository.getAllByTitle("") 
             
             itemsToFix = allItems.filter { item ->
-                val currentSuper = item.superCategorie?.trim() ?: ""
-                val rawCategory = item.categorie?.trim() ?: ""
-                val shouldBeSuper = CategoryMapper.getSuperCategoryFor(rawCategory)
+                val currentSuper = item.superCategorie
+                val shouldBeSuper = item.categorie?.let { CategoryMapper.getSuperCategoryFor(it) }
                 
-                // Detection logic refined to include Excel-style error "#N/D"
-                val isPlaceholder = currentSuper.isBlank() || 
-                                   currentSuper.equals("N/D", ignoreCase = true) || 
-                                   currentSuper.equals("#N/D", ignoreCase = true) || 
-                                   currentSuper.equals("Non Défini", ignoreCase = true)
-                
-                // We only target the item if it has a known rule AND its current value is a placeholder
-                shouldBeSuper != null && isPlaceholder
+                // Criteria: has a rule in Mapper AND current value is empty or "N/D"
+                shouldBeSuper != null && (currentSuper.isNullOrBlank() || currentSuper == "N/D" || currentSuper == "Non Défini")
             }
 
-            _auditResult.postValue(itemsToFix.size)
+            _auditResult.value = itemsToFix.size
         }
     }
 
     /**
-     * Updates the identified items with their correct super-category in a single batch.
+     * Updates the identified items with their correct super-category.
      */
     fun fixInconsistencies() {
         val list = itemsToFix
@@ -63,16 +56,14 @@ class CategoryAuditViewModel(private val repository: CollectionRepository) : Vie
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 list.forEach { item ->
-                    val rawCategory = item.categorie?.trim() ?: ""
-                    val correctSuper = CategoryMapper.getSuperCategoryFor(rawCategory)
-                    
+                    val correctSuper = item.categorie?.let { CategoryMapper.getSuperCategoryFor(it) }
                     if (correctSuper != null) {
                         repository.update(item.copy(superCategorie = correctSuper))
                     }
                 }
             }
-            _updateStatus.postValue(list.size)
-            _auditResult.postValue(null) // Reset summary after success
+            _updateStatus.value = list.size
+            _auditResult.value = null // Clear result after success
         }
     }
 }

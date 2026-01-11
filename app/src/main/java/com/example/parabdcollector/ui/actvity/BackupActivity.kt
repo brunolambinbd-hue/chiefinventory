@@ -116,18 +116,17 @@ class BackupActivity : AppCompatActivity() {
     }
 
     /**
-     * Retrieves and displays the application version, database version, and API URL in the UI.
+     * Retrieves and displays the application version, database version, API URL, and Git commit hash in the UI.
      */
     private fun displayVersionInfo() {
-        // Retrieve app version from BuildConfig
+        // Retrieve values from BuildConfig and database
         val appVersion = BuildConfig.VERSION_NAME
-        // Retrieve database version from our AppDatabase constant
         val dbVersion = AppDatabase.DATABASE_VERSION
-        // Retrieve API URL from BuildConfig
         val apiUrl = BuildConfig.API_URL
+        val commitHash = BuildConfig.GIT_COMMIT_HASH
 
         // Format the string using the resource and set it to the TextView
-        binding.tvVersionInfo.text = getString(R.string.version_info_format, appVersion, dbVersion, apiUrl)
+        binding.tvVersionInfo.text = getString(R.string.version_info_format, appVersion, dbVersion, apiUrl, commitHash)
     }
 
     /**

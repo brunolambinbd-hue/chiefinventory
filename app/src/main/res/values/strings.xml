@@ -104,7 +104,7 @@
     <string name="backup_button_restore">Restaurer une sauvegarde</string>
     <string name="show_unlocated_items_button">Objets non localisés</string>
     <string name="show_located_not_possessed_items_button">Objets localisés non possédés</string>
-    <string name="version_info_format" translatable="false">App v%1$s (DB v%2$d)\nAPI URL: %3$s</string>
+    <string name="version_info_format" translatable="false">App v%1$s (%4$s) (DB v%2$d)\nAPI URL: %3$s</string>
     <string name="backup_success">Sauvegarde réussie !</string>
     <string name="backup_failed">Échec de la sauvegarde : %1$s</string>
     <string name="restore_success">Restauration réussie ! Veuillez redémarrer l\'application.</string>
