@@ -64,14 +64,24 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <ImageButton
-                        android:id="@+id/btn_search_by_image"
+                        android:id="@+id/btn_search_by_camera"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/search_by_image_description"
+                        android:contentDescription="@string/take_picture_button"
                         android:padding="8dp"
                         android:src="@android:drawable/ic_menu_camera" />
+
+                    <ImageButton
+                        android:id="@+id/btn_search_by_gallery"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Galerie"
+                        android:padding="8dp"
+                        android:src="@android:drawable/ic_menu_gallery" />
 
                     <Button
                         android:id="@+id/btn_search"

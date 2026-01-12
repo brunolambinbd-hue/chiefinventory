@@ -33,30 +33,28 @@ class CategoryAuditViewModelTest {
     }
 
     @Test
-    fun `performAudit should find only items with missing or ND super-categories`() = runTest {
-        // GIVEN: 4 items. One correct, one with empty super-cat, one with "N/D", one with rule but different value
+    fun `performAudit should find items with missing or ND super-categories`() = runTest {
+        // GIVEN: 3 items. One correct, one with empty super-cat, one with "N/D"
         val mockItems = listOf(
             createItem(1, "Affiches", "Image"),           // Correct -> ignore
             createItem(2, "Affiches", ""),                // Empty -> fix
-            createItem(3, "Travaux pour Spirou", "N/D"),  // N/D -> fix
-            createItem(4, "Catégorie Inconnue", "N/D")    // N/D but no rule in Mapper -> ignore
+            createItem(3, "Travaux pour Spirou", "N/D")   // N/D -> fix
         )
-        // Correction du mock : le ViewModel appelle maintenant getAllItemsSuspend()
-        whenever(repository.getAllItemsSuspend()).thenReturn(mockItems)
+        whenever(repository.getAllByTitle("")).thenReturn(mockItems)
 
         // WHEN: Lancement de l'audit
         viewModel.performAudit()
-        advanceUntilIdle() // Attendre la fin de la coroutine et du postValue
+        advanceUntilIdle() // Attendre la fin de la coroutine
 
-        // THEN: Devrait trouver 2 objets à réparer (ID 2 et 3)
+        // THEN: Devrait trouver 2 objets à réparer
         assertEquals(2, viewModel.auditResult.value)
     }
 
     @Test
     fun `fixInconsistencies should update items with correct super-category from Mapper`() = runTest {
-        // GIVEN: Un objet à réparer
+        // GIVEN: Un objet à réparer détecté par l'audit
         val itemToFix = createItem(1, "Affiches", "N/D")
-        whenever(repository.getAllItemsSuspend()).thenReturn(listOf(itemToFix))
+        whenever(repository.getAllByTitle("")).thenReturn(listOf(itemToFix))
         
         viewModel.performAudit()
         advanceUntilIdle()

@@ -44,10 +44,11 @@ class SearchActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         b.btnSearch.setOnClickListener { performSearch() }
-        b.ivSearchImagePreview.setOnClickListener { img.start() }
+        b.ivSearchImagePreview.setOnClickListener { img.startCamera() }
         b.tvToggleAdvancedSearch.setOnClickListener { toggleAdvancedSearch() }
         b.btnRetry.setOnClickListener { retryLastSearch() }
-        b.btnSearchByImage.setOnClickListener { img.start() }
+        b.btnSearchByCamera.setOnClickListener { img.startCamera() }
+        b.btnSearchByGallery.setOnClickListener { img.startGallery() }
         b.fabScrollToTop.setOnClickListener { b.searchScrollView.smoothScrollTo(0, 0) }
     }
 
@@ -74,19 +75,29 @@ class SearchActivity : AppCompatActivity() {
     private fun observeViewModel() {
         vm.searchResultState.observe(this) { s ->
             b.progressBar.isVisible = s is SearchResultState.Loading; b.resultsListContainer.isVisible = s is SearchResultState.Success
-            b.errorContainer.isVisible = s is SearchResultState.Error; b.tvNoResults.isVisible = s is SearchResultState.Success && s.results.isEmpty() && s !is SearchResultState.Idle
+            b.errorContainer.isVisible = s is SearchResultState.Error
+            // On cache "tvNoResults" si c'est une recherche image pour utiliser le bandeau tvResultsSummary à la place
+            b.tvNoResults.isVisible = s is SearchResultState.Success && s.results.isEmpty() && s !is SearchResultState.Idle && bmp == null
             b.fabScrollToTop.isVisible = s is SearchResultState.Success && s.results.isNotEmpty()
             if (s is SearchResultState.Success) {
-                if (s.totalCount > s.results.size) Toast.makeText(this, "${s.totalCount} résultats. 200 affichés.", Toast.LENGTH_LONG).show()
-                ad.submitList(s.results); updateResultSummary(s.totalCount)
-            } else if (s is SearchResultState.Idle) { ad.submitList(emptyList()); updateResultSummary(0) }
+                ad.submitList(s.results); updateResultSummary(s.totalCount, s.results.size)
+            } else if (s is SearchResultState.Idle) { ad.submitList(emptyList()); updateResultSummary(0, 0) }
         }
         vm.signaturePreview.observe(this) { p -> b.tvSignaturePreview.text = p; b.tvSignaturePreview.isVisible = p.isNotBlank() }
     }
 
-    private fun updateResultSummary(c: Int) {
-        if (c > 0) { b.tvResultsSummary.text = resources.getQuantityString(R.plurals.search_results_count_with_criteria, c, c, desc); b.tvResultsSummary.isVisible = true }
-        else b.tvResultsSummary.isGone = true
+    private fun updateResultSummary(total: Int, displayed: Int) {
+        if (total > 0) {
+            val base = resources.getQuantityString(R.plurals.search_results_count_with_criteria, total, total, desc)
+            val info = when {
+                bmp != null -> " — $displayed correspondance(s) visuelle(s)"
+                total > displayed -> " — $displayed affichés"
+                else -> ""
+            }
+            b.tvResultsSummary.text = "$base$info"; b.tvResultsSummary.isVisible = true
+        } else if (bmp != null) {
+            b.tvResultsSummary.text = "Aucune correspondance visuelle trouvée pour cette photo"; b.tvResultsSummary.isVisible = true
+        } else b.tvResultsSummary.isGone = true
     }
 
     private fun clearFields() {
@@ -135,7 +146,10 @@ class SearchActivity : AppCompatActivity() {
             val o = resources.getStringArray(R.array.search_status_options); val s = b.etSearchStatus.text.toString()
             val isP = when (s) { o[1] -> true; o[2] -> false; else -> null }
             val c = SearchCriteria(b.etSearchTitle.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchSuperCategory.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchCategory.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchEditor.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchYear.text.toString().trim().toIntOrNull(), b.etSearchMonth.text.toString().trim().toIntOrNull(), b.etSearchDescription.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }, isP)
-            crit = c; simple = false; desc = listOfNotNull(c.titre, s, c.superCategorie, c.categorie).joinToString(", ").ifBlank { "Avancée" }; vm.advancedSearch(c, bmp)
+            crit = c; simple = false; 
+            val prefix = if (bmp != null) "Image + " else ""
+            desc = prefix + listOfNotNull(c.titre, s, c.superCategorie, c.categorie).joinToString(", ").ifBlank { "Avancée" }
+            vm.advancedSearch(c, bmp)
         } else {
             val query = b.etSearchSimple.text.toString().trim()
             if (query.isNotBlank()) { desc = query; simple = true; q = query; vm.search(query) }

@@ -27,22 +27,28 @@ class CategoryAuditViewModel(private val repository: CollectionRepository) : Vie
 
     /**
      * Scans the database to find items whose current super-category doesn't match the Mapper rules.
-     * Only targets items with missing or placeholder super-categories (N/D).
+     * Targets items with missing or placeholder super-categories (N/D, #N/D, Non Défini).
      */
     fun performAudit() {
         viewModelScope.launch {
-            // We use the non-limited search function we added for batch processing
-            val allItems = repository.getAllByTitle("") 
+            // Utilisation de la fonction de récupération totale pour ne rien rater
+            val allItems = repository.getAllItemsSuspend()
             
             itemsToFix = allItems.filter { item ->
-                val currentSuper = item.superCategorie
-                val shouldBeSuper = item.categorie?.let { CategoryMapper.getSuperCategoryFor(it) }
+                val currentSuper = item.superCategorie?.trim() ?: ""
+                val rawCategory = item.categorie?.trim() ?: ""
+                val shouldBeSuper = CategoryMapper.getSuperCategoryFor(rawCategory)
                 
-                // Criteria: has a rule in Mapper AND current value is empty or "N/D"
-                shouldBeSuper != null && (currentSuper.isNullOrBlank() || currentSuper == "N/D" || currentSuper == "Non Défini")
+                // Détection incluant la variante Excel "#N/D"
+                val isPlaceholder = currentSuper.isBlank() || 
+                                   currentSuper.equals("N/D", ignoreCase = true) || 
+                                   currentSuper.equals("#N/D", ignoreCase = true) || 
+                                   currentSuper.equals("Non Défini", ignoreCase = true)
+                
+                shouldBeSuper != null && isPlaceholder
             }
 
-            _auditResult.value = itemsToFix.size
+            _auditResult.postValue(itemsToFix.size)
         }
     }
 
@@ -56,14 +62,15 @@ class CategoryAuditViewModel(private val repository: CollectionRepository) : Vie
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 list.forEach { item ->
-                    val correctSuper = item.categorie?.let { CategoryMapper.getSuperCategoryFor(it) }
+                    val rawCategory = item.categorie?.trim() ?: ""
+                    val correctSuper = CategoryMapper.getSuperCategoryFor(rawCategory)
                     if (correctSuper != null) {
                         repository.update(item.copy(superCategorie = correctSuper))
                     }
                 }
             }
-            _updateStatus.value = list.size
-            _auditResult.value = null // Clear result after success
+            _updateStatus.postValue(list.size)
+            _auditResult.postValue(null)
         }
     }
 }

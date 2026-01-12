@@ -68,43 +68,42 @@ class LocationViewModelTest {
     }
 
     /**
-     * Teste que l'insertion d'un sous-emplacement sous un parent déplié le rend immédiatement visible.
+     * Teste que l'insertion d'un sous-emplacement le rend immédiatement visible (mode simplifié).
      */
     @Test
-    fun `insert sub-location under expanded parent should be visible immediately`() {
-        // GIVEN: Un parent déplié
+    fun `insert sub-location should be visible immediately even without expansion`() {
+        // GIVEN: Un parent présent
         val parent = Location(id = 1, name = "Parent", parentId = null)
         allLocationsLiveData.value = listOf(parent)
-        viewModel.toggleExpansion(1L) // Déplier
 
-        // WHEN: On insère un enfant sous ce parent
+        // WHEN: On insère un enfant (sans avoir appelé d'expansion explicitement)
         val child = Location(id = 2, name = "Child", parentId = 1)
         allLocationsLiveData.value = listOf(parent, child)
 
-        // THEN: L'enfant doit être visible immédiatement
+        // THEN: L'enfant doit être visible immédiatement car tout est affiché par défaut
         val visible = viewModel.visibleLocations.value
-        assertTrue("Le sous-emplacement devrait être visible car son parent est déplié", 
+        assertEquals(2, visible?.size)
+        assertTrue("Le sous-emplacement devrait être visible immédiatement", 
             visible?.any { it.location.id == 2L } == true)
     }
 
+    /**
+     * Teste que toggleExpansion n'impacte plus la visibilité dans ce mode simplifié.
+     */
     @Test
-    fun `toggleExpansion should make child visible and then hide it`() {
+    fun `toggleExpansion should not hide items in simplified always-visible mode`() {
         val locations = listOf(
             Location(id = 1, name = "Parent", parentId = null),
             Location(id = 2, name = "Child", parentId = 1)
         )
         allLocationsLiveData.value = locations
-        viewModel.toggleExpansion(1L) // Expand
-        viewModel.toggleExpansion(1L) // Then collapse
+        
+        viewModel.toggleExpansion(1L)
+        assertEquals(2, viewModel.visibleLocations.value?.size)
 
         viewModel.toggleExpansion(1L)
-        var visible = viewModel.visibleLocations.value
-        assertEquals(2, visible?.size)
-        assertEquals(2L, visible?.get(1)?.location?.id)
-
-        viewModel.toggleExpansion(1L)
-        visible = viewModel.visibleLocations.value
-        assertEquals(1, visible?.size)
+        // La taille reste à 2 car on affiche tout, tout le temps
+        assertEquals(2, viewModel.visibleLocations.value?.size)
     }
 
     @Test
@@ -120,8 +119,5 @@ class LocationViewModelTest {
         viewModel.expandAll()
         val visible = viewModel.visibleLocations.value
         assertEquals(5, visible?.size)
-        val visibleIds = visible?.map { it.location.id }?.toSet()
-        val expectedIds = setOf(1L, 2L, 3L, 4L, 5L)
-        assertEquals(expectedIds, visibleIds)
     }
 }

@@ -91,6 +91,7 @@
               <option name="preferredColumnWidths">
                 <map>
                   <entry key="Duration" value="90" />
+                  <entry key="Pixel-DevInstrumentedTest" value="120" />
                   <entry key="Pixel_-User_Testing" value="120" />
                   <entry key="Tests" value="360" />
                 </map>

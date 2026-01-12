@@ -57,16 +57,30 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         cr.tirage?.takeIf { it.isNotBlank() }?.let { conds.add("tirage LIKE ?"); args.add("%$it%") }
         cr.dimensions?.takeIf { it.isNotBlank() }?.let { conds.add("dimensions LIKE ?"); args.add("%$it%") }
         cr.isPossessed?.let { conds.add("isPossessed = ?"); args.add(if (it) 1 else 0) }
-        val wh = if (conds.isNotEmpty()) " WHERE ${conds.joinToString(" AND ")}" else ""
-        val countQ = androidx.sqlite.db.SimpleSQLiteQuery("SELECT COUNT(*) FROM collection_items$wh", args.toTypedArray())
-        val total = collectionDao.countAdvancedSearch(countQ)
-        val dataQ = androidx.sqlite.db.SimpleSQLiteQuery("SELECT * FROM collection_items$wh ORDER BY annee DESC, mois DESC LIMIT 200", args.toTypedArray())
-        val items = collectionDao.advancedSearch(dataQ)
+        
+        val hasTextCriteria = conds.isNotEmpty()
+        val wh = if (hasTextCriteria) " WHERE ${conds.joinToString(" AND ")}" else ""
+        
+        val items = if (qE != null && !hasTextCriteria) {
+            collectionDao.getAllItemsWithEmbeddings()
+        } else {
+            val dataQ = androidx.sqlite.db.SimpleSQLiteQuery("SELECT * FROM collection_items$wh ORDER BY annee DESC, mois DESC LIMIT 200", args.toTypedArray())
+            collectionDao.advancedSearch(dataQ)
+        }
+
+        val total = if (hasTextCriteria) {
+            val countQ = androidx.sqlite.db.SimpleSQLiteQuery("SELECT COUNT(*) FROM collection_items$wh", args.toTypedArray())
+            collectionDao.countAdvancedSearch(countQ)
+        } else items.size
+
         val res = if (qE != null) {
-            items.filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
+            val filtered = items.filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
                 .map { SearchResultItem(it, cosineSimilarity(qE, it.imageEmbedding!!).toDouble()) }
-                .filter { it.similarity != null && it.similarity >= 0.65 }.sortedByDescending { it.similarity }.take(5)
+                .filter { it.similarity != null && it.similarity >= 0.65 }
+                .sortedByDescending { it.similarity }
+            return AdvancedSearchResult(filtered.take(10), filtered.size)
         } else items.map { SearchResultItem(it) }
+        
         return AdvancedSearchResult(res, total)
     }
 
