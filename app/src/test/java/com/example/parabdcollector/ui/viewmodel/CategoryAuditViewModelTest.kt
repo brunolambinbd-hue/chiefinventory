@@ -40,7 +40,8 @@ class CategoryAuditViewModelTest {
             createItem(2, "Affiches", ""),                // Empty -> fix
             createItem(3, "Travaux pour Spirou", "N/D")   // N/D -> fix
         )
-        whenever(repository.getAllByTitle("")).thenReturn(mockItems)
+        // Correction : le ViewModel appelle maintenant getAllItemsSuspend()
+        whenever(repository.getAllItemsSuspend()).thenReturn(mockItems)
 
         // WHEN: Lancement de l'audit
         viewModel.performAudit()
@@ -54,13 +55,17 @@ class CategoryAuditViewModelTest {
     fun `fixInconsistencies should update items with correct super-category from Mapper`() = runTest {
         // GIVEN: Un objet à réparer détecté par l'audit
         val itemToFix = createItem(1, "Affiches", "N/D")
-        whenever(repository.getAllByTitle("")).thenReturn(listOf(itemToFix))
+        // Correction : le ViewModel appelle maintenant getAllItemsSuspend()
+        whenever(repository.getAllItemsSuspend()).thenReturn(listOf(itemToFix))
         
         viewModel.performAudit()
         advanceUntilIdle()
 
         // WHEN: Réparation
         viewModel.fixInconsistencies()
+        
+        // Correction : petit délai pour laisser le switch de contexte (Dispatchers.IO) s'opérer
+        kotlinx.coroutines.delay(100)
         advanceUntilIdle()
 
         // THEN: Le repository doit recevoir un update avec "Image" (règle pour Affiches)

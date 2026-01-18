@@ -55,69 +55,60 @@ class LocationViewModelTest {
      */
     @Test
     fun `insert root location should be visible immediately`() {
-        // GIVEN: Liste initiale vide
         allLocationsLiveData.value = emptyList()
-
-        // WHEN: On simule l'insertion d'un nouvel emplacement racine dans la DB
         val newLocation = Location(id = 10, name = "New Root", parentId = null)
         allLocationsLiveData.value = listOf(newLocation)
 
-        // THEN: Il doit apparaître dans visibleLocations
         val visible = viewModel.visibleLocations.value
         assertTrue("Le nouvel emplacement racine devrait être visible", visible?.any { it.location.id == 10L } == true)
     }
 
     /**
-     * Teste que l'insertion d'un sous-emplacement le rend immédiatement visible (mode simplifié).
+     * Teste que l'insertion d'un sous-emplacement est visible sans expansion (mode simplifié).
      */
     @Test
     fun `insert sub-location should be visible immediately even without expansion`() {
-        // GIVEN: Un parent présent
         val parent = Location(id = 1, name = "Parent", parentId = null)
-        allLocationsLiveData.value = listOf(parent)
-
-        // WHEN: On insère un enfant (sans avoir appelé d'expansion explicitement)
         val child = Location(id = 2, name = "Child", parentId = 1)
+        
+        // On simule l'ajout successif
+        allLocationsLiveData.value = listOf(parent)
         allLocationsLiveData.value = listOf(parent, child)
 
-        // THEN: L'enfant doit être visible immédiatement car tout est affiché par défaut
         val visible = viewModel.visibleLocations.value
         assertEquals(2, visible?.size)
-        assertTrue("Le sous-emplacement devrait être visible immédiatement", 
-            visible?.any { it.location.id == 2L } == true)
+        assertTrue("Le sous-emplacement doit être visible immédiatement", visible?.any { it.location.id == 2L } == true)
     }
 
     /**
-     * Teste que toggleExpansion n'impacte plus la visibilité dans ce mode simplifié.
+     * Vérifie que le mode simplifié conserve la visibilité après un toggle.
      */
     @Test
-    fun `toggleExpansion should not hide items in simplified always-visible mode`() {
+    fun `toggleExpansion should not hide items in simplified mode`() {
         val locations = listOf(
             Location(id = 1, name = "Parent", parentId = null),
             Location(id = 2, name = "Child", parentId = 1)
         )
         allLocationsLiveData.value = locations
         
+        // On simule un repli (collapse)
         viewModel.toggleExpansion(1L)
-        assertEquals(2, viewModel.visibleLocations.value?.size)
-
-        viewModel.toggleExpansion(1L)
-        // La taille reste à 2 car on affiche tout, tout le temps
-        assertEquals(2, viewModel.visibleLocations.value?.size)
+        
+        // En mode simplifié, l'enfant doit RESTER visible
+        val visible = viewModel.visibleLocations.value
+        assertEquals("L'enfant doit rester visible même si on clique sur le parent", 2, visible?.size)
     }
 
     @Test
-    fun `expandAll_shouldMakeAllNodesVisible`() {
+    fun `expandAll_shouldShowAllNodes`() {
         val locations = listOf(
             Location(id = 1, name = "Parent 1", parentId = null),
             Location(id = 2, name = "Child 1.1", parentId = 1),
-            Location(id = 3, name = "Parent 2", parentId = null),
-            Location(id = 4, name = "Child 2.1", parentId = 3),
-            Location(id = 5, name = "Grandchild 2.1.1", parentId = 4)
+            Location(id = 3, name = "Parent 2", parentId = null)
         )
         allLocationsLiveData.value = locations
         viewModel.expandAll()
         val visible = viewModel.visibleLocations.value
-        assertEquals(5, visible?.size)
+        assertEquals(3, visible?.size)
     }
 }

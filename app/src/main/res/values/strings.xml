@@ -55,6 +55,7 @@
     <string name="item_purchase_location_hint">Lieu d\'achat</string>
     <string name="item_notes_hint">Description</string>
     <string name="item_location_hint">Localisation</string>
+    <string name="none">Aucun</string>
 
     <!-- Textes pour l\'écran de recherche -->
     <string name="search_button">Rechercher</string>

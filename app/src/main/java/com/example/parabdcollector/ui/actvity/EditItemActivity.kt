@@ -124,13 +124,16 @@ class EditItemActivity : AppCompatActivity() {
     private fun setupLocationDropdown() {
         viewModel.displayLocations.observe(this) { locs ->
             displayLocs = locs
-            val names = locs.map { "    ".repeat(it.depth) + it.location.name }
+            // Ajout de l'option "Aucun" en tête de liste
+            val names = mutableListOf(getString(R.string.none))
+            names.addAll(locs.map { "    ".repeat(it.depth) + it.location.name })
             binding.etLocation.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, names))
             updateLocationUI()
         }
 
         binding.etLocation.setOnItemClickListener { _, _, position, _ ->
-            selectedLocId = displayLocs.getOrNull(position)?.location?.id
+            // Si position == 0, on remet à null, sinon on prend l'ID correspondant (position - 1)
+            selectedLocId = if (position == 0) null else displayLocs.getOrNull(position - 1)?.location?.id
             updateLocationUI()
         }
     }
@@ -174,6 +177,12 @@ class EditItemActivity : AppCompatActivity() {
     }
 
     private fun updateLocationUI() {
+        // Cas : Aucun emplacement
+        if (selectedLocId == null) {
+            binding.etLocation.setText("", false)
+            return
+        }
+
         if (displayLocs.isNotEmpty()) {
             val locMap = displayLocs.associateBy { it.location.id }
             val path = mutableListOf<String>()

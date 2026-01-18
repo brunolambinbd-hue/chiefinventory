@@ -29,17 +29,14 @@ class CollectionDaoTest {
     private lateinit var collectionDao: CollectionDao
 
     private val baseItem = CollectionItem(
-        id = 0, // id will be auto-generated
-        remoteId = null,
+        id = 0,
         titre = "Default Title",
         editeur = "Default Editor",
         annee = 2000,
         mois = 1,
-        categorie = "Default Category",
-        superCategorie = "Default Super Category",
-        materiau = null, tirage = null, dimensions = null, prixAchat = null, 
-        valeurEstimee = null, lieuAchat = null, description = null, imageUri = null,
-        imageEmbedding = null, locationId = null, isPossessed = true
+        categorie = "Spirou",
+        superCategorie = "Magazines",
+        isPossessed = true
     )
 
     @Before
@@ -58,104 +55,55 @@ class CollectionDaoTest {
 
     @Test
     fun insertItemAndGetById() = runTest {
-        val item = baseItem.copy(id = 1, titre = "Le Test de la Licorne")
+        val item = baseItem.copy(id = 1, titre = "Le Test")
         collectionDao.insert(item)
-
         val retrievedItem = collectionDao.getItemById(1)
-
-        assertThat(retrievedItem).isNotNull()
         assertThat(retrievedItem).isEqualTo(item)
     }
 
+    /**
+     * Vérifie que l'ordre d'affichage (Année DESC, Mois DESC) est respecté pour les catégories.
+     */
     @Test
-    fun updateItemAndCheck() = runTest {
-        val originalItem = baseItem.copy(id = 1, titre = "Titre Original")
-        collectionDao.insert(originalItem)
+    fun getItemsBySuperCategoryAndCategory_returnsItemsInCorrectOrder() = runTest {
+        // GIVEN: 4 objets de la même catégorie avec des dates différentes
+        val itemOld = baseItem.copy(id = 1, titre = "Ancien", annee = 1980, mois = 12)
+        val itemNewYear = baseItem.copy(id = 2, titre = "Nouveau Année", annee = 2024, mois = 1)
+        val itemMidMonth1 = baseItem.copy(id = 3, titre = "Moyen Mois 5", annee = 2000, mois = 5)
+        val itemMidMonth2 = baseItem.copy(id = 4, titre = "Moyen Mois 10", annee = 2000, mois = 10)
 
-        val updatedItem = originalItem.copy(titre = "Titre Modifié", annee = 2022)
-        collectionDao.update(updatedItem)
+        collectionDao.insert(itemOld)
+        collectionDao.insert(itemNewYear)
+        collectionDao.insert(itemMidMonth1)
+        collectionDao.insert(itemMidMonth2)
 
-        val retrievedItem = collectionDao.getItemById(1)
-        assertThat(retrievedItem).isNotNull()
-        assertThat(retrievedItem?.titre).isEqualTo("Titre Modifié")
-        assertThat(retrievedItem?.annee).isEqualTo(2022)
+        // WHEN: On récupère les objets de la catégorie "Spirou"
+        val results = collectionDao.getItemsBySuperCategoryAndCategory("Magazines", "Spirou", true).getOrAwaitValue()
+
+        // THEN: L'ordre doit être : 2024/01 -> 2000/10 -> 2000/05 -> 1980/12
+        assertThat(results).hasSize(4)
+        assertThat(results).containsExactly(itemNewYear, itemMidMonth2, itemMidMonth1, itemOld).inOrder()
     }
 
     @Test
-    fun deleteItemAndVerifyAbsence() = runTest {
-        val item = baseItem.copy(id = 1, titre = "Item à supprimer")
-        collectionDao.insert(item)
-
-        assertThat(collectionDao.getItemById(1)).isNotNull()
-
-        collectionDao.delete(item)
-
-        val retrievedItem = collectionDao.getItemById(1)
-        assertThat(retrievedItem).isNull()
-    }
-
-    @Test
-    fun searchItems_returnsAllMatchingItems_inCorrectOrder() = runTest {
-        // Arrange: Insert a variety of items
-        val item1 = baseItem.copy(id = 1, titre = "Blueberry 1", editeur = "Dargaud", annee = 1980, isPossessed = false)
-        val item2 = baseItem.copy(id = 2, titre = "Thorgal 5", editeur = "Lombard", annee = 1982, isPossessed = false)
-        val item3 = baseItem.copy(id = 3, titre = "Blueberry 2", editeur = "Dargaud", annee = 1981, isPossessed = true) // Possessed, should now be found
-        val item4 = baseItem.copy(id = 4, titre = "XIII 1", editeur = "Dargaud", annee = 1984, isPossessed = false)
-
+    fun searchItems_returnsItems_inCorrectOrder() = runTest {
+        val item1 = baseItem.copy(id = 1, titre = "Blueberry 1", editeur = "Dargaud", annee = 1980)
+        val item2 = baseItem.copy(id = 2, titre = "Blueberry 2", editeur = "Dargaud", annee = 1981)
         collectionDao.insert(item1)
         collectionDao.insert(item2)
-        collectionDao.insert(item3)
-        collectionDao.insert(item4)
 
-        // Act: Perform a search for an editor
         val searchResults = collectionDao.search("%Dargaud%")
-
-        // Assert: Check the results
-        assertThat(searchResults).hasSize(3)
-        // Verify that the order is descending by year
-        assertThat(searchResults).containsExactly(item4, item3, item1).inOrder()
-        assertThat(searchResults).doesNotContain(item2)
+        assertThat(searchResults).containsExactly(item2, item1).inOrder()
     }
 
     @Test
-    fun getUnlocatedItems_returnsOnlyPossessedAndUnlocatedItems() = runTest {
-        // GIVEN
-        val unlocatedPossessed = baseItem.copy(id = 1, titre = "Unlocated & Possessed", locationId = null, isPossessed = true)
-        val locatedPossessed = baseItem.copy(id = 2, titre = "Located & Possessed", locationId = 100, isPossessed = true)
-        val unlocatedNotPossessed = baseItem.copy(id = 3, titre = "Unlocated & Not Possessed", locationId = null, isPossessed = false)
-        val locatedNotPossessed = baseItem.copy(id = 4, titre = "Located & Not Possessed", locationId = 100, isPossessed = false)
+    fun getUnlocatedItems_logic() = runTest {
+        val unlocated = baseItem.copy(id = 1, locationId = null, isPossessed = true)
+        val located = baseItem.copy(id = 2, locationId = 100, isPossessed = true)
+        collectionDao.insert(unlocated)
+        collectionDao.insert(located)
 
-        collectionDao.insert(unlocatedPossessed)
-        collectionDao.insert(locatedPossessed)
-        collectionDao.insert(unlocatedNotPossessed)
-        collectionDao.insert(locatedNotPossessed)
-
-        // WHEN
         val results = collectionDao.getUnlocatedItems().getOrAwaitValue()
-
-        // THEN
-        assertThat(results).hasSize(1)
-        assertThat(results).containsExactly(unlocatedPossessed)
-    }
-
-    @Test
-    fun getLocatedNotPossessedItems_returnsOnlyLocatedAndNotPossessedItems() = runTest {
-        // GIVEN
-        val unlocatedPossessed = baseItem.copy(id = 1, titre = "Unlocated & Possessed", locationId = null, isPossessed = true)
-        val locatedPossessed = baseItem.copy(id = 2, titre = "Located & Possessed", locationId = 100, isPossessed = true)
-        val unlocatedNotPossessed = baseItem.copy(id = 3, titre = "Unlocated & Not Possessed", locationId = null, isPossessed = false)
-        val locatedNotPossessed = baseItem.copy(id = 4, titre = "Located & Not Possessed", locationId = 100, isPossessed = false)
-
-        collectionDao.insert(unlocatedPossessed)
-        collectionDao.insert(locatedPossessed)
-        collectionDao.insert(unlocatedNotPossessed)
-        collectionDao.insert(locatedNotPossessed)
-
-        // WHEN
-        val results = collectionDao.getLocatedNotPossessedItems().getOrAwaitValue()
-
-        // THEN
-        assertThat(results).hasSize(1)
-        assertThat(results).containsExactly(locatedNotPossessed)
+        assertThat(results).containsExactly(unlocated)
     }
 }

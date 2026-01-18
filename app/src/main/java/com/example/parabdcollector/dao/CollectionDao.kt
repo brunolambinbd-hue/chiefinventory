@@ -1,13 +1,7 @@
 package com.example.parabdcollector.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.RawQuery
-import androidx.room.Update
+import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.example.parabdcollector.model.CollectionItem
 
@@ -29,10 +23,10 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE locationId = :locationId")
     fun getItemsByLocationId(locationId: Long): LiveData<List<CollectionItem>>
 
-    @Query("SELECT * FROM collection_items WHERE isPossessed = 1")
+    @Query("SELECT * FROM collection_items WHERE isPossessed = 1 ORDER BY annee DESC, mois DESC")
     fun getAllPossessed(): LiveData<List<CollectionItem>>
 
-    @Query("SELECT * FROM collection_items WHERE isPossessed = 0")
+    @Query("SELECT * FROM collection_items WHERE isPossessed = 0 ORDER BY annee DESC, mois DESC")
     fun getAllSought(): LiveData<List<CollectionItem>>
 
     @Query("SELECT * FROM collection_items WHERE locationId IS NULL AND isPossessed = 1")
@@ -41,15 +35,9 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE locationId IS NOT NULL AND isPossessed = 0")
     fun getLocatedNotPossessedItems(): LiveData<List<CollectionItem>>
 
-    /**
-     * Retrieves the 50 most recently updated items that are possessed.
-     */
     @Query("SELECT * FROM collection_items WHERE isPossessed = 1 ORDER BY updatedAt DESC LIMIT 50")
     fun getRecentPossessed(): LiveData<List<CollectionItem>>
 
-    /**
-     * Retrieves the 50 most recently updated items that have a location.
-     */
     @Query("SELECT * FROM collection_items WHERE locationId IS NOT NULL ORDER BY updatedAt DESC LIMIT 50")
     fun getRecentLocated(): LiveData<List<CollectionItem>>
 
@@ -121,7 +109,7 @@ interface CollectionDao {
     """)
     suspend fun getCategoryInfoForSuperCategorySuspend(superCategory: String): List<CategoryInfoFromDb>
 
-    @Query("SELECT * FROM collection_items WHERE superCategorie = :superCategory AND categorie = :category AND isPossessed = :isPossessed")
+    @Query("SELECT * FROM collection_items WHERE superCategorie = :superCategory AND categorie = :category AND isPossessed = :isPossessed ORDER BY annee DESC, mois DESC")
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>>
     
     @Query("SELECT id, titre, imageUri, imageEmbedding FROM collection_items")

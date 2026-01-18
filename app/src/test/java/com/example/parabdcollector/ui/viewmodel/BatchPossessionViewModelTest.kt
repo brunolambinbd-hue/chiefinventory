@@ -57,14 +57,17 @@ class BatchPossessionViewModelTest {
         whenever(repository.getAllByTitle(any())).thenReturn(listOf(item))
         
         viewModel.analyzeSeries("Spirou", 1500, 1500)
-        advanceUntilIdle() // INDISPENSABLE : attendre que l'objet soit ajouté à la liste interne
+        advanceUntilIdle() 
         
         val targetLocationId = 100L
         viewModel.selectedLocationId = targetLocationId
 
         // WHEN: Application de la mise à jour
         viewModel.applyUpdate()
-        advanceUntilIdle() // Attendre la fin de la mise à jour
+        
+        // Attente pour le changement de contexte vers Dispatchers.IO
+        kotlinx.coroutines.delay(100)
+        advanceUntilIdle()
 
         // THEN: Le repository doit avoir été appelé
         verify(repository).update(argThat { 
