@@ -28,7 +28,8 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `locations_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `parentId` INTEGER)")
                 val cursor = database.query("PRAGMA table_info(locations)")
                 val columns = mutableListOf<String>()
-                while (cursor.moveToNext()) { columns.add(cursor.getString(cursor.getColumnIndex("name"))) }
+                val nameIndex = cursor.getColumnIndexOrThrow("name")
+                while (cursor.moveToNext()) { columns.add(cursor.getString(nameIndex)) }
                 cursor.close()
                 val parentSource = when {
                     columns.contains("parentId") && columns.contains("parentLocationId") -> "COALESCE(parentId, parentLocationId)"

@@ -27,7 +27,7 @@ class InventoryResultActivity : AppCompatActivity() {
     private val viewModel: InventoryViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository!!, app.locationRepository!!)
+        ViewModelFactory(app, app.repository, app.locationRepository!!)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +46,7 @@ class InventoryResultActivity : AppCompatActivity() {
             intent.getParcelableArrayListExtra(EXTRA_SIMILAR_ITEMS, SearchResultItem::class.java)
         } else {
             @Suppress("DEPRECATION")
-            intent.getParcelableArrayListExtra<SearchResultItem>(EXTRA_SIMILAR_ITEMS)
+            intent.getParcelableArrayListExtra(EXTRA_SIMILAR_ITEMS)
         }
 
         setupRecyclerView()

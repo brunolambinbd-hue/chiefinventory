@@ -79,12 +79,8 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         mois = month,
                         categorie = category,
                         superCategorie = superCategorie,
-                        materiau = null,
                         tirage = parsedInfo.tirage,
                         dimensions = parsedInfo.dimensions,
-                        prixAchat = null,
-                        valeurEstimee = null,
-                        lieuAchat = null,
                         description = description,
                         imageUri = imageUrl,
                         imageEmbedding = existingItem?.imageEmbedding, // On préserve l'ancienne signature

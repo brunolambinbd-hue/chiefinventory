@@ -20,7 +20,9 @@ import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.data.AppDatabase
+import com.example.parabdcollector.model.AdvancedSearchResult
 import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
 import com.example.parabdcollector.ui.actvity.SearchActivity
@@ -29,10 +31,15 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.allOf
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /**
  * Instrumented UI and integration tests for the [SearchActivity].
@@ -122,26 +129,101 @@ class SearchActivityTest {
             .check(doesNotExist())
     }
 
-//    @Test
-//    fun searchError_navigatesToCrashActivity() {
-//        // GIVEN a repository that will always throw an unhandled error
-//        val errorRepository = object : CollectionRepository(dao) {
-//            override suspend fun search(query: String): List<CollectionItem> {
-//                // Use a non-Exception Throwable to bypass the ViewModel's catch block
-//                // and trigger the GlobalExceptionHandler.
-//                throw Error("Simulated fatal database error")
-//            }
-//        }
-//        val app = ApplicationProvider.getApplicationContext<CollectionApplication>()
-//        app.repository = errorRepository
-//
-//        // WHEN the activity is launched and a search is performed that will crash
-//        ActivityScenario.launch(SearchActivity::class.java)
-//        onView(withId(R.id.et_search_simple)).perform(replaceText("any query"), closeSoftKeyboard())
-//        onView(withId(R.id.btn_search)).perform(click())
-//
-//        // THEN the CrashActivity should be displayed
-//        onView(withId(R.id.crash_activity_root)).check(matches(isDisplayed()))
-//        onView(withId(R.id.tv_crash_title)).check(matches(withText(R.string.crash_title)))
-//    }
+    /**
+     * Test specifically verifying that image search works with both
+     * FLOAT32 and Quantized signatures.
+     */
+    @Test
+    fun imageSearch_shouldHandleBothSignatureFormats() = runTest {
+        // 1. GIVEN: Two items, one with FLOAT32 signature, one with Quantized signature
+        // Using 4-dimensional embeddings for simplicity in test
+        val floatSignature = floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f)
+        val floatBytes = ByteBuffer.allocate(floatSignature.size * 4)
+            .order(ByteOrder.LITTLE_ENDIAN)
+            .apply { for (f in floatSignature) putFloat(f) }
+            .array()
+
+        val quantizedBytes = byteArrayOf(127, 0, 0, 0) // Max value at first index, similar to floatSignature
+
+        val itemFloat = CollectionItem(
+            id = 10, titre = "Float Item", imageEmbedding = floatBytes,
+            isPossessed = true, editeur = "", annee = 2023, description = ""
+        )
+        val itemQuant = CollectionItem(
+            id = 11, titre = "Quant Item", imageEmbedding = quantizedBytes,
+            isPossessed = true, editeur = "", annee = 2023, description = ""
+        )
+
+        dao.insert(itemFloat)
+        dao.insert(itemQuant)
+
+        // 2. Mocking the repository to simulate an image search with a similar float array
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val app = context as CollectionApplication
+        val mockRepo = object : CollectionRepository(dao) {
+            override suspend fun advancedSearch(cr: SearchCriteria, qE: FloatArray?): AdvancedSearchResult {
+                // We delegate to the super class to test the actual similarity logic we modified
+                return super.advancedSearch(cr, qE)
+            }
+        }
+        app.repository = mockRepo
+
+        // 3. WHEN & THEN: Verify the logic by directly calling the repo (instrumented test of the logic)
+        // Image to search: [1.0, 0, 0, 0]
+        val searchEmbedding = floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f)
+
+        val result = mockRepo.advancedSearch(SearchCriteria(), searchEmbedding)
+
+        // Both should be found because the logic now handles both formats
+        val foundTitles = result.results.map { it.item.titre }
+        assertTrue("Float item should be found", foundTitles.contains("Float Item"))
+        assertTrue("Quant item should be found", foundTitles.contains("Quant Item"))
+    }
+
+    /**
+     * Test verifying the comparison between a "downloaded" image signature
+     * and a "scanned" image signature using cosine similarity.
+     */
+    @Test
+    fun imageSearch_shouldFindDownloadedItem_whenSearchingWithSimilarSignature() = runTest {
+        // 1. GIVEN: An item representing one downloaded from a site with its signature.
+        // We simulate a 128-dim vector where values are slightly noisy.
+        val downloadedSignature = FloatArray(128) { 0.1f }
+        downloadedSignature[0] = 0.9f // Key feature
+        
+        val floatBytes = ByteBuffer.allocate(downloadedSignature.size * 4)
+            .order(ByteOrder.LITTLE_ENDIAN)
+            .apply { for (f in downloadedSignature) putFloat(f) }
+            .array()
+
+        val importedItem = CollectionItem(
+            id = 100,
+            titre = "Imported BD from Website",
+            imageEmbedding = floatBytes,
+            isPossessed = true,
+            editeur = "Frank Pé",
+            annee = 2024,
+            description = "Imported via CSV"
+        )
+        dao.insert(importedItem)
+
+        // 2. WHEN: We search with a "scanned" signature (simulated here) that is very similar.
+        val scannedSignature = FloatArray(128) { 0.11f }
+        scannedSignature[0] = 0.85f // Close to 0.9 but with some "sensor noise"
+        
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val app = context as CollectionApplication
+        
+        // Use the real repository logic to verify the similarity threshold
+        val results = app.repository.advancedSearch(SearchCriteria(), scannedSignature)
+
+        // 3. THEN: The item should be found.
+        val matchingResult = results.results.find { it.item.titre == "Imported BD from Website" }
+        assertNotNull("The imported item should be in the search results", matchingResult)
+        
+        val similarity = matchingResult?.similarity ?: 0.0
+        assertTrue("Similarity ($similarity) should be above the 0.65 threshold", similarity >= 0.65)
+        // With these values, cosine similarity should be quite high (~0.9+)
+        assertTrue("Similarity ($similarity) should be high for very close vectors", similarity > 0.9)
+    }
 }

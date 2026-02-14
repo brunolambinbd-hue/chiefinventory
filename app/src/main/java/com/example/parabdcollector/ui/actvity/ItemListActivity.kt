@@ -13,7 +13,6 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityItemListBinding
@@ -33,7 +32,7 @@ class ItemListActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository!!, app.locationRepository!!)
+        ViewModelFactory(app, app.repository, app.locationRepository!!)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -150,7 +149,6 @@ class ItemListActivity : AppCompatActivity() {
         const val EXTRA_CATEGORY = "category"
         const val EXTRA_LOCATION_ID = "location_id"
         const val EXTRA_LOCATION_NAME = "location_name"
-        const val EXTRA_ROOT_TITLE = "root_title"
         const val TYPE_POSSESSED = 1
         const val TYPE_SOUGHT = 2
         const val TYPE_UNLOCATED = 3

@@ -2,7 +2,6 @@ package com.example.parabdcollector.ui.adapter
 
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat

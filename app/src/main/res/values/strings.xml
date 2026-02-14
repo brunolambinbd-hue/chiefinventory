@@ -80,12 +80,18 @@
         <item quantity="other">%1$d résultats pour \"%2$s\"</item>
     </plurals>
     <string name="similarity_score_format">Similarité : %.1f%%</string>
-    <string name="search_status_hint">Statut</string>
+    <string name="search_status_hint" translatable="false">Statut</string>
     <string-array name="search_status_options">
         <item>Tous</item>
         <item>Possédés</item>
         <item>Recherchés</item>
     </string-array>
+    <string name="gallery">Galerie</string>
+
+    <string name="search_results_summary_format" translatable="false">%1$s%2$s</string>
+    <string name="search_visual_matches"> — %1$d correspondance(s) visuelle(s)</string>
+    <string name="search_displayed_count"> — %1$d affichés</string>
+    <string name="search_no_visual_matches">Aucune correspondance visuelle trouvée pour cette photo</string>
 
     <!-- Textes pour les menus -->
     <string name="menu_search_title">Recherche</string>
@@ -114,7 +120,9 @@
 
     <!-- Assistant de Mise à jour par lot -->
     <string name="batch_update_title">Mise à jour par lot (Séries)</string>
+    <string name="batch_update_description">Marquer comme \'Possédés\' et attribuer un emplacement à une série d\'objets.</string>
     <string name="batch_series_name_hint">Nom de la série (ex: Spirou)</string>
+    <string name="batch_default_series_name">Spirou</string>
     <string name="batch_start_number_hint">Numéro de début</string>
     <string name="batch_end_number_hint">Numéro de fin</string>
     <string name="batch_analyze_button">Analyser la série</string>
@@ -131,7 +139,12 @@
     <string name="category_audit_fix_button">Réparer les incohérences</string>
     <string name="category_audit_summary_format">Trouvé : %1$d objet(s) avec une Super-Catégorie erronée ou manquante (ex: N/D).</string>
     <string name="category_audit_no_issues">Toutes les catégories sont cohérentes. Aucune réparation nécessaire.</string>
-    <string name="category_audit_success_format">%1$d objets ont été reclassés avec succès.</string>
+
+    <plurals name="category_audit_success_format">
+        <item quantity="one">%1$d objet a été reclassé avec succès.</item>
+        <item quantity="many">%1$d objets ont été reclassés avec succès.</item>
+        <item quantity="other">%1$d objets ont été reclassés avec succès.</item>
+    </plurals>
 
     <!-- Messages (Toast) -->
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
@@ -153,12 +166,15 @@
     <string name="signature_preview_format">[%1$s,…]</string>
     <string name="search_no_similar_results">Aucun résultat suffisamment similaire trouvé (seuil &gt; 65%)</string>
     <string name="annuler">Annuler</string>
+    <string name="ajouter">Ajouter</string>
+    <string name="modifier">Modifier</string>
     <string name="la_racine">À la racine</string>
     <string name="nouvel_emplacement">Nouvel Emplacement</string>
     <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour \"%1$s\"</string>
     <string name="modifier_l_emplacement">Modifier l\'emplacement</string>
     <string name="supprimer_l_emplacement">Supprimer l\'emplacement</string>
     <string name="delete_location_confirmation_message">Êtes-vous sûr de vouloir supprimer \"%1$s\"? Cette action est irréversible.</string>
+    <string name="move_location_to_title">Déplacer \"%1$s\" vers…</string>
     <string name="modifier_le_nom">Modifier le nom</string>
     <string name="ajouter_un_sous_emplacement">Ajouter un sous-emplacement</string>
     <string name="changer_de_parent">Changer de parent</string>
@@ -178,14 +194,15 @@
 
     <!-- Crash Activity -->
     <string name="crash_title">Oups ! Une erreur est survenue</string>
-    <string name="crash_subtitle">L\'application a rencontré un problème inattendu. Voici les détails techniques :</string>
+    <string name="crash_subtitle">L\'application a rencontré un problem inattendu. Voici les détails techniques :</string>
     <string name="restart_app">Redémarrer l\'application</string>
     <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
     <string name="crash_info">Info de Crash</string>
     <string name="importation_en_cours">Importation en cours…</string>
-    <string name="affichage_de_tous_les_objets_impl_menter">Affichage de tous les objets (à implémenter)</string>
+    <string name="Display_of_all_objets_to_be_implemented">Affichage de tous les objets (à implémenter)</string>
     <string name="possessed_status">POSSÉDÉ</string>
     <string name="sought_status">RECHERCHÉ</string>
+    <string name="category_audit_success_format">%1$d objets ont été reclassés avec succès.</string>
 
 
 </resources>

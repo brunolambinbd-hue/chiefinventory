@@ -22,7 +22,7 @@ import com.example.parabdcollector.utils.*
 class SearchActivity : AppCompatActivity() {
     private lateinit var b: ActivitySearchBinding; private lateinit var ad: CollectionAdapter; private lateinit var img: ImageCaptureUtil
     private var desc = ""; private var bmp: Bitmap? = null; private var simple = true; private var q: String? = null; private var crit: SearchCriteria? = null
-    private val vm: SearchViewModel by viewModels { val a = application as CollectionApplication; ViewModelFactory(a, a.repository!!, a.locationRepository!!) }
+    private val vm: SearchViewModel by viewModels { val a = application as CollectionApplication; ViewModelFactory(a, a.repository, a.locationRepository!!) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,13 +62,14 @@ class SearchActivity : AppCompatActivity() {
 
     private fun validateSearchButton() {
         val isAdv = b.advancedSearchFields.isVisible
-        var ok = false
-        if (isAdv) {
+        val ok = if (isAdv) {
             val fs = listOf(b.etSearchTitle, b.etSearchSuperCategory, b.etSearchCategory, b.etSearchEditor, b.etSearchYear, b.etSearchMonth, b.etSearchDescription, b.etSearchTirage, b.etSearchDimensions)
             val anyF = fs.any { !it.text.isNullOrBlank() }
-            val st = b.etSearchStatus.text.toString(); val stOk = !st.isNullOrBlank() && st != resources.getStringArray(R.array.search_status_options)[0]
-            ok = anyF || bmp != null || stOk
-        } else ok = !b.etSearchSimple.text.isNullOrBlank()
+            val st = b.etSearchStatus.text.toString(); val stOk = st.isNotBlank() && st != resources.getStringArray(R.array.search_status_options)[0]
+            anyF || bmp != null || stOk
+        } else {
+            !b.etSearchSimple.text.isNullOrBlank()
+        }
         b.btnSearch.isEnabled = ok
     }
 
@@ -90,13 +91,15 @@ class SearchActivity : AppCompatActivity() {
         if (total > 0) {
             val base = resources.getQuantityString(R.plurals.search_results_count_with_criteria, total, total, desc)
             val info = when {
-                bmp != null -> " — $displayed correspondance(s) visuelle(s)"
-                total > displayed -> " — $displayed affichés"
+                bmp != null -> getString(R.string.search_visual_matches, displayed)
+                total > displayed -> getString(R.string.search_displayed_count, displayed)
                 else -> ""
             }
-            b.tvResultsSummary.text = "$base$info"; b.tvResultsSummary.isVisible = true
+            b.tvResultsSummary.text = getString(R.string.search_results_summary_format, base, info)
+            b.tvResultsSummary.isVisible = true
         } else if (bmp != null) {
-            b.tvResultsSummary.text = "Aucune correspondance visuelle trouvée pour cette photo"; b.tvResultsSummary.isVisible = true
+            b.tvResultsSummary.text = getString(R.string.search_no_visual_matches)
+            b.tvResultsSummary.isVisible = true
         } else b.tvResultsSummary.isGone = true
     }
 
@@ -146,7 +149,7 @@ class SearchActivity : AppCompatActivity() {
             val o = resources.getStringArray(R.array.search_status_options); val s = b.etSearchStatus.text.toString()
             val isP = when (s) { o[1] -> true; o[2] -> false; else -> null }
             val c = SearchCriteria(b.etSearchTitle.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchSuperCategory.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchCategory.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchEditor.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchYear.text.toString().trim().toIntOrNull(), b.etSearchMonth.text.toString().trim().toIntOrNull(), b.etSearchDescription.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }, isP)
-            crit = c; simple = false; 
+            crit = c; simple = false;
             val prefix = if (bmp != null) "Image + " else ""
             desc = prefix + listOfNotNull(c.titre, s, c.superCategorie, c.categorie).joinToString(", ").ifBlank { "Avancée" }
             vm.advancedSearch(c, bmp)

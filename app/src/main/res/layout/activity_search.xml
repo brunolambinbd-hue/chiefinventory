@@ -79,7 +79,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Galerie"
+                        android:contentDescription="@string/gallery"
                         android:padding="8dp"
                         android:src="@android:drawable/ic_menu_gallery" />
 
@@ -146,6 +146,7 @@
                             android:id="@+id/et_search_status"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:hint="@string/search_status_hint"
                             android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -218,12 +219,12 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginEnd="4dp">
+                            android:layout_marginEnd="4dp"
+                            android:hint="@string/item_year_hint">
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_search_year"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/item_year_hint"
                                 android:inputType="number" />
                         </com.google.android.material.textfield.TextInputLayout>
 
@@ -232,12 +233,12 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="4dp">
+                            android:layout_marginStart="4dp"
+                            android:hint="@string/item_month_hint">
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_search_month"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/item_month_hint"
                                 android:inputType="number" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
@@ -267,12 +268,13 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginEnd="4dp">
+                            android:layout_marginEnd="4dp"
+                            android:hint="@string/item_run_hint">
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_search_tirage"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/item_run_hint"/>
+                                android:inputType="number"/>
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout

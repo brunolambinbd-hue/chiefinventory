@@ -7,7 +7,6 @@ import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ItemLocationBinding
 import com.example.parabdcollector.ui.model.DisplayLocation
 

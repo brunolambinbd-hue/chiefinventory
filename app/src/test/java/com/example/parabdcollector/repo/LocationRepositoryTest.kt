@@ -25,7 +25,7 @@ class LocationRepositoryTest {
      * This rule makes sure that LiveData updates happen synchronously in tests.
      */
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     // The mock DAO that will be used in the tests.
     private lateinit var locationDao: LocationDao

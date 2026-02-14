@@ -10,13 +10,15 @@ import com.example.parabdcollector.model.Location
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
 import com.example.parabdcollector.ui.model.DisplayLocation
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class BatchPossessionViewModel(
     private val repository: CollectionRepository,
-    private val locationRepository: LocationRepository
+    locationRepository: LocationRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     private val _analysisResult = MutableLiveData<AnalysisResult?>(null)
@@ -52,7 +54,7 @@ class BatchPossessionViewModel(
         val list = itemsToFix()
         if (list.isEmpty()) return
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 list.forEach { item ->
                     repository.update(item.copy(isPossessed = true, locationId = selectedLocationId))
                 }

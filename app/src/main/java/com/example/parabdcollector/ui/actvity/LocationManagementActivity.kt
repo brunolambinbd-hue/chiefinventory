@@ -32,7 +32,7 @@ class LocationManagementActivity : AppCompatActivity() {
 
     private val viewModel: LocationViewModel by viewModels {
         val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository!!, app.locationRepository!!)
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     /**
@@ -125,7 +125,7 @@ class LocationManagementActivity : AppCompatActivity() {
             val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, displayItems)
 
             AlertDialog.Builder(this)
-                .setTitle("Déplacer \"${locationToMove.name}\" vers...")
+                .setTitle(getString(R.string.move_location_to_title, locationToMove.name))
                 .setAdapter(adapter) { dialog, which ->
                     val newParentId = if (which == 0) {
                         null // The "Root" option
@@ -135,7 +135,7 @@ class LocationManagementActivity : AppCompatActivity() {
                     viewModel.updateLocationParent(locationToMove.id, newParentId)
                     dialog.dismiss()
                 }
-                .setNegativeButton("Annuler", null)
+                .setNegativeButton(getString(R.string.annuler), null)
                 .show()
         }
     }
@@ -190,7 +190,7 @@ class LocationManagementActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle(title)
             .setView(editText)
-            .setPositiveButton("Ajouter") { dialog, _ ->
+            .setPositiveButton(getString(R.string.ajouter)) { dialog, _ ->
                 val name = editText.text.toString()
                 if (name.isNotBlank()) {
                     val newLocation = Location(name = name, parentId = parentLocation?.id)
@@ -198,7 +198,7 @@ class LocationManagementActivity : AppCompatActivity() {
                 }
                 dialog.dismiss()
             }
-            .setNegativeButton("Annuler", null)
+            .setNegativeButton(getString(R.string.annuler), null)
             .show()
     }
 
@@ -213,7 +213,7 @@ class LocationManagementActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.modifier_l_emplacement))
             .setView(editText)
-            .setPositiveButton("Modifier") { dialog, _ ->
+            .setPositiveButton(getString(R.string.modifier)) { dialog, _ ->
                 val newName = editText.text.toString()
                 if (newName.isNotBlank()) {
                     val updatedLocation = location.copy(name = newName)
@@ -221,7 +221,7 @@ class LocationManagementActivity : AppCompatActivity() {
                 }
                 dialog.dismiss()
             }
-            .setNegativeButton("Annuler", null)
+            .setNegativeButton(getString(R.string.annuler), null)
             .show()
     }
 

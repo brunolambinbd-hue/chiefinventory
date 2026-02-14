@@ -66,14 +66,14 @@
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Dernières trouvailles" />
+                        android:text="@string/recent_finds_label" />
 
                     <Button
                         android:id="@+id/btn_recent_organizations"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Derniers rangements" />
+                        android:text="@string/recent_organizations_label" />
 
                 </LinearLayout>
 

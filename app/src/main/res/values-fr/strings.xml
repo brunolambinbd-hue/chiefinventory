@@ -17,6 +17,7 @@
     <string name="add_item_description">Ajouter un objet</string>
 
     <!-- Descriptions pour l'accessibilité -->
+    <string name="recent_organizations_label">Derniers rangements</string>
     <string name="item_image_preview_description">Aperçu de l\'image de l\'objet</string>
     <string name="item_thumbnail_description_generic">Image de l\'objet</string>
     <string name="full_screen_image_description">Image en plein écran de l\'objet</string>
@@ -44,6 +45,7 @@
     <string name="item_location_hint">Localisation</string>
 
     <!-- Textes pour l'écran de recherche -->
+    <string name="none">Aucun</string>
     <string name="search_button">Rechercher</string>
     <string name="search_hint" tools:ignore="UnusedResources">Entrez un titre, un univers…</string>
     <string name="simple_search_hint">Recherche rapide…</string>
@@ -63,6 +65,7 @@
     <string name="similarity_score_format">Similarité : %.1f%%</string>
 
     <!-- Textes pour les menus -->
+    <string name="search_no_visual_matches">Aucune correspondance visuelle trouvée pour cette photo</string>
     <string name="menu_search_title">Recherche</string>
     <string name="menu_counter_title">Compteur</string>
     <string name="menu_home_title">Accueil</string>
@@ -77,6 +80,7 @@
     <string name="locations_management_title">Gestion des emplacements</string>
     <string name="backup_button_restore">Restaurer une sauvegarde</string>
     <string name="restore_failed_delete">Échec de la restauration : impossible de supprimer les anciens fichiers de base de données.</string>
+    <string name="category_audit_success_format">%1$d objets ont été reclassés avec succès.</string>
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
     <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
     <string name="toast_crop_error">Erreur de recadrage: %1$s</string>
@@ -96,12 +100,14 @@
     <string name="signature_preview_format">[%1$s,…]</string>
     <string name="search_no_similar_results">Aucun résultat suffisamment similaire trouvé (seuil &gt; 65%)</string>
     <string name="annuler">Annuler</string>
+    <string name="modifier">Modifier</string>
     <string name="la_racine">À la racine</string>
     <string name="nouvel_emplacement">Nouvel Emplacement</string>
     <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour \"%1$s\"</string>
     <string name="modifier_l_emplacement">Modifier l\'emplacement</string>
     <string name="supprimer_l_emplacement">Supprimer l\'emplacement</string>
     <string name="delete_location_confirmation_message">Êtes-vous sûr de vouloir supprimer \"%1$s\"? Cette action est irréversible.</string>
+    <string name="move_location_to_title">Déplacer \"%1$s\" vers</string>
     <string name="modifier_le_nom">Modifier le nom</string>
     <string name="ajouter_un_sous_emplacement">Ajouter un sous-emplacement</string>
     <string name="changer_de_parent">Changer de parent</string>
@@ -135,9 +141,34 @@
     <string name="crash_info">crash_info</string>
     <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
     <string name="importation_en_cours">Importation en cours...</string>
-    <string name="affichage_de_tous_les_objets_impl_menter">Affichage de tous les objets (à implémenter)</string>
+    <string name="Display_of_all_objets_to_be_implemented">Affichage de tous les objets (à implémenter)</string>
     <string name="possessed_status">POSSÉDÉ</string>
     <string name="sought_status">RECHERCHÉ</string>
+    <string name="recent_finds_label">Dernières trouvailles</string>
+    <string name="show_unlocated_items_button">Objets non localisés</string>
+    <string name="show_located_not_possessed_items_button">Objets localisés non possédés</string>
+    <string name="batch_update_title">Mise à jour par lot (Séries)</string>
+    <string name="batch_update_description">Marquer comme \'Possédés\' et attribuer un emplacement à une série d\'objets</string>
+    <string name="batch_series_name_hint">Nom de la série (ex: Spirou)</string>
+    <string name="batch_default_series_name">Spirou</string>
+    <string name="batch_start_number_hint">Numéro de début</string>
+    <string name="batch_end_number_hint">Numéro de fin</string>
+    <string name="batch_analyze_button">Analyser la série</string>
+    <string name="batch_update_button">Marquer comme possédés</string>
+    <string name="batch_summary_format">Trouvé : %1$d magazine(s) sur une plage de %2$d numéros.</string>
+    <string name="batch_update_success_format">%1$d objets mis à jour avec succès.</string>
+    <string name="batch_no_items_found">Aucun magazine trouvé dans cette plage.</string>
+    <string name="category_audit_button">Audit des Catégories</string>
+    <string name="category_audit_title">Audit et Réparation</string>
+    <string name="category_audit_description">Cet outil compare les Super-Catégories de vos objets avec les règles actuelles du système.</string>
+    <string name="category_audit_analyze_button">Lancer l\'audit</string>
+    <string name="category_audit_fix_button">Réparer les incohérences</string>
+    <string name="category_audit_summary_format">Trouvé : %1$d objet(s) avec une Super-Catégorie erronée ou manquante (ex: N/D).</string>
+    <string name="category_audit_no_issues">Toutes les catégories sont cohérentes. Aucune réparation nécessaire.</string>
+    <string name="gallery">Galerie</string>
+    <string name="search_visual_matches">" — %1$d correspondance(s) visuelle(s)"</string>
+    <string name="search_displayed_count">" — %1$d affichés"</string>
+    <string name="ajouter">Ajouter</string>
 
 
 </resources>

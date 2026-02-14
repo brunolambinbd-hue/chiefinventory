@@ -43,8 +43,7 @@ class EditItemActivity : AppCompatActivity() {
 
     private val viewModel: EditItemViewModel by viewModels {
         val app = application as CollectionApplication
-        @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository!!, app.locationRepository!!)
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,17 +107,15 @@ class EditItemActivity : AppCompatActivity() {
 
     private fun navigateToFullScreen() {
         val uri = viewModel.imageUri.value?.toString() ?: currentItem?.imageUri
-        if (uri != null) {
-            val intent = Intent(this, FullScreenImageActivity::class.java).apply {
-                putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, uri)
-                putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString())
-                putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditor.text.toString())
-                putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etYear.text.toString().toIntOrNull())
-                putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etDescription.text.toString())
-                putExtra(FullScreenImageActivity.EXTRA_IMAGE_SIGNATURE, currentItem?.imageEmbedding)
-            }
-            startActivity(intent)
+        val intent = Intent(this, FullScreenImageActivity::class.java).apply {
+            putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, uri)
+            putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString())
+            putExtra(FullScreenImageActivity.EXTRA_EDITOR, binding.etEditor.text.toString())
+            putExtra(FullScreenImageActivity.EXTRA_YEAR, binding.etYear.text.toString().toIntOrNull())
+            putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etDescription.text.toString())
+            putExtra(FullScreenImageActivity.EXTRA_IMAGE_SIGNATURE, currentItem?.imageEmbedding)
         }
+        startActivity(intent)
     }
 
     private fun setupLocationDropdown() {
@@ -204,7 +201,7 @@ class EditItemActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val embedding = newBitmap?.let { viewModel.calculateSignature(it) } ?: currentItem?.imageEmbedding
-            val item = (currentItem ?: CollectionItem(id = 0, titre = "")).copy(
+            val item = (currentItem ?: CollectionItem(titre = "")).copy(
                 titre = title,
                 editeur = binding.etEditor.text.toString(),
                 annee = binding.etYear.text.toString().toIntOrNull(),

@@ -113,6 +113,7 @@ class EditItemViewModel(
      * Saves the given item to the database, either by inserting or updating it.
      * @param item The [CollectionItem] to save.
      */
+    @Suppress("unused")
     fun saveItem(item: CollectionItem) = viewModelScope.launch {
         if (item.id == 0L) {
             collectionRepository.insert(item)

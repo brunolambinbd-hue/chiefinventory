@@ -1,9 +1,7 @@
 package com.example.parabdcollector.repo
 
-import android.util.Log
 import androidx.annotation.ColorRes
 import androidx.lifecycle.*
-import com.example.imagecomparison.EmbeddingUtils
 import com.example.parabdcollector.R
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.model.*
@@ -11,6 +9,8 @@ import com.example.parabdcollector.ui.model.CategoryInfo
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.utils.CategoryMapper
 import kotlinx.coroutines.Dispatchers
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /**
  * Repository for managing all data operations for [CollectionItem] entities.
@@ -19,7 +19,10 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     fun getAll(): LiveData<List<CollectionItem>> = collectionDao.getAll()
     fun getUnlocatedItems(): LiveData<List<CollectionItem>> = collectionDao.getUnlocatedItems()
     fun getLocatedNotPossessedItems(): LiveData<List<CollectionItem>> = collectionDao.getLocatedNotPossessedItems()
+    
+    @Suppress("unused")
     fun getItemCountByLocation(): LiveData<List<com.example.parabdcollector.dao.ItemCountForLocation>> = collectionDao.getItemCountByLocation()
+
     fun getItemsByLocationId(lId: Long): LiveData<List<CollectionItem>> = collectionDao.getItemsByLocationId(lId)
     
     /** Retrieves the 50 most recently updated possessed items. */
@@ -45,7 +48,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     suspend fun search(q: String): List<CollectionItem> = collectionDao.search("%$q%")
     suspend fun getAllByTitle(t: String): List<CollectionItem> = collectionDao.getAllByTitle("%$t%")
 
-    suspend fun advancedSearch(cr: SearchCriteria, qE: FloatArray?): AdvancedSearchResult {
+    open suspend fun advancedSearch(cr: SearchCriteria, qE: FloatArray?): AdvancedSearchResult {
         val conds = mutableListOf<String>(); val args = mutableListOf<Any?>()
         cr.titre?.takeIf { it.isNotBlank() }?.let { conds.add("titre LIKE ?"); args.add("%$it%") }
         cr.editeur?.takeIf { it.isNotBlank() }?.let { conds.add("editeur LIKE ?"); args.add("%$it%") }
@@ -85,16 +88,38 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     suspend fun findMostSimilarItems(qE: FloatArray): List<SearchResultItem> {
-        return collectionDao.getAllItemsWithEmbeddings().map { SearchResultItem(it, cosineSimilarity(qE, it.imageEmbedding!!).toDouble()) }
-            .filter { !(it.similarity?.isNaN() ?: true) }.sortedByDescending { it.similarity }.take(3)
+        return collectionDao.getAllItemsWithEmbeddings()
+            .map { SearchResultItem(it, cosineSimilarity(qE, it.imageEmbedding!!).toDouble()) }
+            .filter { !(it.similarity?.isNaN() ?: true) }
+            .sortedByDescending { it.similarity }
+            .take(3)
     }
 
     private fun cosineSimilarity(v1: FloatArray, v2B: ByteArray): Float {
-        val v2 = EmbeddingUtils.byteArrayToMyEmbedding(v2B).floatValues ?: return 0.0f
-        var dP = 0.0f; var nA = 0.0f; var nB = 0.0f
-        for (i in v1.indices) { dP += v1[i] * v2[i]; nA += v1[i] * v1[i]; nB += v2[i] * v2[i] }
-        val den = kotlin.math.sqrt(nA) * kotlin.math.sqrt(nB)
-        return if (den == 0.0f) 0.0f else dP / den
+        // Conversion robuste du ByteArray en FloatArray selon la taille détectée
+        val v2 = when {
+            v2B.size == v1.size -> {
+                // Format Quantifié (INT8) : 1 octet par dimension
+                FloatArray(v2B.size) { i -> v2B[i].toFloat() }
+            }
+            v2B.size == v1.size * 4 -> {
+                // Format FLOAT32 : 4 octets par dimension
+                val buffer = ByteBuffer.wrap(v2B).order(ByteOrder.LITTLE_ENDIAN)
+                FloatArray(v1.size) { buffer.float }
+            }
+            else -> return 0.0f // Incohérence de taille
+        }
+
+        var dotProduct = 0.0f
+        var normA = 0.0f
+        var normB = 0.0f
+        for (i in v1.indices) {
+            dotProduct += v1[i] * v2[i]
+            normA += v1[i] * v1[i]
+            normB += v2[i] * v2[i]
+        }
+        val denominator = kotlin.math.sqrt(normA) * kotlin.math.sqrt(normB)
+        return if (denominator == 0.0f) 0.0f else dotProduct / denominator
     }
 
     @ColorRes private fun getStatusColor(p: Int, t: Int, sM: Boolean): Int {

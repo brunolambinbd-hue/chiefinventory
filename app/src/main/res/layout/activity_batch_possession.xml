@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:text="Marquer comme 'Possédés' et attribuer un emplacement à une série d'objets."
+                android:text="@string/batch_update_description"
                 android:textAppearance="?attr/textAppearanceBody1" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -44,13 +44,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:text="Spirou" />
+                    android:text="@string/batch_default_series_name" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:baselineAligned="false"
                 android:orientation="horizontal">
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -98,6 +99,7 @@
                     android:id="@+id/et_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:hint="@string/item_location_hint"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 

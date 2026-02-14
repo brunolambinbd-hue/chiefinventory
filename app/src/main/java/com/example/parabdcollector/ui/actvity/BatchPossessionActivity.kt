@@ -17,11 +17,11 @@ import com.example.parabdcollector.ui.viewmodel.ViewModelFactory
 
 class BatchPossessionActivity : AppCompatActivity() {
     private lateinit var b: ActivityBatchPossessionBinding
-    private var displayLocs = emptyList<DisplayLocation>()
+    private var displayLocations = emptyList<DisplayLocation>()
     private val vm: BatchPossessionViewModel by viewModels {
         val a = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(a, a.repository!!, a.locationRepository!!)
+        ViewModelFactory(a, a.repository, a.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,13 +35,13 @@ class BatchPossessionActivity : AppCompatActivity() {
     private fun setupLocationDropdown() {
         b.etLocation.threshold = 0
         b.etLocation.setOnClickListener { b.etLocation.showDropDown() }
-        vm.displayLocations.observe(this) { locs ->
-            displayLocs = locs
-            val names = locs.map { "    ".repeat(it.depth) + it.location.name }
+        vm.displayLocations.observe(this) { locations ->
+            displayLocations = locations
+            val names = locations.map { "    ".repeat(it.depth) + it.location.name }
             b.etLocation.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, names))
         }
         b.etLocation.setOnItemClickListener { _, _, pos, _ ->
-            vm.selectedLocationId = displayLocs.getOrNull(pos)?.location?.id
+            vm.selectedLocationId = displayLocations.getOrNull(pos)?.location?.id
         }
     }
 

@@ -1,7 +1,6 @@
 package com.example.parabdcollector.ui.model
 
 import com.example.parabdcollector.model.Location
-import com.example.parabdcollector.ui.adapter.LocationAdapter
 
 /**
  * A view-specific data class that represents a location within an expandable list UI.
@@ -15,6 +14,7 @@ import com.example.parabdcollector.ui.adapter.LocationAdapter
  * @property hasChildren True if this location has child locations, which determines whether to display an expand/collapse icon.
  * @property itemCount The number of collection items stored in this specific location.
  */
+@Suppress("unused")
 data class ExpandableLocation(
     val location: Location,
     val depth: Int,

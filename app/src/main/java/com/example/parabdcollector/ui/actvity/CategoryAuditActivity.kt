@@ -16,8 +16,7 @@ class CategoryAuditActivity : AppCompatActivity() {
     private lateinit var b: ActivityCategoryAuditBinding
     private val vm: CategoryAuditViewModel by viewModels {
         val app = application as CollectionApplication
-        @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository!!, app.locationRepository!!)
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +45,8 @@ class CategoryAuditActivity : AppCompatActivity() {
         }
         vm.updateStatus.observe(this) { count ->
             if (count != null) {
-                Toast.makeText(this, getString(R.string.category_audit_success_format, count), Toast.LENGTH_LONG).show()
+                val message = resources.getQuantityString(R.plurals.category_audit_success_format, count, count)
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
                 finish()
             }
         }
