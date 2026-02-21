@@ -35,7 +35,7 @@ import org.junit.runner.RunWith
 class CategoryAuditActivityTest {
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var db: AppDatabase
     private lateinit var repository: CollectionRepository
@@ -60,11 +60,12 @@ class CategoryAuditActivityTest {
     }
 
     @Test
-    fun analyzeAndFix_shouldUpdateItemsAndFinish() = runTest {
-        // GIVEN: Un objet avec une Super-Catégorie erronée (#N/D)
+    fun analyzeAndFix_shouldUpdateItemsAndFinish(): Unit = runTest {
+        // GIVEN: Un objet avec une Super-Catégorie erronée (#N/D). 
+        // isPossessed = true par défaut, on ne le précise plus.
         val item = CollectionItem(
             id = 1, titre = "Spirou Test", categorie = "Travaux pour Spirou",
-            superCategorie = "#N/D", isPossessed = true
+            superCategorie = "#N/D"
         )
         db.collectionDao().insert(item)
 
@@ -85,11 +86,11 @@ class CategoryAuditActivityTest {
     }
 
     @Test
-    fun analyzeNoIssues_shouldShowNoIssuesText() = runTest {
-        // GIVEN: Un objet déjà correctement classé
+    fun analyzeNoIssues_shouldShowNoIssuesText(): Unit = runTest {
+        // GIVEN: Un objet déjà correctement classé. isPossessed = true par défaut.
         val item = CollectionItem(
             id = 1, titre = "Spirou OK", categorie = "Travaux pour Spirou",
-            superCategorie = "Presse", isPossessed = true
+            superCategorie = "Presse"
         )
         db.collectionDao().insert(item)
 
@@ -100,5 +101,23 @@ class CategoryAuditActivityTest {
         // THEN: Le message "aucune réparation nécessaire" s'affiche
         onView(withId(R.id.tv_no_issues)).check(matches(isDisplayed()))
         onView(withId(R.id.cv_audit_summary)).check(matches(withEffectiveVisibility(Visibility.GONE)))
+    }
+
+    @Test
+    fun analyzeSoughtItem_shouldIdentifyIssue(): Unit = runTest {
+        // GIVEN: Un objet RECHERCHÉ (isPossessed = false) avec une erreur
+        val item = CollectionItem(
+            id = 2, titre = "Recherche Erronée", categorie = "Travaux pour Spirou",
+            superCategorie = "N/D", isPossessed = false
+        )
+        db.collectionDao().insert(item)
+
+        // WHEN: On lance l'audit
+        ActivityScenario.launch(CategoryAuditActivity::class.java)
+        onView(withId(R.id.btn_analyze_audit)).perform(click())
+
+        // THEN: L'objet doit être identifié malgré le fait qu'il ne soit pas possédé
+        onView(withId(R.id.cv_audit_summary)).check(matches(isDisplayed()))
+        onView(withId(R.id.tv_audit_summary)).check(matches(withText(containsString("1"))))
     }
 }

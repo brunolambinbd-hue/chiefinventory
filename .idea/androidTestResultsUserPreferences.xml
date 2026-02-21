@@ -112,6 +112,19 @@
             </AndroidTestResultsTableState>
           </value>
         </entry>
+        <entry key="-982441674">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Large_Desktop" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="-548916586">
           <value>
             <AndroidTestResultsTableState>
@@ -202,6 +215,19 @@
                 <map>
                   <entry key="Duration" value="90" />
                   <entry key="Pixel-DevInstrumentedTest" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="414684219">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Large_Desktop" value="120" />
                   <entry key="Tests" value="360" />
                 </map>
               </option>
@@ -347,6 +373,19 @@
                 <map>
                   <entry key="Duration" value="90" />
                   <entry key="Medium_Phone_API_36.1" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="1564597712">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Large_Desktop" value="120" />
                   <entry key="Tests" value="360" />
                 </map>
               </option>

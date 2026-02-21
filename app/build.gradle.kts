@@ -8,16 +8,25 @@ plugins {
     id("kotlin-parcelize")
 }
 
-// Méthode robuste pour récupérer le hash Git (correction syntaxe KTS)
-val gitCommitHash = try {
-    Runtime.getRuntime().exec("git rev-parse --short HEAD").inputStream.bufferedReader().readText().trim()
-} catch (e: Exception) {
+val gitCommitHash: String = try {
+    ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+        .start()
+        .inputStream
+        .bufferedReader()
+        .use { it.readText().trim() }
+} catch (_: Exception) {
     "unknown"
 }
 
 android {
     namespace = "com.example.parabdcollector"
     compileSdk = 35
+
+    @Suppress("UnstableApiUsage")
+    androidResources {
+        // La nouvelle API pour filtrer les locales
+        localeFilters += listOf("fr", "en")
+    }
 
     sourceSets {
         getByName("androidTest") {
@@ -57,7 +66,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        // Injection du hash Git dans le BuildConfig
         buildConfigField("String", "GIT_COMMIT_HASH", "\"$gitCommitHash\"")
     }
 

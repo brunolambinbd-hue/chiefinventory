@@ -1,13 +1,14 @@
-package com.example.parabdcollector.dao
+package com.example.parabdcollector.java_integration.dao
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.example.parabdcollector.dao.LocationDao
 import com.example.parabdcollector.data.AppDatabase
+import com.example.parabdcollector.java_integration.utils.getOrAwaitValue
 import com.example.parabdcollector.model.Location
-import com.example.parabdcollector.utils.getOrAwaitValue
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -23,7 +24,7 @@ import org.junit.runner.RunWith
 class LocationDaoTest {
 
     @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var database: AppDatabase
     private lateinit var locationDao: LocationDao
@@ -43,7 +44,7 @@ class LocationDaoTest {
     }
 
     @Test
-    fun insertLocationAndReadIt() = runTest {
+    fun insertLocationAndReadIt(): Unit = runTest {
         val location = Location(id = 1, name = "Living Room Shelf", parentId = null)
         locationDao.insert(location)
 
@@ -52,7 +53,7 @@ class LocationDaoTest {
     }
 
     @Test
-    fun updateLocationAndCheck() = runTest {
+    fun updateLocationAndCheck(): Unit = runTest {
         val originalLocation = Location(id = 1, name = "Office Drawer", parentId = null)
         locationDao.insert(originalLocation)
 
@@ -65,7 +66,7 @@ class LocationDaoTest {
     }
 
     @Test
-    fun deleteLocationAndVerifyAbsence() = runTest {
+    fun deleteLocationAndVerifyAbsence(): Unit = runTest {
         val location = Location(id = 1, name = "To Be Deleted", parentId = null)
         locationDao.insert(location)
 
@@ -76,7 +77,7 @@ class LocationDaoTest {
     }
 
     @Test
-    fun updateLocationParent_shouldChangeParentId() = runTest {
+    fun updateLocationParent_shouldChangeParentId(): Unit = runTest {
         val location1 = Location(id = 1, name = "Parent", parentId = null)
         val location2 = Location(id = 2, name = "Child", parentId = null)
         locationDao.insert(location1)

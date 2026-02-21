@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.java_ui
 
 import android.content.Context
 import android.content.Intent
@@ -7,14 +7,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.replaceText
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
@@ -30,16 +26,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Instrumented UI and integration tests for the [EditItemActivity].
+ * Instrumented UI and integration tests for the [com.example.parabdcollector.ui.actvity.EditItemActivity].
  * This test class verifies the creation and editing of collection items.
  */
 @ExperimentalCoroutinesApi
@@ -66,7 +60,7 @@ class EditItemActivityTest {
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        
+
         collectionDao = db.collectionDao()
         locationDao = db.locationDao()
 
@@ -89,24 +83,34 @@ class EditItemActivityTest {
      * in the item being correctly inserted into the database.
      */
     @Test
-    fun createNewItem_shouldSaveItemToDatabase() = runTest {
+    fun createNewItem_shouldSaveItemToDatabase(): Unit = runTest {
         val scenario = ActivityScenario.launch(EditItemActivity::class.java)
 
         val testTitle = "New Test Item from UI"
-        onView(withId(R.id.etTitle)).perform(scrollTo(), replaceText(testTitle), closeSoftKeyboard())
-        onView(withId(R.id.btnSave)).perform(click())
+        Espresso.onView(ViewMatchers.withId(R.id.etTitle)).perform(
+            ViewActions.scrollTo(),
+            ViewActions.replaceText(testTitle),
+            ViewActions.closeSoftKeyboard()
+        )
+        Espresso.onView(ViewMatchers.withId(R.id.btnSave)).perform(ViewActions.click())
 
         delay(500)
-        assertTrue("Activity should be destroyed after saving", scenario.state == Lifecycle.State.DESTROYED)
+        Assert.assertTrue(
+            "Activity should be destroyed after saving",
+            scenario.state == Lifecycle.State.DESTROYED
+        )
 
         // The `search` function only finds unpossessed items. To verify creation, we must
         // fetch all items and then find the one we just created.
         val allItems = collectionDao.getAllSuspend()
         val savedItem = allItems.find { it.titre == testTitle }
 
-        assertNotNull("Item should be saved and found in DB", savedItem)
-        assertEquals(testTitle, savedItem?.titre)
-        assertTrue("Newly created item should be possessed by default", savedItem?.isPossessed == true)
+        Assert.assertNotNull("Item should be saved and found in DB", savedItem)
+        Assert.assertEquals(testTitle, savedItem?.titre)
+        Assert.assertTrue(
+            "Newly created item should be possessed by default",
+            savedItem?.isPossessed == true
+        )
     }
 
     /**
@@ -114,32 +118,57 @@ class EditItemActivityTest {
      * changes are saved, and the original item is updated in the database.
      */
     @Test
-    fun editExistingItem_shouldLoadData_and_SaveChanges() = runTest {
+    fun editExistingItem_shouldLoadData_and_SaveChanges(): Unit = runTest {
         val initialItem = CollectionItem(
-            id = 1, remoteId = null, titre = "Titre Initial", editeur = "Editeur Initial", annee = 2020, description = "Desc Init",
-            isPossessed = true, mois = 1, categorie = "Cat Init", superCategorie = "SuperCat Init", materiau = "", tirage = "", dimensions = "",
-            prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", imageEmbedding = null, locationId = null
+            id = 1,
+            remoteId = null,
+            titre = "Titre Initial",
+            editeur = "Editeur Initial",
+            annee = 2020,
+            description = "Desc Init",
+            isPossessed = true,
+            mois = 1,
+            categorie = "Cat Init",
+            superCategorie = "SuperCat Init",
+            materiau = "",
+            tirage = "",
+            dimensions = "",
+            prixAchat = 0.0,
+            valeurEstimee = 0.0,
+            lieuAchat = "",
+            imageUri = "",
+            imageEmbedding = null,
+            locationId = null
         )
         collectionDao.insert(initialItem)
 
-        val intent = Intent(ApplicationProvider.getApplicationContext(), EditItemActivity::class.java).apply {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            EditItemActivity::class.java
+        ).apply {
             putExtra("itemId", 1L)
         }
         ActivityScenario.launch<EditItemActivity>(intent)
 
-        onView(withId(R.id.etTitle)).check(matches(withText("Titre Initial")))
-        onView(withId(R.id.etEditor)).check(matches(withText("Editeur Initial")))
+        Espresso.onView(ViewMatchers.withId(R.id.etTitle))
+            .check(ViewAssertions.matches(ViewMatchers.withText("Titre Initial")))
+        Espresso.onView(ViewMatchers.withId(R.id.etEditor))
+            .check(ViewAssertions.matches(ViewMatchers.withText("Editeur Initial")))
 
         val updatedTitle = "Titre Mis à Jour"
-        onView(withId(R.id.etTitle)).perform(scrollTo(), replaceText(updatedTitle), closeSoftKeyboard())
-        onView(withId(R.id.btnSave)).perform(click())
-        
-        delay(500) 
+        Espresso.onView(ViewMatchers.withId(R.id.etTitle)).perform(
+            ViewActions.scrollTo(),
+            ViewActions.replaceText(updatedTitle),
+            ViewActions.closeSoftKeyboard()
+        )
+        Espresso.onView(ViewMatchers.withId(R.id.btnSave)).perform(ViewActions.click())
+
+        delay(500)
 
         val updatedItemInDb = collectionDao.getItemById(1)
-        assertNotNull("Item should be found in DB after update", updatedItemInDb)
-        assertEquals(updatedTitle, updatedItemInDb?.titre)
-        assertEquals(1L, updatedItemInDb?.id)
-        assertEquals("Editeur Initial", updatedItemInDb?.editeur)
+        Assert.assertNotNull("Item should be found in DB after update", updatedItemInDb)
+        Assert.assertEquals(updatedTitle, updatedItemInDb?.titre)
+        Assert.assertEquals(1L, updatedItemInDb?.id)
+        Assert.assertEquals("Editeur Initial", updatedItemInDb?.editeur)
     }
 }

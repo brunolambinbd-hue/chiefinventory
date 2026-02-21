@@ -19,10 +19,10 @@ import org.mockito.kotlin.*
 class BatchPossessionViewModelTest {
 
     @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule()
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var repository: CollectionRepository
     private lateinit var locationRepository: LocationRepository
@@ -38,8 +38,8 @@ class BatchPossessionViewModelTest {
     }
 
     @Test
-    fun `analyzeSeries should correctly identify range size`() = runTest {
-        val item = createMockItem(1, "Spirou n°1500", false)
+    fun `analyzeSeries should correctly identify range size`(): Unit = runTest {
+        val item = createMockItem(1, "Spirou n°1500")
         whenever(repository.getAllByTitle(any())).thenReturn(listOf(item))
 
         viewModel.analyzeSeries("Spirou", 1500, 1600)
@@ -51,9 +51,9 @@ class BatchPossessionViewModelTest {
     }
 
     @Test
-    fun `applyUpdate should update items with possessed status and selected location`() = runTest {
-        // GIVEN: Un objet identifié
-        val item = createMockItem(1, "Spirou n°1500", false)
+    fun `applyUpdate should update items with possessed status and selected location`(): Unit = runTest {
+        // GIVEN: Un objet identifié (non possédé par défaut via createMockItem)
+        val item = createMockItem(1, "Spirou n°1500")
         whenever(repository.getAllByTitle(any())).thenReturn(listOf(item))
         
         viewModel.analyzeSeries("Spirou", 1500, 1500)
@@ -76,7 +76,7 @@ class BatchPossessionViewModelTest {
         assertEquals(1, viewModel.updateStatus.value)
     }
 
-    private fun createMockItem(id: Long, title: String, possessed: Boolean): CollectionItem {
+    private fun createMockItem(id: Long, title: String, possessed: Boolean = false): CollectionItem {
         return CollectionItem(
             id = id, titre = title, isPossessed = possessed,
             editeur = "Dupuis", annee = 1980, mois = 1, categorie = "Spirou", superCategorie = "Magazines"

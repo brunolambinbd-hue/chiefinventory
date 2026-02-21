@@ -5,11 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
 class ViewModelFactory(
     private val application: Application,
     private val collectionRepository: CollectionRepository,
-    private val locationRepository: LocationRepository
+    private val locationRepository: LocationRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModelProvider.Factory {
     
     @Suppress("UNCHECKED_CAST")
@@ -24,7 +27,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(InventoryViewModel::class.java) -> InventoryViewModel(application, collectionRepository) as T
             modelClass.isAssignableFrom(BackupViewModel::class.java) -> BackupViewModel(application) as T
             modelClass.isAssignableFrom(BatchPossessionViewModel::class.java) -> BatchPossessionViewModel(collectionRepository, locationRepository) as T
-            modelClass.isAssignableFrom(CategoryAuditViewModel::class.java) -> CategoryAuditViewModel(collectionRepository) as T
+            modelClass.isAssignableFrom(CategoryAuditViewModel::class.java) -> CategoryAuditViewModel(collectionRepository, ioDispatcher) as T
             else -> throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
         }
     }

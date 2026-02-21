@@ -1,4 +1,4 @@
-package com.example.parabdcollector.utils
+package com.example.parabdcollector.java_integration.utils
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView

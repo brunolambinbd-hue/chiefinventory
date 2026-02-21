@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.utils.CategoryMapper
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -15,7 +15,10 @@ import kotlinx.coroutines.withContext
  * ViewModel for the Category Audit feature.
  * Detects and repairs inconsistent super-categories based on CategoryMapper rules.
  */
-class CategoryAuditViewModel(private val repository: CollectionRepository) : ViewModel() {
+class CategoryAuditViewModel(
+    private val repository: CollectionRepository,
+    private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
 
     private val _auditResult = MutableLiveData<Int?>(null)
     val auditResult: LiveData<Int?> = _auditResult
@@ -34,18 +37,20 @@ class CategoryAuditViewModel(private val repository: CollectionRepository) : Vie
             // Utilisation de la fonction de récupération totale pour ne rien rater
             val allItems = repository.getAllItemsSuspend()
             
-            itemsToFix = allItems.filter { item ->
-                val currentSuper = item.superCategorie?.trim() ?: ""
-                val rawCategory = item.categorie?.trim() ?: ""
-                val shouldBeSuper = CategoryMapper.getSuperCategoryFor(rawCategory)
-                
-                // Détection incluant la variante Excel "#N/D"
-                val isPlaceholder = currentSuper.isBlank() || 
-                                   currentSuper.equals("N/D", ignoreCase = true) || 
-                                   currentSuper.equals("#N/D", ignoreCase = true) || 
-                                   currentSuper.equals("Non Défini", ignoreCase = true)
-                
-                shouldBeSuper != null && isPlaceholder
+            itemsToFix = withContext(ioDispatcher) {
+                allItems.filter { item ->
+                    val currentSuper = item.superCategorie?.trim() ?: ""
+                    val rawCategory = item.categorie?.trim() ?: ""
+                    val shouldBeSuper = CategoryMapper.getSuperCategoryFor(rawCategory)
+                    
+                    // Détection incluant la variante Excel "#N/D"
+                    val isPlaceholder = currentSuper.isBlank() || 
+                                       currentSuper.equals("N/D", ignoreCase = true) || 
+                                       currentSuper.equals("#N/D", ignoreCase = true) || 
+                                       currentSuper.equals("Non Défini", ignoreCase = true)
+                    
+                    shouldBeSuper != null && isPlaceholder
+                }
             }
 
             _auditResult.postValue(itemsToFix.size)
@@ -60,7 +65,7 @@ class CategoryAuditViewModel(private val repository: CollectionRepository) : Vie
         if (list.isEmpty()) return
 
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 list.forEach { item ->
                     val rawCategory = item.categorie?.trim() ?: ""
                     val correctSuper = CategoryMapper.getSuperCategoryFor(rawCategory)

@@ -38,7 +38,7 @@ import org.junit.runner.RunWith
 class BatchPossessionActivityTest {
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var db: AppDatabase
     private lateinit var repository: CollectionRepository
@@ -65,7 +65,7 @@ class BatchPossessionActivityTest {
     }
 
     @Test
-    fun analyzeAndClickUpdate_shouldFinishActivity() = runTest {
+    fun analyzeAndClickUpdate_shouldFinishActivity(): Unit = runTest {
         // GIVEN: Un magazine Spirou non possédé en base
         val item = CollectionItem(
             id = 1, titre = "Spirou n°1500", isPossessed = false,
@@ -98,7 +98,7 @@ class BatchPossessionActivityTest {
      * Vérifie que le champ localisation affiche bien les emplacements disponibles.
      */
     @Test
-    fun locationDropdown_shouldShowAvailableLocations() = runTest {
+    fun locationDropdown_shouldShowAvailableLocations(): Unit = runTest {
         // GIVEN: Un emplacement "Bibliothèque" en base
         val loc = Location(id = 1, name = "Bibliothèque", parentId = null)
         db.locationDao().insert(loc)
@@ -116,7 +116,7 @@ class BatchPossessionActivityTest {
     }
 
     @Test
-    fun emptyFields_shouldShowErrorToast() {
+    fun emptyFields_shouldShowErrorToast(): Unit = runTest {
         ActivityScenario.launch(BatchPossessionActivity::class.java)
         
         // Cliquer sur analyser sans rien remplir

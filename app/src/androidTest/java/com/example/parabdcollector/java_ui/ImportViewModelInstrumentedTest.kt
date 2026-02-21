@@ -1,4 +1,4 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.java_ui
 
 import android.app.Application
 import android.content.Context
@@ -16,8 +16,7 @@ import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -62,60 +61,94 @@ class ImportViewModelInstrumentedTest {
 
     @Test
     fun importCsv_shouldInsertNewItem() = runTest {
-        val csvContent = "remoteId;annee;mois;categorie;titre;editeur;description;col7;col8;col9;superCategorie\n" +
-                         "1001;2023;5;BD;New Test Item;Test Editor;New Desc;;;;Test Super"
+        val csvContent =
+            "remoteId;annee;mois;categorie;titre;editeur;description;col7;col8;col9;superCategorie\n" +
+                    "1001;2023;5;BD;New Test Item;Test Editor;New Desc;;;;Test Super"
         val csvUri = createTestCsvFile(csvContent)
 
         val importJob = viewModel.importCsv(csvUri, mainDispatcherRule.testDispatcher)
         importJob.join()
 
         val newItem = dao.findByRemoteId(1001)
-        assertNotNull(newItem)
-        assertEquals("New Test Item", newItem?.titre)
+        Assert.assertNotNull(newItem)
+        Assert.assertEquals("New Test Item", newItem?.titre)
     }
 
     @Test
     fun importCsv_shouldUpdateExistingItem_andKeepEmbedding() = runTest {
         val existingItem = CollectionItem(
-            id = 1, remoteId = 1002, titre = "Old Title", editeur = "Old Editor", annee = 2000, categorie = "Old Cat", description = "",
-            isPossessed = true, mois = 1, superCategorie = "", materiau = "", tirage = "", dimensions = "",
-            prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", 
+            id = 1,
+            remoteId = 1002,
+            titre = "Old Title",
+            editeur = "Old Editor",
+            annee = 2000,
+            categorie = "Old Cat",
+            description = "",
+            isPossessed = true,
+            mois = 1,
+            superCategorie = "",
+            materiau = "",
+            tirage = "",
+            dimensions = "",
+            prixAchat = 0.0,
+            valeurEstimee = 0.0,
+            lieuAchat = "",
+            imageUri = "",
             imageEmbedding = byteArrayOf(1, 2, 3), // Dummy embedding to skip network call
             locationId = null
         )
         dao.insert(existingItem)
-        val csvContent = "remoteId;annee;mois;categorie;titre;editeur;description;col7;col8;col9;superCategorie\n" +
-                         "1002;2024;;;Updated Title;;;;;"
+        val csvContent =
+            "remoteId;annee;mois;categorie;titre;editeur;description;col7;col8;col9;superCategorie\n" +
+                    "1002;2024;;;Updated Title;;;;;"
         val csvUri = createTestCsvFile(csvContent)
 
         val importJob = viewModel.importCsv(csvUri, mainDispatcherRule.testDispatcher)
         importJob.join()
 
         val updatedItem = dao.findByRemoteId(1002)
-        assertEquals("Updated Title", updatedItem?.titre)
-        assertNotNull("Embedding should be preserved", updatedItem?.imageEmbedding)
+        Assert.assertEquals("Updated Title", updatedItem?.titre)
+        Assert.assertNotNull("Embedding should be preserved", updatedItem?.imageEmbedding)
     }
 
     @Test
     fun importCsv_withMissingSignature_shouldUpdateItemAndComputeSignature() = runTest {
         val existingItem = CollectionItem(
-            id = 2, remoteId = 1003, titre = "Old Title No Sig", editeur = "", annee = 2000, categorie = "", description = "",
-            isPossessed = true, mois = 1, superCategorie = "", materiau = "", tirage = "", dimensions = "",
-            prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", 
+            id = 2,
+            remoteId = 1003,
+            titre = "Old Title No Sig",
+            editeur = "",
+            annee = 2000,
+            categorie = "",
+            description = "",
+            isPossessed = true,
+            mois = 1,
+            superCategorie = "",
+            materiau = "",
+            tirage = "",
+            dimensions = "",
+            prixAchat = 0.0,
+            valeurEstimee = 0.0,
+            lieuAchat = "",
+            imageUri = "",
             imageEmbedding = null, // No embedding
             locationId = null
         )
         dao.insert(existingItem)
-        val csvContent = "remoteId;annee;mois;categorie;titre;editeur;description;col7;col8;col9;superCategorie\n" +
-                         "1003;2024;;;Updated Title No Sig;;;;;"
+        val csvContent =
+            "remoteId;annee;mois;categorie;titre;editeur;description;col7;col8;col9;superCategorie\n" +
+                    "1003;2024;;;Updated Title No Sig;;;;;"
         val csvUri = createTestCsvFile(csvContent)
 
         val importJob = viewModel.importCsv(csvUri, mainDispatcherRule.testDispatcher)
         importJob.join()
 
         val updatedItem = dao.findByRemoteId(1003)
-        assertEquals("Updated Title No Sig", updatedItem?.titre)
-        assertNotNull("Embedding should be computed if network is available", updatedItem?.imageEmbedding)
+        Assert.assertEquals("Updated Title No Sig", updatedItem?.titre)
+        Assert.assertNotNull(
+            "Embedding should be computed if network is available",
+            updatedItem?.imageEmbedding
+        )
     }
 
     private fun createTestCsvFile(content: String): Uri {

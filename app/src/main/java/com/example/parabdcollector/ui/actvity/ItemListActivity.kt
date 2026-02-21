@@ -32,7 +32,7 @@ class ItemListActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository, app.locationRepository!!)
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,16 +144,16 @@ class ItemListActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_LIST_TYPE = "list_type"
-        const val EXTRA_SUPER_CATEGORY = "super_category"
-        const val EXTRA_CATEGORY = "category"
-        const val EXTRA_LOCATION_ID = "location_id"
-        const val EXTRA_LOCATION_NAME = "location_name"
-        const val TYPE_POSSESSED = 1
-        const val TYPE_SOUGHT = 2
-        const val TYPE_UNLOCATED = 3
-        const val TYPE_LOCATED_NOT_POSSESSED = 4
-        const val TYPE_RECENT_POSSESSED = 5
-        const val TYPE_RECENT_LOCATED = 6
+        const val EXTRA_LIST_TYPE: String = "list_type"
+        const val EXTRA_SUPER_CATEGORY: String = "super_category"
+        const val EXTRA_CATEGORY: String = "category"
+        const val EXTRA_LOCATION_ID: String = "location_id"
+        const val EXTRA_LOCATION_NAME: String = "location_name"
+        const val TYPE_POSSESSED: Int = 1
+        const val TYPE_SOUGHT: Int = 2
+        const val TYPE_UNLOCATED: Int = 3
+        const val TYPE_LOCATED_NOT_POSSESSED: Int = 4
+        const val TYPE_RECENT_POSSESSED: Int = 5
+        const val TYPE_RECENT_LOCATED: Int = 6
     }
 }

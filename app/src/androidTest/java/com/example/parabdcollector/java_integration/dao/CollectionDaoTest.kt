@@ -1,13 +1,14 @@
-package com.example.parabdcollector.dao
+package com.example.parabdcollector.java_integration.dao
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
-import com.example.parabdcollector.utils.getOrAwaitValue
+import com.example.parabdcollector.java_integration.utils.getOrAwaitValue
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -23,20 +24,18 @@ import org.junit.runner.RunWith
 class CollectionDaoTest {
 
     @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var database: AppDatabase
     private lateinit var collectionDao: CollectionDao
 
     private val baseItem = CollectionItem(
-        id = 0,
         titre = "Default Title",
         editeur = "Default Editor",
         annee = 2000,
         mois = 1,
         categorie = "Spirou",
-        superCategorie = "Magazines",
-        isPossessed = true
+        superCategorie = "Magazines"
     )
 
     @Before
@@ -54,19 +53,30 @@ class CollectionDaoTest {
     }
 
     @Test
-    fun insertItemAndGetById() = runTest {
+    fun insertItemAndGetById(): Unit = runTest {
         val item = baseItem.copy(id = 1, titre = "Le Test")
         collectionDao.insert(item)
         val retrievedItem = collectionDao.getItemById(1)
         assertThat(retrievedItem).isEqualTo(item)
     }
 
+    @Test
+    fun getAllSought_returnsOnlyNonPossessedItems(): Unit = runTest {
+        val possessed = baseItem.copy(id = 1, titre = "Possédé", isPossessed = true)
+        val sought = baseItem.copy(id = 2, titre = "Recherché", isPossessed = false)
+        collectionDao.insert(possessed)
+        collectionDao.insert(sought)
+
+        val results = collectionDao.getAllSought().getOrAwaitValue()
+        assertThat(results).hasSize(1)
+        assertThat(results[0].titre).isEqualTo("Recherché")
+    }
+
     /**
      * Vérifie que l'ordre d'affichage (Année DESC, Mois DESC) est respecté pour les catégories.
      */
     @Test
-    fun getItemsBySuperCategoryAndCategory_returnsItemsInCorrectOrder() = runTest {
-        // GIVEN: 4 objets de la même catégorie avec des dates différentes
+    fun getItemsBySuperCategoryAndCategory_returnsItemsInCorrectOrder(): Unit = runTest {
         val itemOld = baseItem.copy(id = 1, titre = "Ancien", annee = 1980, mois = 12)
         val itemNewYear = baseItem.copy(id = 2, titre = "Nouveau Année", annee = 2024, mois = 1)
         val itemMidMonth1 = baseItem.copy(id = 3, titre = "Moyen Mois 5", annee = 2000, mois = 5)
@@ -77,16 +87,14 @@ class CollectionDaoTest {
         collectionDao.insert(itemMidMonth1)
         collectionDao.insert(itemMidMonth2)
 
-        // WHEN: On récupère les objets de la catégorie "Spirou"
         val results = collectionDao.getItemsBySuperCategoryAndCategory("Magazines", "Spirou", true).getOrAwaitValue()
 
-        // THEN: L'ordre doit être : 2024/01 -> 2000/10 -> 2000/05 -> 1980/12
         assertThat(results).hasSize(4)
         assertThat(results).containsExactly(itemNewYear, itemMidMonth2, itemMidMonth1, itemOld).inOrder()
     }
 
     @Test
-    fun searchItems_returnsItems_inCorrectOrder() = runTest {
+    fun searchItems_returnsItems_inCorrectOrder(): Unit = runTest {
         val item1 = baseItem.copy(id = 1, titre = "Blueberry 1", editeur = "Dargaud", annee = 1980)
         val item2 = baseItem.copy(id = 2, titre = "Blueberry 2", editeur = "Dargaud", annee = 1981)
         collectionDao.insert(item1)
@@ -97,7 +105,7 @@ class CollectionDaoTest {
     }
 
     @Test
-    fun getUnlocatedItems_logic() = runTest {
+    fun getUnlocatedItems_logic(): Unit = runTest {
         val unlocated = baseItem.copy(id = 1, locationId = null, isPossessed = true)
         val located = baseItem.copy(id = 2, locationId = 100, isPossessed = true)
         collectionDao.insert(unlocated)
@@ -105,5 +113,19 @@ class CollectionDaoTest {
 
         val results = collectionDao.getUnlocatedItems().getOrAwaitValue()
         assertThat(results).containsExactly(unlocated)
+    }
+
+    @Test
+    fun getLocatedNotPossessedItems_logic(): Unit = runTest {
+        val target = baseItem.copy(id = 1, locationId = 50, isPossessed = false)
+        val other1 = baseItem.copy(id = 2, locationId = null, isPossessed = false)
+        val other2 = baseItem.copy(id = 3, locationId = 50, isPossessed = true)
+        
+        collectionDao.insert(target)
+        collectionDao.insert(other1)
+        collectionDao.insert(other2)
+
+        val results = collectionDao.getLocatedNotPossessedItems().getOrAwaitValue()
+        assertThat(results).containsExactly(target)
     }
 }

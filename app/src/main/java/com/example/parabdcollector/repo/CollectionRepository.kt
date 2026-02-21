@@ -49,20 +49,20 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     suspend fun getAllByTitle(t: String): List<CollectionItem> = collectionDao.getAllByTitle("%$t%")
 
     open suspend fun advancedSearch(cr: SearchCriteria, qE: FloatArray?): AdvancedSearchResult {
-        val conds = mutableListOf<String>(); val args = mutableListOf<Any?>()
-        cr.titre?.takeIf { it.isNotBlank() }?.let { conds.add("titre LIKE ?"); args.add("%$it%") }
-        cr.editeur?.takeIf { it.isNotBlank() }?.let { conds.add("editeur LIKE ?"); args.add("%$it%") }
-        cr.annee?.let { conds.add("annee = ?"); args.add(it) }
-        cr.mois?.let { conds.add("mois = ?"); args.add(it) }
-        cr.superCategorie?.takeIf { it.isNotBlank() }?.let { conds.add("superCategorie = ?"); args.add(it) }
-        cr.categorie?.takeIf { it.isNotBlank() }?.let { conds.add("categorie LIKE ?"); args.add("%$it%") }
-        cr.description?.takeIf { it.isNotBlank() }?.let { conds.add("description LIKE ?"); args.add("%$it%") }
-        cr.tirage?.takeIf { it.isNotBlank() }?.let { conds.add("tirage LIKE ?"); args.add("%$it%") }
-        cr.dimensions?.takeIf { it.isNotBlank() }?.let { conds.add("dimensions LIKE ?"); args.add("%$it%") }
-        cr.isPossessed?.let { conds.add("isPossessed = ?"); args.add(if (it) 1 else 0) }
+        val conditions = mutableListOf<String>(); val args = mutableListOf<Any?>()
+        cr.titre?.takeIf { it.isNotBlank() }?.let { conditions.add("titre LIKE ?"); args.add("%$it%") }
+        cr.editeur?.takeIf { it.isNotBlank() }?.let { conditions.add("editeur LIKE ?"); args.add("%$it%") }
+        cr.annee?.let { conditions.add("annee = ?"); args.add(it) }
+        cr.mois?.let { conditions.add("mois = ?"); args.add(it) }
+        cr.superCategorie?.takeIf { it.isNotBlank() }?.let { conditions.add("superCategorie = ?"); args.add(it) }
+        cr.categorie?.takeIf { it.isNotBlank() }?.let { conditions.add("categorie LIKE ?"); args.add("%$it%") }
+        cr.description?.takeIf { it.isNotBlank() }?.let { conditions.add("description LIKE ?"); args.add("%$it%") }
+        cr.tirage?.takeIf { it.isNotBlank() }?.let { conditions.add("tirage LIKE ?"); args.add("%$it%") }
+        cr.dimensions?.takeIf { it.isNotBlank() }?.let { conditions.add("dimensions LIKE ?"); args.add("%$it%") }
+        cr.isPossessed?.let { conditions.add("isPossessed = ?"); args.add(if (it) 1 else 0) }
         
-        val hasTextCriteria = conds.isNotEmpty()
-        val wh = if (hasTextCriteria) " WHERE ${conds.joinToString(" AND ")}" else ""
+        val hasTextCriteria = conditions.isNotEmpty()
+        val wh = if (hasTextCriteria) " WHERE ${conditions.joinToString(" AND ")}" else ""
         
         val items = if (qE != null && !hasTextCriteria) {
             collectionDao.getAllItemsWithEmbeddings()
@@ -97,12 +97,12 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
 
     private fun cosineSimilarity(v1: FloatArray, v2B: ByteArray): Float {
         // Conversion robuste du ByteArray en FloatArray selon la taille détectée
-        val v2 = when {
-            v2B.size == v1.size -> {
+        val v2 = when (val size = v2B.size) {
+            v1.size -> {
                 // Format Quantifié (INT8) : 1 octet par dimension
-                FloatArray(v2B.size) { i -> v2B[i].toFloat() }
+                FloatArray(size) { i -> v2B[i].toFloat() }
             }
-            v2B.size == v1.size * 4 -> {
+            v1.size * 4 -> {
                 // Format FLOAT32 : 4 octets par dimension
                 val buffer = ByteBuffer.wrap(v2B).order(ByteOrder.LITTLE_ENDIAN)
                 FloatArray(v1.size) { buffer.float }
@@ -140,7 +140,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     fun getItemsBySuperCategoryAndCategory(s: String, c: String, p: Boolean): LiveData<List<CollectionItem>> = collectionDao.getItemsBySuperCategoryAndCategory(s, c, p)
-    suspend fun insert(item: CollectionItem) = collectionDao.insert(item.copy(updatedAt = System.currentTimeMillis()))
-    suspend fun update(item: CollectionItem) = collectionDao.update(item.copy(updatedAt = System.currentTimeMillis()))
-    suspend fun delete(item: CollectionItem) = collectionDao.delete(item)
+    suspend fun insert(item: CollectionItem): Unit = collectionDao.insert(item.copy(updatedAt = System.currentTimeMillis()))
+    suspend fun update(item: CollectionItem): Unit = collectionDao.update(item.copy(updatedAt = System.currentTimeMillis()))
+    suspend fun delete(item: CollectionItem): Unit = collectionDao.delete(item)
 }

@@ -1,10 +1,11 @@
-package com.example.parabdcollector.utils
+package com.example.parabdcollector.java_integration.utils
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.parabdcollector.utils.observeOnce
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -25,14 +26,14 @@ class LiveDataExtInstrumentedTest {
      * This rule makes sure that LiveData updates happen synchronously in tests.
      */
     @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     /**
      * Verifies that the [observeOnce] extension function correctly observes a value
      * only one time and then automatically removes the observer.
      */
     @Test
-    fun observeOnce_shouldTriggerOnlyOnce() = runBlocking {
+    fun observeOnce_shouldTriggerOnlyOnce(): Unit = runBlocking {
         // GIVEN: A MutableLiveData, a counter, and a TestLifecycleOwner.
         val liveData = MutableLiveData<String>()
         var callCount = 0

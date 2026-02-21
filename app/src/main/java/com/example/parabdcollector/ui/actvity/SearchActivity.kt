@@ -22,7 +22,7 @@ import com.example.parabdcollector.utils.*
 class SearchActivity : AppCompatActivity() {
     private lateinit var b: ActivitySearchBinding; private lateinit var ad: CollectionAdapter; private lateinit var img: ImageCaptureUtil
     private var desc = ""; private var bmp: Bitmap? = null; private var simple = true; private var q: String? = null; private var crit: SearchCriteria? = null
-    private val vm: SearchViewModel by viewModels { val a = application as CollectionApplication; ViewModelFactory(a, a.repository, a.locationRepository!!) }
+    private val vm: SearchViewModel by viewModels { val a = application as CollectionApplication; ViewModelFactory(a, a.repository, a.locationRepository) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +78,7 @@ class SearchActivity : AppCompatActivity() {
             b.progressBar.isVisible = s is SearchResultState.Loading; b.resultsListContainer.isVisible = s is SearchResultState.Success
             b.errorContainer.isVisible = s is SearchResultState.Error
             // On cache "tvNoResults" si c'est une recherche image pour utiliser le bandeau tvResultsSummary à la place
-            b.tvNoResults.isVisible = s is SearchResultState.Success && s.results.isEmpty() && s !is SearchResultState.Idle && bmp == null
+            b.tvNoResults.isVisible = s is SearchResultState.Success && s.results.isEmpty() && bmp == null
             b.fabScrollToTop.isVisible = s is SearchResultState.Success && s.results.isNotEmpty()
             if (s is SearchResultState.Success) {
                 ad.submitList(s.results); updateResultSummary(s.totalCount, s.results.size)
@@ -149,7 +149,8 @@ class SearchActivity : AppCompatActivity() {
             val o = resources.getStringArray(R.array.search_status_options); val s = b.etSearchStatus.text.toString()
             val isP = when (s) { o[1] -> true; o[2] -> false; else -> null }
             val c = SearchCriteria(b.etSearchTitle.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchSuperCategory.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchCategory.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchEditor.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchYear.text.toString().trim().toIntOrNull(), b.etSearchMonth.text.toString().trim().toIntOrNull(), b.etSearchDescription.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }, isP)
-            crit = c; simple = false;
+            crit = c 
+            simple = false
             val prefix = if (bmp != null) "Image + " else ""
             desc = prefix + listOfNotNull(c.titre, s, c.superCategorie, c.categorie).joinToString(", ").ifBlank { "Avancée" }
             vm.advancedSearch(c, bmp)

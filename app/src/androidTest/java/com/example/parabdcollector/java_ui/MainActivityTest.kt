@@ -1,14 +1,13 @@
-package com.example.parabdcollector.ui
+package com.example.parabdcollector.java_ui
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.parabdcollector.CollectionApplication
 import com.example.parabdcollector.R
@@ -28,7 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Instrumented UI tests for [MainActivity] to verify dashboard information.
+ * Instrumented UI tests for [com.example.parabdcollector.ui.actvity.MainActivity] to verify dashboard information.
  */
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
@@ -67,10 +66,50 @@ class MainActivityTest {
     fun dashboardCounters_shouldDisplayCorrectCounts() = runTest {
         // GIVEN: 3 possessed items and 2 sought items are inserted into the database.
         val possessedItems = (1..3).map {
-            CollectionItem(id = it.toLong(), titre = "Possessed $it", editeur = "", annee = 2023, description = "", isPossessed = true, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "", prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", imageEmbedding = null, locationId = null, remoteId = null)
+            CollectionItem(
+                id = it.toLong(),
+                titre = "Possessed $it",
+                editeur = "",
+                annee = 2023,
+                description = "",
+                isPossessed = true,
+                mois = 1,
+                categorie = "",
+                superCategorie = "",
+                materiau = "",
+                tirage = "",
+                dimensions = "",
+                prixAchat = 0.0,
+                valeurEstimee = 0.0,
+                lieuAchat = "",
+                imageUri = "",
+                imageEmbedding = null,
+                locationId = null,
+                remoteId = null
+            )
         }
         val soughtItems = (4..5).map {
-            CollectionItem(id = it.toLong(), titre = "Sought $it", editeur = "", annee = 2023, description = "", isPossessed = false, mois = 1, categorie = "", superCategorie = "", materiau = "", tirage = "", dimensions = "", prixAchat = 0.0, valeurEstimee = 0.0, lieuAchat = "", imageUri = "", imageEmbedding = null, locationId = null, remoteId = null)
+            CollectionItem(
+                id = it.toLong(),
+                titre = "Sought $it",
+                editeur = "",
+                annee = 2023,
+                description = "",
+                isPossessed = false,
+                mois = 1,
+                categorie = "",
+                superCategorie = "",
+                materiau = "",
+                tirage = "",
+                dimensions = "",
+                prixAchat = 0.0,
+                valeurEstimee = 0.0,
+                lieuAchat = "",
+                imageUri = "",
+                imageEmbedding = null,
+                locationId = null,
+                remoteId = null
+            )
         }
         (possessedItems + soughtItems).forEach { dao.insert(it) }
 
@@ -85,8 +124,11 @@ class MainActivityTest {
         val soughtText = context.getString(R.string.sought_items_label, 2)
         val totalText = context.getString(R.string.total_items_label, 5)
 
-        onView(withId(R.id.possessed_items_text)).check(matches(withText(possessedText)))
-        onView(withId(R.id.sought_items_text)).check(matches(withText(soughtText)))
-        onView(withId(R.id.total_items_text)).check(matches(withText(totalText)))
+        Espresso.onView(ViewMatchers.withId(R.id.possessed_items_text))
+            .check(ViewAssertions.matches(ViewMatchers.withText(possessedText)))
+        Espresso.onView(ViewMatchers.withId(R.id.sought_items_text))
+            .check(ViewAssertions.matches(ViewMatchers.withText(soughtText)))
+        Espresso.onView(ViewMatchers.withId(R.id.total_items_text))
+            .check(ViewAssertions.matches(ViewMatchers.withText(totalText)))
     }
 }

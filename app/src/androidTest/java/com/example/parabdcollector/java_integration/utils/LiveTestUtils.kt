@@ -1,4 +1,4 @@
-package com.example.parabdcollector
+package com.example.parabdcollector.java_integration.utils
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -6,6 +6,10 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
+/**
+ * Gets the value of a [LiveData] or waits for it to have one, with a timeout.
+ * This is useful for testing, as it forces the test to be synchronous.
+ */
 fun <T> LiveData<T>.getOrAwaitValue(time: Long = 2, timeUnit: TimeUnit = TimeUnit.SECONDS): T {
     var data: T? = null
     val latch = CountDownLatch(1)

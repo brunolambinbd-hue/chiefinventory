@@ -1,4 +1,4 @@
-package com.example.parabdcollector.utils
+package com.example.parabdcollector.java_integration.utils
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
@@ -7,6 +7,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.parabdcollector.R
 import com.example.parabdcollector.ui.actvity.EditItemActivity
+import com.example.parabdcollector.utils.ImageCaptureUtil
 import org.junit.Test
 import org.junit.runner.RunWith
 
