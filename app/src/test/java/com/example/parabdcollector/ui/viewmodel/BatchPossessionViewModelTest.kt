@@ -52,7 +52,7 @@ class BatchPossessionViewModelTest {
 
     @Test
     fun `applyUpdate should update items with possessed status and selected location`(): Unit = runTest {
-        // GIVEN: Un objet identifié (non possédé par défaut via createMockItem)
+        // GIVEN : Un objet identifié (non possédé par défaut via createMockItem)
         val item = createMockItem(1, "Spirou n°1500")
         whenever(repository.getAllByTitle(any())).thenReturn(listOf(item))
         
@@ -62,7 +62,7 @@ class BatchPossessionViewModelTest {
         val targetLocationId = 100L
         viewModel.selectedLocationId = targetLocationId
 
-        // WHEN: Application de la mise à jour
+        // WHEN : Application de la mise à jour
         viewModel.applyUpdate()
         
         // Attente pour le changement de contexte vers Dispatchers.IO

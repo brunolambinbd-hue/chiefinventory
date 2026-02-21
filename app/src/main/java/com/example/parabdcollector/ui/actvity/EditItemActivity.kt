@@ -34,7 +34,7 @@ class EditItemActivity : AppCompatActivity() {
     
     private var currentItem: CollectionItem? = null
     private var newBitmap: Bitmap? = null
-    private var displayLocs = emptyList<DisplayLocation>()
+    private var displayLocations = emptyList<DisplayLocation>()
     private var selectedLocId: Long? = null
 
     private val isNewItem by lazy {
@@ -119,18 +119,18 @@ class EditItemActivity : AppCompatActivity() {
     }
 
     private fun setupLocationDropdown() {
-        viewModel.displayLocations.observe(this) { locs ->
-            displayLocs = locs
+        viewModel.displayLocations.observe(this) { locations ->
+            displayLocations = locations
             // Ajout de l'option "Aucun" en tête de liste
             val names = mutableListOf(getString(R.string.none))
-            names.addAll(locs.map { "    ".repeat(it.depth) + it.location.name })
+            names.addAll(locations.map { "    ".repeat(it.depth) + it.location.name })
             binding.etLocation.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, names))
             updateLocationUI()
         }
 
         binding.etLocation.setOnItemClickListener { _, _, position, _ ->
             // Si position == 0, on remet à null, sinon on prend l'ID correspondant (position - 1)
-            selectedLocId = if (position == 0) null else displayLocs.getOrNull(position - 1)?.location?.id
+            selectedLocId = if (position == 0) null else displayLocations.getOrNull(position - 1)?.location?.id
             updateLocationUI()
         }
     }
@@ -180,8 +180,8 @@ class EditItemActivity : AppCompatActivity() {
             return
         }
 
-        if (displayLocs.isNotEmpty()) {
-            val locMap = displayLocs.associateBy { it.location.id }
+        if (displayLocations.isNotEmpty()) {
+            val locMap = displayLocations.associateBy { it.location.id }
             val path = mutableListOf<String>()
             var curr = selectedLocId
             while (curr != null) {
@@ -231,8 +231,8 @@ class EditItemActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_ITEM_ID = "itemId"
-        const val EXTRA_PREFILL_LOCATION_ID = "prefillLocationId"
-        const val EXTRA_PREFILL_IMAGE_URI = "prefillImageUri"
+        const val EXTRA_ITEM_ID: String = "itemId"
+        const val EXTRA_PREFILL_LOCATION_ID: String = "prefillLocationId"
+        const val EXTRA_PREFILL_IMAGE_URI: String = "prefillImageUri"
     }
 }

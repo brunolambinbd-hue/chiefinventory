@@ -73,7 +73,6 @@ class MainViewModelTest {
     @Test
     fun `recentPossessedItems LiveData exposes data from repository`() {
         val testData = listOf(createMockItem(3, true))
-        // On s'assure que la référence est bien résolue en appelant la méthode du repository
         whenever(repository.getRecentPossessed()).thenReturn(MutableLiveData(testData))
 
         viewModel = MainViewModel(repository)
@@ -91,12 +90,21 @@ class MainViewModelTest {
 
     private fun createMockItem(id: Long, possessed: Boolean): CollectionItem {
         return CollectionItem(
-            id = id, titre = "Item $id", isPossessed = possessed,
-            description = null, editeur = null, annee = null, mois = null,
-            categorie = null, superCategorie = null, materiau = null,
-            tirage = null, dimensions = null, prixAchat = null,
-            valeurEstimee = null, lieuAchat = null, imageUri = null,
-            imageEmbedding = null, locationId = null, remoteId = null
+            id = id,
+            titre = "Bande Dessinée n°$id",
+            isPossessed = possessed,
+            editeur = "Dupuis",
+            annee = 2023,
+            mois = 5,
+            categorie = "Albums",
+            superCategorie = "Bandes Dessinées",
+            materiau = "Papier",
+            tirage = "Édition originale",
+            dimensions = "22 x 30 cm",
+            prixAchat = 15.0,
+            valeurEstimee = 20.0,
+            lieuAchat = "Librairie du Centre",
+            description = "Un exemplaire de test pour le MainViewModel."
         )
     }
 }

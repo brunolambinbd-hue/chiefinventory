@@ -29,18 +29,18 @@ class FullScreenImageActivityTest {
     fun allItemInformation_isCorrectlyDisplayed() {
         // GIVEN: An intent with all possible extras populated with test data.
         val intent = Intent(context, FullScreenImageActivity::class.java).apply {
-            putExtra(FullScreenImageActivity.Companion.EXTRA_IMAGE_URI, "file:///android_asset/test_image.jpg")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_TITLE, "Test Title")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_DESCRIPTION, "This is a test description.")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_EDITOR, "Test Editor")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_YEAR, 2024)
-            putExtra(FullScreenImageActivity.Companion.EXTRA_MONTH, 7)
-            putExtra(FullScreenImageActivity.Companion.EXTRA_SUPER_CATEGORY, "Test Super Cat")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_CATEGORY, "Test Cat")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_MATERIAL, "Test Material")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_RUN, "100 ex.")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_DIMENSIONS, "50x70cm")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_IMAGE_SIGNATURE, byteArrayOf(1, 2, 3))
+            putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, "file:///android_asset/test_image.jpg")
+            putExtra(FullScreenImageActivity.EXTRA_TITLE, "Test Title")
+            putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, "This is a test description.")
+            putExtra(FullScreenImageActivity.EXTRA_EDITOR, "Test Editor")
+            putExtra(FullScreenImageActivity.EXTRA_YEAR, 2024)
+            putExtra(FullScreenImageActivity.EXTRA_MONTH, 7)
+            putExtra(FullScreenImageActivity.EXTRA_SUPER_CATEGORY, "Test Super Cat")
+            putExtra(FullScreenImageActivity.EXTRA_CATEGORY, "Test Cat")
+            putExtra(FullScreenImageActivity.EXTRA_MATERIAL, "Test Material")
+            putExtra(FullScreenImageActivity.EXTRA_RUN, "100 ex.")
+            putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, "50x70cm")
+            putExtra(FullScreenImageActivity.EXTRA_IMAGE_SIGNATURE, byteArrayOf(1, 2, 3))
         }
 
         // WHEN: The activity is launched with the intent.
@@ -79,8 +79,8 @@ class FullScreenImageActivityTest {
     fun emptyOrNullFields_areHidden() {
         // GIVEN: An intent with only the mandatory title and URI.
         val intent = Intent(context, FullScreenImageActivity::class.java).apply {
-            putExtra(FullScreenImageActivity.Companion.EXTRA_IMAGE_URI, "file:///android_asset/test_image.jpg")
-            putExtra(FullScreenImageActivity.Companion.EXTRA_TITLE, "Minimal Item")
+            putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, "file:///android_asset/test_image.jpg")
+            putExtra(FullScreenImageActivity.EXTRA_TITLE, "Minimal Item")
         }
 
         // WHEN: The activity is launched.

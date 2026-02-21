@@ -24,10 +24,10 @@ import org.mockito.kotlin.whenever
 class SignatureReportViewModelTest {
 
     @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule()
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var repository: CollectionRepository
 
@@ -39,9 +39,15 @@ class SignatureReportViewModelTest {
     @Test
     fun `filteredItems should contain all problem items and only 5 valid items`() {
         // GIVEN: A list of items with various signature statuses
-        val validItems = (1..10).map { CollectionItem(id = it.toLong(), remoteId = null, titre = "Valid $it", editeur = "", annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = "", imageUri = null, imageEmbedding = byteArrayOf(it.toByte()), locationId = null, isPossessed = true) }
-        val emptyItems = (11..12).map { CollectionItem(id = it.toLong(), remoteId = null, titre = "Empty $it", editeur = "", annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = "", imageUri = null, imageEmbedding = byteArrayOf(), locationId = null, isPossessed = true) }
-        val missingItems = (13..14).map { CollectionItem(id = it.toLong(), remoteId = null, titre = "Missing $it", editeur = "", annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = "", imageUri = null, imageEmbedding = null, locationId = null, isPossessed = true) }
+        val validItems = (1..10).map { 
+            CollectionItem(id = it.toLong(), titre = "Valid $it", imageEmbedding = byteArrayOf(it.toByte())) 
+        }
+        val emptyItems = (11..12).map { 
+            CollectionItem(id = it.toLong(), titre = "Empty $it", imageEmbedding = byteArrayOf()) 
+        }
+        val missingItems = (13..14).map { 
+            CollectionItem(id = it.toLong(), titre = "Missing $it", imageEmbedding = null) 
+        }
         val allItems = validItems + emptyItems + missingItems
 
         val liveData = MutableLiveData<List<CollectionItem>>()

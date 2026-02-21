@@ -2,17 +2,27 @@
   <dictionary name="project">
     <words>
       <w>Autorise</w>
+      <w>Bande</w>
+      <w>Bandes</w>
       <w>Ceci</w>
       <w>Dargaud</w>
       <w>Derniers</w>
       <w>Dernières</w>
+      <w>Dessinée</w>
+      <w>Dessinées</w>
       <w>Dupuis</w>
       <w>Défini</w>
+      <w>Fantasio</w>
       <w>Foncé</w>
       <w>Forêt</w>
+      <w>Lagaffe</w>
+      <w>Librairie</w>
       <w>Moyen</w>
+      <w>Plomb</w>
       <w>Possédé</w>
       <w>Similarité</w>
+      <w>Spéciale</w>
+      <w>Tintin</w>
       <w>Travaux</w>
       <w>Variante</w>
       <w>aacd</w>
@@ -43,8 +53,10 @@
       <w>dictionnaires</w>
       <w>décodage</w>
       <w>déplacer</w>
+      <w>détaillée</w>
       <w>eeda</w>
       <w>erronée</w>
+      <w>exemplaire</w>
       <w>fbdd</w>
       <w>fileprovider</w>
       <w>floatingactionbutton</w>
@@ -65,6 +77,7 @@
       <w>moyen</w>
       <w>nuit</w>
       <w>numéros</w>
+      <w>originale</w>
       <w>parabd</w>
       <w>partage</w>
       <w>personnalisées</w>
@@ -80,6 +93,7 @@
       <w>recadrage</w>
       <w>redémarrer</w>
       <w>remonter</w>
+      <w>renseignés</w>
       <w>requis</w>
       <w>restauration</w>
       <w>restauré</w>
@@ -87,7 +101,9 @@
       <w>sauvegarde</w>
       <w>secondaires</w>
       <w>spirou</w>
+      <w>spécialisée</w>
       <w>statut</w>
+      <w>superbe</w>
       <w>temporaires</w>
       <w>textfield</w>
       <w>textuelle</w>

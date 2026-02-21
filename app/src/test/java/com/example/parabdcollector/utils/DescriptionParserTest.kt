@@ -71,10 +71,10 @@ class DescriptionParserTest(
      */
     @Test
     fun `Le cas de test doit passer`() {
-        // WHEN: La fonction parse est appelée avec les données du cas de test.
+        // WHEN : La fonction parse est appelée avec les données du cas de test.
         val result = DescriptionParser.parse(title, description)
 
-        // THEN: Le résultat doit correspondre au résultat attendu pour ce cas.
+        // THEN : Le résultat doit correspondre au résultat attendu pour ce cas.
         assertEquals("Échec sur le cas : '$caseName'", expected, result)
     }
 }

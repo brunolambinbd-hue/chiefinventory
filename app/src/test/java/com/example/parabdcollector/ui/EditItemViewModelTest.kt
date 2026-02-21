@@ -26,10 +26,10 @@ import org.mockito.kotlin.whenever
 class EditItemViewModelTest {
 
     @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule()
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var collectionRepository: CollectionRepository
     private lateinit var locationRepository: LocationRepository
@@ -52,47 +52,67 @@ class EditItemViewModelTest {
     fun `loadItem should fetch item from repository and update LiveData`() {
         // GIVEN: Le repository est programmé pour retourner un LiveData pour un item spécifique.
         val itemId = 123L
-        val mockItem = CollectionItem(id = itemId, remoteId = null, titre = "Test Item", editeur = "", annee = 2023, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = "", imageUri = null, imageEmbedding = null, locationId = null, isPossessed = true)
-        val liveData = MutableLiveData<CollectionItem>() // Créé vide
+        val mockItem = createTestItem(id = itemId, titre = "Gaston Lagaffe - Tome 1")
+        val liveData = MutableLiveData<CollectionItem>()
         whenever(collectionRepository.getById(itemId)).thenReturn(liveData)
 
-        // On attache un observateur pour activer le MediatorLiveData
         val observer = Observer<CollectionItem> { }
         viewModel.item.observeForever(observer)
 
-        // WHEN: On charge l'item, ce qui attache la source au Mediator.
+        // WHEN: On charge l'item
         viewModel.loadItem(itemId)
-        // ET QUAND: La donnée est émise.
         liveData.value = mockItem
 
-        // THEN: Le LiveData de l'item dans le ViewModel doit être mis à jour.
+        // THEN: Le LiveData doit être mis à jour avec l'objet complet.
         assertEquals(mockItem, viewModel.item.value)
 
-        // CLEANUP
         viewModel.item.removeObserver(observer)
     }
 
     @Test
-    fun `insert should call insert on repository`() = runTest {
-        // GIVEN: Un nouvel item à insérer.
-        val newItem = CollectionItem(id = 0, remoteId = null, titre = "New Item", editeur = "", annee = 2023, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = "", imageUri = null, imageEmbedding = null, locationId = null, isPossessed = true)
+    fun `insert should call insert on repository`(): Unit = runTest {
+        // GIVEN : Un nouvel item réaliste à insérer (id = 0 par défaut).
+        val newItem = createTestItem(titre = "Spirou et Fantasio - Virus")
 
-        // WHEN: La fonction insert est appelée.
+        // WHEN : La fonction insert est appelée.
         viewModel.insert(newItem)
 
-        // THEN: La méthode insert du repository doit être appelée avec le même item.
+        // THEN: La méthode insert du repository doit être appelée avec l'objet complet.
         verify(collectionRepository).insert(newItem)
     }
 
     @Test
-    fun `update should call update on repository`() = runTest {
-        // GIVEN: Un item existant à mettre à jour.
-        val updatedItem = CollectionItem(id = 1, remoteId = null, titre = "Updated Item", editeur = "", annee = 2023, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = "", imageUri = null, imageEmbedding = null, locationId = null, isPossessed = true)
+    fun `update should call update on repository`(): Unit = runTest {
+        // GIVEN : Un item existant mis à jour.
+        val updatedItem = createTestItem(id = 1, titre = "Tintin au Tibet - Édition Spéciale")
 
         // WHEN: La fonction update est appelée.
         viewModel.update(updatedItem)
 
-        // THEN: La méthode update du repository doit être appelée avec le même item.
+        // THEN: La méthode update du repository doit être appelée avec l'objet complet.
         verify(collectionRepository).update(updatedItem)
+    }
+
+    /**
+     * Crée un objet CollectionItem avec des données réalistes pour les tests.
+     */
+    private fun createTestItem(id: Long = 0, titre: String): CollectionItem {
+        return CollectionItem(
+            id = id,
+            titre = titre,
+            editeur = "Dupuis",
+            annee = 2023,
+            mois = 10,
+            categorie = "Albums",
+            superCategorie = "Bandes Dessinées",
+            materiau = "Papier",
+            tirage = "5000 ex.",
+            dimensions = "22x30 cm",
+            prixAchat = 15.50,
+            valeurEstimee = 25.0,
+            lieuAchat = "Librairie spécialisée",
+            description = "Un superbe album de test avec tous ses détails renseignés.",
+            isPossessed = false
+        )
     }
 }

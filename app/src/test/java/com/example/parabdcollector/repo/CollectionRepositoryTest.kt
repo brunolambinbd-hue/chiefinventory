@@ -18,7 +18,7 @@ import java.nio.ByteOrder
 class CollectionRepositoryTest {
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var collectionDao: CollectionDao
     private lateinit var repository: CollectionRepository
@@ -46,16 +46,16 @@ class CollectionRepositoryTest {
     }
 
     @Test
-    fun `findMostSimilarItems should return top 3 sorted results`() = runTest {
+    fun `findMostSimilarItems should return top 3 sorted results`(): Unit = runTest {
         // GIVEN: A normalized query embedding and a list of items with predictable similarities.
         val queryEmbedding = FloatArray(10) { 0f }.apply { this[0] = 1f }
 
         val allItemsWithEmbeddings = listOf(
-            CollectionItem(id = 1, titre = "Low Similarity", editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = null, imageUri = null, imageEmbedding = createPredictableEmbedding(0.1f)),
-            CollectionItem(id = 2, titre = "High Similarity", editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = null, imageUri = null, imageEmbedding = createPredictableEmbedding(0.95f)),
-            CollectionItem(id = 3, titre = "Medium Similarity", editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = null, imageUri = null, imageEmbedding = createPredictableEmbedding(0.5f)),
-            CollectionItem(id = 4, titre = "Very High Similarity", editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = null, imageUri = null, imageEmbedding = createPredictableEmbedding(0.99f)),
-            CollectionItem(id = 5, titre = "Another Low Similarity", editeur = null, annee = null, mois = null, categorie = null, superCategorie = null, materiau = null, tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null, lieuAchat = null, description = null, imageUri = null, imageEmbedding = createPredictableEmbedding(0.2f))
+            CollectionItem(id = 1, titre = "Low Similarity", editeur = "Dupuis", annee = 2023, imageEmbedding = createPredictableEmbedding(0.1f)),
+            CollectionItem(id = 2, titre = "High Similarity", editeur = "Dupuis", annee = 2023, imageEmbedding = createPredictableEmbedding(0.95f)),
+            CollectionItem(id = 3, titre = "Medium Similarity", editeur = "Dupuis", annee = 2023, imageEmbedding = createPredictableEmbedding(0.5f)),
+            CollectionItem(id = 4, titre = "Very High Similarity", editeur = "Dupuis", annee = 2023, imageEmbedding = createPredictableEmbedding(0.99f)),
+            CollectionItem(id = 5, titre = "Another Low Similarity", editeur = "Dupuis", annee = 2023, imageEmbedding = createPredictableEmbedding(0.2f))
         )
         whenever(collectionDao.getAllItemsWithEmbeddings()).thenReturn(allItemsWithEmbeddings)
 

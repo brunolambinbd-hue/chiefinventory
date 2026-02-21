@@ -18,10 +18,10 @@ import org.mockito.kotlin.*
 class CategoryAuditViewModelTest {
 
     @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule()
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var repository: CollectionRepository
     private lateinit var viewModel: CategoryAuditViewModel
@@ -29,33 +29,32 @@ class CategoryAuditViewModelTest {
     @Before
     fun setup() {
         repository = mock()
-        viewModel = CategoryAuditViewModel(repository)
+        // Injection du testDispatcher de la règle pour remplacer Dispatchers.IO
+        viewModel = CategoryAuditViewModel(repository, mainDispatcherRule.testDispatcher)
     }
 
     @Test
-    fun `performAudit should find items with missing or ND super-categories`() = runTest {
+    fun `performAudit should find items with missing or ND super-categories`(): Unit = runTest {
         // GIVEN: 3 items. One correct, one with empty super-cat, one with "N/D"
         val mockItems = listOf(
             createItem(1, "Affiches", "Image"),           // Correct -> ignore
             createItem(2, "Affiches", ""),                // Empty -> fix
             createItem(3, "Travaux pour Spirou", "N/D")   // N/D -> fix
         )
-        // Correction : le ViewModel appelle maintenant getAllItemsSuspend()
         whenever(repository.getAllItemsSuspend()).thenReturn(mockItems)
 
         // WHEN: Lancement de l'audit
         viewModel.performAudit()
-        advanceUntilIdle() // Attendre la fin de la coroutine
+        advanceUntilIdle() 
 
         // THEN: Devrait trouver 2 objets à réparer
         assertEquals(2, viewModel.auditResult.value)
     }
 
     @Test
-    fun `fixInconsistencies should update items with correct super-category from Mapper`() = runTest {
-        // GIVEN: Un objet à réparer détecté par l'audit
+    fun `fixInconsistencies should update items with correct super-category from Mapper`(): Unit = runTest {
+        // GIVEN : Un objet à réparer détecté par l'audit
         val itemToFix = createItem(1, "Affiches", "N/D")
-        // Correction : le ViewModel appelle maintenant getAllItemsSuspend()
         whenever(repository.getAllItemsSuspend()).thenReturn(listOf(itemToFix))
         
         viewModel.performAudit()
@@ -63,9 +62,6 @@ class CategoryAuditViewModelTest {
 
         // WHEN: Réparation
         viewModel.fixInconsistencies()
-        
-        // Correction : petit délai pour laisser le switch de contexte (Dispatchers.IO) s'opérer
-        kotlinx.coroutines.delay(100)
         advanceUntilIdle()
 
         // THEN: Le repository doit recevoir un update avec "Image" (règle pour Affiches)
@@ -79,13 +75,19 @@ class CategoryAuditViewModelTest {
     private fun createItem(id: Long, cat: String, superCat: String?): CollectionItem {
         return CollectionItem(
             id = id,
-            titre = "Test $id",
+            titre = "Objet de collection $id",
             categorie = cat,
             superCategorie = superCat,
-            editeur = null, annee = null, mois = null, materiau = null,
-            tirage = null, dimensions = null, prixAchat = null, valeurEstimee = null,
-            lieuAchat = null, description = null, imageUri = null, imageEmbedding = null,
-            locationId = null, remoteId = null, isPossessed = true
+            editeur = "Éditions du Test",
+            annee = 2024,
+            mois = 5,
+            materiau = "Plomb",
+            tirage = "1000 ex.",
+            dimensions = "12 x 15 cm",
+            prixAchat = 45.0,
+            valeurEstimee = 65.0,
+            lieuAchat = "Boutique spécialisée",
+            description = "Une description détaillée pour l'objet de test $id."
         )
     }
 }

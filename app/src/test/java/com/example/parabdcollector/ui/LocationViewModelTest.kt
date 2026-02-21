@@ -100,7 +100,7 @@ class LocationViewModelTest {
     }
 
     @Test
-    fun `expandAll_shouldShowAllNodes`() {
+    fun expandAll_shouldShowAllNodes() {
         val locations = listOf(
             Location(id = 1, name = "Parent 1", parentId = null),
             Location(id = 2, name = "Child 1.1", parentId = 1),

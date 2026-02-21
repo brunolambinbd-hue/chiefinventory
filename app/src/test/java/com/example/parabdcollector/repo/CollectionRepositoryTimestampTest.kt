@@ -21,7 +21,7 @@ class CollectionRepositoryTimestampTest {
     }
 
     @Test
-    fun `insert should refresh updatedAt timestamp`() = runTest {
+    fun `insert should refresh updatedAt timestamp`(): Unit = runTest {
         // GIVEN: Un objet avec un timestamp ancien (ex: 1000)
         val oldTimestamp = 1000L
         val item = CollectionItem(id = 1, titre = "Test", updatedAt = oldTimestamp)
@@ -29,14 +29,14 @@ class CollectionRepositoryTimestampTest {
         // WHEN: On l'insère via le repository
         repository.insert(item)
 
-        // THEN: Le DAO doit recevoir un objet avec un timestamp récent (supérieur à l'ancien)
+        // THEN : Le DAO doit recevoir un objet avec un timestamp récent (supérieur à l'ancien)
         verify(mockDao).insert(argThat { 
             this.updatedAt > oldTimestamp 
         })
     }
 
     @Test
-    fun `update should refresh updatedAt timestamp`() = runTest {
+    fun `update should refresh updatedAt timestamp`(): Unit = runTest {
         // GIVEN: Un objet existant avec un timestamp ancien
         val oldTimestamp = 1000L
         val item = CollectionItem(id = 1, titre = "Test", updatedAt = oldTimestamp)

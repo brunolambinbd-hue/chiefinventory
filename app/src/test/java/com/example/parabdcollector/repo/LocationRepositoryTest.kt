@@ -67,7 +67,7 @@ class LocationRepositoryTest {
      * corresponding method on the DAO.
      */
     @Test
-    fun `insert should call insert on dao`() = runBlocking {
+    fun `insert should call insert on dao`(): Unit = runBlocking {
         // GIVEN: A location object to insert.
         val location = Location(name = "Cuisine", parentId = null)
 
@@ -83,7 +83,7 @@ class LocationRepositoryTest {
      * corresponding method on the DAO.
      */
     @Test
-    fun `update should call update on dao`() = runBlocking {
+    fun `update should call update on dao`(): Unit = runBlocking {
         // GIVEN: A location object to update.
         val location = Location(id = 1, name = "Salon V2", parentId = null)
 
@@ -99,7 +99,7 @@ class LocationRepositoryTest {
      * corresponding method on the DAO.
      */
     @Test
-    fun `delete should call delete on dao`() = runBlocking {
+    fun `delete should call delete on dao`(): Unit = runBlocking {
         // GIVEN: A location object to delete.
         val location = Location(id = 1, name = "Salon", parentId = null)
 
