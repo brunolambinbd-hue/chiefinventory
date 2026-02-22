@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,83 +15,154 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:padding="16dp"
-        tools:context=".ui.actvity.BackupActivity">
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/btn_backup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="@string/backup_button_backup" />
-
-        <Button
-            android:id="@+id/btn_restore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/backup_button_restore" />
-
-        <TextView
-            android:id="@+id/tv_backup_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:textAppearance="?attr/textAppearanceBody1"
-            tools:text="Dernière sauvegarde : 26/07/2024 10:30"/>
-
-        <Space
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/btn_batch_update"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="@string/batch_update_title" />
+            android:orientation="vertical"
+            android:padding="16dp"
+            tools:context=".ui.actvity.BackupActivity">
 
-        <Button
-            android:id="@+id/btn_category_audit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="@string/category_audit_button" />
+            <!-- Section 1: Sauvegarde Locale (Fichier) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sauvegarde Locale (Manuelle)"
+                android:textStyle="bold"
+                android:textAppearance="?attr/textAppearanceSubtitle1" />
 
-        <Button
-            android:id="@+id/btn_unlocated_items"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="@string/show_unlocated_items_button" />
+            <Button
+                android:id="@+id/btn_backup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/backup_button_backup" />
 
-        <Button
-            android:id="@+id/btn_located_not_possessed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/show_located_not_possessed_items_button" />
+            <Button
+                android:id="@+id/btn_restore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/backup_button_restore" />
 
-        <Button
-            android:id="@+id/btn_test_crash"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/test_crash" />
+            <TextView
+                android:id="@+id/tv_backup_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="?attr/textAppearanceBody2"
+                tools:text="Dernière sauvegarde : 26/07/2024 10:30"/>
 
-        <TextView
-            android:id="@+id/tv_version_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceCaption"
-            tools:text="App v1.0 (DB v9)" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:background="?android:attr/listDivider" />
 
-    </LinearLayout>
+            <!-- Section 2: Sauvegarde Cloud Google -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cloud_backup_title"
+                android:textStyle="bold"
+                android:textAppearance="?attr/textAppearanceSubtitle1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/cloud_backup_status"
+                android:textColor="@android:color/holo_green_dark"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/cloud_backup_description"
+                android:textAppearance="?attr/textAppearanceBody2" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/cloud_backup_content_summary"
+                android:textAppearance="?attr/textAppearanceCaption" />
+
+            <Button
+                android:id="@+id/btn_verify_cloud"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/btn_verify_google_drive" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:background="?android:attr/listDivider" />
+
+            <!-- Section 3: Outils de maintenance -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Outils et Maintenance"
+                android:textStyle="bold"
+                android:textAppearance="?attr/textAppearanceSubtitle1" />
+
+            <Button
+                android:id="@+id/btn_batch_update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/batch_update_title" />
+
+            <Button
+                android:id="@+id/btn_category_audit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/category_audit_button" />
+
+            <Button
+                android:id="@+id/btn_unlocated_items"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/show_unlocated_items_button" />
+
+            <Button
+                android:id="@+id/btn_located_not_possessed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/show_located_not_possessed_items_button" />
+
+            <Button
+                android:id="@+id/btn_test_crash"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/test_crash"
+                android:textColor="@android:color/holo_red_dark" />
+
+            <TextView
+                android:id="@+id/tv_version_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceCaption"
+                tools:text="App v1.0 (DB v9)" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

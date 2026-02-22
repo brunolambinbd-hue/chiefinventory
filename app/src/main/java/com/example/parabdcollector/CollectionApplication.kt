@@ -3,6 +3,7 @@ package com.example.parabdcollector
 import android.app.Application
 import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.repo.ImportRepository
 import com.example.parabdcollector.repo.LocationRepository
 import com.example.parabdcollector.utils.GlobalExceptionHandler
 
@@ -36,6 +37,14 @@ open class CollectionApplication : Application() {
     open var locationRepository: LocationRepository
         get() = _locationRepository ?: LocationRepository(database.locationDao()).also { _locationRepository = it }
         set(value) { _locationRepository = value }
+
+    private var _importRepository: ImportRepository? = null
+    /**
+     * The singleton instance of the [ImportRepository].
+     */
+    open var importRepository: ImportRepository
+        get() = _importRepository ?: ImportRepository(database.importSessionDao()).also { _importRepository = it }
+        set(value) { _importRepository = value }
 
     override fun onCreate() {
         super.onCreate()

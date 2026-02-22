@@ -48,11 +48,19 @@ class ItemListActivity : AppCompatActivity() {
         val category = intent.getStringExtra(EXTRA_CATEGORY)
         val locationId = intent.getLongExtra(EXTRA_LOCATION_ID, -1L)
         val locationName = intent.getStringExtra(EXTRA_LOCATION_NAME)
+        val sessionId = intent.getLongExtra(EXTRA_SESSION_ID, -1L)
+        val sessionName = intent.getStringExtra(EXTRA_SESSION_NAME)
         val rootTitle = intent.getStringExtra(CategoryListActivity.EXTRA_ROOT_TITLE)
 
         setupRecyclerView()
 
         when {
+            listType == TYPE_SESSION -> {
+                supportActionBar?.title = sessionName ?: "Objets de l'import"
+                viewModel.getItemsBySession(sessionId).observe(this) { items ->
+                    adapter.submitList(items.map(::SearchResultItem))
+                }
+            }
             listType == TYPE_RECENT_POSSESSED -> {
                 supportActionBar?.title = "Dernières trouvailles"
                 viewModel.recentPossessedItems.observe(this) { items ->
@@ -155,5 +163,9 @@ class ItemListActivity : AppCompatActivity() {
         const val TYPE_LOCATED_NOT_POSSESSED: Int = 4
         const val TYPE_RECENT_POSSESSED: Int = 5
         const val TYPE_RECENT_LOCATED: Int = 6
+        const val TYPE_SESSION: Int = 7
+
+        const val EXTRA_SESSION_ID: String = "extra_session_id"
+        const val EXTRA_SESSION_NAME: String = "extra_session_name"
     }
 }

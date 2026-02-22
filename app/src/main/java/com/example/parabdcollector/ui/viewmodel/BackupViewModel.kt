@@ -11,21 +11,29 @@ import com.example.parabdcollector.R
 import com.example.parabdcollector.data.AppDatabase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-class BackupViewModel(application: Application) : AndroidViewModel(application) {
+/**
+ * ViewModel responsible for database backup and restore operations.
+ */
+class BackupViewModel(
+    application: Application,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) : AndroidViewModel(application) {
 
     private val _operationStatus = MutableLiveData<String>()
     val operationStatus: LiveData<String> = _operationStatus
 
-    fun backupDatabase(destinationUri: Uri, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
-        viewModelScope.launch(dispatcher) {
+    fun backupDatabase(destinationUri: Uri) {
+        viewModelScope.launch(ioDispatcher) {
             val context = getApplication<Application>()
             try {
-                val dbFile = context.getDatabasePath(AppDatabase.DATABASE_NAME)
+                val dbFile = context.getDatabasePath(AppDatabase.DATABASE_NAME) 
+                    ?: throw Exception("Fichier de base de données introuvable")
 
                 context.contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
                     FileInputStream(dbFile).use { inputStream ->
@@ -35,45 +43,57 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
                 _operationStatus.postValue(context.getString(R.string.backup_success))
             } catch (e: Exception) {
                 Log.e(TAG, "Backup failed", e)
-                _operationStatus.postValue(context.getString(R.string.backup_failed, e.message))
+                val errorMsg = e.message ?: "Erreur inconnue"
+                _operationStatus.postValue(context.getString(R.string.backup_failed, errorMsg))
             }
         }
     }
 
-    fun restoreDatabase(sourceUri: Uri, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
-        viewModelScope.launch(dispatcher) {
+    fun restoreDatabase(sourceUri: Uri) {
+        viewModelScope.launch(ioDispatcher) {
             val context = getApplication<Application>()
-            val dbPath = context.getDatabasePath(AppDatabase.DATABASE_NAME).parent ?: return@launch
-            val dbFile = File(dbPath, AppDatabase.DATABASE_NAME)
-            val walFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-wal")
-            val shmFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-shm")
-
-            // CRITICAL STEP: Close the database connection and destroy the singleton instance.
-            AppDatabase.closeInstance()
-
-            // Allow some time for the system to release file locks.
-            Thread.sleep(500)
-
-            val deleteSuccess = (!dbFile.exists() || dbFile.delete()) &&
-                                (!walFile.exists() || walFile.delete()) &&
-                                (!shmFile.exists() || shmFile.delete())
-
-            if (!deleteSuccess) {
-                Log.e(TAG, "Failed to delete one or more old database files. Aborting restore.")
-                _operationStatus.postValue(context.getString(R.string.restore_failed_delete))
-                return@launch
-            }
-
             try {
-                context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
+                val dbFileRaw = context.getDatabasePath(AppDatabase.DATABASE_NAME)
+                    ?: throw Exception("Impossible d'obtenir le chemin de la base de données")
+                
+                val dbPath = dbFileRaw.absoluteFile.parent 
+                    ?: throw Exception("Impossible de déterminer le répertoire parent")
+                
+                val dbFile = File(dbPath, AppDatabase.DATABASE_NAME)
+                val walFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-wal")
+                val shmFile = File(dbPath, "${AppDatabase.DATABASE_NAME}-shm")
+
+                // ÉTAPE CRITIQUE : Fermer la base de données avant toute manipulation de fichiers
+                AppDatabase.closeInstance()
+
+                // Délai pour s'assurer que le système a libéré les fichiers
+                delay(500)
+
+                val deleteSuccess = (!dbFile.exists() || dbFile.delete()) &&
+                                    (!walFile.exists() || walFile.delete()) &&
+                                    (!shmFile.exists() || shmFile.delete())
+
+                if (!deleteSuccess) {
+                    _operationStatus.postValue(context.getString(R.string.restore_failed_delete))
+                    return@launch
+                }
+
+                val inputStream = context.contentResolver.openInputStream(sourceUri)
+                if (inputStream == null) {
+                    _operationStatus.postValue(context.getString(R.string.restore_failed, "Flux d'entrée nul"))
+                    return@launch
+                }
+
+                inputStream.use { input ->
                     FileOutputStream(dbFile).use { outputStream ->
-                        inputStream.copyTo(outputStream)
+                        input.copyTo(outputStream)
                     }
                 }
                 _operationStatus.postValue(context.getString(R.string.restore_success))
             } catch (e: Exception) {
-                Log.e(TAG, "Restore failed during copy", e)
-                _operationStatus.postValue(context.getString(R.string.restore_failed, e.message))
+                Log.e(TAG, "Restore failed", e)
+                val errorMsg = e.message ?: "Erreur inconnue"
+                _operationStatus.postValue(context.getString(R.string.restore_failed, errorMsg))
             }
         }
     }

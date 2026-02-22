@@ -28,13 +28,15 @@ data class CollectionItem(
     val valeurEstimee: Double? = null,
     val lieuAchat: String? = null,
     val description: String? = null,
-    val imageUri: String? = null,
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    val imageEmbedding: ByteArray? = null,
     val locationId: Long? = null,
     val isPossessed: Boolean = true,
+    /** ID of the last import session that created or updated this item. */
+    val lastSessionId: Long? = null,
     /** Timestamp of the last time this item was updated or created. */
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val imageUri: String? = null,
+    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+    val imageEmbedding: ByteArray? = null
 ) : Parcelable {
 
     override fun equals(other: Any?): Boolean {

@@ -16,16 +16,13 @@ import androidx.lifecycle.Observer
  * @param onChanged The lambda function to be executed when the data is received.
  */
 fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, onChanged: (T) -> Unit) {
-    // This cannot be a lambda because we need the 'this' reference to the Observer
-    // in order to remove it after the first emission.
-    @Suppress("ObjectLiteralToLambda")
-    val observer = object : Observer<T> {
-        override fun onChanged(value: T) {
-            // As soon as we get a value, we remove the observer.
-            removeObserver(this)
-            // And then we pass the value to the callback.
-            onChanged(value)
+    // We use a local variable to allow the lambda to reference itself for removal.
+    var observer: Observer<T>? = null
+    observer = Observer { value ->
+        observer?.let {
+            removeObserver(it)
         }
+        onChanged(value)
     }
     observe(owner, observer)
 }

@@ -3,42 +3,35 @@ package com.example.parabdcollector.ui.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
-import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.dao.SignatureReportItem
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.repo.CollectionRepository
 
 /**
- * ViewModel for the signature report screen ([com.example.parabdcollector.ui.actvity.SignatureReportActivity]).
- *
- * This ViewModel provides statistics about image signatures and a filtered list of items
- * for the report. It highlights items with missing or empty signatures.
- *
- * @param repository The [CollectionRepository] for accessing collection data.
+ * ViewModel for the signature report screen.
  */
 class SignatureReportViewModel(repository: CollectionRepository) : ViewModel() {
 
-    private val _allItems = repository.getAll()
+    // On utilise maintenant la méthode légère qui ne charge pas les blobs
+    private val _reportItems = repository.getSignatureReportItems()
 
     /**
-     * A filtered and sorted list of items for the report. It includes all items with problematic
-     * signatures (null or empty) plus a small sample of valid items for reference.
+     * A filtered list of items for the report using lightweight SignatureReportItem.
      */
-    val filteredItems: MediatorLiveData<List<CollectionItem>> = MediatorLiveData<List<CollectionItem>>()
+    val filteredItems: MediatorLiveData<List<SignatureReportItem>> = MediatorLiveData()
 
-    /** Live statistics about the state of image signatures in the collection. */
+    /** Live statistics about the state of image signatures. */
     val signatureStats: LiveData<SignatureStats> = repository.getSignatureStats()
 
     init {
-        filteredItems.addSource(_allItems) { items ->
-            // Filter for items with problematic signatures (null or empty).
-            val problems = items.filter { it.imageEmbedding == null || it.imageEmbedding.isEmpty() }
-                                 .sortedBy { it.remoteId } // Sort for a stable order.
+        filteredItems.addSource(_reportItems) { items ->
+            // On sépare les items avec signature et sans signature
+            val problems = items.filter { !it.hasEmbedding }
+                                 .sortedBy { it.id }
 
-            // Take a small sample of valid items for context.
-            val valids = items.filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
-                              .take(5)
+            val valids = items.filter { it.hasEmbedding }
+                              .take(20) // Petit échantillon pour vérification
 
-            // Combine the lists, showing problematic items first.
             filteredItems.value = problems + valids
         }
     }

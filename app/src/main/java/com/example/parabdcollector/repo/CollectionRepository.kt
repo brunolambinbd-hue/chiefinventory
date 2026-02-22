@@ -140,7 +140,13 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     fun getItemsBySuperCategoryAndCategory(s: String, c: String, p: Boolean): LiveData<List<CollectionItem>> = collectionDao.getItemsBySuperCategoryAndCategory(s, c, p)
+    fun getSignatureReportItems(): LiveData<List<com.example.parabdcollector.dao.SignatureReportItem>> =
+        collectionDao.getSignatureReportItems()
+
+    fun getItemsBySession(sessionId: Long): LiveData<List<CollectionItem>> = collectionDao.getItemsBySession(sessionId)
     suspend fun insert(item: CollectionItem): Unit = collectionDao.insert(item.copy(updatedAt = System.currentTimeMillis()))
+    suspend fun insertAll(items: List<CollectionItem>): Unit = collectionDao.insertAll(items.map { it.copy(updatedAt = System.currentTimeMillis()) })
     suspend fun update(item: CollectionItem): Unit = collectionDao.update(item.copy(updatedAt = System.currentTimeMillis()))
+    suspend fun updateAll(items: List<CollectionItem>): Unit = collectionDao.updateAll(items.map { it.copy(updatedAt = System.currentTimeMillis()) })
     suspend fun delete(item: CollectionItem): Unit = collectionDao.delete(item)
 }

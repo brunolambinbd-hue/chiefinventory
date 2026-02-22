@@ -107,8 +107,8 @@
     <string name="locations_management_title">Gestion des emplacements</string>
 
     <!-- Sauvegarde et Restauration -->
-    <string name="backup_button_backup">Sauvegarder la collection</string>
-    <string name="backup_button_restore">Restaurer une sauvegarde</string>
+    <string name="backup_button_backup">Sauvegarder la collection (Fichier .db)</string>
+    <string name="backup_button_restore">Restaurer une sauvegarde (.db)</string>
     <string name="show_unlocated_items_button">Objets non localisés</string>
     <string name="show_located_not_possessed_items_button">Objets localisés non possédés</string>
     <string name="version_info_format" translatable="false">App v%1$s (%4$s) (DB v%2$d)\nAPI URL: %3$s</string>
@@ -117,6 +117,13 @@
     <string name="restore_success">Restauration réussie ! Veuillez redémarrer l\'application.</string>
     <string name="restore_failed">Échec de la restauration : %1$s</string>
     <string name="restore_failed_delete">Échec de la restauration : impossible de supprimer les anciens fichiers de base de données.</string>
+
+    <!-- NOUVEAU: Cloud Backup -->
+    <string name="cloud_backup_title">Sauvegarde Cloud automatique</string>
+    <string name="cloud_backup_status">Activée (Compte Google)</string>
+    <string name="cloud_backup_description">Vos données sont sauvegardées chaque nuit sur Google Drive (en Wi-Fi).</string>
+    <string name="cloud_backup_content_summary">Inclus : Base de données, Photos et Réglages.</string>
+    <string name="btn_verify_google_drive">Vérifier l\'état sur Google Drive</string>
 
     <!-- Assistant de Mise à jour par lot -->
     <string name="batch_update_title">Mise à jour par lot (Séries)</string>
@@ -203,6 +210,8 @@
     <string name="possessed_status">POSSÉDÉ</string>
     <string name="sought_status">RECHERCHÉ</string>
     <string name="category_audit_success_format">%1$d objets ont été reclassés avec succès.</string>
-
+    <string name="import_history_title">Historique des Imports</string>
+    <string name="import_added_format">%1$d nouveaux</string>
+    <string name="import_updated_format">%1$d mis à jour</string>
 
 </resources>

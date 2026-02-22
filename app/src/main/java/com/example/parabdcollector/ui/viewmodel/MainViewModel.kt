@@ -55,4 +55,8 @@ class MainViewModel(private val repository: CollectionRepository) : ViewModel() 
     fun getItemsByLocationId(locationId: Long): LiveData<List<CollectionItem>> {
         return repository.getItemsByLocationId(locationId)
     }
+
+    fun getItemsBySession(sessionId: Long): LiveData<List<CollectionItem>> {
+        return repository.getItemsBySession(sessionId)
+    }
 }

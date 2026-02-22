@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import com.example.parabdcollector.R
 import com.example.parabdcollector.CollectionApplication
@@ -29,13 +30,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository, app.locationRepository)
+        ViewModelFactory(app, app.repository, app.locationRepository, app.importRepository)
     }
 
     private val importViewModel: ImportViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository, app.locationRepository)
+        ViewModelFactory(app, app.repository, app.locationRepository, app.importRepository)
     }
 
     private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -46,6 +47,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Désactiver le SplashScreen si on détecte un environnement de test Espresso
+        val isTest = try { Class.forName("androidx.test.espresso.Espresso"); true } catch (_: Exception) { false }
+        if (!isTest) {
+            installSplashScreen()
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -86,7 +93,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(this, "Affichage de tous les objets (à implémenter)", Toast.LENGTH_SHORT).show()
         }
 
-        // Branchement des nouveaux boutons du tableau de bord
         binding.btnRecentFinds.setOnClickListener {
             navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
         }
@@ -145,7 +151,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 startActivity(intent)
             }
-            // Branchement des nouveaux items du menu latéral
             R.id.nav_recent_finds -> navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
             R.id.nav_recent_organizations -> navigateToRecent(ItemListActivity.TYPE_RECENT_LOCATED)
             
@@ -161,6 +166,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_import -> {
                 importCsvLauncher.launch("text/comma-separated-values")
+            }
+            R.id.nav_import_history -> {
+                startActivity(Intent(this, ImportHistoryActivity::class.java))
             }
             R.id.nav_signatures -> {
                 startActivity(Intent(this, SignatureReportActivity::class.java))

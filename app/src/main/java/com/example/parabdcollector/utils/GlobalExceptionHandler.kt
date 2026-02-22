@@ -11,9 +11,10 @@ import java.util.Date
 import java.util.Locale
 import kotlin.system.exitProcess
 
+/**
+ * Custom uncaught exception handler that logs the crash to a file and launches a CrashActivity.
+ */
 class GlobalExceptionHandler(private val applicationContext: Context) : Thread.UncaughtExceptionHandler {
-
-    private val defaultUEH: Thread.UncaughtExceptionHandler? = Thread.getDefaultUncaughtExceptionHandler()
 
     override fun uncaughtException(t: Thread, e: Throwable) {
         // Écrire l'exception dans un fichier de log
@@ -40,7 +41,7 @@ class GlobalExceptionHandler(private val applicationContext: Context) : Thread.U
                 writer.append("\n--- $timestamp ---\n")
                 writer.append(stackTrace)
             }
-        } catch (ioException: Exception) {
+        } catch (_: Exception) {
             // Si l'écriture du log échoue, on ne peut pas faire grand-chose de plus.
         }
     }

@@ -104,6 +104,62 @@ class CollectionDaoTest {
         assertThat(searchResults).containsExactly(item2, item1).inOrder()
     }
 
+    /**
+     * Test de l'amélioration de la recherche simple : 
+     * Vérifie que la recherche trouve un objet via sa Catégorie ou Super-Catégorie
+     * même si le mot n'est pas dans le titre.
+     */
+    @Test
+    fun searchByCategories_returnsMatchingItems(): Unit = runTest {
+        // GIVEN: Un objet dont le titre ne contient pas "Vœux" ni "Papeterie"
+        val card = baseItem.copy(
+            id = 1, 
+            titre = "Bonne Année 1999", 
+            categorie = "Cartes de Vœux", 
+            superCategorie = "Papeterie"
+        )
+        collectionDao.insert(card)
+
+        // WHEN: On cherche le mot "Vœux" (présent uniquement dans la catégorie)
+        val resultsByCategory = collectionDao.search("%Vœux%")
+        
+        // THEN: L'objet doit être trouvé
+        assertThat(resultsByCategory).hasSize(1)
+        assertThat(resultsByCategory[0].titre).isEqualTo("Bonne Année 1999")
+
+        // WHEN: On cherche le mot "Papeterie" (présent uniquement dans la super-catégorie)
+        val resultsBySuperCategory = collectionDao.search("%Papeterie%")
+
+        // THEN: L'objet doit aussi être trouvé
+        assertThat(resultsBySuperCategory).hasSize(1)
+        assertThat(resultsBySuperCategory[0].titre).isEqualTo("Bonne Année 1999")
+    }
+
+    /**
+     * Test de l'échec de la recherche simple :
+     * Vérifie que la recherche ne retourne rien si le mot-clé n'est présent
+     * dans aucun des champs indexés (Titre, Editeur, Description, Categorie, Super-Categorie).
+     */
+    @Test
+    fun searchWithNonMatchingKeyword_returnsEmptyList(): Unit = runTest {
+        // GIVEN: Un objet avec des données précises
+        val item = baseItem.copy(
+            id = 1,
+            titre = "Tintin en Amérique",
+            editeur = "Casterman",
+            description = "Edition originale",
+            categorie = "Albums",
+            superCategorie = "Bandes Dessinées"
+        )
+        collectionDao.insert(item)
+
+        // WHEN: On cherche un mot qui n'existe absolument pas dans ces champs (ex: "Astérix")
+        val results = collectionDao.search("%Astérix%")
+
+        // THEN: La liste doit être vide
+        assertThat(results).isEmpty()
+    }
+
     @Test
     fun getUnlocatedItems_logic(): Unit = runTest {
         val unlocated = baseItem.copy(id = 1, locationId = null, isPossessed = true)

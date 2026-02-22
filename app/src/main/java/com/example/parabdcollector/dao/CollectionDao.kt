@@ -8,10 +8,10 @@ import com.example.parabdcollector.model.CollectionItem
 @Dao
 interface CollectionDao {
 
-    @Query("SELECT * FROM collection_items")
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items")
     fun getAll(): LiveData<List<CollectionItem>>
 
-    @Query("SELECT * FROM collection_items")
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items")
     suspend fun getAllSuspend(): List<CollectionItem>
     
     @Query("SELECT * FROM collection_items WHERE imageEmbedding IS NOT NULL")
@@ -20,19 +20,19 @@ interface CollectionDao {
     @Query("SELECT locationId, COUNT(id) as count FROM collection_items WHERE locationId IS NOT NULL GROUP BY locationId")
     fun getItemCountByLocation(): LiveData<List<ItemCountForLocation>>
 
-    @Query("SELECT * FROM collection_items WHERE locationId = :locationId")
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items WHERE locationId = :locationId")
     fun getItemsByLocationId(locationId: Long): LiveData<List<CollectionItem>>
 
-    @Query("SELECT * FROM collection_items WHERE isPossessed = 1 ORDER BY annee DESC, mois DESC")
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items WHERE isPossessed = 1 ORDER BY annee DESC, mois DESC")
     fun getAllPossessed(): LiveData<List<CollectionItem>>
 
-    @Query("SELECT * FROM collection_items WHERE isPossessed = 0 ORDER BY annee DESC, mois DESC")
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items WHERE isPossessed = 0 ORDER BY annee DESC, mois DESC")
     fun getAllSought(): LiveData<List<CollectionItem>>
 
-    @Query("SELECT * FROM collection_items WHERE locationId IS NULL AND isPossessed = 1")
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items WHERE locationId IS NULL AND isPossessed = 1")
     fun getUnlocatedItems(): LiveData<List<CollectionItem>>
 
-    @Query("SELECT * FROM collection_items WHERE locationId IS NOT NULL AND isPossessed = 0")
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items WHERE locationId IS NOT NULL AND isPossessed = 0")
     fun getLocatedNotPossessedItems(): LiveData<List<CollectionItem>>
 
     @Query("SELECT * FROM collection_items WHERE isPossessed = 1 ORDER BY updatedAt DESC LIMIT 50")
@@ -53,7 +53,7 @@ interface CollectionDao {
     @Query("SELECT * FROM collection_items WHERE remoteId = :remoteId")
     fun findByRemoteId(remoteId: Int): CollectionItem?
 
-    @Query("SELECT * FROM collection_items WHERE (titre LIKE :query OR editeur LIKE :query OR description LIKE :query) ORDER BY annee DESC, mois DESC LIMIT 50")
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items WHERE (titre LIKE :query OR editeur LIKE :query OR description LIKE :query OR categorie LIKE :query OR superCategorie LIKE :query) ORDER BY annee DESC, mois DESC LIMIT 50")
     suspend fun search(query: String): List<CollectionItem>
 
     @Query("SELECT * FROM collection_items WHERE titre LIKE :query")
@@ -109,14 +109,23 @@ interface CollectionDao {
     """)
     suspend fun getCategoryInfoForSuperCategorySuspend(superCategory: String): List<CategoryInfoFromDb>
 
-    @Query("SELECT * FROM collection_items WHERE superCategorie = :superCategory AND categorie = :category AND isPossessed = :isPossessed ORDER BY annee DESC, mois DESC")
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items WHERE superCategorie = :superCategory AND categorie = :category AND isPossessed = :isPossessed ORDER BY annee DESC, mois DESC")
     fun getItemsBySuperCategoryAndCategory(superCategory: String, category: String, isPossessed: Boolean): LiveData<List<CollectionItem>>
     
-    @Query("SELECT id, titre, imageUri, imageEmbedding FROM collection_items")
+    @Query("SELECT id, titre, imageUri, (imageEmbedding IS NOT NULL AND length(imageEmbedding) > 0) as hasEmbedding FROM collection_items")
     fun getSignatureReportItems(): LiveData<List<SignatureReportItem>>
+
+    @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items WHERE lastSessionId = :sessionId ORDER BY titre ASC")
+    fun getItemsBySession(sessionId: Long): LiveData<List<CollectionItem>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: CollectionItem)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(items: List<CollectionItem>)
+
+    @Update
+    suspend fun updateAll(items: List<CollectionItem>)
 
     @Update
     suspend fun update(item: CollectionItem)

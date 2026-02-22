@@ -33,6 +33,10 @@
             android:icon="@android:drawable/ic_menu_upload"
             android:title="@string/menu_import_title" />
         <item
+            android:id="@+id/nav_import_history"
+            android:icon="@android:drawable/ic_menu_recent_history"
+            android:title="Historique des imports" />
+        <item
             android:id="@+id/nav_backup"
             android:icon="@android:drawable/ic_menu_save"
             android:title="@string/menu_backup_title" />

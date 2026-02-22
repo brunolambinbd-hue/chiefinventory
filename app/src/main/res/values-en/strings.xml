@@ -181,5 +181,8 @@
     <string name="search_visual_matches">" — %1$d visual correspondance(s)"</string>
     <string name="search_displayed_count">" — %1$d displayed"</string>
     <string name="ajouter">Add</string>
+    <string name="import_history_title">Import History</string>
+    <string name="import_added_format">%1$d new items</string>
+    <string name="import_updated_format">%1$d updated items</string>
 
 </resources>

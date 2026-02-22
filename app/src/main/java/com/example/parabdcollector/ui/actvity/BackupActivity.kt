@@ -3,6 +3,7 @@ package com.example.parabdcollector.ui.actvity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -77,6 +78,21 @@ class BackupActivity : AppCompatActivity() {
 
         binding.btnRestore.setOnClickListener {
             openDocumentLauncher.launch(arrayOf("application/x-sqlite3", "application/octet-stream"))
+        }
+
+        binding.btnVerifyCloud.setOnClickListener {
+            try {
+                // Tente d'ouvrir les paramètres de sauvegarde Google du téléphone
+                val intent = Intent(Settings.ACTION_PRIVACY_SETTINGS)
+                if (intent.resolveActivity(packageManager) != null) {
+                    startActivity(intent)
+                } else {
+                    // Fallback vers les paramètres généraux si ACTION_PRIVACY_SETTINGS n'est pas disponible
+                    startActivity(Intent(Settings.ACTION_SETTINGS))
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this, "Impossible d'ouvrir les paramètres système", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.btnTestCrash.setOnClickListener {
