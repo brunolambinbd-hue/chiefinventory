@@ -137,7 +137,7 @@
     <string name="category_audit_description">Cet outil compare les Super-Catégories de vos objets avec les règles actuelles du système.</string>
     <string name="category_audit_analyze_button">Lancer l\'audit</string>
     <string name="category_audit_fix_button">Réparer les incohérences</string>
-    <string name="category_audit_summary_format">Trouvé : %1$d objet(s) avec une Super-Catégorie erronée ou manquante (ex: N/D).</string>
+    <string name="category_audit_summary_format">Trouvé : %1$d objet(s) avec une Super-Catégorie erronée ou manquante (ex : N/D).</string>
     <string name="category_audit_no_issues">Toutes les catégories sont cohérentes. Aucune réparation nécessaire.</string>
 
     <plurals name="category_audit_success_format">

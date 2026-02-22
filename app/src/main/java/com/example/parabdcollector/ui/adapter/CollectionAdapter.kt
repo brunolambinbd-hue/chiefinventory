@@ -48,11 +48,11 @@ class CollectionAdapter(private val onItemClicked: (SearchResultItem) -> Unit) :
             binding.itemDescription.text = item.description
             binding.itemDescription.isVisible = !item.description.isNullOrBlank()
 
-            // Set zebra striping
-            val backgroundColor = if (position % 2 == 0) {
-                ContextCompat.getColor(context, R.color.stripe_even)
+            // Utilisation du zebra striping avec la ressource dédiée (compatible mode nuit)
+            val backgroundColor = if (position % 2 != 0) {
+                ContextCompat.getColor(context, R.color.zebra_stripe_background)
             } else {
-                ContextCompat.getColor(context, R.color.stripe_odd)
+                android.graphics.Color.TRANSPARENT
             }
             binding.innerCardLayout.setBackgroundColor(backgroundColor)
             

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.parabdcollector.model.Location
 import com.example.parabdcollector.repo.LocationRepository
 import com.example.parabdcollector.ui.model.DisplayLocation
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
@@ -64,19 +65,19 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
         return displayList
     }
 
-    fun insert(location: Location) = viewModelScope.launch {
+    fun insert(location: Location): Job = viewModelScope.launch {
         repository.insert(location)
     }
 
-    fun update(location: Location) = viewModelScope.launch {
+    fun update(location: Location): Job = viewModelScope.launch {
         repository.update(location)
     }
 
-    fun delete(location: Location) = viewModelScope.launch {
+    fun delete(location: Location): Job = viewModelScope.launch {
         repository.delete(location)
     }
 
-    fun updateLocationParent(locationId: Long, newParentId: Long?) = viewModelScope.launch {
+    fun updateLocationParent(locationId: Long, newParentId: Long?): Job = viewModelScope.launch {
         repository.updateLocationParent(locationId, newParentId)
     }
 }

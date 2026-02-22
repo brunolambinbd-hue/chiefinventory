@@ -1,6 +1,7 @@
 package com.example.parabdcollector.ui.model
 
 import com.example.parabdcollector.model.Location
+import com.example.parabdcollector.ui.adapter.LocationAdapter
 
 /**
  * A view-specific data class that represents a location within an expandable list UI.

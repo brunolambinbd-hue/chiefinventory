@@ -18,6 +18,7 @@ import com.example.parabdcollector.repo.LocationRepository
 import com.example.parabdcollector.ui.model.DisplayLocation
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -114,7 +115,7 @@ class EditItemViewModel(
      * @param item The [CollectionItem] to save.
      */
     @Suppress("unused")
-    fun saveItem(item: CollectionItem) = viewModelScope.launch {
+    fun saveItem(item: CollectionItem): Job = viewModelScope.launch {
         if (item.id == 0L) {
             collectionRepository.insert(item)
         } else {
@@ -126,7 +127,7 @@ class EditItemViewModel(
      * Inserts a new item into the database.
      * @param item The [CollectionItem] to insert.
      */
-    fun insert(item: CollectionItem) = viewModelScope.launch {
+    fun insert(item: CollectionItem): Job = viewModelScope.launch {
         collectionRepository.insert(item)
     }
 
@@ -134,7 +135,7 @@ class EditItemViewModel(
      * Updates an existing item in the database.
      * @param item The [CollectionItem] to update.
      */
-    fun update(item: CollectionItem) = viewModelScope.launch {
+    fun update(item: CollectionItem): Job = viewModelScope.launch {
         collectionRepository.update(item)
     }
 }

@@ -27,7 +27,7 @@ class InventoryResultActivity : AppCompatActivity() {
     private val viewModel: InventoryViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository, app.locationRepository!!)
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +54,7 @@ class InventoryResultActivity : AppCompatActivity() {
 
         binding.btnCreateNew.setOnClickListener {
             val intent = Intent(this, EditItemActivity::class.java).apply {
-                // On lance en mode création (pas d'itemId)
+                // On lance en mode création (pas d'itemId).
                 putExtra(EditItemActivity.EXTRA_PREFILL_LOCATION_ID, locationId)
                 putExtra(EditItemActivity.EXTRA_PREFILL_IMAGE_URI, scannedImageUri)
             }
@@ -83,8 +83,8 @@ class InventoryResultActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_LOCATION_ID = "location_id"
-        const val EXTRA_SIMILAR_ITEMS = "similar_items"
-        const val EXTRA_SCANNED_IMAGE_URI = "scanned_image_uri"
+        const val EXTRA_LOCATION_ID: String = "location_id"
+        const val EXTRA_SIMILAR_ITEMS: String = "similar_items"
+        const val EXTRA_SCANNED_IMAGE_URI: String = "scanned_image_uri"
     }
 }

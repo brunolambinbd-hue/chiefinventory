@@ -27,7 +27,7 @@ class InventoryScannerActivity : AppCompatActivity() {
 
     private val viewModel: InventoryViewModel by viewModels {
         val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository!!, app.locationRepository!!)
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,7 +86,7 @@ class InventoryScannerActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_LOCATION_ID = "location_id"
-        const val EXTRA_LOCATION_NAME = "location_name"
+        const val EXTRA_LOCATION_ID: String = "location_id"
+        const val EXTRA_LOCATION_NAME: String = "location_name"
     }
 }

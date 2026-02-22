@@ -14,5 +14,5 @@ data class CategoryInfo(
     val name: String,
     val possessedCount: Int,
     val totalCount: Int,
-    @ColorRes val statusColorRes: Int
+    @get:ColorRes val statusColorRes: Int
 )

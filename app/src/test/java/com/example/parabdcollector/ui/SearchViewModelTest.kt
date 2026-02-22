@@ -72,7 +72,7 @@ class SearchViewModelTest {
     fun `search should correctly handle possessed items`(): Unit = runTest {
         // GIVEN : Un résultat de recherche contenant un objet possédé
         val query = "possessed"
-        val possessedItem = createTestItem(1, "Possessed Item", isPossessed = true)
+        val possessedItem = createTestItem(1, "Possessed Item")
         whenever(repository.search(query)).thenReturn(listOf(possessedItem))
 
         // WHEN : Recherche

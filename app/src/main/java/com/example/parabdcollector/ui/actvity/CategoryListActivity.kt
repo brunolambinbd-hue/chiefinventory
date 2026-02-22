@@ -42,7 +42,7 @@ class CategoryListActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository!!, app.locationRepository!!)
+        ViewModelFactory(app, app.repository, app.locationRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -196,8 +196,8 @@ class CategoryListActivity : AppCompatActivity() {
     @Suppress("RedundantVisibilityModifier")
     companion object {
         /** Key for the string extra that holds the name of the super-category to display. */
-        public const val EXTRA_SUPER_CATEGORY = "super_category"
+        public const val EXTRA_SUPER_CATEGORY: String = "super_category"
         /** Key for the string extra that holds the root title for context (e.g., "Mes Produits"). */
-        public const val EXTRA_ROOT_TITLE = "root_title"
+        public const val EXTRA_ROOT_TITLE: String = "root_title"
     }
 }

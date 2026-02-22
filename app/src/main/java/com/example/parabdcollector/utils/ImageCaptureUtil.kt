@@ -85,7 +85,7 @@ class ImageCaptureUtil(
     }
 
     /** Legacy entry point. */
-    fun start() = startCamera()
+    fun start(): Unit = startCamera()
 
     private fun launchCamera() {
         val imageFile = File(activity.filesDir, "images/capture_${System.currentTimeMillis()}.jpg").apply { parentFile?.mkdirs() }

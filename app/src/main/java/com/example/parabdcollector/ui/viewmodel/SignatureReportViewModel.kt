@@ -23,7 +23,7 @@ class SignatureReportViewModel(repository: CollectionRepository) : ViewModel() {
      * A filtered and sorted list of items for the report. It includes all items with problematic
      * signatures (null or empty) plus a small sample of valid items for reference.
      */
-    val filteredItems = MediatorLiveData<List<CollectionItem>>()
+    val filteredItems: MediatorLiveData<List<CollectionItem>> = MediatorLiveData<List<CollectionItem>>()
 
     /** Live statistics about the state of image signatures in the collection. */
     val signatureStats: LiveData<SignatureStats> = repository.getSignatureStats()

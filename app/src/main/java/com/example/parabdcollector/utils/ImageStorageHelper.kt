@@ -7,7 +7,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 /**
- * A utility object for managing the permanent storage of images within the app's internal files directory.
+ * A utility object for managing the permanent storage of images within the app's internal' files directory.
  * This ensures that images captured by the user are not lost when the app's cache is cleared.
  */
 object ImageStorageHelper {

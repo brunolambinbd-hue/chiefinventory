@@ -29,10 +29,10 @@
       </SelectionState>
       <SelectionState runConfigName="Run All Integration Tests">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-02-21T10:16:03.013530700Z">
+        <DropdownSelection timestamp="2026-02-22T03:53:05.995210700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Medium_Phone.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel-DevTest.avd" />
             </handle>
           </Target>
         </DropdownSelection>

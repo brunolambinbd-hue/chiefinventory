@@ -2,12 +2,12 @@
 <resources>
     <!-- Thème Vert Forêt -->
     <color name="colorPrimary">#FF2E7D32</color> <!-- Vert Forêt Foncé -->
-    <color name="colorPrimaryVariant">#FF1B5E20</color> <!-- Vert Forêt Très Foncé (pour la status bar) -->
+    <color name="colorPrimaryVariant">#FF1B5E20</color> <!-- Vert Forêt Très Foncé (pour le status bar) -->
     <color name="colorOnPrimary">#FFFFFFFF</color> <!-- Texte sur le vert (blanc) -->
 
     <color name="colorSecondary">#FF4CAF50</color> <!-- Vert Moyen (pour les accents) -->
-    <color name="colorSecondaryVariant">#FF388E3C</color> <!-- Variante du vert moyen -->
-    <color name="colorOnSecondary">#FF000000</color> <!-- Texte sur le vert moyen (noir) -->
+    <color name="colorSecondaryVariant">#FF388E3C</color> <!-- Variante du moyen vert -->
+    <color name="colorOnSecondary">#FF000000</color> <!-- Texte sur le moyen vert (noir) -->
 
     <!-- Couleur d'erreur personnalisée avec un meilleur contraste sur le vert -->
     <color name="colorError">#FFC107</color> <!-- Ambre -->

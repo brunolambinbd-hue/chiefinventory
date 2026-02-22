@@ -17,7 +17,7 @@ open class CollectionApplication : Application() {
     /**
      * Lazily-initialized singleton instance of the Room database.
      */
-    val database by lazy { AppDatabase.getDatabase(this) }
+    val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
 
     private var _repository: CollectionRepository? = null
     /**

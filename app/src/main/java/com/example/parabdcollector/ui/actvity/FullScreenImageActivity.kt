@@ -130,28 +130,28 @@ class FullScreenImageActivity : AppCompatActivity() {
 
     companion object {
         /** Key for the String extra that holds the image URI. */
-        const val EXTRA_IMAGE_URI = "image_uri"
+        const val EXTRA_IMAGE_URI: String = "image_uri"
         /** Key for the String extra that holds the item title. */
-        const val EXTRA_TITLE = "title"
+        const val EXTRA_TITLE: String = "title"
         /** Key for the String extra that holds the item editor. */
-        const val EXTRA_EDITOR = "editor"
+        const val EXTRA_EDITOR: String = "editor"
         /** Key for the Int extra that holds the item year. */
-        const val EXTRA_YEAR = "year"
+        const val EXTRA_YEAR: String = "year"
         /** Key for the Int extra that holds the item month. */
-        const val EXTRA_MONTH = "month"
+        const val EXTRA_MONTH: String = "month"
         /** Key for the String extra that holds the item super-category. */
-        const val EXTRA_SUPER_CATEGORY = "super_category"
+        const val EXTRA_SUPER_CATEGORY: String = "super_category"
         /** Key for the String extra that holds the item category. */
-        const val EXTRA_CATEGORY = "category"
+        const val EXTRA_CATEGORY: String = "category"
         /** Key for the String extra that holds the item material. */
-        const val EXTRA_MATERIAL = "material"
+        const val EXTRA_MATERIAL: String = "material"
         /** Key for the String extra that holds the item print run. */
-        const val EXTRA_RUN = "run"
+        const val EXTRA_RUN: String = "run"
         /** Key for the String extra that holds the item dimensions. */
-        const val EXTRA_DIMENSIONS = "dimensions"
+        const val EXTRA_DIMENSIONS: String = "dimensions"
         /** Key for the String extra that holds the item description. */
-        const val EXTRA_DESCRIPTION = "description"
+        const val EXTRA_DESCRIPTION: String = "description"
         /** Key for the ByteArray extra that holds the item's image signature. */
-        const val EXTRA_IMAGE_SIGNATURE = "image_signature"
+        const val EXTRA_IMAGE_SIGNATURE: String = "image_signature"
     }
 }

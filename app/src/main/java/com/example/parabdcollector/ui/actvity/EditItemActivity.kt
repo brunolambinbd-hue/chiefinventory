@@ -129,7 +129,7 @@ class EditItemActivity : AppCompatActivity() {
         }
 
         binding.etLocation.setOnItemClickListener { _, _, position, _ ->
-            // Si position == 0, on remet à null, sinon on prend l'ID correspondant (position - 1)
+            // Si position == 0, on remet à null, sinon on prend l'ID correspondant (position - 1).
             selectedLocId = if (position == 0) null else displayLocations.getOrNull(position - 1)?.location?.id
             updateLocationUI()
         }

@@ -87,7 +87,7 @@ class ImportViewModel(application: Application, private val repository: Collecti
                         isPossessed = false // <<<<<<<<<< CHANGEMENT : Par défaut, on ne possède pas l'objet
                     )
 
-                    val imageUriString = itemToSave.imageUri // Crée une référence stable AVANT le if
+                    val imageUriString = itemToSave.imageUri // Crée une référence stable AVANT l'if
                     // Calcul de la signature si elle est manquante
                     if (itemToSave.imageEmbedding == null && !imageUriString.isNullOrBlank()) {
                         try {

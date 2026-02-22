@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 /**
- * An utility object for formatting and handling image signatures (embeddings) for UI display.
+ * A utility object for formatting and handling image signatures (embeddings) for UI display.
  */
 object SignatureUtils {
 
@@ -62,11 +62,13 @@ object SignatureUtils {
      * @param bytes The raw byte array from the database.
      * @return The resulting [FloatArray].
      */
-    @Suppress("UseGetOrSet", "kotlin:S3776")
     private fun toFloatArray(bytes: ByteArray): FloatArray {
         val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
-        val floatArray = FloatArray(bytes.size / 4)
-        buffer.asFloatBuffer().get(floatArray)
-        return floatArray
+        val fb = buffer.asFloatBuffer()
+        return FloatArray(bytes.size / 4).apply {
+            for (i in indices) {
+                this[i] = fb.get()
+            }
+        }
     }
 }
