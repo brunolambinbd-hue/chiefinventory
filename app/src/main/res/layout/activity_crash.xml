@@ -17,6 +17,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/btn_copy"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Copier l'erreur"
+        app:icon="@android:drawable/ic_menu_edit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/tv_crash_subtitle"
         android:layout_width="0dp"
@@ -31,7 +41,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        android:background="#33AAAAAA"
+        android:background="#11000000"
         app:layout_constraintBottom_toTopOf="@+id/btn_restart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,16 +53,17 @@
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:padding="8dp"
+            android:textIsSelectable="true"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="12sp"
-            tools:text="java.lang.RuntimeException: This is a long sample error trace...\n    at com.example.app.MyClass.myMethod(MyClass.java:123)\n    ..." />
+            tools:text="java.lang.RuntimeException: This is a long sample error trace..." />
 
     </ScrollView>
 
     <Button
         android:id="@+id/btn_restart"
         style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/restart_app"

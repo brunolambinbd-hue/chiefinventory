@@ -5,6 +5,7 @@ import com.example.chiefinventory.data.AppDatabase
 import com.example.chiefinventory.repo.CollectionRepository
 import com.example.chiefinventory.repo.IngredientRepository
 import com.example.chiefinventory.repo.LocationRepository
+import com.example.chiefinventory.repo.RecipeRepository
 import com.example.chiefinventory.utils.GlobalExceptionHandler
 
 /**
@@ -27,6 +28,11 @@ open class CollectionApplication : Application() {
     open var ingredientRepository: IngredientRepository
         get() = _ingredientRepository ?: IngredientRepository(database.ingredientDao()).also { _ingredientRepository = it }
         set(value) { _ingredientRepository = value }
+
+    private var _recipeRepository: RecipeRepository? = null
+    open var recipeRepository: RecipeRepository
+        get() = _recipeRepository ?: RecipeRepository(database.recipeDao(), database.ingredientDao()).also { _recipeRepository = it }
+        set(value) { _recipeRepository = value }
 
     override fun onCreate() {
         super.onCreate()

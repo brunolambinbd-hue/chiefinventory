@@ -28,10 +28,20 @@
             android:id="@+id/nav_ingredients_locations"
             android:icon="@android:drawable/ic_menu_manage"
             android:title="Emplacements Cuisine" />
+
+        <!-- Recettes -->
         <item
-            android:id="@+id/nav_recipes"
-            android:icon="@android:drawable/ic_menu_edit"
-            android:title="@string/menu_recipes_title" />
+            android:id="@+id/nav_all_recipes"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="Toutes les Recettes" />
+        <item
+            android:id="@+id/nav_recipe_categories"
+            android:icon="@android:drawable/ic_menu_sort_by_size"
+            android:title="Type de Recettes" />
+        <item
+            android:id="@+id/nav_add_recipe"
+            android:icon="@android:drawable/ic_menu_add"
+            android:title="Scanner une Recette" />
 
         <item
             android:id="@+id/nav_recent_finds"

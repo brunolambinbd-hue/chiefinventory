@@ -17,32 +17,55 @@ import kotlin.system.exitProcess
 class GlobalExceptionHandler(private val applicationContext: Context) : Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(t: Thread, e: Throwable) {
-        // Écrire l'exception dans un fichier de log
         val stackTrace = e.stackTraceToString()
-        writeErrorToLog(stackTrace)
+        val userFriendlyMessage = analyzeException(e)
+        
+        val fullReport = "$userFriendlyMessage\n\n--- DÉTAILS TECHNIQUES ---\n$stackTrace"
+        
+        writeErrorToLog(fullReport)
 
-        // Lancer une activité qui affiche un message d'erreur et permet de redémarrer.
         val intent = Intent(applicationContext, CrashActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            putExtra(CrashActivity.EXTRA_CRASH_INFO, stackTrace)
+            putExtra(CrashActivity.EXTRA_CRASH_INFO, fullReport)
         }
         applicationContext.startActivity(intent)
 
-        // Tuer le processus de l'application pour forcer un redémarrage propre.
         Process.killProcess(Process.myPid())
         exitProcess(10)
     }
 
-    private fun writeErrorToLog(stackTrace: String) {
+    private fun analyzeException(e: Throwable): String {
+        val message = e.message ?: ""
+        val stackTrace = e.stackTraceToString()
+
+        return when {
+            stackTrace.contains("RoomOpenHelper") || stackTrace.contains("migration") -> 
+                "🏠 PROBLÈME DE BASE DE DONNÉES :\nLa structure des données a changé. Si le crash persiste, essayez de 'Vider les données' de l'application dans les paramètres Android."
+            
+            e is android.content.ActivityNotFoundException -> 
+                "🧭 ACTIVITÉ INTROUVABLE :\nL'application a essayé d'ouvrir un écran qui n'est pas déclaré dans le Manifest. Vérifiez le fichier AndroidManifest.xml."
+            
+            e is OutOfMemoryError -> 
+                "💾 MÉMOIRE SATURÉE :\nL'application n'a plus assez de mémoire vive. Cela arrive souvent lors du traitement d'images très lourdes."
+            
+            stackTrace.contains("NullPointerException") -> 
+                "🎯 ERREUR DE RÉFÉRENCE VIDE :\nL'application a tenté d'utiliser un objet qui n'existe pas encore ou qui a été supprimé."
+            
+            stackTrace.contains("IllegalArgumentException") && stackTrace.contains("addSource") ->
+                "🔄 CONFLIT DE DONNÉES (LiveData) :\nUn problème est survenu lors de la mise à jour des informations à l'écran (souvent lié aux filtres de recherche)."
+
+            else -> "❌ ERREUR INCONNUE :\nL'application a rencontré un problème inattendu."
+        }
+    }
+
+    private fun writeErrorToLog(report: String) {
         val logFile = File(applicationContext.filesDir, "crash_log.txt")
         try {
             FileWriter(logFile, true).use { writer ->
                 val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-                writer.append("\n--- $timestamp ---\n")
-                writer.append(stackTrace)
+                writer.append("\n--- CRASH LE $timestamp ---\n")
+                writer.append(report)
             }
-        } catch (_: Exception) {
-            // Si l'écriture du log échoue, on ne peut pas faire grand-chose de plus.
-        }
+        } catch (_: Exception) {}
     }
 }

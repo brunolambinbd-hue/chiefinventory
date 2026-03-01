@@ -17,20 +17,17 @@ data class Recipe(
     val preparationTimeMinutes: Int? = null,
     val cookingTimeMinutes: Int? = null,
     val servings: Int? = null,
-    val category: String? = null, // e.g., "Dessert", "Main Course"
+    val category: String? = null,
     val imageUri: String? = null,
-    val locationId: Long? = null, // Where this recipe is classified
+    val locationId: Long? = null,
+    val wineRecommendation: String? = null,
+    val source: String? = null, // New field for origin (hotel, website, book)
     val updatedAt: Long = System.currentTimeMillis()
 ) : Parcelable
 
-/**
- * Cross-reference entity to link Recipes and Ingredients.
- * This allows a many-to-many relationship (though often simplified to many-to-one in home apps, 
- * many-to-many is more flexible for "Recipe uses Ingredient X").
- */
 @Entity(
     tableName = "recipe_ingredients",
-    primaryKeys = ["recipeId", "ingredientName"] // Using name because a recipe might use an ingredient you don't have in stock yet
+    primaryKeys = ["recipeId", "ingredientName"]
 )
 data class RecipeIngredient(
     val recipeId: Long,

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.chiefinventory.repo.CollectionRepository
 import com.example.chiefinventory.repo.IngredientRepository
 import com.example.chiefinventory.repo.LocationRepository
+import com.example.chiefinventory.repo.RecipeRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
@@ -14,6 +15,7 @@ class ViewModelFactory(
     private val collectionRepository: CollectionRepository,
     private val locationRepository: LocationRepository,
     private val ingredientRepository: IngredientRepository,
+    private val recipeRepository: RecipeRepository? = null,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModelProvider.Factory {
     
@@ -30,8 +32,20 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(BackupViewModel::class.java) -> BackupViewModel(application) as T
             modelClass.isAssignableFrom(BatchPossessionViewModel::class.java) -> BatchPossessionViewModel(collectionRepository, locationRepository) as T
             modelClass.isAssignableFrom(CategoryAuditViewModel::class.java) -> CategoryAuditViewModel(collectionRepository, ioDispatcher) as T
-            modelClass.isAssignableFrom(IngredientViewModel::class.java) -> IngredientViewModel(ingredientRepository) as T
-            modelClass.isAssignableFrom(EditIngredientViewModel::class.java) -> EditIngredientViewModel(application, ingredientRepository) as T
+            modelClass.isAssignableFrom(IngredientViewModel::class.java) -> IngredientViewModel(ingredientRepository, locationRepository) as T
+            modelClass.isAssignableFrom(EditIngredientViewModel::class.java) -> EditIngredientViewModel(application, ingredientRepository, locationRepository) as T
+            modelClass.isAssignableFrom(EditRecipeViewModel::class.java) -> {
+                val repo = recipeRepository ?: throw IllegalArgumentException("RecipeRepository required")
+                EditRecipeViewModel(repo, locationRepository) as T
+            }
+            modelClass.isAssignableFrom(RecipeViewModel::class.java) -> {
+                val repo = recipeRepository ?: throw IllegalArgumentException("RecipeRepository required")
+                RecipeViewModel(repo) as T
+            }
+            modelClass.isAssignableFrom(RecipeCategoryViewModel::class.java) -> {
+                val repo = recipeRepository ?: throw IllegalArgumentException("RecipeRepository required")
+                RecipeCategoryViewModel(repo) as T
+            }
             else -> throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
         }
     }

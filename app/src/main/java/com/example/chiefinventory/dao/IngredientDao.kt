@@ -9,15 +9,21 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients ORDER BY name")
     fun getAll(): LiveData<List<Ingredient>>
 
+    @Query("SELECT * FROM ingredients")
+    suspend fun getAllSync(): List<Ingredient>
+
     @Query("SELECT * FROM ingredients WHERE locationId = :locationId ORDER BY name")
     fun getByLocation(locationId: Long): LiveData<List<Ingredient>>
 
     @Query("SELECT * FROM ingredients WHERE id = :id")
     suspend fun getById(id: Long): Ingredient?
 
+    @Query("SELECT * FROM ingredients WHERE name = :name LIMIT 1")
+    suspend fun getByName(name: String): Ingredient?
+
     @Query("""
         SELECT * FROM ingredients 
-        WHERE (locationId = :locationId OR :locationId = -1)
+        WHERE (:locationId = -1 OR locationId = :locationId)
         AND (name LIKE :query OR description LIKE :query OR ocrText LIKE :query)
         ORDER BY name
     """)
@@ -27,7 +33,7 @@ interface IngredientDao {
     suspend fun getAllWithEmbeddings(): List<Ingredient>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(ingredient: Ingredient)
+    suspend fun insert(ingredient: Ingredient): Long
 
     @Update
     suspend fun update(ingredient: Ingredient)

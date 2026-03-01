@@ -31,13 +31,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val viewModel: MainViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository)
+        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
     private val importViewModel: ImportViewModel by viewModels {
         val app = application as CollectionApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository)
+        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
     private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -87,16 +87,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(intent)
         }
 
-        binding.totalItemsText.setOnClickListener {
-            Toast.makeText(this, "Affichage de tous les objets (à implémenter)", Toast.LENGTH_SHORT).show()
-        }
-
         binding.btnRecentFinds.setOnClickListener {
             navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
         }
 
         binding.btnRecentOrganizations.setOnClickListener {
             navigateToRecent(ItemListActivity.TYPE_RECENT_LOCATED)
+        }
+        
+        binding.totalIngredientsText.setOnClickListener {
+            startActivity(Intent(this, IngredientListActivity::class.java))
         }
     }
 
@@ -159,8 +159,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
             }
             R.id.nav_all_ingredients -> {
-                val intent = Intent(this, IngredientListActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, IngredientListActivity::class.java))
             }
             R.id.nav_ingredients_locations -> {
                 val intent = Intent(this, LocationManagementActivity::class.java).apply {
@@ -168,11 +167,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 startActivity(intent)
             }
-            R.id.nav_recipes -> {
-                val intent = Intent(this, LocationManagementActivity::class.java).apply {
-                    putExtra(LocationManagementActivity.EXTRA_LOCATION_TYPE, LocationType.RECIPE.ordinal)
-                }
-                startActivity(intent)
+            R.id.nav_all_recipes -> {
+                // Ouvre la liste globale des recettes (sans filtre de catégorie)
+                startActivity(Intent(this, RecipeListActivity::class.java))
+            }
+            R.id.nav_recipe_categories -> {
+                startActivity(Intent(this, RecipeCategoryListActivity::class.java))
+            }
+            R.id.nav_add_recipe -> {
+                startActivity(Intent(this, EditRecipeActivity::class.java))
             }
             R.id.nav_locations -> {
                 val intent = Intent(this, LocationManagementActivity::class.java).apply {

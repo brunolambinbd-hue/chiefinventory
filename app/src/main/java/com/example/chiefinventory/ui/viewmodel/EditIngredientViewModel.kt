@@ -8,13 +8,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.chiefinventory.model.Ingredient
+import com.example.chiefinventory.model.Location
+import com.example.chiefinventory.model.LocationType
 import com.example.chiefinventory.repo.IngredientRepository
+import com.example.chiefinventory.repo.LocationRepository
 import com.example.imagecomparison.ImageEmbedderHelper
 import kotlinx.coroutines.launch
 
 class EditIngredientViewModel(
     application: Application,
-    private val repository: IngredientRepository
+    private val repository: IngredientRepository,
+    private val locationRepository: LocationRepository
 ) : AndroidViewModel(application) {
 
     private val _ingredient = MutableLiveData<Ingredient>()
@@ -24,6 +28,8 @@ class EditIngredientViewModel(
     val imageUri: LiveData<Uri?> = _imageUri
 
     private val imageEmbedderHelper = ImageEmbedderHelper(application, null)
+
+    val ingredientCategories: LiveData<List<Location>> = locationRepository.getAllByType(LocationType.INGREDIENT)
 
     fun loadIngredient(id: Long) {
         viewModelScope.launch {
@@ -57,6 +63,10 @@ class EditIngredientViewModel(
 
     fun update(ingredient: Ingredient) = viewModelScope.launch {
         repository.update(ingredient)
+    }
+
+    fun delete(ingredient: Ingredient) = viewModelScope.launch {
+        repository.delete(ingredient)
     }
 
     override fun onCleared() {
