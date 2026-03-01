@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="fr">
+    <string name="app_name" translatable="false">ChefInventory</string>
+    <string name="open">Ouvrir</string>
+    <string name="close">Fermer</string>
+
+    <string name="possessed_items_title" tools:ignore="UnusedResources">Mes Produits (%1$d)</string>
+    <string name="sought_items_title" tools:ignore="UnusedResources">Mes Recherches (%1$d)</string>
+    <string name="location_items_title">Objets dans l\'emplacement</string>
+
+    <string name="total_items_label">Objets Totaux: %1$d</string>
+    <string name="possessed_items_label">Objets Possédés: %1$d</string>
+    <string name="sought_items_label">Objets Recherchés: %1$d</string>
+
+    <string name="recent_organizations_label">Derniers rangements</string>
+    <string name="recent_finds_label">Dernières trouvailles</string>
+
+    <string name="menu_home_title">Accueil</string>
+    <string name="menu_products_title">Mes Produits</string>
+    <string name="menu_searches_title">Mes Recherches</string>
+    <string name="menu_locations_title">Mes Emplacements</string>
+    <string name="menu_ingredients_title">Mes Ingrédients</string>
+    <string name="menu_recipes_title">Mes Recettes</string>
+    <string name="menu_import_title">Importer / Mettre à jour</string>
+    <string name="menu_backup_title">Maintenance / Sauvegarde</string>
+    <string name="menu_search_title">Recherche</string>
+    <string name="rapport_signatures">Rapport des signatures</string>
+
+    <string name="locations_management_title">Gestion des emplacements</string>
+    <string name="ingredients_management_title">Classement des ingrédients</string>
+    <string name="recipes_management_title">Classement des recettes</string>
+
+    <string name="add_item_description">Ajouter un objet</string>
+    <string name="annuler">Annuler</string>
+    <string name="supprimer">Supprimer</string>
+    <string name="modifier_le_nom">Modifier le nom</string>
+    <string name="ajouter_un_sous_emplacement">Ajouter un sous-emplacement</string>
+    <string name="changer_de_parent">Changer de parent</string>
+    <string name="scan_inventory">Scanner l\'inventaire</string>
+    <string name="la_racine">À la racine</string>
+    <string name="nouvel_emplacement">Nouvel Emplacement</string>
+    <string name="nouveau_sous_emplacement_pour">Nouveau sous-emplacement pour \"%1$s\"</string>
+    <string name="modifier_l_emplacement">Modifier l\'emplacement</string>
+    <string name="supprimer_l_emplacement">Supprimer l\'emplacement</string>
+    <string name="delete_location_confirmation_message">Êtes-vous sûr de vouloir supprimer \"%1$s\"? Cette action est irréversible.</string>
+    <string name="move_location_to_title">Déplacer \"%1$s\" vers</string>
+    <string name="ajouter">Ajouter</string>
+    <string name="modifier">Modifier</string>
+</resources>

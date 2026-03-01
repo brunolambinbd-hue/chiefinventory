@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp">
+
+    <!-- Compteur des objets possédés -->
+    <TextView
+        android:id="@+id/possessed_counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/initial_counter_value"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- Séparateur -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/counter_separator"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="16sp" />
+
+    <!-- Compteur des objets recherchés -->
+    <TextView
+        android:id="@+id/sought_counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/initial_counter_value"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="16sp" />
+
+    <!-- Séparateur pour le nouveau compteur -->
+    <TextView
+        android:id="@+id/missing_signature_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/counter_separator"
+        android:textColor="?attr/colorError"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+    <!-- Compteur des signatures manquantes -->
+    <TextView
+        android:id="@+id/missing_signature_counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/initial_counter_value"
+        android:textColor="?attr/colorError"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+</LinearLayout>

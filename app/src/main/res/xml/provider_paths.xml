@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Autorise le partage des images capturées depuis le sous-dossier "images" de notre stockage interne -->
+    <files-path name="captured_images" path="images/" />
+    <!-- Autorise le partage des fichiers temporaires depuis le dossier de cache (requis pour les tests instrumentés) -->
+    <cache-path name="cache" path="." />
+</paths>

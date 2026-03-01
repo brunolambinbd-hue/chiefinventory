@@ -1,0 +1,30 @@
+//import de.undercouch.gradle.tasks.download.Download
+
+// Defines the models to be downloaded
+def models = [
+        'mobilenet_v3_large.tflite': 'https://storage.googleapis.com/mediapipe-models/image_embedder/mobilenet_v3_large/float16/1/mobilenet_v3_large.tflite',
+        'mobilenet_v3_small.tflite': 'https://storage.googleapis.com/mediapipe-models/image_embedder/mobilenet_v3_small/float16/1/mobilenet_v3_small.tflite'
+]
+
+def modelDir = project.ext.ASSET_DIR
+
+// For each model, register a lazy Download task and collect the task providers.
+def downloadTasks = models.collect { modelName, modelLink ->
+    tasks.register("download_${modelName.replace('.tflite','')}", Download) {
+        src(modelLink)
+        dest(new File(modelDir, modelName))
+        overwrite(false)
+    }
+}
+
+// Create a single "grouping" task that lazily depends on all individual download tasks.
+def downloadAllModelsTask = tasks.register('downloadAllModels') {
+    group = 'build setup'
+    description = 'Downloads all required ML models.'
+    dependsOn(downloadTasks)
+}
+
+// Use the modern, lazy API to hook into the build lifecycle.
+tasks.named('preBuild') {
+    dependsOn(downloadAllModelsTask)
+}

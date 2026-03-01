@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Thème Vert Forêt -->
+    <color name="colorPrimary">#FF2E7D32</color> <!-- Vert Forêt Foncé -->
+    <color name="colorPrimaryVariant">#FF1B5E20</color> <!-- Vert Forêt Très Foncé (pour le status bar) -->
+    <color name="colorOnPrimary">#FFFFFFFF</color> <!-- Texte sur le vert (blanc) -->
+
+    <color name="colorSecondary">#FF4CAF50</color> <!-- Vert Moyen (pour les accents) -->
+    <color name="colorSecondaryVariant">#FF388E3C</color> <!-- Variante du moyen vert -->
+    <color name="colorOnSecondary">#FF000000</color> <!-- Texte sur le moyen vert (noir) -->
+
+    <!-- Couleur d'erreur personnalisée avec un meilleur contraste sur le vert -->
+    <color name="colorError">#FFC107</color> <!-- Ambre -->
+    <color name="colorOnError">#FF000000</color> <!-- Texte sur l'ambre (noir) -->
+
+    <!-- Couleurs de statut -->
+    <color name="status_error">#FFFF0000</color> <!-- Rouge -->
+    <color name="status_warning">#FFFFA500</color> <!-- Orange -->
+    <color name="status_ok">#FF008000</color> <!-- Vert (déjà ok) -->
+
+    <!-- Couleurs pour la barre de progression des catégories -->
+    <color name="progress_red">#FFFF4444</color>
+    <color name="progress_orange">#FFFFBB33</color>
+    <color name="progress_green">#FF99CC00</color>
+
+    <!-- Couleur pour les lignes alternées -->
+    <color name="zebra_stripe_color">#0D000000</color> <!-- Noir très transparent pour un effet subtil -->
+
+    <!-- Couleurs pour le "Zebra Striping" dans les listes -->
+    <color name="stripe_even">#00000000</color> <!-- Transparent -->
+    <color name="stripe_odd">#1A000000</color>  <!-- Noir un peu plus visible (10% alpha) -->
+
+</resources>

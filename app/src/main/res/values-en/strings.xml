@@ -1,0 +1,185 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
+    <!-- App Name (Not translatable) -->
+    <!-- <string name="app_name">ParaBDCollector</string> -->
+
+    <!-- General UI -->
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+
+    <!-- Counter -->
+
+    <!-- Page Titles -->
+    <string name="possessed_items_title">My Items (%1$d)</string>
+    <string name="sought_items_title">My Searches (%1$d)</string>
+
+    <!-- Dashboard -->
+    <string name="location_items_title">Objects in location</string>
+    <string name="total_items_label">Total Items: %1$d</string>
+    <string name="possessed_items_label">Possessed Items: %1$d</string>
+    <string name="sought_items_label">Sought Items: %1$d</string>
+    <string name="add_item_description">Add an item</string>
+
+    <!-- Accessibility -->
+    <string name="recent_organizations_label">Last put in location</string>
+    <string name="item_image_preview_description">Item image preview</string>
+    <string name="item_thumbnail_description_generic">Item thumbnail</string>
+    <string name="full_screen_image_description">Fullscreen image of the item</string>
+    <string name="add_location_description">Add a location</string>
+    <string name="expand_location_description">Expand/Collapse Location</string>
+    <string name="edit_location_description">Edit Location</string>
+
+    <!-- Edit Screen -->
+    <string name="edit_item_title_new">New Item</string>
+    <string name="edit_item_title_editing">Editing: %1$s</string>
+    <string name="take_picture_button">Take a picture</string>
+    <string name="save_button">Save</string>
+    <string name="item_title_hint">Title</string>
+    <string name="item_possessed_switch">I own this item</string>
+    <string name="item_universe_hint">Universe / Series</string>
+    <string name="item_editor_hint">Editor</string>
+    <string name="item_year_hint">Year</string>
+    <string name="item_month_hint">Month</string>
+    <string name="item_category_hint">Category</string>
+    <string name="item_super_category_hint">Super-Category</string>
+    <string name="item_material_hint">Material</string>
+    <string name="item_run_hint">Print Run</string>
+    <string name="item_dimensions_hint">Dimensions</string>
+    <string name="item_purchase_price_hint">Purchase Price</string>
+    <string name="item_estimated_value_hint">Estimated Value</string>
+    <string name="item_purchase_location_hint">Purchase Location</string>
+    <string name="item_notes_hint">Description</string>
+    <string name="item_location_hint">Location</string>
+
+    <!-- Search Screen -->
+    <string name="none">None</string>
+    <string name="search_button">Search</string>
+    <string name="search_hint">Enter a title, a universe…</string>
+    <string name="simple_search_hint">Quick search…</string>
+    <string name="advanced_search_show">Advanced search</string>
+    <string name="advanced_search_hide">Hide advanced search</string>
+    <string name="search_by_image_description">Search by image</string>
+    <string-array name="search_status_options">
+        <item>All</item>
+        <item>Possessed</item>
+        <item>Sought</item>
+    </string-array>
+    <plurals name="search_results_count">
+        <item quantity="one">%1$d result found</item>
+        <item quantity="other">%1$d results found</item>
+    </plurals>
+    <plurals name="search_results_count_with_criteria">
+        <item quantity="one">%1$d result for “%2$s”</item>
+        <item quantity="other">%1$d results for “%2$s”</item>
+    </plurals>
+    <string name="similarity_score_format">Similarity: %.1f%%</string>
+    <string name="search_no_similar_results">No sufficiently similar results found (threshold &gt; 65%)</string>
+
+    <!-- Menu -->
+    <string name="search_no_visual_matches">No visual correspondance</string>
+    <string name="menu_search_title">Search</string>
+    <string name="menu_counter_title">Counter</string>
+    <string name="menu_home_title">Home</string>
+    <string name="menu_products_title">My Items</string>
+    <string name="menu_searches_title">My Searches</string>
+    <string name="menu_locations_title">My Locations</string>
+    <string name="menu_import_title">Import / Update</string>
+    <string name="menu_backup_title">Backup/Restore</string>
+    <string name="refine_search_title">Refine search</string>
+    <string name="new_search_title">New search</string>
+    <string name="locations_management_title">Location Management</string>
+    
+    <!-- Backup and Restore -->
+    <string name="backup_button_backup">Backup</string>
+    <string name="backup_button_restore">Restore</string>
+    <string name="backup_success">Backup successful!</string>
+    <string name="backup_failed">Backup failed: %1$s</string>
+    <string name="restore_success">Restore successful! Please restart the application.</string>
+    <string name="restore_failed">Restore failed: %1$s</string>
+    <string name="restore_failed_delete">Restore failed: could not delete old database files.</string>
+
+    <!-- Toast Messages -->
+    <string name="category_audit_success_format">%1$d objects haven reclassified with success.</string>
+    <string name="toast_camera_permission_denied">Camera permission denied</string>
+    <string name="toast_title_is_mandatory">Title is mandatory</string>
+    <string name="toast_crop_error">Cropping error: %1$s</string>
+    <string name="rapport_signatures">Signature Report</string>
+
+    <!-- Signature Report -->
+    <string name="report_signatures_ok">Signatures OK: %1$d</string>
+    <string name="report_signatures_empty">Empty Signatures: %1$d</string>
+    <string name="report_signatures_missing">Missing Signatures: %1$d</string>
+    <string name="report_item_id">ID: %1$d</string>
+    <string name="signature_status_valid">Valid</string>
+    <string name="signature_status_empty">Empty</string>
+    <string name="signature_status_missing">Missing</string>
+
+    <!-- Debug -->
+    <string name="debug_signature_info">ID: %1$d, Sig: %2$s</string>
+    <string name="debug_signature_info_fullscreen">Signature: %1$s</string>
+    <string name="generic_field_format">%1$s: %2$s</string>
+    <string name="signature_preview_format">[%1$s,…]</string>
+    <string name="annuler">Cancel</string>
+    <string name="modifier">Modify</string>
+    <string name="la_racine">Root</string>
+    <string name="nouvel_emplacement">New location</string>
+    <string name="nouveau_sous_emplacement_pour">New sub-location for "%1$s"</string>
+    <string name="modifier_l_emplacement">Modify location</string>
+    <string name="supprimer_l_emplacement">Remove the location</string>
+    <string name="delete_location_confirmation_message">Are you sure you want to delete "%1$s"? This action is irreversible.</string>
+    <string name="move_location_to_title">Move \"%1$s\" to</string>
+    <string name="modifier_le_nom">Modify the name</string>
+    <string name="ajouter_un_sous_emplacement">Add a sub-location</string>
+    <string name="changer_de_parent">Change of parent</string>
+    <string name="supprimer">Remove</string>
+    <string name="scan_inventory">Inventory par scan</string>
+
+    <!-- Inventory Scanner -->
+    <string name="inventory_for_location">Inventory for : %1$s</string>
+    <string name="inventory_create_new_button">Item not found? Create a new entry</string>
+    <string name="scan_item_button">Scan an item</string>
+    <string name="retry">Retry</string>
+    <string name="search_no_results">No result</string>
+    <string name="search_error_simple">The basic research has failed</string>
+    <string name="search_error_advanced">The advanced research has failed</string>
+    <string name="erreur_lors_de_l_analyse_de_l_image">Error during analysis of image</string>
+    <string name="red_marrer_l_application">Restart application</string>
+    <string name="la_recherche_textuelle_a_chou">Textual research has failed</string>
+    <string name="une_erreur_inattendue_s_est_produite">Unexpected error</string>
+    <string name="remonter_en_haut_de_la_liste">Go up on top of list</string>
+    <string name="test_crash">Crash test</string>
+    <string name="crash_title">crash_title</string>
+    <string name="crash_subtitle">crash_subtitle</string>
+    <string name="restart_app">restart_app</string>
+    <string name="crash_info">crash_info</string>
+    <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
+    <string name="importation_en_cours">Import in progress…</string>
+    <string name="Display_of_all_objets_to_be_implemented">Display of all objets (o be implemented)</string>
+    <string name="possessed_status">GOT IT</string>
+    <string name="sought_status">Sought</string>
+    <string name="recent_finds_label">Last findings</string>
+    <string name="show_unlocated_items_button">Objects not localised</string>
+    <string name="show_located_not_possessed_items_button">Localised Objects, but not possessed</string>
+    <string name="batch_update_title">"Update of "</string>
+    <string name="batch_update_description">Mark as possessed and put in a location</string>
+    <string name="batch_series_name_hint">Name of series</string>
+    <string name="batch_default_series_name">Spirou</string>
+    <string name="batch_start_number_hint">Start number</string>
+    <string name="batch_end_number_hint">End number</string>
+    <string name="batch_analyze_button">Analyse the series</string>
+    <string name="batch_update_button">Mark as possessed</string>
+    <string name="category_audit_description">Comparison tool</string>
+    <string name="category_audit_analyze_button">Launch audit</string>
+    <string name="category_audit_fix_button">Repair incoherency</string>
+    <string name="category_audit_summary_format">Found  : %1$d object(s) with a Super-Category erroneous.</string>
+    <string name="category_audit_no_issues">No issues</string>
+    <string name="batch_update_success_format">%1$d objets up to date with success.</string>
+    <string name="batch_no_items_found">No object in the range</string>
+    <string name="category_audit_button">Audit of Category</string>
+    <string name="category_audit_title">Audit and Repair</string>
+    <string name="batch_summary_format">Found : %1$d objet(s) over a range of %2$d number.</string>
+    <string name="gallery">Gallery</string>
+    <string name="search_visual_matches">" — %1$d visual correspondance(s)"</string>
+    <string name="search_displayed_count">" — %1$d displayed"</string>
+    <string name="ajouter">Add</string>
+
+</resources>

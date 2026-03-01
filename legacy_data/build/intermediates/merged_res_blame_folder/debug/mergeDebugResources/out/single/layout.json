@@ -1,0 +1,42 @@
+[
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/activity_main.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/item_collection.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/item_collection.xml"
+    },
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/counter_layout.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/counter_layout.xml"
+    },
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/activity_full_screen_image.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/activity_full_screen_image.xml"
+    },
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/activity_edit_item.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/activity_edit_item.xml"
+    },
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/activity_category_list.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/activity_category_list.xml"
+    },
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/activity_search.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/activity_search.xml"
+    },
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/activity_item_list.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/activity_item_list.xml"
+    },
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/activity_sought.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/activity_sought.xml"
+    },
+    {
+        "merged": "com.example.parabdcollector.app-mergeDebugResources-41:/layout/item_search_result.xml",
+        "source": "com.example.parabdcollector.app-main-44:/layout/item_search_result.xml"
+    }
+]

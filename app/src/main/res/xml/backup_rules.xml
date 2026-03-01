@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!--
+       This file is used for full-system backups on devices running Android 11 (API 30) or lower.
+       We include the database, shared preferences, and all internal files (like images).
+       See https://developer.android.com/guide/topics/data/autobackup for details.
+    -->
+    <include domain="database" path="."/>
+    <include domain="sharedpref" path="."/>
+    <include domain="file" path="."/>
+</full-backup-content>
