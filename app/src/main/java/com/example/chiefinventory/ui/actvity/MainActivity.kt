@@ -1,6 +1,7 @@
 package com.example.chiefinventory.ui.actvity
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -40,7 +41,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
-    private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
             importViewModel.importCsv(uri)
             Toast.makeText(this, "Importation en cours...", Toast.LENGTH_SHORT).show()
@@ -168,7 +169,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
             }
             R.id.nav_all_recipes -> {
-                // Ouvre la liste globale des recettes (sans filtre de catégorie)
                 startActivity(Intent(this, RecipeListActivity::class.java))
             }
             R.id.nav_recipe_categories -> {

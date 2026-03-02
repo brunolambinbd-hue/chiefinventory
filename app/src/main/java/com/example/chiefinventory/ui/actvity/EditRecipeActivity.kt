@@ -22,6 +22,7 @@ import com.example.chiefinventory.ui.viewmodel.EditRecipeViewModel
 import com.example.chiefinventory.ui.viewmodel.ViewModelFactory
 import com.example.chiefinventory.utils.BitmapUtils
 import com.example.chiefinventory.utils.ImageCaptureUtil
+import com.example.chiefinventory.utils.IngredientParser
 import com.example.chiefinventory.utils.TextRecognitionHelper
 import kotlinx.coroutines.launch
 
@@ -115,29 +116,40 @@ class EditRecipeActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val fullText = textRecognitionHelper.recognizeText(bitmap) ?: ""
-                val lines = fullText.lines().map { it.trim() }.filter { it.isNotBlank() }
+                val processedText = fullText.replace("|", "\n|")
+                val lines = processedText.lines().map { it.trim() }.filter { it.isNotBlank() }
+                
                 if (lines.isEmpty()) return@launch
 
                 if (binding.etTitle.text.isNullOrBlank()) {
                     binding.etTitle.setText(lines[0])
                 }
 
-                val ingredientKeywords = listOf("ingrédients", "ingredients", "pour", "composition")
+                val ingredientKeywords = listOf("ingrédients", "ingredients", "composition")
                 val instructionKeywords = listOf("préparation", "instructions", "étapes", "réalisation", "méthode", "progression")
-                val wineKeywords = listOf("merlot", "bordeaux", "bourgogne", "rhone", "alsace", "bulgarie", "italie", "espagne", "cépage", "region", "chardonnay", "sauvignon", "touraine", "cl", "vol", "75cl", "75 cl")
+                
+                val wineAppellations = listOf(
+                    "saumur", "saumir", "chablis", "sancerre", "champagne", "pauillac", "margaux", 
+                    "saint-emilion", "pomerol", "gigondas", "chinon", "vouvray", "muscadet"
+                )
+                val wineProducers = listOf(
+                    "alban de saint-pré", "alban de saint-pre", "alban de saint_pre", "alban de saint_pré",
+                    "pfaffenheim", "caves de pfaffenheim"
+                )
+                val wineKeywords = listOf("merlot", "bordeaux", "bourgogne", "rhone", "alsace", "bulgarie", "italie", "espagne", "cépage", "region", "chardonnay", "sauvignon", "touraine", "cl", "vol", "75cl", "75 cl", "gewurztraminer", "riesling", "muscat", "sylvaner", "pinot", "vignoble")
                 val wineTitleKeywords = listOf("vin", "accord", "boisson", "boire", "servir avec", "notre vin", "vin conseillé", "vin suggéré")
                 
-                val sourceKeywords = listOf("hôtel", "hotel", "restaurant", "rue", "avenue", "place", "boulevard", "route", "cedex", "paris", "bruxelles")
+                val sourceKeywords = listOf("hôtel", "hotel", "restaurant", "rue", "avenue", "place", "boulevard", "route", "cedex", "paris", "bruxelles", "belgique")
+                val menuCategoryKeywords = listOf("entrées", "entrees", "plats", "desserts", "chaudes", "froides", "carte", "menu", "warme", "voorgerechten", "koude")
                 val phonePrefixes = listOf("tel", "tél", "phone", "gsm", "mobile", "contact", "fax")
                 
                 val zipCodeRegex = Regex("\\b\\d{4,5}\\b")
                 val phoneRegex = Regex("(?:(?:\\+|00)32|0)[\\s./-]*[1-9](?:[\\s./-]*\\d{2}){3,4}")
-                
-                // Détection du début des instructions : numérotation OU verbe d'action français commun (infinitif ou impératif)
-                val stepStartRegex = Regex("^(?:[\\d\\-*]+[.)]|étape|méthode|dans|faire|mélanger|couper|cuire|préchauffer|ajouter|prélevez|éplucher|hacher|émincer|verser|fouetter|incorporer|laisser|mettre|disposer|servir|nettoyer|laver|cuisez|mélangez|coupez|versez|ajoutez)", RegexOption.IGNORE_CASE)
+                val stepActionKeywords = listOf("faire", "m[ée]langer", "couper", "cuire", "pr[ée]chauffer", "ajouter", "prélevez", "[ée]plucher", "hacher", "[ée]mincer", "verser", "fouetter", "incorporer", "laisser", "mettre", "disposer", "servir", "nettoyer", "laver", "cuisez", "m[ée]langez", "coupez", "versez", "ajoutez", "battez", "[ée]taler", "saupoudrer", "garnir", "[ée]talez", "placez", "d[ée]coupez", "hachez", "incorporez", "portez", "bouillir", "r[ée]servez")
+                val stepStartRegex = Regex("\\b(?:${stepActionKeywords.joinToString("|")})\\b", RegexOption.IGNORE_CASE)
 
                 var currentSection = 0 
-                val ingredientsList = mutableListOf<String>()
+                val rawIngredientsList = mutableListOf<String>()
                 val instructionsList = mutableListOf<String>()
                 val detectedWineList = mutableListOf<String>()
                 val detectedSourceList = mutableListOf<String>()
@@ -146,21 +158,19 @@ class EditRecipeActivity : AppCompatActivity() {
                 for (line in lines) {
                     val lowerLine = line.lowercase()
                     
-                    // 1. Détection des portions
+                    // 1. Détection des portions - On extrait l'info et on IGNORE la ligne
                     val servingsRegex = Regex("(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)", RegexOption.IGNORE_CASE)
                     val alternateServingsRegex = Regex("(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)", RegexOption.IGNORE_CASE)
-                    if (detectedServings == null) {
-                        val match = servingsRegex.find(line) ?: alternateServingsRegex.find(line)
-                        match?.let { detectedServings = it.groupValues[1] }
+                    val servingsMatch = servingsRegex.find(line) ?: alternateServingsRegex.find(line)
+                    if (servingsMatch != null) {
+                        if (detectedServings == null) detectedServings = servingsMatch.groupValues[1]
+                        continue 
                     }
 
-                    // 2. Détection du vin
-                    val containsWineKey = wineKeywords.any { lowerLine.contains(it) }
-                    val isWineTitle = wineTitleKeywords.any { lowerLine.contains(it) }
-
-                    if (containsWineKey || isWineTitle) {
+                    // 2. Détection du VIN (Appellations ou Producteurs)
+                    if (wineAppellations.any { lowerLine.contains(it) } || wineProducers.any { lowerLine.contains(it) } || wineKeywords.any { lowerLine.contains(it) } || wineTitleKeywords.any { lowerLine.contains(it) }) {
                         var cleanWine = line
-                        cleanWine = cleanWine.replace(Regex("(?i)^(?:notre\\s+)?vin\\s+(?:conseillé|suggéré)?\\s*:?", RegexOption.IGNORE_CASE), "")
+                        cleanWine = cleanWine.replace(Regex("(?i)^(?:notre\\s+)?vin\\s+(?:conseillé|CONSEILLE|RECOMMANDE|suggéré)?\\s*:?", RegexOption.IGNORE_CASE), "")
                         cleanWine = cleanWine.replace(Regex("(?i)^(?:accord|boisson|boire|servir avec)\\s*:?", RegexOption.IGNORE_CASE), "")
                         cleanWine = cleanWine.trim()
                         if (cleanWine.isNotEmpty() && cleanWine.length > 2) {
@@ -169,51 +179,63 @@ class EditRecipeActivity : AppCompatActivity() {
                         continue 
                     }
 
-                    // 3. Détection de la source / adresse / téléphone
-                    val isPhone = phoneRegex.containsMatchIn(line)
-                    val isAddress = sourceKeywords.any { lowerLine.contains(it) } || zipCodeRegex.containsMatchIn(line)
-
-                    if (isPhone || isAddress) {
+                    // 3. Détection de la SOURCE
+                    if (phoneRegex.containsMatchIn(line) || sourceKeywords.any { lowerLine.contains(it) } || zipCodeRegex.containsMatchIn(line)) {
                         var cleanSource = line
-                        if (isPhone) {
-                            phonePrefixes.forEach { prefix ->
-                                cleanSource = cleanSource.replace(Regex("(?i)$prefix\\s*[:\\-.]?", RegexOption.IGNORE_CASE), "").trim()
-                            }
+                        if (phoneRegex.containsMatchIn(line)) {
+                            phonePrefixes.forEach { cleanSource = cleanSource.replace(Regex("(?i)$it\\s*[:\\-.]?", RegexOption.IGNORE_CASE), "").trim() }
                         }
                         detectedSourceList.add(cleanSource)
                         continue 
                     }
 
-                    // 4. Détection du passage aux INSTRUCTIONS (très important)
+                    // 4. EXCLUSION des catégories de menu et du mot "ingrédients" seul
+                    if (menuCategoryKeywords.any { lowerLine.contains(it) } && !lowerLine.contains(Regex("\\d"))) continue
+                    if (ingredientKeywords.any { lowerLine == it || lowerLine == "$it:" }) continue
+
+                    // 5. Détection du passage aux INSTRUCTIONS
                     if (instructionKeywords.any { lowerLine.contains(it) } || stepStartRegex.containsMatchIn(line)) {
                         currentSection = 2
-                        // On continue SEULEMENT si c'est un mot-clé de titre (ex: "Préparation :"), 
-                        // mais on GARDE la ligne si c'est déjà une action (ex: "Prélevez finement...")
                         if (instructionKeywords.any { lowerLine.contains(it) } && !stepStartRegex.containsMatchIn(line)) continue 
                     } else if (ingredientKeywords.any { lowerLine.contains(it) }) {
                         currentSection = 1
                         continue
                     }
 
-                    // 5. Remplissage des sections
                     when (currentSection) {
-                        1 -> ingredientsList.add(line)
+                        1 -> rawIngredientsList.add(line)
                         2 -> instructionsList.add(line)
                         else -> {
-                            // Par défaut si pas encore de section, on devine par le format
-                            if (Regex("^[\\d\\-*]").containsMatchIn(line)) ingredientsList.add(line)
+                            if (Regex("^[\\d\\-*]").containsMatchIn(line)) rawIngredientsList.add(line)
                             else if (line != lines[0]) instructionsList.add(line)
                         }
                     }
                 }
 
-                if (binding.etIngredients.text.isNullOrBlank()) binding.etIngredients.setText(ingredientsList.joinToString("\n"))
+                // Fusion et Nettoyage final
+                val finalIngredients = mutableListOf<String>()
+                if (rawIngredientsList.isNotEmpty()) {
+                    var currentIngredient = IngredientParser.preClean(rawIngredientsList[0])
+                    for (i in 1 until rawIngredientsList.size) {
+                        val nextLine = IngredientParser.preClean(rawIngredientsList[i])
+                        if (!Regex("^[\\d\\-*]").containsMatchIn(nextLine) && nextLine.length > 2) {
+                            currentIngredient += " $nextLine"
+                        } else {
+                            val cleaned = cleanIngredientText(currentIngredient)
+                            if (cleaned.isNotBlank()) finalIngredients.add(cleaned)
+                            currentIngredient = nextLine
+                        }
+                    }
+                    val cleanedLast = cleanIngredientText(currentIngredient)
+                    if (cleanedLast.isNotBlank()) finalIngredients.add(cleanedLast)
+                }
+
+                if (binding.etIngredients.text.isNullOrBlank()) binding.etIngredients.setText(finalIngredients.joinToString("\n"))
                 if (binding.etInstructions.text.isNullOrBlank()) binding.etInstructions.setText(instructionsList.joinToString("\n"))
                 if (binding.etServings.text.isNullOrBlank() && detectedServings != null) binding.etServings.setText(detectedServings)
                 
                 if (binding.etWine.text.isNullOrBlank() && detectedWineList.isNotEmpty()) {
-                    val finalWine = detectedWineList.joinToString(" ").replace(Regex("^[:\\-\\s\\.]+"), "").trim()
-                    binding.etWine.setText(finalWine)
+                    binding.etWine.setText(detectedWineList.joinToString(" ").trim())
                 }
 
                 if (binding.etSource.text.isNullOrBlank() && detectedSourceList.isNotEmpty()) {
@@ -225,6 +247,14 @@ class EditRecipeActivity : AppCompatActivity() {
                 Log.e("EditRecipe", "OCR failed", e)
             }
         }
+    }
+
+    private fun cleanIngredientText(text: String): String {
+        var cleaned = text.replace(Regex("\\(.*?\\)"), "")
+            .replace(Regex("(?i)\\b(ingrédients|ingredients|personnes|portions|pers\\.?)\\b"), "")
+            .replace(Regex("\\s{2,}"), " ")
+            .trim()
+        return cleaned
     }
 
     private fun updateUI(recipe: Recipe) {
@@ -244,7 +274,7 @@ class EditRecipeActivity : AppCompatActivity() {
     private fun saveRecipe() {
         val title = binding.etTitle.text.toString()
         if (title.isBlank()) {
-            Toast.makeText(this, "Le titre est obligatoire", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Le nom est obligatoire", Toast.LENGTH_SHORT).show()
             return
         }
 
