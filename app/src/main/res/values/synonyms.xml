@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="source_keywords">
+        <item>hôtel</item>
+        <item>hotel</item>
+        <item>restaurant</item>
+        <item>rue</item>
+        <item>avenue</item>
+        <item>place</item>
+        <item>boulevard</item>
+        <item>route</item>
+        <item>cedex</item>
+        <item>paris</item>
+        <item>bruxelles</item>
+        <item>belgique</item>
+        <item>france</item>
+        <item>marseille</item>
+        <item>lyon</item>
+        <item>nantes</item>
+    </string-array>
+
+    <string-array name="menu_category_keywords">
+        <item>entrées</item>
+        <item>entrees</item>
+        <item>plats</item>
+        <item>desserts</item>
+        <item>chaudes</item>
+        <item>froides</item>
+        <item>carte</item>
+        <item>menu</item>
+        <item>warme</item>
+        <item>voorgerechten</item>
+        <item>koude</item>
+    </string-array>
+
+    <string-array name="phone_prefixes">
+        <item>tel</item>
+        <item>tél</item>
+        <item>phone</item>
+        <item>gsm</item>
+        <item>mobile</item>
+        <item>contact</item>
+        <item>fax</item>
+    </string-array>
+
+    <!-- Patterns de détection pour la source -->
+    <string name="zip_code_pattern">\\b\\d{4,5}\\b</string>
+    <string name="phone_pattern">(?:(?:\\+|00)32|0)[\\s./-]*[1-9](?:[\\s./-]*\\d{2}){3,4}</string>
+</resources>

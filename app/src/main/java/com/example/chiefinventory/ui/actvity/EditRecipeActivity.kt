@@ -14,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.chiefinventory.CollectionApplication
+import com.example.chiefinventory.R
 import com.example.chiefinventory.databinding.ActivityEditRecipeBinding
 import com.example.chiefinventory.model.Location
 import com.example.chiefinventory.model.Recipe
@@ -125,30 +126,25 @@ class EditRecipeActivity : AppCompatActivity() {
                     binding.etTitle.setText(lines[0])
                 }
 
-                val ingredientKeywords = listOf("ingrédients", "ingredients", "composition")
-                val instructionKeywords = listOf("préparation", "instructions", "étapes", "réalisation", "méthode", "progression")
-                
-                val wineAppellations = listOf(
-                    "saumur", "saumir", "chablis", "sancerre", "champagne", "pauillac", "margaux", 
-                    "saint-emilion", "pomerol", "gigondas", "chinon", "vouvray", "muscadet"
-                )
-                val wineProducers = listOf(
-                    "alban de saint-pré", "alban de saint-pre", "alban de saint_pre", "alban de saint_pré",
-                    "pfaffenheim", "caves de pfaffenheim"
-                )
-                val wineKeywords = listOf("merlot", "bordeaux", "bourgogne", "rhone", "alsace", "bulgarie", "italie", "espagne", "cépage", "region", "chardonnay", "sauvignon", "touraine", "cl", "vol", "75cl", "75 cl", "gewurztraminer", "riesling", "muscat", "sylvaner", "pinot", "vignoble")
+                // Chargement des ressources
+                val wineAppellations = resources.getStringArray(R.array.wine_appellations).toList()
+                val wineProducers = resources.getStringArray(R.array.wine_producers).toList()
+                val wineKeywords = resources.getStringArray(R.array.wine_keywords).toList()
+                val sourceKeywords = resources.getStringArray(R.array.source_keywords).toList()
+                val menuCategoryKeywords = resources.getStringArray(R.array.menu_category_keywords).toList()
+                val phonePrefixes = resources.getStringArray(R.array.phone_prefixes).toList()
+                val stepActionKeywords = resources.getStringArray(R.array.step_action_keywords).toList()
+
                 val wineTitleKeywords = listOf("vin", "accord", "boisson", "boire", "servir avec", "notre vin", "vin conseillé", "vin suggéré")
-                
-                val sourceKeywords = listOf("hôtel", "hotel", "restaurant", "rue", "avenue", "place", "boulevard", "route", "cedex", "paris", "bruxelles", "belgique")
-                val menuCategoryKeywords = listOf("entrées", "entrees", "plats", "desserts", "chaudes", "froides", "carte", "menu", "warme", "voorgerechten", "koude")
-                val phonePrefixes = listOf("tel", "tél", "phone", "gsm", "mobile", "contact", "fax")
+                val ingredientHeaderKeywords = listOf("ingrédients", "ingredients", "composition")
+                val instructionHeaderKeywords = listOf("préparation", "instructions", "étapes", "réalisation", "méthode", "progression")
                 
                 val zipCodeRegex = Regex("\\b\\d{4,5}\\b")
                 val phoneRegex = Regex("(?:(?:\\+|00)32|0)[\\s./-]*[1-9](?:[\\s./-]*\\d{2}){3,4}")
-                val stepActionKeywords = listOf("faire", "m[ée]langer", "couper", "cuire", "pr[ée]chauffer", "ajouter", "prélevez", "[ée]plucher", "hacher", "[ée]mincer", "verser", "fouetter", "incorporer", "laisser", "mettre", "disposer", "servir", "nettoyer", "laver", "cuisez", "m[ée]langez", "coupez", "versez", "ajoutez", "battez", "[ée]taler", "saupoudrer", "garnir", "[ée]talez", "placez", "d[ée]coupez", "hachez", "incorporez", "portez", "bouillir", "r[ée]servez")
                 val stepStartRegex = Regex("\\b(?:${stepActionKeywords.joinToString("|")})\\b", RegexOption.IGNORE_CASE)
+                val qtyRegex = Regex("^[|Il!\\d\\-*]") 
 
-                var currentSection = 0 
+                var currentSection = 0 // 0: None, 1: Ingredients, 2: Instructions
                 val rawIngredientsList = mutableListOf<String>()
                 val instructionsList = mutableListOf<String>()
                 val detectedWineList = mutableListOf<String>()
@@ -158,7 +154,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 for (line in lines) {
                     val lowerLine = line.lowercase()
                     
-                    // 1. Détection des portions - On extrait l'info et on IGNORE la ligne
+                    // 1. Détection des portions
                     val servingsRegex = Regex("(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)", RegexOption.IGNORE_CASE)
                     val alternateServingsRegex = Regex("(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)", RegexOption.IGNORE_CASE)
                     val servingsMatch = servingsRegex.find(line) ?: alternateServingsRegex.find(line)
@@ -167,58 +163,71 @@ class EditRecipeActivity : AppCompatActivity() {
                         continue 
                     }
 
-                    // 2. Détection du VIN (Appellations ou Producteurs)
-                    if (wineAppellations.any { lowerLine.contains(it) } || wineProducers.any { lowerLine.contains(it) } || wineKeywords.any { lowerLine.contains(it) } || wineTitleKeywords.any { lowerLine.contains(it) }) {
+                    // 2. REGLE DE BASCULE : Est-ce que ça ressemble à un ingrédient ou une instruction ?
+                    val looksLikeIngredient = qtyRegex.containsMatchIn(line.take(5)) && !line.contains(Regex("^\\d+\\."))
+                    val isActionVerb = stepStartRegex.containsMatchIn(line)
+
+                    // SI c'est une action, on bascule vers instructions (PRIORITÉ MAX)
+                    if (isActionVerb || instructionHeaderKeywords.any { lowerLine.contains(it) }) {
+                        currentSection = 2
+                        if (instructionHeaderKeywords.any { lowerLine.contains(it) }) continue
+                    } 
+                    // SINON SI ça ressemble à un ingrédient, on bascule vers ingrédients
+                    else if (looksLikeIngredient || ingredientHeaderKeywords.any { lowerLine.contains(it) }) {
+                        currentSection = 1
+                        if (ingredientHeaderKeywords.any { lowerLine.contains(it) }) continue
+                    }
+
+                    // 3. Détection du VIN (Si on n'est pas déjà sûr que c'est un ingrédient ou une instruction)
+                    val isWineLine = wineKeywords.any { lowerLine.contains(it) } || 
+                                   wineTitleKeywords.any { lowerLine.contains(it) } ||
+                                   wineAppellations.any { lowerLine.contains(it) } ||
+                                   wineProducers.any { lowerLine.contains(it) }
+
+                    if (isWineLine && !lowerLine.contains("vinaigre") && currentSection != 2 && !looksLikeIngredient) {
                         var cleanWine = line
-                        cleanWine = cleanWine.replace(Regex("(?i)^(?:notre\\s+)?vin\\s+(?:conseillé|CONSEILLE|RECOMMANDE|suggéré)?\\s*:?", RegexOption.IGNORE_CASE), "")
-                        cleanWine = cleanWine.replace(Regex("(?i)^(?:accord|boisson|boire|servir avec)\\s*:?", RegexOption.IGNORE_CASE), "")
-                        cleanWine = cleanWine.trim()
-                        if (cleanWine.isNotEmpty() && cleanWine.length > 2) {
-                            detectedWineList.add(cleanWine)
-                        }
+                        val wineRemovePattern = resources.getString(R.string.wine_remove_pattern)
+                        val wineRemoveRegex = Regex(wineRemovePattern, RegexOption.IGNORE_CASE)
+                        cleanWine = cleanWine.replace(wineRemoveRegex, "")
+                        cleanWine = cleanWine.replace(Regex("(?i)^(?:accord|boisson|boire|servir avec|suggestion)\\s*:?", RegexOption.IGNORE_CASE), "").trim()
+                        if (cleanWine.isNotEmpty() && cleanWine.length > 2) detectedWineList.add(cleanWine)
                         continue 
                     }
 
-                    // 3. Détection de la SOURCE
+                    // 4. SOURCE
                     if (phoneRegex.containsMatchIn(line) || sourceKeywords.any { lowerLine.contains(it) } || zipCodeRegex.containsMatchIn(line)) {
                         var cleanSource = line
-                        if (phoneRegex.containsMatchIn(line)) {
-                            phonePrefixes.forEach { cleanSource = cleanSource.replace(Regex("(?i)$it\\s*[:\\-.]?", RegexOption.IGNORE_CASE), "").trim() }
-                        }
+                        phonePrefixes.forEach { cleanSource = cleanSource.replace(Regex("(?i)$it\\s*[:\\-.]?", RegexOption.IGNORE_CASE), "").trim() }
                         detectedSourceList.add(cleanSource)
                         continue 
                     }
 
-                    // 4. EXCLUSION des catégories de menu et du mot "ingrédients" seul
-                    if (menuCategoryKeywords.any { lowerLine.contains(it) } && !lowerLine.contains(Regex("\\d"))) continue
-                    if (ingredientKeywords.any { lowerLine == it || lowerLine == "$it:" }) continue
-
-                    // 5. Détection du passage aux INSTRUCTIONS
-                    if (instructionKeywords.any { lowerLine.contains(it) } || stepStartRegex.containsMatchIn(line)) {
-                        currentSection = 2
-                        if (instructionKeywords.any { lowerLine.contains(it) } && !stepStartRegex.containsMatchIn(line)) continue 
-                    } else if (ingredientKeywords.any { lowerLine.contains(it) }) {
-                        currentSection = 1
+                    // 5. EXCLUSION des catégories de menu
+                    if (menuCategoryKeywords.any { lowerLine.contains(it) } && !lowerLine.contains(Regex("\\d"))) {
                         continue
                     }
 
+                    // 6. Remplissage selon la section
                     when (currentSection) {
                         1 -> rawIngredientsList.add(line)
                         2 -> instructionsList.add(line)
                         else -> {
-                            if (Regex("^[\\d\\-*]").containsMatchIn(line)) rawIngredientsList.add(line)
-                            else if (line != lines[0]) instructionsList.add(line)
+                            if (line != lines[0]) {
+                                instructionsList.add(line)
+                                if (line.length > 30) currentSection = 2
+                            }
                         }
                     }
                 }
 
-                // Fusion et Nettoyage final
+                // Fusion et Nettoyage des ingrédients
                 val finalIngredients = mutableListOf<String>()
                 if (rawIngredientsList.isNotEmpty()) {
                     var currentIngredient = IngredientParser.preClean(rawIngredientsList[0])
                     for (i in 1 until rawIngredientsList.size) {
                         val nextLine = IngredientParser.preClean(rawIngredientsList[i])
-                        if (!Regex("^[\\d\\-*]").containsMatchIn(nextLine) && nextLine.length > 2) {
+                        val nextLooksLikeIngredient = qtyRegex.containsMatchIn(nextLine.take(5))
+                        if (!nextLooksLikeIngredient && nextLine.length > 2) {
                             currentIngredient += " $nextLine"
                         } else {
                             val cleaned = cleanIngredientText(currentIngredient)
@@ -235,7 +244,8 @@ class EditRecipeActivity : AppCompatActivity() {
                 if (binding.etServings.text.isNullOrBlank() && detectedServings != null) binding.etServings.setText(detectedServings)
                 
                 if (binding.etWine.text.isNullOrBlank() && detectedWineList.isNotEmpty()) {
-                    binding.etWine.setText(detectedWineList.joinToString(" ").trim())
+                    val finalWine = detectedWineList.joinToString(" ").replace(Regex("^[:\\-\\s\\.]+"), "").trim()
+                    binding.etWine.setText(finalWine)
                 }
 
                 if (binding.etSource.text.isNullOrBlank() && detectedSourceList.isNotEmpty()) {
@@ -250,11 +260,7 @@ class EditRecipeActivity : AppCompatActivity() {
     }
 
     private fun cleanIngredientText(text: String): String {
-        var cleaned = text.replace(Regex("\\(.*?\\)"), "")
-            .replace(Regex("(?i)\\b(ingrédients|ingredients|personnes|portions|pers\\.?)\\b"), "")
-            .replace(Regex("\\s{2,}"), " ")
-            .trim()
-        return cleaned
+        return text.replace(Regex("\\(.*?\\)"), "").replace(Regex("(?i)\\b(ingrédients|ingredients|personnes|portions|pers\\.?)\\b"), "").replace(Regex("\\s{2,}"), " ").trim()
     }
 
     private fun updateUI(recipe: Recipe) {

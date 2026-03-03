@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="step_action_keywords">
+        <item>faire</item>
+        <item>m[ée]langer</item>
+        <item>couper</item>
+        <item>cuire</item>
+        <item>pr[ée]chauffer</item>
+        <item>ajouter</item>
+        <item>prélevez</item>
+        <item>[ée]plucher</item>
+        <item>hacher</item>
+        <item>[ée]mincer</item>
+        <item>verser</item>
+        <item>fouetter</item>
+        <item>incorporer</item>
+        <item>laisser</item>
+        <item>mettre</item>
+        <item>disposer</item>
+        <item>servir</item>
+        <item>nettoyer</item>
+        <item>laver</item>
+        <item>cuisez</item>
+        <item>m[ée]langez</item>
+        <item>coupez</item>
+        <item>versez</item>
+        <item>ajoutez</item>
+        <item>battez</item>
+        <item>[ée]taler</item>
+        <item>saupoudrer</item>
+        <item>garnir</item>
+        <item>[ée]talez</item>
+        <item>placez</item>
+        <item>d[ée]coupez</item>
+        <item>hachez</item>
+        <item>incorporez</item>
+        <item>portez</item>
+        <item>bouillir</item>
+        <item>r[ée]servez</item>
+    </string-array>
+</resources>
