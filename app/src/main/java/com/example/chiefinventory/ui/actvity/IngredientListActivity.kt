@@ -17,7 +17,6 @@ class IngredientListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityIngredientListBinding
     private lateinit var adapter: IngredientAdapter
-    private var locationId: Long = -1L
 
     private val viewModel: IngredientViewModel by viewModels {
         val app = application as CollectionApplication
@@ -29,24 +28,19 @@ class IngredientListActivity : AppCompatActivity() {
         binding = ActivityIngredientListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        locationId = intent.getLongExtra(EXTRA_LOCATION_ID, -1L)
-        val locationName = intent.getStringExtra(EXTRA_LOCATION_NAME) ?: "Ingrédients"
-
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = locationName
+        supportActionBar?.title = "Mon Stock d'Ingrédients"
 
-        // Initialiser le ViewModel avec l'emplacement actuel
-        viewModel.setLocation(locationId)
+        // On ignore tout filtrage et on force le chargement complet du stock
+        viewModel.setLocation(-1L)
 
         setupRecyclerView()
         setupSearch()
         observeViewModel()
 
         binding.fabAddIngredient.setOnClickListener {
-            val intent = Intent(this, EditIngredientActivity::class.java).apply {
-                putExtra(EditIngredientActivity.EXTRA_LOCATION_ID, locationId)
-            }
+            val intent = Intent(this, EditIngredientActivity::class.java)
             startActivity(intent)
         }
     }
@@ -60,8 +54,7 @@ class IngredientListActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         adapter = IngredientAdapter { ingredient ->
             val intent = Intent(this, EditIngredientActivity::class.java).apply {
-                putExtra(EditIngredientActivity.EXTRA_INGREDIENT_ID, ingredient.id)
-                putExtra(EditIngredientActivity.EXTRA_LOCATION_ID, locationId)
+                putExtra(EXTRA_INGREDIENT_ID, ingredient.id)
             }
             startActivity(intent)
         }
@@ -70,7 +63,6 @@ class IngredientListActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        // Utiliser la nouvelle propriété 'ingredients' qui gère le filtrage/recherche
         viewModel.ingredients.observe(this) { ingredients ->
             adapter.submitList(ingredients)
         }
@@ -87,5 +79,6 @@ class IngredientListActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_LOCATION_ID = "location_id"
         const val EXTRA_LOCATION_NAME = "location_name"
+        const val EXTRA_INGREDIENT_ID = "ingredient_id"
     }
 }

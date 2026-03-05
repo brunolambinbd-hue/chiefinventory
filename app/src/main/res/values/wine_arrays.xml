@@ -55,6 +55,6 @@
         <item>vin suggéré</item>
     </string-array>
 
-    <!-- Pattern Regex pour supprimer les titres de section Vin (Insensible à la casse) -->
+    <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage) -->
     <string name="wine_remove_pattern">^(?:notre\\s+)?vin\\s+(?:conseillé|suggéré|recommandé|conseille|suggere|recommande)?\\s*:?</string>
 </resources>

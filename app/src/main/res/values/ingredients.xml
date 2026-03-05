@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="common_ingredients_no_qty">
+        <item>sel</item>
+        <item>poivre</item>
+        <item>persil</item>
+        <item>haché</item>
+        <item>tabasco</item>
+        <item>aneth</item>
+        <item>ciboulette</item>
+        <item>échalote</item>
+        <item>ail</item>
+        <item>huile d\'olive</item>
+        <item>moutarde</item>
+        <item>mayonnaise</item>
+    </string-array>
+</resources>

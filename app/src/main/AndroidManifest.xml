@@ -48,6 +48,7 @@
         <activity android:name=".ui.actvity.EditRecipeActivity" />
         <activity android:name=".ui.actvity.RecipeListActivity" />
         <activity android:name=".ui.actvity.RecipeCategoryListActivity" />
+        <activity android:name=".ui.actvity.SearchRecipeActivity" />
 
         <!-- Déclaration de l'activité de la librairie de recadrage avec un thème approprié -->
         <activity

@@ -38,14 +38,13 @@
         <item>bouillir</item>
         <item>r[ée]servez</item>
         <item>chauffer</item>
+        <item>[ée]taler</item>
         <item>badigeonner</item>
         <item>enfourner</item>
-        <item>servez</item>
-        <item>dressez</item>
-        <item>pr[ée]sentez</item>
-        <item>d[ée]corez</item>
-        <item>accompagnez</item>
-        <item>pr[ée]parez</item>
-        <item>vinaigrette</item>
+        <item>disposez</item>
+        <item>saupoudrez</item>
+        <item>garnissez</item>
+        <item>parsemez</item>
+        <item>arrosez</item>
     </string-array>
 </resources>

@@ -34,6 +34,10 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(CategoryAuditViewModel::class.java) -> CategoryAuditViewModel(collectionRepository, ioDispatcher) as T
             modelClass.isAssignableFrom(IngredientViewModel::class.java) -> IngredientViewModel(ingredientRepository, locationRepository) as T
             modelClass.isAssignableFrom(EditIngredientViewModel::class.java) -> EditIngredientViewModel(application, ingredientRepository, locationRepository) as T
+            modelClass.isAssignableFrom(SearchRecipeViewModel::class.java) -> {
+                val repo = recipeRepository ?: throw IllegalArgumentException("RecipeRepository required")
+                SearchRecipeViewModel(repo, ingredientRepository) as T
+            }
             modelClass.isAssignableFrom(EditRecipeViewModel::class.java) -> {
                 val repo = recipeRepository ?: throw IllegalArgumentException("RecipeRepository required")
                 EditRecipeViewModel(repo, locationRepository) as T

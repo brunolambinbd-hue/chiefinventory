@@ -8,7 +8,10 @@ import com.example.chiefinventory.R
  */
 object SourceParser {
     private val zipCodeRegex = Regex("\\b\\d{4,5}\\b")
-    private val phoneRegex = Regex("(?:(?:\\+|00)32|0)[\\s./-]*[1-9](?:[\\s./-]*\\d{2}){3,4}")
+    
+    // Regex améliorée pour capturer les formats comme 02/542.42.42 ou +32 2 542 42 42
+    // Elle cherche un début de numéro suivi de groupes de 2 ou 3 chiffres séparés par des symboles courants
+    private val phoneRegex = Regex("(?:(?:\\+|00)\\d{1,3}[\\s./-]?)?(?:\\(0\\)[\\s./-]?)?\\d(?:[\\s./-]*\\d{2,3}){2,5}")
 
     /**
      * Data class to hold source resources loaded from XML.
@@ -33,9 +36,13 @@ object SourceParser {
      */
     fun isSourceLine(line: String, resources: SourceResources): Boolean {
         val lowerLine = line.lowercase()
+        // On considère que c'est une source si :
+        // - Contient un numéro de téléphone (priorité haute)
+        // - Contient un mot clé de source (rue, hôtel, etc.)
+        // - Contient un code postal ET est assez court
         return phoneRegex.containsMatchIn(line) || 
                resources.sourceKeywords.any { lowerLine.contains(it) } || 
-               zipCodeRegex.containsMatchIn(line)
+               (zipCodeRegex.containsMatchIn(line) && line.length < 50)
     }
 
     /**

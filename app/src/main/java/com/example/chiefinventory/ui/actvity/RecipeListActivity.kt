@@ -17,7 +17,6 @@ class RecipeListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRecipeListBinding
     private lateinit var adapter: RecipeAdapter
-    private var categoryId: Long = -1L
 
     private val viewModel: RecipeViewModel by viewModels {
         val app = application as CollectionApplication
@@ -29,22 +28,20 @@ class RecipeListActivity : AppCompatActivity() {
         binding = ActivityRecipeListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        categoryId = intent.getLongExtra(EXTRA_CATEGORY_ID, -1L)
-        val categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: "Mes Recettes"
-
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = categoryName
+        // On affiche toujours le même titre pour cette page globale
+        supportActionBar?.title = "Toutes mes Recettes"
+
+        // On force le chargement de TOUTES les recettes au démarrage
+        viewModel.setCategoryId(-1L)
 
         setupRecyclerView()
         setupSearch()
         observeViewModel()
 
         binding.fabAddRecipe.setOnClickListener {
-            val intent = Intent(this, EditRecipeActivity::class.java).apply {
-                putExtra(EditRecipeActivity.EXTRA_LOCATION_ID, categoryId)
-            }
-            startActivity(intent)
+            startActivity(Intent(this, EditRecipeActivity::class.java))
         }
     }
 
@@ -66,11 +63,6 @@ class RecipeListActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        // Si on a un categoryId, on demande au ViewModel de filtrer
-        if (categoryId != -1L) {
-            viewModel.setCategoryId(categoryId)
-        }
-        
         viewModel.recipes.observe(this) { recipes ->
             adapter.submitList(recipes)
         }
@@ -86,6 +78,7 @@ class RecipeListActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_RECIPE_ID = "recipe_id"
+        // Constantes conservées pour la compatibilité avec le reste du projet
         const val EXTRA_CATEGORY_ID = "category_id"
         const val EXTRA_CATEGORY_NAME = "category_name"
     }

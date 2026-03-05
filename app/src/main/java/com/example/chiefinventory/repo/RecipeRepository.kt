@@ -29,58 +29,59 @@ class RecipeRepository(
 
     suspend fun deleteRecipe(recipe: Recipe) = recipeDao.deleteRecipe(recipe)
 
+    /**
+     * Recherche des recettes contenant les ingrédients fournis.
+     */
+    suspend fun searchRecipesByIngredients(availableIngredients: List<String>): List<Pair<Recipe, Int>> {
+        val allWithIngredients = recipeDao.getAllRecipesWithIngredients()
+        val normalizedAvailable = availableIngredients.map { normalize(it) }
+
+        return allWithIngredients.map { item ->
+            val recipeIngredients = item.ingredients.map { normalize(it.ingredientName) }
+            val matchCount = recipeIngredients.count { recipeIng ->
+                normalizedAvailable.any { availIng -> recipeIng.contains(availIng) || availIng.contains(recipeIng) }
+            }
+            Pair(item.recipe, matchCount)
+        }
+        .filter { it.second > 0 }
+        .sortedByDescending { it.second }
+    }
+
     suspend fun insertRecipeIngredients(ingredients: List<RecipeIngredient>) {
         if (ingredients.isEmpty()) return
         
         Log.d("RecipeRepository", "Insertion de ${ingredients.size} ingrédients pour la recette")
         
+        // Sauvegarde des liaisons pour cette recette
         recipeDao.insertRecipeIngredients(ingredients)
         
-        val wineKeywords = listOf(
-            "vin", "chateau", "domaine", "cuvée", "rouge", "blanc", "rosé", "bouteille",
-            "merlot", "cabernet", "syrah", "chardonnay", "sauvignon", "pinot", "malbec",
-            "bordeaux", "bourgogne", "rhone", "alsace", "bulgarie", "italie", "espagne",
-            "pays d'oc", "cépage", "cru", "appellation", "aop", "igp", "touraine"
-        )
-
-        // Récupérer tous les ingrédients pour comparer sans accents ni espaces
+        // Récupérer le stock existant pour éviter les doublons (normalisation accents/espaces)
         val allExisting = ingredientDao.getAllSync()
 
         for (ri in ingredients) {
             val rawName = ri.ingredientName.trim()
             if (rawName.isEmpty()) continue
             
-            val lowerName = rawName.lowercase()
-            val isWine = wineKeywords.any { lowerName.contains(it) }
-            
-            if (isWine) {
-                Log.d("RecipeRepository", "Exclusion du vin: $rawName")
-                continue
-            }
-
+            // On ne filtre plus ici (déjà fait par l'OCR), on parse pour extraire Qté/Unité/Nom
             val parsed = IngredientParser.parse(rawName)
             val nameToStore = parsed.name
             
-            // On cherche si une version normalisée existe déjà
             val normalizedNew = normalize(nameToStore)
             val existing = allExisting.find { normalize(it.name) == normalizedNew }
 
             if (existing == null) {
-                Log.d("RecipeRepository", "Création auto: ${parsed.quantity} ${parsed.unit ?: ""} $nameToStore")
+                Log.d("RecipeRepository", "Création automatique de l'ingrédient global: $nameToStore")
                 ingredientDao.insert(Ingredient(
                     name = nameToStore,
                     quantity = parsed.quantity,
                     unit = parsed.unit
                 ))
             } else {
-                Log.d("RecipeRepository", "L'ingrédient existe déjà (similitude détectée): $nameToStore (trouvé: ${existing.name})")
+                Log.d("RecipeRepository", "L'ingrédient existe déjà: $nameToStore")
             }
         }
     }
 
-    /**
-     * Normalise une chaîne : minuscules, sans accents, sans espaces.
-     */
     private fun normalize(input: String): String {
         val temp = Normalizer.normalize(input.lowercase(), Normalizer.Form.NFD)
         return temp.replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")

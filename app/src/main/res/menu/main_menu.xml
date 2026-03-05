@@ -1,72 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="navigation_view">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_home"
-            android:icon="@android:drawable/ic_menu_myplaces"
-            android:title="@string/menu_home_title" />
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="Accueil" />
 
-        <!-- Section COLLECTION -->
-        <item
-            android:id="@+id/nav_products"
-            android:icon="@android:drawable/ic_menu_directions"
-            android:title="@string/menu_products_title" />
-        <item
-            android:id="@+id/nav_locations"
-            android:icon="@android:drawable/ic_menu_mapmode"
-            android:title="@string/menu_locations_title" />
+    <item android:title="MA COLLECTION">
+        <menu>
+            <item
+                android:id="@+id/nav_products"
+                android:icon="@android:drawable/ic_menu_directions"
+                android:title="Tous les Produits" />
+            <item
+                android:id="@+id/nav_searches"
+                android:icon="@android:drawable/ic_menu_compass"
+                android:title="Produits Recherchés" />
+            <item
+                android:id="@+id/nav_locations"
+                android:icon="@android:drawable/ic_menu_mapmode"
+                android:title="Emplacements Collection" />
+        </menu>
+    </item>
 
-        <!-- Section CUISINE -->
-        <item
-            android:id="@+id/nav_all_ingredients"
-            android:icon="@android:drawable/ic_menu_agenda"
-            android:title="Tous les Ingrédients" />
-        <item
-            android:id="@+id/nav_ingredients_locations"
-            android:icon="@android:drawable/ic_menu_manage"
-            android:title="Emplacements Cuisine" />
+    <item android:title="MA CUISINE">
+        <menu>
+            <item
+                android:id="@+id/nav_all_ingredients"
+                android:icon="@android:drawable/ic_menu_agenda"
+                android:title="Mon Stock d'Ingrédients" />
+            <item
+                android:id="@+id/nav_search_recipe"
+                android:icon="@android:drawable/ic_menu_search"
+                android:title="Que cuisiner ?" />
+            <item
+                android:id="@+id/nav_ingredients_locations"
+                android:icon="@android:drawable/ic_menu_manage"
+                android:title="Emplacements Cuisine" />
+        </menu>
+    </item>
 
-        <!-- Recettes -->
-        <item
-            android:id="@+id/nav_all_recipes"
-            android:icon="@android:drawable/ic_menu_agenda"
-            android:title="Toutes les Recettes" />
-        <item
-            android:id="@+id/nav_recipe_categories"
-            android:icon="@android:drawable/ic_menu_sort_by_size"
-            android:title="Type de Recettes" />
-        <item
-            android:id="@+id/nav_add_recipe"
-            android:icon="@android:drawable/ic_menu_add"
-            android:title="Scanner une Recette" />
+    <item android:title="MES RECETTES">
+        <menu>
+            <item
+                android:id="@+id/nav_all_recipes"
+                android:icon="@android:drawable/ic_menu_agenda"
+                android:title="Toutes les Recettes" />
+            <item
+                android:id="@+id/nav_recipe_categories"
+                android:icon="@android:drawable/ic_menu_sort_by_size"
+                android:title="Types de Recettes" />
+            <item
+                android:id="@+id/nav_add_recipe"
+                android:icon="@android:drawable/ic_menu_add"
+                android:title="Scanner une Recette" />
+        </menu>
+    </item>
 
-        <item
-            android:id="@+id/nav_recent_finds"
-            android:icon="@android:drawable/ic_menu_recent_history"
-            android:title="@string/recent_finds_label" />
-        <item
-            android:id="@+id/nav_recent_organizations"
-            android:icon="@android:drawable/ic_menu_today"
-            android:title="@string/recent_organizations_label" />
-        <item
-            android:id="@+id/nav_searches"
-            android:icon="@android:drawable/ic_menu_compass"
-            android:title="@string/menu_searches_title" />
+    <item android:title="OUTILS &amp; BACKUP">
+        <menu>
+            <item
+                android:id="@+id/nav_import"
+                android:icon="@android:drawable/ic_menu_upload"
+                android:title="Importer CSV" />
+            <item
+                android:id="@+id/nav_backup"
+                android:icon="@android:drawable/ic_menu_save"
+                android:title="Sauvegarde &amp; Restauration" />
+            <item
+                android:id="@+id/nav_signatures"
+                android:icon="@android:drawable/ic_menu_manage"
+                android:title="Rapport des Signatures" />
+            <item
+                android:id="@+id/nav_recent_finds"
+                android:icon="@android:drawable/ic_menu_recent_history"
+                android:title="Trouvailles récentes" />
+            <item
+                android:id="@+id/nav_recent_organizations"
+                android:icon="@android:drawable/ic_menu_today"
+                android:title="Rangements récents" />
+        </menu>
+    </item>
 
-        <item
-            android:id="@+id/nav_import"
-            android:icon="@android:drawable/ic_menu_upload"
-            android:title="@string/menu_import_title" />
-        <item
-            android:id="@+id/nav_backup"
-            android:icon="@android:drawable/ic_menu_save"
-            android:title="@string/menu_backup_title" />
-        <item
-            android:id="@+id/nav_signatures"
-            android:icon="@android:drawable/ic_menu_manage"
-            android:title="@string/rapport_signatures" />
-    </group>
 </menu>

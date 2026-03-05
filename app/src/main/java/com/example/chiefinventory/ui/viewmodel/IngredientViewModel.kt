@@ -35,14 +35,12 @@ class IngredientViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     val ingredients: LiveData<List<Ingredient>> = _searchQuery.flatMapLatest { query ->
         if (query.isBlank()) {
-            if (locationId == -1L) {
-                repository.getAll().asFlow()
-            } else {
-                repository.getByLocation(locationId).asFlow()
-            }
+            // Par défaut, on affiche TOUT le stock
+            repository.getAll().asFlow()
         } else {
+            // Sinon on filtre par le texte saisi
             val dbQuery = "%$query%"
-            repository.searchInLocation(dbQuery, locationId).asFlow()
+            repository.searchInLocation(dbQuery, -1L).asFlow()
         }
     }.asLiveData()
 

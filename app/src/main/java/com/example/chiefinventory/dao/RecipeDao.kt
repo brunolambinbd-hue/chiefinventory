@@ -11,10 +11,26 @@ data class RecipeCategoryInfo(
     val recipeCount: Int
 )
 
+/**
+ * Data class to hold a recipe and its ingredients for matching logic.
+ */
+data class RecipeWithIngredients(
+    @Embedded val recipe: Recipe,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "recipeId"
+    )
+    val ingredients: List<RecipeIngredient>
+)
+
 @Dao
 interface RecipeDao {
     @Query("SELECT * FROM recipes ORDER BY updatedAt DESC")
     fun getAllRecipes(): LiveData<List<Recipe>>
+
+    @Transaction
+    @Query("SELECT * FROM recipes")
+    suspend fun getAllRecipesWithIngredients(): List<RecipeWithIngredients>
 
     @Query("SELECT * FROM recipes WHERE locationId = :categoryId ORDER BY updatedAt DESC")
     fun getRecipesByCategory(categoryId: Long): LiveData<List<Recipe>>

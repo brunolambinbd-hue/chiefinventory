@@ -9,7 +9,7 @@ class RecipeViewModel(private val repository: RecipeRepository) : ViewModel() {
     private val _searchQuery = MutableLiveData("")
     private val _categoryId = MutableLiveData<Long>(-1L)
     
-    // On utilise switchMap pour changer la source de données (toutes ou une catégorie)
+    // Par défaut on affiche TOUT (categoryId = -1)
     private val _baseRecipes = _categoryId.switchMap { catId ->
         if (catId == -1L) {
             repository.allRecipes
@@ -18,7 +18,6 @@ class RecipeViewModel(private val repository: RecipeRepository) : ViewModel() {
         }
     }
 
-    // On combine la source de base avec le filtre de recherche
     val recipes: LiveData<List<Recipe>> = MediatorLiveData<List<Recipe>>().apply {
         fun update() {
             val query = _searchQuery.value ?: ""

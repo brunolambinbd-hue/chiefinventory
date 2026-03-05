@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="excluded_ocr_keywords">
+        <item>POUR</item>
+        <item>BR</item>
+        <item>PAGE</item>
+        <item>RECETTE</item>
+        <item>N°</item>
+        <item>NOTES</item>
+        <item>ASTUCE</item>
+        <item>CONRAD</item>
+        <item>HILTON</item>
+        <item>SHERATON</item>
+        <item>MARRIOTT</item>
+        <item>CHEF</item>
+        <item>NAHIT</item>
+        <item>YILMAZ</item>
+        <item>CUISINIER</item>
+        <item>SAVEUR</item>
+        <item>LS</item>
+    </string-array>
+</resources>

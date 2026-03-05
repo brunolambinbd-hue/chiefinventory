@@ -162,6 +162,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_all_ingredients -> {
                 startActivity(Intent(this, IngredientListActivity::class.java))
             }
+            R.id.nav_search_recipe -> {
+                startActivity(Intent(this, SearchRecipeActivity::class.java))
+            }
             R.id.nav_ingredients_locations -> {
                 val intent = Intent(this, LocationManagementActivity::class.java).apply {
                     putExtra(LocationManagementActivity.EXTRA_LOCATION_TYPE, LocationType.INGREDIENT.ordinal)
@@ -186,11 +189,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_import -> {
                 importCsvLauncher.launch("text/comma-separated-values")
             }
-            R.id.nav_signatures -> {
-                startActivity(Intent(this, SignatureReportActivity::class.java))
-            }
             R.id.nav_backup -> {
                 startActivity(Intent(this, BackupActivity::class.java))
+            }
+            R.id.nav_signatures -> {
+                startActivity(Intent(this, SignatureReportActivity::class.java))
             }
         }
         return true

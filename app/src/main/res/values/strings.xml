@@ -107,8 +107,8 @@
     <string name="refine_search_title">Affiner la recherche</string>
     <string name="new_search_title">Nouvelle recherche</string>
     <string name="locations_management_title">Gestion des emplacements</string>
-    <string name="ingredients_management_title">Classement des ingrédients</string>
-    <string name="recipes_management_title">Classement des recettes</string>
+    <string name="ingredients_management_title">Mon Stock d\'Ingrédients</string>
+    <string name="recipes_management_title">Toutes mes Recettes</string>
 
     <!-- Sauvegarde et Restauration -->
     <string name="backup_button_backup">Sauvegarder la collection</string>
@@ -206,7 +206,5 @@
     <string name="Display_of_all_objets_to_be_implemented">Affichage de tous les objets (à implémenter)</string>
     <string name="possessed_status">POSSÉDÉ</string>
     <string name="sought_status">RECHERCHÉ</string>
-    <string name="category_audit_success_format">%1$d objets ont été reclassés avec succès.</string>
-
 
 </resources>

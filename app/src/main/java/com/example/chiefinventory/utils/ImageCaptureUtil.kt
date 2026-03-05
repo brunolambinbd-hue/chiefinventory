@@ -49,8 +49,8 @@ class ImageCaptureUtil(
         }
     }
 
-    // 3. File Picker Launcher (Ideal for Downloads/Screenshots)
-    private val pickFileLauncher = activity.registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    // 3. File Picker Launcher (Using OpenDocument for better access to Downloads)
+    private val pickFileLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             launchCropper(uri)
         } else {
@@ -79,9 +79,9 @@ class ImageCaptureUtil(
         }
     }
 
-    /** Starts the file picker flow (renamed to match Activity call). */
+    /** Starts the file picker flow. */
     fun startGallery() {
-        pickFileLauncher.launch("image/*")
+        pickFileLauncher.launch(arrayOf("image/*"))
     }
 
     /** Legacy entry point. */
