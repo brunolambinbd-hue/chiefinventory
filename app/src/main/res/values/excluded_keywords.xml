@@ -18,5 +18,7 @@
         <item>CUISINIER</item>
         <item>SAVEUR</item>
         <item>LS</item>
+        <item>INGRÉDIENTS</item>
+        <item>INGREDIENTS</item>
     </string-array>
 </resources>

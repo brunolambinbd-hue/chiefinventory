@@ -2,6 +2,7 @@
 <resources>
     <string-array name="step_action_keywords">
         <item>faire</item>
+        <item>faites</item>
         <item>m[ée]langer</item>
         <item>couper</item>
         <item>cuire</item>
@@ -47,5 +48,6 @@
         <item>accompagnez</item>
         <item>pr[ée]parez</item>
         <item>vinaigrette</item>
+        <item>r[ée]partissez</item>
     </string-array>
 </resources>

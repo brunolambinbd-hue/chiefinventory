@@ -36,11 +36,21 @@ object IngredientParser {
             .replace(Regex("^t\\s*(?=\\d)"), "")
             
             // Remplace '|', 'I', 'l', '!' par '1' au début de la ligne
-            .replace(Regex("^[|Il!](?=\\s*\\d)"), "1")   // | 250 -> 1 250
-            .replace(Regex("^[|Il!](?=\\s*/)"), "1")     // ! / 2 -> 1 / 2
-            .replace(Regex("^[|Il!]\\s*(?=[a-zA-Z])"), "1 ") // | orange -> 1 orange
+            // 1. Si c'est devant un chiffre (ex: | 250 -> 1 250)
+            .replace(Regex("^[|Il!](?=\\s*\\d)"), "1")
+            // 2. Si c'est devant une fraction (ex: ! / 2 -> 1 / 2)
+            .replace(Regex("^[|Il!](?=\\s*/)"), "1")
+            // 3. Cas général : symbole isolé au début suivi d'une lettre (ex: | avocat -> 1 avocat)
+            .replace(Regex("^[|Il!]\\s+(?=[a-zA-Z])"), "1 ")
             
             .replace(Regex("\\s+\\|\\s+"), " 1 ")
+
+        // Cas spécifique : l'OCR lit '1 e' au lieu de 'le' (souvent pour 'le jus de')
+        cleaned = cleaned.replace(Regex("^1\\s+e\\s+"), "le ")
+
+        // Cas spécifique : l'OCR lit 'lc.' ou 'lc ' au lieu de '1 c.' (cuillère)
+        cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\b"), "1 c")
+        cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\."), "1 c.")
 
         // Normalise 'c.à', 'c. a', etc. en 'c. à'
         cleaned = cleaned.replace(Regex("(?i)c\\.\\s*[àa]"), "c. à")
@@ -50,9 +60,10 @@ object IngredientParser {
         cleaned = cleaned.replace(Regex("(\\d)([a-zA-Z])"), "$1 $2")
 
         // Cas spécifique : l'OCR lit '112' au lieu de '1/2' ou '114' au lieu de '1/4'
-        // On gère aussi le cas où il y a un espace : '1 12'
         cleaned = cleaned.replace(Regex("^1\\s*12\\b"), "1/2")
         cleaned = cleaned.replace(Regex("^1\\s*14\\b"), "1/4")
+        cleaned = cleaned.replace(Regex("(?i)\\b[1Il!]{1,2}[I|!l]2\\b"), "1/2")
+        cleaned = cleaned.replace(Regex("(?i)\\b[1Il!]{1,2}[I|!l]4\\b"), "1/4")
 
         return cleaned.trim()
     }

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.chiefinventory.model.CollectionItem
 import com.example.chiefinventory.model.SignatureStats
 import com.example.chiefinventory.repo.CollectionRepository
+import com.example.chiefinventory.repo.IngredientRepository
 import com.example.chiefinventory.ui.viewmodel.MainViewModel
 import com.example.chiefinventory.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,11 +29,13 @@ class MainViewModelTest {
     val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var repository: CollectionRepository
+    private lateinit var ingredientRepository: IngredientRepository
     private lateinit var viewModel: MainViewModel
 
     @Before
     fun setup() {
         repository = mock()
+        ingredientRepository = mock()
     }
 
     @Test
@@ -40,7 +43,7 @@ class MainViewModelTest {
         val testData = listOf(createMockItem(1, true))
         whenever(repository.getAllPossessed()).thenReturn(MutableLiveData(testData))
 
-        viewModel = MainViewModel(repository)
+        viewModel = MainViewModel(repository, ingredientRepository)
         assertEquals(testData, viewModel.possessedItems.value)
     }
 
@@ -49,7 +52,7 @@ class MainViewModelTest {
         val testData = listOf(createMockItem(2, false))
         whenever(repository.getAllSought()).thenReturn(MutableLiveData(testData))
 
-        viewModel = MainViewModel(repository)
+        viewModel = MainViewModel(repository, ingredientRepository)
         assertEquals(testData, viewModel.soughtItems.value)
     }
 
@@ -57,7 +60,7 @@ class MainViewModelTest {
     fun `totalItemsCount LiveData exposes data from repository`() {
         whenever(repository.getTotalCount()).thenReturn(MutableLiveData(42))
 
-        viewModel = MainViewModel(repository)
+        viewModel = MainViewModel(repository, ingredientRepository)
         assertEquals(42, viewModel.totalItemsCount.value)
     }
 
@@ -66,7 +69,7 @@ class MainViewModelTest {
         val stats = SignatureStats(totalCount = 10, validCount = 5, emptyCount = 2, missingCount = 3)
         whenever(repository.getSignatureStats()).thenReturn(MutableLiveData(stats))
 
-        viewModel = MainViewModel(repository)
+        viewModel = MainViewModel(repository, ingredientRepository)
         assertEquals(stats, viewModel.signatureStats.value)
     }
 
@@ -75,7 +78,7 @@ class MainViewModelTest {
         val testData = listOf(createMockItem(3, true))
         whenever(repository.getRecentPossessed()).thenReturn(MutableLiveData(testData))
 
-        viewModel = MainViewModel(repository)
+        viewModel = MainViewModel(repository, ingredientRepository)
         assertEquals(testData, viewModel.recentPossessedItems.value)
     }
 
@@ -84,7 +87,7 @@ class MainViewModelTest {
         val testData = listOf(createMockItem(4, true).copy(locationId = 100L))
         whenever(repository.getRecentLocated()).thenReturn(MutableLiveData(testData))
 
-        viewModel = MainViewModel(repository)
+        viewModel = MainViewModel(repository, ingredientRepository)
         assertEquals(testData, viewModel.recentLocatedItems.value)
     }
 
