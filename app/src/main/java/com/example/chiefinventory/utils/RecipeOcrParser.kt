@@ -34,27 +34,28 @@ object RecipeOcrParser {
         val servingsRegex = Regex("(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)", RegexOption.IGNORE_CASE)
         val alternateServingsRegex = Regex("(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)", RegexOption.IGNORE_CASE)
 
-        // 1. DÉTECTION DU TITRE
-        // On cherche la première ligne qui n'est ni du bruit, ni une info de source,
-        // ET qui ne ressemble pas à un ingrédient (ne commence pas par une quantité).
-        var titleIndex = 0
-        while (titleIndex < lines.size && (
-                isExcluded(lines[titleIndex], excludedKeywords) || 
-                !lines[titleIndex].any { it.isLetter() } ||
-                SourceParser.isSourceLine(lines[titleIndex], sourceRes) ||
-                isLikelyProperNameOrSource(lines[titleIndex]) ||
-                qtyRegex.containsMatchIn(lines[titleIndex].take(5)) // Sauter les ingrédients potentiels
-            )) {
-            titleIndex++
+        // 1. IDENTIFICATION PRUDENTE DU TITRE
+        var titleIndex = -1
+        for (i in lines.indices) {
+            val line = lines[i]
+            val lowerLine = line.lowercase()
+            val isNoise = isExcluded(line, excludedKeywords) || !line.any { it.isLetter() }
+            val isSource = SourceParser.isSourceLine(line, sourceRes) || isLikelyProperNameOrSource(line)
+            val isIngredient = qtyRegex.containsMatchIn(line.take(5)) || commonIngredientsNoQty.any { lowerLine.contains(it) }
+            val isWine = WineParser.isWineLine(line, wineRes)
+            val isServings = servingsRegex.containsMatchIn(line) || alternateServingsRegex.containsMatchIn(line)
+
+            if (!isNoise && !isSource && !isIngredient && !isWine && !isServings && line.length < 65) {
+                titleIndex = i
+                Log.d(TAG, "TITRE potentiel détecté: $line")
+                break
+            }
         }
-        
-        val rawTitle = if (titleIndex < lines.size) lines[titleIndex] else lines[0]
-        val detectedTitle = cleanTitle(rawTitle)
 
         // 2. PARSING DES SECTIONS
         var currentSection = 0
         val rawIngredientsList = mutableListOf<String>()
-        val instructionsList = mutableListOf<String>()
+        val rawInstructionsList = mutableListOf<String>()
         val detectedWineList = mutableListOf<String>()
         val detectedSourceList = mutableListOf<String>()
         var detectedServings: String? = null
@@ -64,39 +65,67 @@ object RecipeOcrParser {
             
             val lowerLine = line.lowercase()
 
+            // PORTIONS
             val sMatch = servingsRegex.find(line) ?: alternateServingsRegex.find(line)
             if (sMatch != null) {
                 if (detectedServings == null) detectedServings = sMatch.groupValues[1]
+                Log.d(TAG, "PERS détecté: $detectedServings")
                 continue
             }
 
+            // VIN (Priorité haute)
             if (WineParser.isWineLine(line, wineRes)) {
-                detectedWineList.add(WineParser.cleanWineLine(line, wineRes))
+                val cleanedWine = WineParser.cleanWineLine(line, wineRes)
+                detectedWineList.add(cleanedWine)
+                Log.d(TAG, "WINE détecté: $cleanedWine")
                 continue
             }
 
+            // SOURCE
             if (isLikelyProperNameOrSource(line) || SourceParser.isSourceLine(line, sourceRes)) {
-                detectedSourceList.add(SourceParser.cleanSourceLine(line, sourceRes))
+                val cleanedSource = SourceParser.cleanSourceLine(line, sourceRes)
+                detectedSourceList.add(cleanedSource)
+                Log.d(TAG, "SOURCE détectée: $cleanedSource")
                 continue
             }
 
+            // EXCLUSIONS
             if (isExcluded(line, excludedKeywords)) {
                 val upperLine = line.uppercase()
                 val keywordsToSource = listOf("CONRAD", "HILTON", "SHERATON", "MARRIOTT", "CHEF", "HOTEL", "RESTAURANT")
-                if (keywordsToSource.any { upperLine.contains(it) }) detectedSourceList.add(line)
+                if (keywordsToSource.any { upperLine.contains(it) }) {
+                    detectedSourceList.add(line)
+                    Log.d(TAG, "SOURCE (Exclusion redirection): $line")
+                }
                 continue
             }
 
-            val isInstructionHeader = instructionHeaderKeywords.any { lowerLine.contains(it) }
-            val isIngredientHeader = ingredientHeaderKeywords.any { lowerLine.contains(it) }
+            // BASCULES ET REMPLISSAGE
+            val isInstructionHeader = instructionHeaderKeywords.any { line.lowercase().contains(it) }
+            val isIngredientHeader = ingredientHeaderKeywords.any { line.lowercase().contains(it) }
             val startsWithAction = stepStartRegex.containsMatchIn(line)
             
-            if (isInstructionHeader) { currentSection = 2; continue }
-            if (isIngredientHeader) { currentSection = 1; continue }
+            if (isInstructionHeader) { 
+                currentSection = 2
+                Log.d(TAG, "Section INSTRUCTIONS détectée")
+                continue 
+            }
+            if (isIngredientHeader) { 
+                currentSection = 1
+                Log.d(TAG, "Section INGRÉDIENTS détectée")
+                continue 
+            }
+            
             if (startsWithAction) { currentSection = 2 }
 
-            val hasCommonIngredient = commonIngredientsNoQty.any { lowerLine.contains(it) }
-            val looksLikeIngredient = qtyRegex.containsMatchIn(line.take(5)) || hasCommonIngredient
+            val looksLikeIngredient = qtyRegex.containsMatchIn(line.take(5)) || commonIngredientsNoQty.any { line.lowercase().contains(it) }
+            val ingredientSequences = countIngredientSequences(line)
+
+            if (ingredientSequences >= 2) {
+                Log.d(TAG, "INGRÉDIENTS (bloc compact détecté): $line")
+                rawIngredientsList.addAll(splitCombinedIngredients(line, commonIngredientsNoQty))
+                continue
+            }
 
             if (currentSection == 0 && looksLikeIngredient) currentSection = 1
 
@@ -104,30 +133,36 @@ object RecipeOcrParser {
                 1 -> {
                     if (startsWithAction) {
                         currentSection = 2
-                        instructionsList.add(line)
-                    } else if (line.length > 65 && !looksLikeIngredient) {
-                        currentSection = 2
-                        instructionsList.add(line)
+                        rawInstructionsList.add(line)
+                        Log.d(TAG, "INSTRUCTION (bascule action): $line")
                     } else {
-                        val splitLines = splitCombinedIngredients(line, commonIngredientsNoQty)
-                        rawIngredientsList.addAll(splitLines)
+                        val split = splitCombinedIngredients(line, commonIngredientsNoQty)
+                        rawIngredientsList.addAll(split)
+                        Log.d(TAG, "INGRÉDIENT: $line")
                     }
                 }
                 2 -> {
-                    if (looksLikeIngredient && line.length < 45 && !startsWithAction) {
-                        rawIngredientsList.add(line)
+                    if (ingredientSequences >= 1 && line.length < 45 && !startsWithAction) {
+                        rawIngredientsList.addAll(splitCombinedIngredients(line, commonIngredientsNoQty))
+                        Log.d(TAG, "INGRÉDIENT (récupération dans instructions): $line")
                     } else {
-                        instructionsList.add(line)
+                        rawInstructionsList.add(line)
+                        Log.d(TAG, "INSTRUCTION: $line")
                     }
                 }
                 else -> {
-                    if (line.length < 45 || looksLikeIngredient) rawIngredientsList.add(line)
-                    else instructionsList.add(line)
+                    if (line.length < 45 || looksLikeIngredient) {
+                        rawIngredientsList.addAll(splitCombinedIngredients(line, commonIngredientsNoQty))
+                        Log.d(TAG, "INGRÉDIENT (par défaut): $line")
+                    } else {
+                        rawInstructionsList.add(line)
+                        Log.d(TAG, "INSTRUCTION (par défaut): $line")
+                    }
                 }
             }
         }
 
-        // 3. FUSION ET NETTOYAGE INGRÉDIENTS
+        // 3. FUSION ET NETTOYAGE FINAL (Ingrédients)
         val finalIngredients = mutableListOf<String>()
         if (rawIngredientsList.isNotEmpty()) {
             var currentIng = IngredientParser.preClean(rawIngredientsList[0])
@@ -135,15 +170,13 @@ object RecipeOcrParser {
                 val nextLine = IngredientParser.preClean(rawIngredientsList[i])
                 val nextIsNew = qtyRegex.containsMatchIn(nextLine.take(5)) || 
                                commonIngredientsNoQty.any { kw -> nextLine.lowercase().startsWith(kw) }
-                
                 val lineContainsAction = containsActionRegex.containsMatchIn(nextLine)
+                val lineIsLongList = countIngredientSequences(nextLine) >= 2
 
-                if (lineContainsAction) {
+                if (lineContainsAction && !nextIsNew && !lineIsLongList) {
                     val cleaned = cleanIngredientSemantics(currentIng, excludedKeywords)
                     if (cleaned.isNotBlank()) finalIngredients.add(cleaned)
-                    for (j in i until rawIngredientsList.size) {
-                        instructionsList.add(rawIngredientsList[j])
-                    }
+                    for (j in i until rawIngredientsList.size) rawInstructionsList.add(rawIngredientsList[j])
                     currentIng = ""
                     break
                 }
@@ -162,33 +195,48 @@ object RecipeOcrParser {
             }
         }
 
+        // 4. FUSION INTELLIGENTE DES INSTRUCTIONS
+        val finalInstructions = mutableListOf<String>()
+        if (rawInstructionsList.isNotEmpty()) {
+            var currentStep = IngredientParser.preClean(rawInstructionsList[0])
+            for (i in 1 until rawInstructionsList.size) {
+                val nextLine = IngredientParser.preClean(rawInstructionsList[i])
+                val isNewStep = stepStartRegex.containsMatchIn(nextLine) || 
+                               instructionHeaderKeywords.any { nextLine.lowercase().contains(it) } ||
+                               (countIngredientSequences(nextLine) >= 1 && nextLine.length < 45) ||
+                               WineParser.isWineLine(nextLine, wineRes)
+                
+                if (!isNewStep && nextLine.isNotBlank() && !currentStep.endsWith(".")) {
+                    currentStep += " $nextLine"
+                } else {
+                    finalInstructions.add(currentStep)
+                    currentStep = nextLine
+                }
+            }
+            if (currentStep.isNotBlank()) finalInstructions.add(currentStep)
+        }
+
         return RecipeOcrResult(
-            title = detectedTitle,
+            title = null,
             ingredients = finalIngredients.joinToString("\n"),
-            instructions = instructionsList.joinToString("\n"),
+            instructions = finalInstructions.joinToString("\n"),
             wine = if (detectedWineList.isNotEmpty()) detectedWineList.joinToString(" ") else null,
             source = if (detectedSourceList.isNotEmpty()) detectedSourceList.joinToString(", ") else null,
             servings = detectedServings
         )
     }
 
-    private fun cleanTitle(title: String): String {
-        var cleaned = title.replace(Regex("(?i)^(?:LS|SAVEUR DE|RECETTE|PAGE|INGRÉDIENTS|INGREDIENTS|PERSONNES)\\s+"), "")
-                          .replace(Regex("^\\d+[\\s.\\-]*"), "")
-                          .trim()
-        
-        // Nettoyage des préfixes d'ingrédients qui auraient pu fusionner avec le titre
-        cleaned = cleaned.replace(Regex("(?i)^(?:sel et poivre|sel|poivre)\\s+"), "")
+    private fun countIngredientSequences(line: String): Int {
+        val pattern = Regex("(?<!(?:ou|à|-)\\s)\\b\\d+\\s+[a-zA-Z]")
+        return pattern.findAll(line).count()
+    }
 
-        if (cleaned.lowercase().startsWith("alaade")) {
-            cleaned = "S" + cleaned
-            cleaned = cleaned.replace(Regex("(?i)^Salaade"), "Salade")
-        }
-
-        if (cleaned.isNotEmpty() && cleaned[0].isLowerCase()) {
-            cleaned = cleaned.replaceFirstChar { it.uppercase() }
-        }
-        return cleaned.removeSuffix(".")
+    private fun splitCombinedIngredients(line: String, commonItems: List<String>): List<String> {
+        var cleaned = line.replace(Regex("^\\d+\\s+\\d+\\s+"), "").trim()
+        val keywordsRegex = commonItems.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
+        val separatorPattern = Regex("(?<=[a-zA-Z)])\\s+(?!(?:ou|à|-)\\s+)(?=\\d+\\s+[a-zA-Z])|(?<=[a-zA-Z])\\s+(?=$keywordsRegex)")
+        val marked = cleaned.replace(separatorPattern, "##SPLIT##")
+        return marked.split("##SPLIT##").map { it.trim() }.filter { it.isNotBlank() }
     }
 
     private fun isLikelyProperNameOrSource(line: String): Boolean {
@@ -208,33 +256,14 @@ object RecipeOcrParser {
         }
     }
 
-    private fun splitCombinedIngredients(line: String, commonItems: List<String>): List<String> {
-        val result = mutableListOf<String>()
-        var currentLine = line
-        val sortedKeywords = commonItems.sortedByDescending { it.length }
-        
-        for (keyword in sortedKeywords) {
-            val pattern = Regex("(?i)\\b(${Regex.escape(keyword)})\\s+([a-zA-Z])")
-            val match = pattern.find(currentLine)
-            if (match != null) {
-                val ingredientPart = currentLine.substring(0, match.range.first + match.groupValues[1].length).trim()
-                val remainingPart = currentLine.substring(match.range.first + match.groupValues[1].length).trim()
-                result.add(ingredientPart)
-                currentLine = remainingPart
-            }
-        }
-        
-        result.add(currentLine)
-        return result.filter { it.isNotBlank() }.distinct()
-    }
-
     private fun cleanIngredientSemantics(text: String, excludedKeywords: List<String>): String {
         val cleaned = text.replace(Regex("\\(.*?\\)"), "").trim()
         if (!cleaned.any { it.isLetter() } || cleaned.length <= 1) return ""
         if (isLikelyProperNameOrSource(cleaned)) return ""
+        val upperCleaned = cleaned.uppercase()
         if (excludedKeywords.any { kw -> 
                 val ukw = kw.uppercase()
-                if (ukw.length <= 4) cleaned.uppercase() == ukw else cleaned.uppercase().contains(ukw)
+                if (ukw.length <= 4) upperCleaned == ukw else upperCleaned.contains(ukw)
             }) return ""
         return cleaned
     }

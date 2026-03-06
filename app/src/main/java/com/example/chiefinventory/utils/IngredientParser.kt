@@ -3,8 +3,7 @@ package com.example.chiefinventory.utils
 import java.util.regex.Pattern
 
 /**
- * Utility to parse ingredient strings like "6 aubergines moyennes", "500g farine", "1 ou 2 citrons" or "1/2 salade".
- * Handles common OCR errors like '|' instead of '1' and '112' instead of '1/2'.
+ * Utility to parse ingredient strings.
  */
 object IngredientParser {
 
@@ -26,7 +25,7 @@ object IngredientParser {
     private val fractionRegex = Regex("^\\s*(\\d+)/(\\d+)\\s*(.*)$")
 
     /**
-     * Nettoie les erreurs courantes d'OCR et corrige les fractions mal lues.
+     * Nettoie les erreurs courantes d'OCR.
      */
     fun preClean(input: String): String {
         var cleaned = input.trim()
@@ -35,31 +34,25 @@ object IngredientParser {
             .replace("+-", "")
             .replace(Regex("^t\\s*(?=\\d)"), "")
             
-            // Remplace '|', 'I', 'l', '!' par '1' au début de la ligne
-            // 1. Si c'est devant un chiffre (ex: | 250 -> 1 250)
             .replace(Regex("^[|Il!](?=\\s*\\d)"), "1")
-            // 2. Si c'est devant une fraction (ex: ! / 2 -> 1 / 2)
             .replace(Regex("^[|Il!](?=\\s*/)"), "1")
-            // 3. Cas général : symbole isolé au début suivi d'une lettre (ex: | avocat -> 1 avocat)
             .replace(Regex("^[|Il!]\\s+(?=[a-zA-Z])"), "1 ")
             
             .replace(Regex("\\s+\\|\\s+"), " 1 ")
 
-        // Cas spécifique : l'OCR lit '1 e' au lieu de 'le' (souvent pour 'le jus de')
         cleaned = cleaned.replace(Regex("^1\\s+e\\s+"), "le ")
+        
+        // Correction plus large du T' ou 1' en l'
+        cleaned = cleaned.replace(Regex("^[T1]['’]"), "l'")
+        cleaned = cleaned.replace(Regex("\\s+[T1]['’]"), " l'")
 
-        // Cas spécifique : l'OCR lit 'lc.' ou 'lc ' au lieu de '1 c.' (cuillère)
         cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\b"), "1 c")
         cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\."), "1 c.")
-
-        // Normalise 'c.à', 'c. a', etc. en 'c. à'
         cleaned = cleaned.replace(Regex("(?i)c\\.\\s*[àa]"), "c. à")
         cleaned = cleaned.replace(Regex("(?i)c\\s+[àa]"), "c. à")
 
-        // Insère un espace entre un chiffre et une lettre s'ils sont collés
         cleaned = cleaned.replace(Regex("(\\d)([a-zA-Z])"), "$1 $2")
 
-        // Cas spécifique : l'OCR lit '112' au lieu de '1/2' ou '114' au lieu de '1/4'
         cleaned = cleaned.replace(Regex("^1\\s*12\\b"), "1/2")
         cleaned = cleaned.replace(Regex("^1\\s*14\\b"), "1/4")
         cleaned = cleaned.replace(Regex("(?i)\\b[1Il!]{1,2}[I|!l]2\\b"), "1/2")
@@ -70,19 +63,14 @@ object IngredientParser {
 
     fun parse(input: String): ParsedIngredient {
         val cleaned = preClean(input)
-        
-        // 1. Détection des fractions (ex: 1/2 salade)
         val fractionMatch = fractionRegex.find(cleaned)
         if (fractionMatch != null) {
             val numerator = fractionMatch.groupValues[1].toDoubleOrNull() ?: 0.0
             val denominator = fractionMatch.groupValues[2].toDoubleOrNull() ?: 1.0
             val rest = fractionMatch.groupValues[3].trim()
-            val qty = numerator / denominator
             val subParsed = parseStandard(rest)
-            return ParsedIngredient(name = subParsed.name, quantity = qty, unit = subParsed.unit)
+            return ParsedIngredient(name = subParsed.name, quantity = numerator / denominator, unit = subParsed.unit)
         }
-
-        // 2. Détection des intervalles (ex: 1 ou 2 citrons)
         val rangeMatch = rangeRegex.find(cleaned)
         if (rangeMatch != null) {
             val secondQty = rangeMatch.groupValues[2].replace(",", ".").toDoubleOrNull()
@@ -90,24 +78,16 @@ object IngredientParser {
             val subParsed = parseStandard(rest)
             return ParsedIngredient(name = subParsed.name, quantity = secondQty, unit = subParsed.unit)
         }
-
         return parseStandard(cleaned)
     }
 
     private fun parseStandard(input: String): ParsedIngredient {
-        // 1. Séparer le nombre au début
         val matcher = Pattern.compile("^\\s*(\\d+[.,]?\\d*)\\s*(.*)$").matcher(input)
         if (!matcher.find()) return ParsedIngredient(input)
-
-        val qtyStr = matcher.group(1)?.replace(",", ".")
-        val qty = qtyStr?.toDoubleOrNull()
+        val qty = matcher.group(1)?.replace(",", ".")?.toDoubleOrNull()
         val rest = matcher.group(2)?.trim() ?: ""
-
         if (rest.isEmpty()) return ParsedIngredient("", qty, null)
-
-        // 2. Chercher l'unité dans le texte restant
-        val sortedUnits = units.sortedByDescending { it.length }
-        for (unit in sortedUnits) {
+        for (unit in units.sortedByDescending { it.length }) {
             val unitPattern = Regex("^${Pattern.quote(unit)}(?:\\s+|de\\s+|d['’]\\s*|\\.|\\b)", RegexOption.IGNORE_CASE)
             val match = unitPattern.find(rest)
             if (match != null) {
@@ -116,7 +96,6 @@ object IngredientParser {
                 return ParsedIngredient(if (finalName.isEmpty()) rest else finalName, qty, unit)
             }
         }
-
         return ParsedIngredient(rest, qty, null)
     }
 }

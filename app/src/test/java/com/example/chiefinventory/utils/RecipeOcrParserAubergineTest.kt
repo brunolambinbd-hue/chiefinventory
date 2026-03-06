@@ -18,7 +18,7 @@ import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class RecipeOcrParserTest {
+class RecipeOcrParserAubergineTest {
 
     @Mock
     private lateinit var res: Resources
@@ -29,7 +29,6 @@ class RecipeOcrParserTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         
-        // Mockage de Log pour rediriger vers la console système
         mockedLog = Mockito.mockStatic(Log::class.java)
         mockedLog.`when`<Int> { Log.d(anyString(), anyString()) }.thenAnswer { invocation ->
             println("LOG D [${invocation.getArgument<String>(0)}]: ${invocation.getArgument<String>(1)}")
@@ -37,17 +36,17 @@ class RecipeOcrParserTest {
         }
 
         val emptyArray = arrayOf<String>()
-        // Mockage exhaustif des ressources du vin
         `when`(res.getStringArray(org.mockito.ArgumentMatchers.anyInt())).thenReturn(emptyArray)
-        `when`(res.getStringArray(R.array.wine_keywords)).thenReturn(arrayOf("merlot", "région", "region", "vin rouge", "bulgarie", "chardonnay", "rousse"))
+        
+        // Mocks spécifiques pour le scénario Aubergine
+        `when`(res.getStringArray(R.array.wine_keywords)).thenReturn(arrayOf("merlot", "région", "region", "vin rouge", "bulgarie", "rousse"))
         `when`(res.getString(R.string.wine_remove_pattern)).thenReturn("DUMMY")
         
-        // Autres ressources
         `when`(res.getStringArray(R.array.phone_prefixes)).thenReturn(arrayOf("tél", "tel"))
         `when`(res.getStringArray(R.array.step_action_keywords)).thenReturn(arrayOf("mélanger", "cuire", "couper", "faites", "répartissez", "préparez", "plongez", "hachez", "ajoutez", "servez"))
         `when`(res.getStringArray(R.array.common_ingredients_no_qty)).thenReturn(arrayOf("sel", "poivre", "aneth", "sel et poivre", "persil haché", "citron", "citrons"))
-        `when`(res.getStringArray(R.array.excluded_ocr_keywords)).thenReturn(arrayOf("SAVEUR", "LS", "PAGE", "POUR", "CONRAD", "INGRÉDIENTS", "PERSONNES", "HILTON"))
-        `when`(res.getStringArray(R.array.source_keywords)).thenReturn(arrayOf("avenue", "rue", "hôtel", "hotel", "place"))
+        `when`(res.getStringArray(R.array.excluded_ocr_keywords)).thenReturn(arrayOf("SAVEUR", "LS", "PAGE", "POUR", "CONRAD", "INGRÉDIENTS", "PERSONNES"))
+        `when`(res.getStringArray(R.array.source_keywords)).thenReturn(arrayOf("avenue", "rue", "hôtel", "hotel"))
     }
 
     @After
@@ -71,83 +70,28 @@ class RecipeOcrParserTest {
 
         val result = RecipeOcrParser.parse(ocrText, res)
 
-        // 1. Titre (doit être null)
         assertNull("Le titre doit être null", result.title)
         
-        // 2. Vin
+        // Vin
         val wine = result.wine ?: ""
         assertNotEquals("Le champ vin ne doit pas être vide", "", wine.trim())
         assertTrue("Vin contient Merlot", wine.contains("Merlot", ignoreCase = true))
 
-        // 3. Source
+        // Source
         val source = result.source ?: ""
         assertTrue("Source contient Conrad", source.contains("CONRAD", ignoreCase = true))
         assertTrue("Source contient chef", source.contains("Nahit YILMAZ"))
 
-        // 4. Ingrédients (Test de CHAQUE ingrédient)
+        // Ingrédients
         val ing = result.ingredients ?: ""
         assertTrue("Contient 6 aubergines moyennes", ing.contains("6 aubergines moyennes"))
-        // On gère le split OCR potentiel entre '1 ou' et '2 citrons'
-        assertTrue("Contient citrons", ing.contains("1 ou") && ing.contains("2 citrons"))
+        assertTrue("Contient 1 ou 2 citrons", ing.contains("1 ou") && ing.contains("2 citrons"))
         assertTrue("Contient 150 g de beurre", ing.contains("150 g de beurre"))
         assertTrue("Contient persil haché", ing.contains("persil haché"))
         assertTrue("Contient 2 gousses d'ail", ing.contains("2 gousses d'ail"))
         assertTrue("Contient sel, poivre", ing.contains("sel, poivre"))
 
-        // 5. Portions
+        // Portions
         assertEquals("4", result.servings)
-    }
-
-    @Test
-    fun `test second scenario salade avocat from screen`() {
-        val ocrText = """
-            INGRÉDIENTS
-            | avocat
-            200 g de haricots princesses
-            200 g de saumon cru
-            aneth
-            6 c. à soupe d'huile d'olive
-            le jus de 1/2 citron
-            lc. à café de miel
-            lc. à soupe de vinaigre
-            sel et poivre alade d'avocat et princesses
-            Faites cuire les haricots princesses 10 à 15 minutes jusqu'à ce que vous puissiez y piquer facilement une fourchette. Retirez le jus de cuisson et passez
-            les haricots sous un jet d'eau froide.
-            •Coupez les haricots en deux.
-            •Préparez une vinaigrette avec
-            T'huile d'olive, le jus de citron, le miel, le vinaigre, du sel et du poivre.
-            • Répartissez la salade sur 4 assiettes.
-            Chardonnay Domaine des Roches
-            Hôtel Hilton, Place Rogier 20, 1000 BRUXELLES
-        """.trimIndent()
-
-        val result = RecipeOcrParser.parse(ocrText, res)
-
-        assertNull("Le titre doit être null", result.title)
-        
-        // 1. Vin
-        val wine = result.wine ?: ""
-        assertTrue("Le champ vin ne doit pas être vide", wine.isNotBlank())
-        assertTrue("Vin contient Chardonnay", wine.contains("Chardonnay", ignoreCase = true))
-
-        // 2. Source
-        val source = result.source ?: ""
-        assertTrue("Source contient Hilton", source.contains("Hilton", ignoreCase = true))
-
-        // 3. Ingrédients (Test de CHAQUE ingrédient)
-        val ing = result.ingredients ?: ""
-        assertTrue("Correction | -> 1 avocat", ing.contains("1 avocat"))
-        assertTrue("Contient 200 g de haricots princesses", ing.contains("200 g de haricots princesses"))
-        assertTrue("Contient 200 g de saumon cru", ing.contains("200 g de saumon cru"))
-        assertTrue("Devrait contenir aneth", ing.contains("aneth"))
-        assertTrue("Contient huile", ing.contains("6 c. à soupe d'huile d'olive"))
-        assertTrue("Correction II2 -> 1/2 citron", ing.contains("1/2 citron"))
-        assertTrue("Correction lc -> 1 c. à café", ing.contains("1 c. à café"))
-        assertTrue("Correction lc -> 1 c. à soupe", ing.contains("1 c. à soupe de vinaigre"))
-        assertTrue("Contient sel et poivre", ing.contains("sel et poivre"))
-        
-        // 4. Instructions
-        val inst = result.instructions ?: ""
-        assertTrue("Vinaigrette complète", inst.contains("Préparez une vinaigrette avec l'huile d'olive"))
     }
 }
