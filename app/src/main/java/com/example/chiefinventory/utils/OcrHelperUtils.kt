@@ -47,12 +47,25 @@ object OcrHelperUtils {
         return words.all { word -> word.isNotEmpty() && (word[0].isUpperCase() || word.all { it.isUpperCase() }) }
     }
 
+    /**
+     * Vérifie si une ligne doit être exclue (bruit, en-tête inutile).
+     * Correction : On ne contient plus, on vérifie l'égalité ou le début de mot
+     * pour éviter de supprimer des phrases contenant un mot-clé (ex: "Mélangez les ingrédients").
+     */
     internal fun isExcluded(line: String, excludedKeywords: List<String>): Boolean {
-        val upperLine = line.uppercase()
+        val upperLine = line.uppercase().trim()
+        if (upperLine.isEmpty()) return false
+        
         return excludedKeywords.any { kw ->
-            val ukw = kw.uppercase()
-            if (ukw.length <= 4) upperLine == ukw || upperLine.startsWith("$ukw ") || upperLine.endsWith(" $ukw")
-            else upperLine.contains(ukw)
+            val ukw = kw.uppercase().trim()
+            if (ukw.isEmpty()) return@any false
+            
+            // On exclut si la ligne EST exactement le mot-clé ou commence par le mot-clé suivi d'un séparateur
+            // Cela protège les phrases narratives.
+            upperLine == ukw || 
+            upperLine.startsWith("$ukw ") || 
+            upperLine.startsWith("$ukw:") || 
+            upperLine.startsWith("$ukw :")
         }
     }
 
