@@ -6,8 +6,9 @@ package com.example.chiefinventory.utils
 object OcrHelperUtils {
 
     internal fun countIngredientSequences(line: String): Int {
-        // On cherche des nombres qui NE sont PAS précédés par "ou", "à", "-"
-        val pattern = Regex("(?<!(?:ou|à|-)\\s)\\b\\d+\\s+[a-zA-Z]")
+        // On cherche des nombres qui NE sont PAS précédés par "ou", "à", "-", "et", "sur"
+        // ET qui ne sont PAS suivis par des unités techniques (mm, cm, min, sec)
+        val pattern = Regex("(?<!(?:ou|à|-|et|sur)\\s)\\b\\d+\\s+(?!(?:mm|cm|min|sec)\\b)[a-zA-Z]")
         return pattern.findAll(line).count()
     }
 
@@ -24,11 +25,13 @@ object OcrHelperUtils {
         }
         val hacheRegex = hacheVariants.joinToString("|") { Regex.escape(it) }
 
-        // Correction : On ajoute (?<!(?:ou|à|-)) pour ne pas splitter si l'espace est précédé d'un mot de liaison d'intervalle
+        // On définit les connecteurs qui empêchent le découpage (intervalles, prépositions, dimensions)
+        val connectors = "et|ou|à|\\-|de|du|des|d'|sur"
+
         val separatorPattern = Regex(
-            "(?<=[a-zA-Z)])(?<!\\b(?:ou|à|-))\\s+(?!(?:ou|à|-)\\s+)(?=\\d+\\s+[a-zA-Z])|" +
-            "(?<=[a-zA-Z])\\s+(?=$otherKeywordsRegex)|" +
-            "(?<=[a-zA-Z])\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))",
+            "(?<=[a-zA-Z)])(?<!\\b(?:$connectors))\\s+(?!(?:$connectors)\\s+)(?=\\d+\\s+[a-zA-Z])|" +
+            "(?<=[a-zA-Z])(?<!\\b(?:$connectors))\\s+(?=$otherKeywordsRegex)|" +
+            "(?<=[a-zA-Z])(?<!\\b(?:$connectors))\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))",
             RegexOption.IGNORE_CASE
         )
 

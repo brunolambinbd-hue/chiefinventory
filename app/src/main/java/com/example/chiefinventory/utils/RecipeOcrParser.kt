@@ -7,7 +7,7 @@ import com.example.chiefinventory.utils.OcrHelperUtils.cleanIngredientSemantics
 import com.example.chiefinventory.utils.OcrHelperUtils.countIngredientSequences
 import com.example.chiefinventory.utils.OcrHelperUtils.isExcluded
 import com.example.chiefinventory.utils.OcrHelperUtils.isLikelyProperNameOrSource
-import com.example.chiefinventory.utils.OcrHelperUtils.splitCombinedIngredients
+
 
 /**
  * Orchestrateur pour le parsing OCR des recettes.
@@ -60,108 +60,16 @@ object RecipeOcrParser {
             }
         }
 
-        // 2. PARSING DES SECTIONS
-        var currentSection = 0
-        val rawIngredientsList = mutableListOf<String>()
-        val rawInstructionsList = mutableListOf<String>()
-        val detectedWineList = mutableListOf<String>()
-        val detectedSourceList = mutableListOf<String>()
-        var detectedServings: String? = null
+// 2. PARSING DES SECTIONS (Délégué au Categorizer)
+        val sections = OcrCategorizer.categorizeLines(lines, titleIndex, res)
 
-        for ((index, line) in lines.withIndex()) {
-            if (index == titleIndex) continue
-            
-            val lowerLine = line.lowercase()
+// Récupération des résultats pour les étapes de fusion suivantes
+        val rawIngredientsList = sections.rawIngredientsList
+        val rawInstructionsList = sections.rawInstructionsList
+        val detectedWineList = sections.detectedWineList
+        val detectedSourceList = sections.detectedSourceList
+        val detectedServings = sections.detectedServings
 
-            // PORTIONS
-            val sMatch = servingsRegex.find(line) ?: alternateServingsRegex.find(line)
-            if (sMatch != null) {
-                if (detectedServings == null) detectedServings = sMatch.groupValues[1]
-                Log.d(TAG, "PERS détecté: $detectedServings")
-                continue
-            }
-
-            // VIN
-            if (WineParser.isWineLine(line, wineRes)) {
-                val cleanedWine = WineParser.cleanWineLine(line, wineRes)
-                detectedWineList.add(cleanedWine)
-                Log.d(TAG, "WINE détecté: $cleanedWine")
-                continue
-            }
-
-            // SOURCE
-            if (isLikelyProperNameOrSource(line) || SourceParser.isSourceLine(line, sourceRes)) {
-                val cleanedSource = SourceParser.cleanSourceLine(line, sourceRes)
-                detectedSourceList.add(cleanedSource)
-                Log.d(TAG, "SOURCE détectée: $cleanedSource")
-                continue
-            }
-
-            // EXCLUSIONS
-            if (isExcluded(line, excludedKeywords)) {
-                val upperLine = line.uppercase()
-                val keywordsToSource = listOf("CONRAD", "HILTON", "SHERATON", "MARRIOTT", "CHEF", "HOTEL", "RESTAURANT")
-                if (keywordsToSource.any { upperLine.contains(it) }) {
-                    detectedSourceList.add(line)
-                    Log.d(TAG, "SOURCE (Exclusion redirection): $line")
-                }
-                continue
-            }
-
-            // BASCULES ET REMPLISSAGE
-            val isInstructionHeader = instructionHeaderKeywords.any { lowerLine.contains(it) }
-            val isIngredientHeader = ingredientHeaderKeywords.any { lowerLine.contains(it) }
-            val startsWithAction = stepStartRegex.containsMatchIn(line)
-
-            if (isInstructionHeader) { currentSection = 2; Log.d(TAG, "Section INSTRUCTIONS détectée"); continue }
-            if (isIngredientHeader) { currentSection = 1; Log.d(TAG, "Section INGRÉDIENTS détectée"); continue }
-
-            if (startsWithAction) { currentSection = 2 }
-
-            val looksLikeIngredient = qtyRegex.containsMatchIn(line.take(5)) || commonIngredientsNoQty.any { lowerLine.contains(it) }
-            val ingredientSequences = countIngredientSequences(line)
-
-            // Priorité ingrédients compacts
-            if (ingredientSequences >= 2) {
-                Log.d(TAG, "INGRÉDIENT (bloc compact détecté): $line")
-                rawIngredientsList.addAll(splitCombinedIngredients(line, commonIngredientsNoQty))
-                continue
-            }
-
-            if (currentSection == 0 && looksLikeIngredient) currentSection = 1
-
-            when (currentSection) {
-                1 -> {
-                    if (startsWithAction && line.length > 40) {
-                        currentSection = 2
-                        rawInstructionsList.add(line)
-                        Log.d(TAG, "INSTRUCTION (bascule action): $line")
-                    } else {
-                        rawIngredientsList.addAll(splitCombinedIngredients(line, commonIngredientsNoQty))
-                        Log.d(TAG, "INGRÉDIENT: $line")
-                    }
-                }
-                2 -> {
-                    // Correction : On repasse en ingrédients si on voit une quantité et pas de verbe d'action
-                    if (looksLikeIngredient && line.length < 45 && !startsWithAction) {
-                        rawIngredientsList.addAll(splitCombinedIngredients(line, commonIngredientsNoQty))
-                        Log.d(TAG, "INGRÉDIENT (récupération): $line")
-                    } else {
-                        rawInstructionsList.add(line)
-                        Log.d(TAG, "INSTRUCTION: $line")
-                    }
-                }
-                else -> {
-                    if (line.length < 45 || looksLikeIngredient) {
-                        rawIngredientsList.addAll(splitCombinedIngredients(line, commonIngredientsNoQty))
-                        Log.d(TAG, "INGRÉDIENT (par défaut): $line")
-                    } else {
-                        rawInstructionsList.add(line)
-                        Log.d(TAG, "INSTRUCTION (par défaut): $line")
-                    }
-                }
-            }
-        }
 
         // 3. FUSION ET NETTOYAGE FINAL (Ingrédients)
         val finalIngredients = mutableListOf<String>()
