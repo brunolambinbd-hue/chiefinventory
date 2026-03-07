@@ -5,10 +5,12 @@ import android.util.Log
 import com.example.chiefinventory.R
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.MockedStatic
@@ -27,7 +29,7 @@ class RecipeOcrParserAubergineTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         
-        // Mockage de Log pour rediriger vers la console système
+        // Mockage de Log pour rediriger vers la console système (onglet Run)
         mockedLog = Mockito.mockStatic(Log::class.java)
         mockedLog.`when`<Int> { Log.d(anyString(), anyString()) }.thenAnswer { invocation ->
             println("LOG D [${invocation.getArgument<String>(0)}]: ${invocation.getArgument<String>(1)}")
@@ -36,7 +38,7 @@ class RecipeOcrParserAubergineTest {
 
         val emptyArray = arrayOf<String>()
         // Mockage exhaustif des ressources
-        `when`(res.getStringArray(org.mockito.ArgumentMatchers.anyInt())).thenReturn(emptyArray)
+        `when`(res.getStringArray(anyInt())).thenReturn(emptyArray)
         
         // Mocks spécifiques alignés sur le scan réel pour passer les tests
         `when`(res.getStringArray(R.array.wine_keywords)).thenReturn(arrayOf("merlot", "région", "region", "vin rouge", "bulgarie", "rousse"))
@@ -56,44 +58,68 @@ class RecipeOcrParserAubergineTest {
 
     @Test
     fun `test first scenario salade aubergine Conrad from screen`() {
+        // On utilise ici le texte OCR EXACT renvoyé par l'émulateur
         val ocrText = """
             CONRAD
+            BR
+            LS
             Nahit YILMAZ
-            HôConrad International, avenue Louise 71, 1050 BRUXELLES
-            : 02/542.42.42
-            175 alade d'aubergines
-            Plongez les aubergines dans l'eau bouillante et retirez la peau, Hachez la chair et faites-la suer dans un peu de beurre avec l'ail haché et le piment émincé fin. Assaisonnez. Ajoutez le jus de citron et le persil haché. Servez frais, décorez de tomates et accompagnez de tranches de pain grillé.
-            23 20 6 aubergines moyennes (t l kg) 1 ou 2 citrons 150 g de beurre 1 piment rouge persil haché 2 gousses d'ail sel, poivre M.O.
-            Rousse Région Merlot (vin rouge de Bulgarie)
-            pour 4 personnes
+            Hôtel Conrad International
+            avenue Louise 71
+            1050 BRUXELLES
+            Tél. : 02/542.42.42
+            e
+            175
+            saveur de
+            alade d'aubergines
+            Plongez les aubergines dans l'eau bouillante et retirez la peau, Hachez la chair et faites-la suer dans
+            un peu de beurre avec l'ail haché et le piment émincé fin. Assaisonnez. Ajoutez le jus de citron et
+            le persil haché. Servez frais, décorez de tomates et accompagnez de tranches de pain grillé.
+            23
+            20
+            Ingrédients pour 4 personnes
+            6 aubergines moyennes (t l kg)
+            1 ou 2 citrons
+            150 g de beurre
+            I piment rouge
+            persil haché
+            2 gousses d'ail
+            sel, poivre
+            Pour la décoration: tomates
+            Notre vin conseillé
+            Rousse Région Merlot
+            (vin rouge de Bulgarie)
+            M.O.
         """.trimIndent()
 
         val result = RecipeOcrParser.parse(ocrText, res)
 
-        // Titre doit être null (conformément à la règle métier)
+        // 1. Titre (doit être null)
         assertNull("Le titre doit être null", result.title)
         
-        // Comme le parseur fonctionne sur l'émulateur, nous validons ici la présence des ingrédients
-        // dans le résultat global (Ingrédients + Instructions) pour tenir compte de la segmentation du test unitaire.
-        val combinedContent = (result.ingredients ?: "") + " " + (result.instructions ?: "")
-        
-        assertTrue("Devrait contenir 6 aubergines moyennes", combinedContent.contains("6 aubergines moyennes"))
-        assertTrue("Devrait contenir 1 ou 2 citrons", combinedContent.contains("1 ou") && combinedContent.contains("2 citrons"))
-        assertTrue("Devrait contenir 150 g de beurre", combinedContent.contains("150 g de beurre"))
-        assertTrue("Devrait contenir persil haché", combinedContent.contains("persil haché"))
-        assertTrue("Devrait contenir 2 gousses d'ail", combinedContent.contains("2 gousses d'ail"))
-        assertTrue("Devrait contenir sel, poivre", combinedContent.contains("sel, poivre"))
-
-        // Vin
+        // 2. Vin
         val wine = result.wine ?: ""
+        assertNotEquals("Le champ vin ne doit pas être vide", "", wine.trim())
         assertTrue("Vin contient Merlot", wine.contains("Merlot", ignoreCase = true))
 
-        // Source
+        // 3. Source (Vérification de la robustesse Hôtel)
         val source = result.source ?: ""
+        assertTrue("Source contient Hôtel", source.contains("Hôtel", ignoreCase = true))
         assertTrue("Source contient chef", source.contains("Nahit YILMAZ"))
         assertTrue("Source contient tel", source.contains("02/542.42.42"))
 
-        // Portions
+        // 4. Ingrédients (Normalisation pour gérer le découpage OCR)
+        val ing = result.ingredients ?: ""
+        val ingNorm = ing.replace("\n", " ")
+        
+        assertTrue("Contient 6 aubergines moyennes", ingNorm.contains("6 aubergines moyennes"))
+        assertTrue("Contient 1 ou 2 citrons", ingNorm.contains("1 ou 2 citrons"))
+        assertTrue("Contient 150 g de beurre", ingNorm.contains("150 g de beurre"))
+        assertTrue("Contient persil haché", ingNorm.contains("persil haché"))
+        assertTrue("Contient 2 gousses d'ail", ingNorm.contains("2 gousses d'ail"))
+        assertTrue("Contient sel, poivre", ingNorm.contains("sel, poivre"))
+
+        // 5. Portions
         assertEquals("4", result.servings)
     }
 }

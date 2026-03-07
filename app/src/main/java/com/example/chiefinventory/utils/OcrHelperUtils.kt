@@ -6,6 +6,7 @@ package com.example.chiefinventory.utils
 object OcrHelperUtils {
 
     internal fun countIngredientSequences(line: String): Int {
+        // On cherche des nombres qui NE sont PAS précédés par "ou", "à", "-"
         val pattern = Regex("(?<!(?:ou|à|-)\\s)\\b\\d+\\s+[a-zA-Z]")
         return pattern.findAll(line).count()
     }
@@ -13,7 +14,6 @@ object OcrHelperUtils {
     internal fun splitCombinedIngredients(line: String, commonItems: List<String>): List<String> {
         var cleaned = line.replace(Regex("^\\d+\\s+\\d+\\s+"), "").trim()
         
-        // On sépare les variantes de "haché" pour un traitement contextuel
         val hacheVariants = listOf("haché", "hachée", "hachés", "hachées")
         val otherKeywords = commonItems.filter { it.lowercase() !in hacheVariants }
         
@@ -24,13 +24,9 @@ object OcrHelperUtils {
         }
         val hacheRegex = hacheVariants.joinToString("|") { Regex.escape(it) }
 
-        // Règle de découpage :
-        // 1. Devant un chiffre (sauf intervalle comme "1 ou 2")
-        // 2. Devant n'importe quel mot-clé de la liste (sauf haché)
-        // 3. Devant "haché" UNIQUEMENT s'il est suivi de "de", "du" ou "d'" (cas du "Haché de porc")
-        //    Sinon il est considéré comme adjectif (ex: "persil haché") et on ne splitte pas.
+        // Correction : On ajoute (?<!(?:ou|à|-)) pour ne pas splitter si l'espace est précédé d'un mot de liaison d'intervalle
         val separatorPattern = Regex(
-            "(?<=[a-zA-Z)])\\s+(?!(?:ou|à|-)\\s+)(?=\\d+\\s+[a-zA-Z])|" +
+            "(?<=[a-zA-Z)])(?<!\\b(?:ou|à|-))\\s+(?!(?:ou|à|-)\\s+)(?=\\d+\\s+[a-zA-Z])|" +
             "(?<=[a-zA-Z])\\s+(?=$otherKeywordsRegex)|" +
             "(?<=[a-zA-Z])\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))",
             RegexOption.IGNORE_CASE

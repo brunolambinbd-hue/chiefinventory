@@ -42,14 +42,14 @@ object SourceParser {
 
     /**
      * Cleans the source line by removing common phone prefixes.
-     * Uses word boundaries to avoid damaging words like "Hôtel".
+     * Uses a negative lookbehind for letters to avoid damaging words like "Hôtel".
      */
     fun cleanSourceLine(line: String, resources: SourceResources): String {
         var cleaned = line
         resources.phonePrefixes.forEach { prefix ->
-            // On ajoute \b devant le préfixe pour s'assurer que c'est un mot indépendant
-            // On gère aussi le point éventuel après le préfixe (ex: Tél.)
-            val pattern = "(?i)\\b$prefix\\b\\s*[:\\-.]?"
+            // (?<!\p{L}) : Ne pas avoir de lettre avant (gère les accents comme le ô de Hôtel)
+            // \b : Frontière de mot après le préfixe
+            val pattern = "(?i)(?<!\\p{L})$prefix\\b\\s*[:\\-.]?"
             cleaned = cleaned.replace(Regex(pattern, RegexOption.IGNORE_CASE), "").trim()
         }
         return cleaned
