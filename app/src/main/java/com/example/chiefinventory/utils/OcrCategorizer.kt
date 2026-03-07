@@ -53,10 +53,11 @@ object OcrCategorizer {
         for ((index, line) in lines.withIndex()) {
             if (index == titleIndex) continue
 
-            val lowerLine = line.lowercase().trim()
+            val trimmedLine = line.trim()
+            val lowerLine = trimmedLine.lowercase()
 
             // A. PORTIONS
-            val sMatch = servingsRegex.find(line) ?: alternateServingsRegex.find(line)
+            val sMatch = servingsRegex.find(trimmedLine) ?: alternateServingsRegex.find(trimmedLine)
             if (sMatch != null) {
                 if (results.detectedServings == null) results.detectedServings = sMatch.groupValues[1]
                 Log.d(TAG, "PERS détecté: ${results.detectedServings}")
@@ -64,41 +65,41 @@ object OcrCategorizer {
             }
 
             // B. VIN
-            if (WineParser.isWineLine(line, wineRes)) {
-                val cleanedWine = WineParser.cleanWineLine(line, wineRes)
+            if (WineParser.isWineLine(trimmedLine, wineRes)) {
+                val cleanedWine = WineParser.cleanWineLine(trimmedLine, wineRes)
                 results.detectedWineList.add(cleanedWine)
                 Log.d(TAG, "WINE détecté: $cleanedWine")
                 continue
             }
 
             // C. SOURCE
-            if (OcrHelperUtils.isLikelyProperNameOrSource(line) || SourceParser.isSourceLine(line, sourceRes)) {
-                val cleanedSource = SourceParser.cleanSourceLine(line, sourceRes)
+            if (OcrHelperUtils.isLikelyProperNameOrSource(trimmedLine) || SourceParser.isSourceLine(trimmedLine, sourceRes)) {
+                val cleanedSource = SourceParser.cleanSourceLine(trimmedLine, sourceRes)
                 results.detectedSourceList.add(cleanedSource)
                 Log.d(TAG, "SOURCE détectée: $cleanedSource")
                 continue
             }
 
             // D. EXCLUSIONS
-            if (OcrHelperUtils.isExcluded(line, excludedKeywords)) {
-                val upperLine = line.uppercase()
+            if (OcrHelperUtils.isExcluded(trimmedLine, excludedKeywords)) {
+                val upperLine = trimmedLine.uppercase()
                 val keywordsToSource = listOf("CONRAD", "HILTON", "SHERATON", "MARRIOTT", "CHEF", "HOTEL", "RESTAURANT")
                 if (keywordsToSource.any { upperLine.contains(it) }) {
-                    results.detectedSourceList.add(line)
-                    Log.d(TAG, "SOURCE (Exclusion redirection): $line")
+                    results.detectedSourceList.add(trimmedLine)
+                    Log.d(TAG, "SOURCE (Exclusion redirection): $trimmedLine")
                 }
                 continue
             }
 
             // E. BASCULES ET REMPLISSAGE
-            val startsWithAction = stepStartRegex.containsMatchIn(line)
-            val containsAction = containsActionRegex.containsMatchIn(line)
+            val startsWithAction = stepStartRegex.containsMatchIn(trimmedLine)
+            val containsAction = containsActionRegex.containsMatchIn(trimmedLine)
             
             // Un Header doit être court et NE PAS contenir d'action narrative
             val isInstructionHeader = instructionHeaderKeywords.any { lowerLine.contains(it) } && 
-                                     line.length < 25 && !containsAction
+                                     trimmedLine.length < 25 && !containsAction
             val isIngredientHeader = ingredientHeaderKeywords.any { lowerLine.contains(it) } && 
-                                    line.length < 25 && !containsAction
+                                    trimmedLine.length < 25 && !containsAction
 
             if (isInstructionHeader) { 
                 currentSection = 2 
@@ -113,12 +114,12 @@ object OcrCategorizer {
 
             if (startsWithAction) { currentSection = 2 }
 
-            val looksLikeIngredient = qtyRegex.containsMatchIn(line.take(5)) || commonIngredientsNoQty.any { lowerLine.contains(it) }
-            val ingredientSequences = OcrHelperUtils.countIngredientSequences(line)
+            val looksLikeIngredient = qtyRegex.containsMatchIn(trimmedLine.take(5)) || commonIngredientsNoQty.any { lowerLine.contains(it) }
+            val ingredientSequences = OcrHelperUtils.countIngredientSequences(trimmedLine)
 
             if (ingredientSequences >= 2) {
-                Log.d(TAG, "INGRÉDIENT (bloc compact détecté): $line")
-                results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(line, commonIngredientsNoQty))
+                Log.d(TAG, "INGRÉDIENT (bloc compact détecté): $trimmedLine")
+                results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(trimmedLine, commonIngredientsNoQty))
                 continue
             }
 
@@ -126,13 +127,13 @@ object OcrCategorizer {
 
             when (currentSection) {
                 1 -> {
-                    if (startsWithAction && line.length > 40) {
+                    if (startsWithAction && trimmedLine.length > 40) {
                         currentSection = 2
-                        results.rawInstructionsList.add(line)
-                        Log.d(TAG, "INSTRUCTION (bascule action): $line")
+                        results.rawInstructionsList.add(trimmedLine)
+                        Log.d(TAG, "INSTRUCTION (bascule action): $trimmedLine")
                     } else {
-                        results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(line, commonIngredientsNoQty))
-                        Log.d(TAG, "INGRÉDIENT: $line")
+                        results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(trimmedLine, commonIngredientsNoQty))
+                        Log.d(TAG, "INGRÉDIENT: $trimmedLine")
                     }
                 }
                 2 -> {
@@ -142,31 +143,31 @@ object OcrCategorizer {
                                                 !lastInstruction.trim().endsWith("!") &&
                                                 !lastInstruction.trim().endsWith("?")
 
-                    val startsWithQty = qtyRegex.containsMatchIn(line.take(5))
+                    val startsWithQty = qtyRegex.containsMatchIn(trimmedLine.take(5))
                     val startsWithKnownIngredient = commonIngredientsNoQty.any { 
-                        line.lowercase().startsWith(it.lowercase()) && 
-                        (line.length == it.length || !line[it.length].isLetter())
+                        lowerLine.startsWith(it.lowercase()) && 
+                        (trimmedLine.length == it.length || !trimmedLine[it.length].isLetter())
                     }
                     val isStrictIngredient = startsWithQty || startsWithKnownIngredient
 
                     val shouldRecover = isStrictIngredient && !containsAction && !isNarrativeContinuation && 
-                                       line.length < 45 && !startsWithAction
+                                       trimmedLine.length < 45 && !startsWithAction
 
                     if (shouldRecover) {
-                        results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(line, commonIngredientsNoQty))
-                        Log.d(TAG, "INGRÉDIENT (récupération): $line")
+                        results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(trimmedLine, commonIngredientsNoQty))
+                        Log.d(TAG, "INGRÉDIENT (récupération): $trimmedLine")
                     } else {
-                        results.rawInstructionsList.add(line)
-                        Log.d(TAG, "INSTRUCTION: $line")
+                        results.rawInstructionsList.add(trimmedLine)
+                        Log.d(TAG, "INSTRUCTION: $trimmedLine")
                     }
                 }
                 else -> {
-                    if (line.length < 45 || looksLikeIngredient) {
-                        results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(line, commonIngredientsNoQty))
-                        Log.d(TAG, "INGRÉDIENT (par défaut): $line")
+                    if (trimmedLine.length < 45 || looksLikeIngredient) {
+                        results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(trimmedLine, commonIngredientsNoQty))
+                        Log.d(TAG, "INGRÉDIENT (par défaut): $trimmedLine")
                     } else {
-                        results.rawInstructionsList.add(line)
-                        Log.d(TAG, "INSTRUCTION (par défaut): $line")
+                        results.rawInstructionsList.add(trimmedLine)
+                        Log.d(TAG, "INSTRUCTION (par défaut): $trimmedLine")
                     }
                 }
             }

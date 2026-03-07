@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="wine_appellations">
+        <item>saumur</item>
+        <item>saumir</item>
+        <item>chablis</item>
+        <item>sancerre</item>
+        <item>champagne</item>
+        <item>pauillac</item>
+        <item>margaux</item>
+        <item>saint-emilion</item>
+        <item>pomerol</item>
+        <item>gigondas</item>
+        <item>chinon</item>
+        <item>vouvray</item>
+        <item>muscadet</item>
+    </string-array>
+
+    <string-array name="wine_producers">
+        <item>alban de saint-pé</item>
+        <item>alban de saint-pe</item>
+        <item>alban de saint_pé</item>
+        <item>alban de saint_pe</item>
+        <item>alban de saint-pré</item>
+        <item>alban de saint-pre</item>
+        <item>alban de saint_pre</item>
+        <item>alban de saint_pré</item>
+        <item>pfaffenheim</item>
+    </string-array>
+
+    <string-array name="wine_keywords">
+        <item>merlot</item>
+        <item>bordeaux</item>
+        <item>bourgogne</item>
+        <item>rhone</item>
+        <item>alsace</item>
+        <item>bulgarie</item>
+        <item>italie</item>
+        <item>espagne</item>
+        <item>cépage</item>
+        <item>region</item>
+        <item>chardonnay</item>
+        <item>sauvignon</item>
+        <item>touraine</item>
+        <item>cl</item>
+        <item>vol</item>
+        <item>75cl</item>
+        <item>75 cl</item>
+    </string-array>
+
+    <string-array name="wine_title_keywords">
+        <item>vin</item>
+        <item>accord</item>
+        <item>boisson</item>
+        <item>boire</item>
+        <item>servir avec</item>
+        <item>notre vin</item>
+        <item>vin conseillé</item>
+        <item>vin suggéré</item>
+    </string-array>
+
+    <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage) -->
+    <string name="wine_remove_pattern">^(?:notre\\s+)?vin\\s+(?:conseillé|suggéré|recommandé|conseille|suggere|recommande)?\\s*:?</string>
+</resources>

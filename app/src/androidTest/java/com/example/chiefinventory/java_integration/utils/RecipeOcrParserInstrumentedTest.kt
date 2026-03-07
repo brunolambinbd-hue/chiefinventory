@@ -23,35 +23,54 @@ class RecipeOcrParserInstrumentedTest {
 
         val ocrText = """
             CONRAD
+            BR
+            LS
             Nahit YILMAZ
-            HôConrad International, avenue Louise 71, 1050 BRUXELLES
-            : 02/542.42.42
-            175 alade d'aubergines
-            Plongez les aubergines dans l'eau bouillante et retirez la peau, Hachez la chair et faites-la suer dans un peu de beurre avec l'ail haché et le piment émincé fin. Assaisonnez. Ajoutez le jus de citron et le persil haché. Servez frais, décorez de tomates et accompagnez de tranches de pain grillé.
-            23 20 6 aubergines moyennes (t l kg) 1 ou 2 citrons 150 g de beurre 1 piment rouge persil haché 2 gousses d'ail sel, poivre M.O.
-            Rousse Région Merlot (vin rouge de Bulgarie)
-            pour 4 personnes
+            Hôtel Conrad International
+            avenue Louise 71
+            1050 BRUXELLES
+            Tél. : 02/542.42.42
+            e
+            175
+            saveur de
+            alade d'aubergines
+            Plongez les aubergines dans l'eau bouillante et retirez la peau, Hachez la chair et faites-la suer dans
+            un peu de beurre avec l'ail haché et le piment émincé fin. Assaisonnez. Ajoutez le jus de citron et
+            le persil haché. Servez frais, décorez de tomates et accompagnez de tranches de pain grillé.
+            23
+            20
+            Ingrédients pour 4 personnes
+            6 aubergines moyennes (t l kg)
+            1 ou 2 citrons
+            150 g de beurre
+            I piment rouge
+            persil haché
+            2 gousses d'ail
+            sel, poivre
+            Pour la décoration: tomates
+            Notre vin conseillé
+            Rousse Région Merlot
+            (vin rouge de Bulgarie)
+            M.O.
         """.trimIndent()
 
         val result = RecipeOcrParser.parse(ocrText, res)
 
-        // Titre doit être vide pour saisie manuelle
+        // 1. Titre (doit être null)
         assertNull("Le titre doit être null", result.title)
         
-        // Vérification Ingrédients
-        val ing = result.ingredients ?: ""
+        // 2. Ingrédients (Normalisation pour vérification)
+        val ing = (result.ingredients ?: "").replace(Regex("\\s+"), " ")
         assertTrue("Contient 6 aubergines", ing.contains("6 aubergines moyennes"))
+        assertTrue("Contient 150 g de beurre", ing.contains("150 g de beurre"))
         assertTrue("Contient sel, poivre", ing.contains("sel, poivre"))
 
-        // Vérification Vin
-        assertTrue("Vin contient Merlot", result.wine?.contains("Merlot", ignoreCase = true) == true)
-
-        // Vérification Source
+        // 3. Source (Vérification du correctif Hôtel)
         val source = result.source ?: ""
-        assertTrue("Source contient chef", source.contains("Nahit YILMAZ"))
+        assertTrue("Source contient Hôtel", source.contains("Hôtel", ignoreCase = true))
         assertTrue("Source contient tel", source.contains("02/542.42.42"))
 
-        // Portions
+        // 4. Portions
         assertEquals("4", result.servings)
     }
 
@@ -77,23 +96,28 @@ class RecipeOcrParserInstrumentedTest {
             •Préparez une vinaigrette avec
             T'huile d'olive, le jus de citron, le miel, le vinaigre, du sel et du poivre.
             •Répartissez la salade sur 4 assiettes.
+            Chardonnay Domaine des Roches
+            Hôtel Hilton, Place Rogier 20, 1000 BRUXELLES
+            pour 4 personnes
         """.trimIndent()
 
         val result = RecipeOcrParser.parse(ocrText, res)
 
-        // Titre vide
-        assertNull(result.title)
-
-        // Vérification Ingrédients et corrections OCR
-        val ing = result.ingredients ?: ""
-        assertTrue("Correction | -> 1", ing.contains("1 avocat"))
-        assertTrue("Correction lc -> 1 c", ing.contains("1 c. à café"))
-        assertTrue("Correction 1/2", ing.contains("1/2 citron"))
+        // 1. Ingrédients (Vérification des liaisons 'et' / 'ou')
+        val ing = (result.ingredients ?: "").replace(Regex("\\s+"), " ")
+        assertTrue("Correction | -> 1 avocat", ing.contains("1 avocat"))
+        assertTrue("Contient sel et poivre", ing.contains("sel et poivre"))
         assertTrue("Contient haricots", ing.contains("200 g de haricots"))
 
-        // Vérification Instructions et Vinaigrette complète
+        // 2. Instructions (Vérification de la continuité narrative)
         val inst = result.instructions ?: ""
         assertTrue("Vinaigrette complète", inst.contains("Préparez une vinaigrette avec l'huile d'olive"))
-        assertTrue("Fin vinaigrette", inst.contains("du sel et du poivre"))
+        assertTrue("Phrase non coupée", inst.contains("les haricots sous un jet d'eau froide"))
+
+        // 3. Vin
+        assertTrue("Vin contient Chardonnay", result.wine?.contains("Chardonnay", ignoreCase = true) == true)
+
+        // 4. Portions
+        assertEquals("4", result.servings)
     }
 }

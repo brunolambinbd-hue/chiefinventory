@@ -426,6 +426,7 @@
                 <map>
                   <entry key="Duration" value="90" />
                   <entry key="Pixel_9_-_User_Testing" value="120" />
+                  <entry key="Pixel_9_Instrumented_testing" value="120" />
                   <entry key="Tests" value="360" />
                 </map>
               </option>
