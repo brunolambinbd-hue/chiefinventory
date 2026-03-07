@@ -3,6 +3,11 @@ package com.example.chiefinventory.utils
 import android.content.res.Resources
 import android.util.Log
 import com.example.chiefinventory.R
+import com.example.chiefinventory.utils.OcrHelperUtils.cleanIngredientSemantics
+import com.example.chiefinventory.utils.OcrHelperUtils.countIngredientSequences
+import com.example.chiefinventory.utils.OcrHelperUtils.isExcluded
+import com.example.chiefinventory.utils.OcrHelperUtils.isLikelyProperNameOrSource
+import com.example.chiefinventory.utils.OcrHelperUtils.splitCombinedIngredients
 
 /**
  * Orchestrateur pour le parsing OCR des recettes.
@@ -218,45 +223,4 @@ object RecipeOcrParser {
         )
     }
 
-    private fun countIngredientSequences(line: String): Int {
-        val pattern = Regex("(?<!(?:ou|à|-)\\s)\\b\\d+\\s+[a-zA-Z]")
-        return pattern.findAll(line).count()
-    }
-
-    private fun splitCombinedIngredients(line: String, commonItems: List<String>): List<String> {
-        var cleaned = line.replace(Regex("^\\d+\\s+\\d+\\s+"), "").trim()
-        val keywordsRegex = commonItems.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
-        val separatorPattern = Regex("(?<=[a-zA-Z)])\\s+(?!(?:ou|à|-)\\s+)(?=\\d+\\s+[a-zA-Z])|(?<=[a-zA-Z])\\s+(?=$keywordsRegex)")
-        val marked = cleaned.replace(separatorPattern, "##SPLIT##")
-        return marked.split("##SPLIT##").map { it.trim() }.filter { it.isNotBlank() }
-    }
-
-    private fun isLikelyProperNameOrSource(line: String): Boolean {
-        val trimmed = line.trim()
-        val words = trimmed.split(Regex("\\s+"))
-        if (words.size !in 2..4) return false
-        if (trimmed.any { it.isDigit() }) return false
-        return words.all { word -> word.isNotEmpty() && (word[0].isUpperCase() || word.all { it.isUpperCase() }) }
-    }
-
-    private fun isExcluded(line: String, excludedKeywords: List<String>): Boolean {
-        val upperLine = line.uppercase()
-        return excludedKeywords.any { kw -> 
-            val ukw = kw.uppercase()
-            if (ukw.length <= 4) upperLine == ukw || upperLine.startsWith("$ukw ") || upperLine.endsWith(" $ukw") 
-            else upperLine.contains(ukw)
-        }
-    }
-
-    private fun cleanIngredientSemantics(text: String, excludedKeywords: List<String>): String {
-        val cleaned = text.replace(Regex("\\(.*?\\)"), "").trim()
-        if (!cleaned.any { it.isLetter() } || cleaned.length <= 1) return ""
-        if (isLikelyProperNameOrSource(cleaned)) return ""
-        val upperCleaned = cleaned.uppercase()
-        if (excludedKeywords.any { kw -> 
-                val ukw = kw.uppercase()
-                if (ukw.length <= 4) upperCleaned == ukw else upperCleaned.contains(ukw)
-            }) return ""
-        return cleaned
-    }
 }
