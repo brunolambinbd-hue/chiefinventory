@@ -111,7 +111,7 @@ class RecipeOcrParserAubergineTest {
         // 4. Ingrédients (Normalisation pour gérer le découpage OCR)
         val ing = result.ingredients ?: ""
         val ingNorm = ing.replace("\n", " ")
-        
+
         assertTrue("Contient 6 aubergines moyennes", ingNorm.contains("6 aubergines moyennes"))
         assertTrue("Contient 1 ou 2 citrons", ingNorm.contains("1 ou 2 citrons"))
         assertTrue("Contient 150 g de beurre", ingNorm.contains("150 g de beurre"))
