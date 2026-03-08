@@ -122,6 +122,7 @@ class RecipeOcrParserOceaneTest {
 
         // 3. Ingrédients
         val ing = result.ingredients ?: ""
+        // Normalisation des espaces pour le test
         val ingNorm = ing.replace(Regex("\\s+"), " ")
         
         assertTrue("Fusion crevettes réussie", ingNorm.contains("250 g de crevettes grises décortiquées"))
@@ -129,7 +130,7 @@ class RecipeOcrParserOceaneTest {
         assertTrue("Fusion yaourt réussie", ingNorm.contains("250 g de yaourt nature"))
         
         // Correction : "l" minuscule OCR devient "1" via IngredientParser.preClean
-        assertTrue("Contient chicon. Reçu: '$ingNorm'", ingNorm.contains("1 beau chicon"))
+        assertTrue("Contient chicon", ingNorm.contains("1 beau chicon"))
         // "l orange" devient "1 orange"
         assertTrue("Contient orange", ingNorm.contains("1 orange"))
         // "I12" devient "1/2"

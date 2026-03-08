@@ -3,8 +3,6 @@ package com.example.chiefinventory.utils
 import android.content.res.Resources
 import android.util.Log
 import com.example.chiefinventory.R
-import com.example.chiefinventory.utils.OcrHelperUtils.isExcluded
-import com.example.chiefinventory.utils.OcrHelperUtils.isLikelyProperNameOrSource
 
 /**
  * Orchestrateur pour le parsing OCR des recettes.
@@ -20,38 +18,8 @@ object RecipeOcrParser {
         val lines = processedText.lines().map { it.trim() }.filter { it.isNotBlank() }
         if (lines.isEmpty()) return RecipeOcrResult()
 
-        val wineRes = WineParser.loadResources(res)
-        val sourceRes = SourceParser.loadResources(res)
-        val excludedKeywords = res.getStringArray(R.array.excluded_ocr_keywords).toList()
-        val commonIngredientsNoQty = res.getStringArray(R.array.common_ingredients_no_qty).toList()
-        
-        val stepActionKeywords = res.getStringArray(R.array.step_action_keywords).toList()
-        val stepConnectors = listOf("puis", "ensuite", "enfin", "après", "apres", "alors", "pendant", "dans")
-        val extraVerbs = listOf("plongez", "retirez", "hachez", "ajoutez", "servez", "assaisonnez", "faites", "coupez", "mélangez", "préparez", "décorez", "répartissez", "passez")
-        val stepStartRegex = Regex("^\\s*(?:[•\\-*]|(?:${(stepActionKeywords + stepConnectors + extraVerbs).joinToString("|")})\\b)", RegexOption.IGNORE_CASE)
-        
-        val qtyRegex = Regex("^[|Il!\\d\\-*¼½¾]")
-        val servingsRegex = Regex("(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)", RegexOption.IGNORE_CASE)
-        val alternateServingsRegex = Regex("(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)", RegexOption.IGNORE_CASE)
-
-        // 1. IDENTIFICATION DU TITRE
-        var titleIndex = -1
-        for (i in lines.indices) {
-            val line = lines[i]
-            val lowerLine = line.lowercase()
-            val isNoise = isExcluded(line, excludedKeywords) || !line.any { it.isLetter() }
-            val isSource = SourceParser.isSourceLine(line, sourceRes) || isLikelyProperNameOrSource(line)
-            val isIngredient = qtyRegex.containsMatchIn(line.take(5)) || commonIngredientsNoQty.any { lowerLine.contains(it) }
-            val isWine = WineParser.isWineLine(line, wineRes)
-            val isServings = servingsRegex.containsMatchIn(line) || alternateServingsRegex.containsMatchIn(line)
-            val isInstruction = stepStartRegex.containsMatchIn(line)
-
-            if (!isNoise && !isSource && !isIngredient && !isWine && !isServings && !isInstruction && line.length in 4..64) {
-                titleIndex = i
-                Log.d(TAG, "TITRE potentiel détecté: $line")
-                break
-            }
-        }
+        // 1. IDENTIFICATION DU TITRE - Supprimée pour éviter la capture de mots orphelins
+        val titleIndex = -1
 
         // 2. PARSING DES SECTIONS (Délégué au Categorizer)
         val sections = OcrCategorizer.categorizeLines(lines, titleIndex, res)

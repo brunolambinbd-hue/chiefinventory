@@ -6,8 +6,6 @@ package com.example.chiefinventory.utils
 object OcrHelperUtils {
 
     internal fun countIngredientSequences(line: String): Int {
-        // On cherche des nombres qui NE sont PAS précédés par "ou", "à", "-", "et", "sur"
-        // ET qui ne sont PAS suivis par des unités techniques (mm, cm, min, sec)
         val pattern = Regex("(?<!(?:ou|à|-|et|sur)\\s)\\b\\d+\\s+(?!(?:mm|cm|min|sec)\\b)[a-zA-Z]")
         return pattern.findAll(line).count()
     }
@@ -25,7 +23,6 @@ object OcrHelperUtils {
         }
         val hacheRegex = hacheVariants.joinToString("|") { Regex.escape(it) }
 
-        // On définit les connecteurs qui empêchent le découpage (intervalles, prépositions, dimensions)
         val connectors = "et|ou|à|\\-|de|du|des|d'|sur"
 
         val separatorPattern = Regex(
@@ -48,36 +45,40 @@ object OcrHelperUtils {
     }
 
     /**
-     * Vérifie si une ligne doit être exclue (bruit, en-tête inutile).
-     * Correction : On ne contient plus, on vérifie l'égalité ou le début de mot
-     * pour éviter de supprimer des phrases contenant un mot-clé (ex: "Mélangez les ingrédients").
+     * Vérifie si une ligne doit être exclue globalement (bruit OCR pur).
      */
     internal fun isExcluded(line: String, excludedKeywords: List<String>): Boolean {
         val upperLine = line.uppercase().trim()
         if (upperLine.isEmpty()) return false
-        
-        return excludedKeywords.any { kw ->
-            val ukw = kw.uppercase().trim()
-            if (ukw.isEmpty()) return@any false
-            
-            // On exclut si la ligne EST exactement le mot-clé ou commence par le mot-clé suivi d'un séparateur
-            // Cela protège les phrases narratives.
-            upperLine == ukw || 
-            upperLine.startsWith("$ukw ") || 
-            upperLine.startsWith("$ukw:") || 
-            upperLine.startsWith("$ukw :")
-        }
+        return excludedKeywords.any { upperLine == it.uppercase().trim() }
     }
 
-    internal fun cleanIngredientSemantics(text: String, excludedKeywords: List<String>): String {
-        val cleaned = text.replace(Regex("\\(.*?\\)"), "").trim()
+    /**
+     * Nettoyage sémantique final des ingrédients.
+     * Supprime les puces (bullets) et filtre les bruits comme "POUR".
+     */
+    internal fun cleanIngredientSemantics(
+        text: String, 
+        excludedKeywords: List<String>, 
+        semanticExclusions: List<String> = emptyList()
+    ): String {
+        // 1. Suppression des puces au début (•, -, *)
+        var cleaned = text.trim().replace(Regex("^[•\\-*]\\s*"), "")
+        
+        // 2. Suppression des parenthèses et leur contenu
+        cleaned = cleaned.replace(Regex("\\([^\\)]*+\\)"), "").trim()
+        
         if (!cleaned.any { it.isLetter() } || cleaned.length <= 1) return ""
         if (isLikelyProperNameOrSource(cleaned)) return ""
-        val upperCleaned = cleaned.uppercase()
-        if (excludedKeywords.any { kw ->
-                val ukw = kw.uppercase()
-                if (ukw.length <= 4) upperCleaned == ukw else upperCleaned.contains(ukw)
-            }) return ""
+        
+        val upperCleaned = cleaned.uppercase().trim()
+        
+        // 3. Vérification contre l'exclusion globale (stricte)
+        if (excludedKeywords.any { upperCleaned == it.uppercase().trim() }) return ""
+        
+        // 4. Vérification contre l'exclusion sémantique spécifique aux ingrédients (ex: POUR)
+        if (semanticExclusions.any { upperCleaned == it.uppercase().trim() }) return ""
+
         return cleaned
     }
 }

@@ -18,7 +18,8 @@ object IngredientParser {
         "cuillère", "cuillères", "c. à soupe", "c à soupe", "c.à soupe", "c. a soupe", "c a soupe",
         "c. à café", "c à café", "c.à café", "c. a café", "c a café",
         "càs", "càc", "c. à s.", "c. à c.",
-        "pincée", "pincées", "botte", "bottes", "paquet", "paquets", "verre", "verres", "tranche", "tranches"
+        "pincée", "pincées", "botte", "bottes", "paquet", "paquets", "verre", "verres", "tranche", "tranches",
+        "filet", "filets", "trait", "traits"
     )
     
     private val rangeRegex = Regex("^\\s*(\\d+)\\s*(?:ou|à|-)\\s*(\\d+[.,]?\\d*)", RegexOption.IGNORE_CASE)

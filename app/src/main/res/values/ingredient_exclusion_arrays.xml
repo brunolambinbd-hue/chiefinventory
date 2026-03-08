@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ingredient_semantic_exclusions">
+        <item>POUR</item>
+        <item>DANS</item>
+        <item>SUR</item>
+        <item>AVEC</item>
+        <item>PAR</item>
+        <item>LE</item>
+        <item>LA</item>
+        <item>LES</item>
+        <item>UN</item>
+        <item>UNE</item>
+        <item>ET</item>
+        <item>OU</item>
+        <item>PAGE</item>
+        <item>SAVEUR</item>
+    </string-array>
+</resources>
