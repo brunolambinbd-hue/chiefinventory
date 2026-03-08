@@ -17,6 +17,10 @@
     </string-array>
 
     <string-array name="wine_producers">
+        <item>alban de saint-pé</item>
+        <item>alban de saint-pe</item>
+        <item>alban de saint_pé</item>
+        <item>alban de saint_pe</item>
         <item>alban de saint-pré</item>
         <item>alban de saint-pre</item>
         <item>alban de saint_pre</item>
@@ -53,8 +57,15 @@
         <item>notre vin</item>
         <item>vin conseillé</item>
         <item>vin suggéré</item>
+        <!-- Variantes simplifiées pour la détection -->
+        <item>conseillé</item>
+        <item>conseillė</item>
+        <item>suggéré</item>
+        <item>suggerė</item>
+        <item>recommandé</item>
+        <item>recommandė</item>
     </string-array>
 
-    <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage) -->
-    <string name="wine_remove_pattern">^(?:notre\\s+)?vin\\s+(?:conseillé|suggéré|recommandé|conseille|suggere|recommande)?\\s*:?</string>
+    <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage robuste) -->
+    <string name="wine_remove_pattern">^(?:notre\\s+)?vin\\s+(?:conseill[éėeè]|sugg[éėeè]r[éėeè]|recommand[éėeè])?\\s*:?</string>
 </resources>

@@ -95,10 +95,18 @@ object OcrCategorizer {
 
             val matchesStepStart = stepStartRegex.containsMatchIn(trimmedLine)
             val lineWithoutBullet = trimmedLine.replace(Regex("^[•\\-*]\\s*"), "")
+            val lowerWithoutBullet = lineWithoutBullet.lowercase()
             
-            // Détection si la ligne (avec ou sans puce) ressemble à un ingrédient
+            // Vérification si la ligne commence par une unité connue (ex: "brins")
+            val startsWithUnit = IngredientParser.units.any { unit ->
+                lowerWithoutBullet.startsWith(unit.lowercase()) && 
+                (lowerWithoutBullet.length == unit.length || !lowerWithoutBullet[unit.length].isLetter())
+            }
+            
+            // Détection si la ligne ressemble à un ingrédient
             val looksLikeIngredient = qtyRegex.containsMatchIn(lineWithoutBullet.take(8)) || 
-                                     commonIngredientsNoQty.any { lineWithoutBullet.lowercase().startsWith(it) }
+                                     commonIngredientsNoQty.any { lowerWithoutBullet.startsWith(it.lowercase()) } ||
+                                     startsWithUnit
 
             if (matchesStepStart && !looksLikeIngredient) { currentSection = 2 }
 
@@ -133,9 +141,9 @@ object OcrCategorizer {
 
                     val startsWithQty = qtyRegex.containsMatchIn(lineWithoutBullet.take(8))
                     val startsWithKnownIngredient = commonIngredientsNoQty.any { 
-                        lineWithoutBullet.lowercase().startsWith(it.lowercase()) && (lineWithoutBullet.length == it.length || !lineWithoutBullet[it.length].isLetter())
+                        lowerWithoutBullet.startsWith(it.lowercase()) && (lineWithoutBullet.length == it.length || !lineWithoutBullet[it.length].isLetter())
                     }
-                    val isStrictIngredient = startsWithQty || startsWithKnownIngredient
+                    val isStrictIngredient = startsWithQty || startsWithKnownIngredient || startsWithUnit
 
                     if (isStrictIngredient && !containsAction && !isNarrativeContinuation && trimmedLine.length < 45 && !matchesStepStart) {
                         results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(trimmedLine, commonIngredientsNoQty))

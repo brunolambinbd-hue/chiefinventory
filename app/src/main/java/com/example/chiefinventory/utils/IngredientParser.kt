@@ -13,13 +13,14 @@ object IngredientParser {
         val unit: String? = null
     )
 
-    private val units = listOf(
+    // Changement en internal pour être accessible par OcrCategorizer
+    internal val units = listOf(
         "g", "kg", "ml", "l", "cl", "dl", 
         "cuillère", "cuillères", "c. à soupe", "c à soupe", "c.à soupe", "c. a soupe", "c a soupe",
         "c. à café", "c à café", "c.à café", "c. a café", "c a café",
         "càs", "càc", "c. à s.", "c. à c.",
         "pincée", "pincées", "botte", "bottes", "paquet", "paquets", "verre", "verres", "tranche", "tranches",
-        "filet", "filets", "trait", "traits"
+        "filet", "filets", "trait", "traits", "brins", "brin"
     )
     
     private val rangeRegex = Regex("^\\s*(\\d+)\\s*(?:ou|à|-)\\s*(\\d+[.,]?\\d*)", RegexOption.IGNORE_CASE)
@@ -46,6 +47,14 @@ object IngredientParser {
         // Correction plus large du T' ou 1' en l'
         cleaned = cleaned.replace(Regex("^[T1]['’]"), "l'")
         cleaned = cleaned.replace(Regex("\\s+[T1]['’]"), " l'")
+
+        // RECONSTITUTION LINGUISTIQUE (ex: jauned' euf -> jaune d'oeuf)
+        // 1. Espace avant d' (si collé)
+        cleaned = cleaned.replace(Regex("([a-zA-Z])d['’]"), "$1 d'")
+        // 2. Suppression espace après d' (ex: d' euf -> d'euf)
+        cleaned = cleaned.replace(Regex("d['’]\\s+"), "d'")
+        // 3. Correction du mot 'euf' (souvent mal lu pour 'oeuf')
+        cleaned = cleaned.replace(Regex("(?i)\\beuf(s?)\\b"), "oeuf$1")
 
         cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\b"), "1 c")
         cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\."), "1 c.")
