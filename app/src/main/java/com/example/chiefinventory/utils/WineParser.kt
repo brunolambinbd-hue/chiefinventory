@@ -46,6 +46,23 @@ object WineParser {
         val wineRemoveRegex = Regex(resources.removePattern, RegexOption.IGNORE_CASE)
         var cleaned = line.replace(wineRemoveRegex, "")
         cleaned = cleaned.replace(extraWineCleanRegex, "").trim()
-        return cleaned.replace(Regex("^[:\\-\\s\\.]+"), "").trim()
+        cleaned = cleaned.replace(Regex("^[:\\-\\s\\.]+"), "").trim()
+        
+        return applySpellingCorrections(cleaned)
+    }
+
+    /**
+     * Applies common spelling corrections for wine names misread by OCR.
+     */
+    private fun applySpellingCorrections(text: String): String {
+        var corrected = text
+        
+        // Correct "Bordeau" to "Bordeaux" (case-insensitive, word boundary)
+        corrected = corrected.replace(Regex("(?i)\\bBordeau\\b"), "Bordeaux")
+        
+        // Correct "Atinum" to "Atinium" if necessary (based on previous logs)
+        corrected = corrected.replace(Regex("(?i)\\bAtinum\\b"), "Atinium")
+        
+        return corrected
     }
 }

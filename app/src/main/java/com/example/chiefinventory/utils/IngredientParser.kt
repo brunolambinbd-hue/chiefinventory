@@ -37,7 +37,8 @@ object IngredientParser {
             .replace(Regex("^t\\s*(?=\\d)"), "")
             
             .replace(Regex("^[|Il!](?=\\s*\\d)"), "1")
-            .replace(Regex("^[|Il!](?=\\s*/)"), "1")
+            // Correction des fractions type l/2 ou I/2 même au milieu du texte
+            .replace(Regex("(?i)\\b[|Il!](?=/)"), "1")
             .replace(Regex("^[|Il!]\\s+(?=[a-zA-Z])"), "1 ")
             
             .replace(Regex("\\s+\\|\\s+"), " 1 ")
