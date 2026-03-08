@@ -27,34 +27,33 @@ object IngredientParser {
     private val fractionRegex = Regex("^\\s*(\\d+)/(\\d+)\\s*(.*)$")
 
     /**
-     * Nettoie les erreurs courantes d'OCR.
+     * Nettoie les erreurs courantes d'OCR et les approximations.
      */
     fun preClean(input: String): String {
         var cleaned = input.trim()
             .replace("±", "")
             .replace("+/-", "")
             .replace("+-", "")
-            .replace(Regex("^t\\s*(?=\\d)"), "")
+            .replace(Regex("(?i)\\benviron\\b"), "")
+            .replace(Regex("(?i)\\bt\\b\\s*(?=[\\d|Il!])"), "")
+            
+            // Correction robuste du chiffre 1 mal lu (l, I, |, !)
+            // Fonctionne au début, après un espace ou après une parenthèse
+            .replace(Regex("(?<=[\\s(]|^)[|Il!|](?=\\s+[a-zA-Z])"), "1")
             
             .replace(Regex("^[|Il!](?=\\s*\\d)"), "1")
-            // Correction des fractions type l/2 ou I/2 même au milieu du texte
             .replace(Regex("(?i)\\b[|Il!](?=/)"), "1")
             .replace(Regex("^[|Il!]\\s+(?=[a-zA-Z])"), "1 ")
             
             .replace(Regex("\\s+\\|\\s+"), " 1 ")
 
         cleaned = cleaned.replace(Regex("^1\\s+e\\s+"), "le ")
-        
-        // Correction plus large du T' ou 1' en l'
         cleaned = cleaned.replace(Regex("^[T1]['’]"), "l'")
         cleaned = cleaned.replace(Regex("\\s+[T1]['’]"), " l'")
 
         // RECONSTITUTION LINGUISTIQUE (ex: jauned' euf -> jaune d'oeuf)
-        // 1. Espace avant d' (si collé)
         cleaned = cleaned.replace(Regex("([a-zA-Z])d['’]"), "$1 d'")
-        // 2. Suppression espace après d' (ex: d' euf -> d'euf)
         cleaned = cleaned.replace(Regex("d['’]\\s+"), "d'")
-        // 3. Correction du mot 'euf' (souvent mal lu pour 'oeuf')
         cleaned = cleaned.replace(Regex("(?i)\\beuf(s?)\\b"), "oeuf$1")
 
         cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\b"), "1 c")
@@ -73,8 +72,8 @@ object IngredientParser {
     }
 
     fun parse(input: String): ParsedIngredient {
-        val cleaned = preClean(input)
-        val fractionMatch = fractionRegex.find(cleaned)
+        val cleanedText = preClean(input)
+        val fractionMatch = fractionRegex.find(cleanedText)
         if (fractionMatch != null) {
             val numerator = fractionMatch.groupValues[1].toDoubleOrNull() ?: 0.0
             val denominator = fractionMatch.groupValues[2].toDoubleOrNull() ?: 1.0
@@ -82,14 +81,14 @@ object IngredientParser {
             val subParsed = parseStandard(rest)
             return ParsedIngredient(name = subParsed.name, quantity = numerator / denominator, unit = subParsed.unit)
         }
-        val rangeMatch = rangeRegex.find(cleaned)
+        val rangeMatch = rangeRegex.find(cleanedText)
         if (rangeMatch != null) {
             val secondQty = rangeMatch.groupValues[2].replace(",", ".").toDoubleOrNull()
-            val rest = cleaned.substring(rangeMatch.range.last + 1).trim()
+            val rest = cleanedText.substring(rangeMatch.range.last + 1).trim()
             val subParsed = parseStandard(rest)
             return ParsedIngredient(name = subParsed.name, quantity = secondQty, unit = subParsed.unit)
         }
-        return parseStandard(cleaned)
+        return parseStandard(cleanedText)
     }
 
     private fun parseStandard(input: String): ParsedIngredient {

@@ -14,11 +14,16 @@ object OcrHelperUtils {
         // ET qui ne sont PAS suivis par des unités techniques.
         val qtyPattern = "(?:\\d+|[1Il!|])"
         val pattern = Regex("(?<!(?:ou|à|-|et|sur)\\s)\\b$qtyPattern\\s+(?!(?:mm|cm|min|sec)\\b)[a-zA-Z]", RegexOption.IGNORE_CASE)
-        return pattern.findAll(line).count()
+        
+        // On filtre les séquences qui sont à l'intérieur de parenthèses
+        return pattern.findAll(line).count { match ->
+            !isInsideParentheses(line, match.range.first)
+        }
     }
 
     /**
      * Découpe une ligne contenant plusieurs ingrédients.
+     * Ignore les séparateurs potentiels situés à l'intérieur de parenthèses.
      */
     internal fun splitCombinedIngredients(line: String, commonItems: List<String>): List<String> {
         var cleaned = line.replace(Regex("^\\d+\\s+\\d+\\s+"), "").trim()
@@ -36,18 +41,38 @@ object OcrHelperUtils {
         val connectors = "et|ou|à|\\-|de|du|des|d'|sur"
         val qtyPattern = "(?:\\d+|[1Il!|])"
 
-        // Règle de découpage améliorée :
-        // 1. Après une lettre, une parenthèse ou un POINT (fin d'ingrédient précédent)
-        // 2. Devant une quantité (chiffre ou variante OCR)
-        val separatorPattern = Regex(
+        // On identifie tous les splits potentiels par Regex
+        val potentialSplits = Regex(
             "(?<=[a-zA-Z).])(?<!\\b(?:$connectors))\\s+(?!(?:$connectors)\\s+)(?=$qtyPattern\\s+[a-zA-Z])|" +
             "(?<=[a-zA-Z])(?<!\\b(?:$connectors))\\s+(?=$otherKeywordsRegex)|" +
             "(?<=[a-zA-Z])(?<!\\b(?:$connectors))\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))",
             RegexOption.IGNORE_CASE
         )
 
-        val marked = cleaned.replace(separatorPattern, "##SPLIT##")
-        return marked.split("##SPLIT##").map { it.trim() }.filter { it.isNotBlank() }
+        // On ne garde que les splits qui ne sont PAS à l'intérieur de parenthèses
+        val sb = StringBuilder(cleaned)
+        var offset = 0
+        potentialSplits.findAll(cleaned).forEach { match ->
+            if (!isInsideParentheses(cleaned, match.range.first)) {
+                val splitPos = match.range.first + offset
+                sb.insert(splitPos + 1, "##SPLIT##")
+                offset += "##SPLIT##".length
+            }
+        }
+
+        return sb.toString().split("##SPLIT##").map { it.trim() }.filter { it.isNotBlank() }
+    }
+
+    /**
+     * Vérifie si une position donnée dans une chaîne est à l'intérieur de parenthèses.
+     */
+    private fun isInsideParentheses(text: String, position: Int): Boolean {
+        var openCount = 0
+        for (i in 0 until position) {
+            if (text[i] == '(') openCount++
+            if (text[i] == ')') openCount--
+        }
+        return openCount > 0
     }
 
     internal fun isLikelyProperNameOrSource(line: String): Boolean {
@@ -58,9 +83,6 @@ object OcrHelperUtils {
         return words.all { word -> word.isNotEmpty() && (word[0].isUpperCase() || word.all { it.isUpperCase() }) }
     }
 
-    /**
-     * Vérifie si une ligne doit être exclue globalement (bruit OCR pur).
-     */
     internal fun isExcluded(line: String, excludedKeywords: List<String>): Boolean {
         val upperLine = line.uppercase().trim()
         if (upperLine.isEmpty()) return false
@@ -69,7 +91,7 @@ object OcrHelperUtils {
 
     /**
      * Nettoyage sémantique final des ingrédients.
-     * Supprime les puces (bullets) et filtre les bruits comme "POUR".
+     * Désormais, on CONSERVE le contenu des parenthèses car il contient le poids (ex: (t l kg)).
      */
     internal fun cleanIngredientSemantics(
         text: String, 
@@ -79,9 +101,7 @@ object OcrHelperUtils {
         // 1. Suppression des puces au début (•, -, *)
         var cleaned = text.trim().replace(Regex("^[•\\-*]\\s*"), "")
         
-        // 2. Suppression des parenthèses et leur contenu
-        cleaned = cleaned.replace(Regex("\\([^\\)]*+\\)"), "").trim()
-        
+        // 2. Vérification de la validité
         if (!cleaned.any { it.isLetter() } || cleaned.length <= 1) return ""
         if (isLikelyProperNameOrSource(cleaned)) return ""
         
