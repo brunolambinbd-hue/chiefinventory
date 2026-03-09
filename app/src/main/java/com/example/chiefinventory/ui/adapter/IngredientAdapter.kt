@@ -18,7 +18,13 @@ class IngredientAdapter(private val onClick: (Ingredient) -> Unit) :
         private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
         fun bind(ingredient: Ingredient, onClick: (Ingredient) -> Unit) {
-            binding.tvName.text = ingredient.name
+            // Affichage du nom avec l'info supplémentaire éventuelle (ex: poids)
+            binding.tvName.text = if (!ingredient.supplementalInfo.isNullOrBlank()) {
+                "${ingredient.name} (${ingredient.supplementalInfo})"
+            } else {
+                ingredient.name
+            }
+
             binding.tvQuantity.text = buildString {
                 append(ingredient.quantity ?: "")
                 append(" ")

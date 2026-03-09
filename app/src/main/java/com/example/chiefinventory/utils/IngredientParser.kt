@@ -10,7 +10,8 @@ object IngredientParser {
     data class ParsedIngredient(
         val name: String,
         val quantity: Double? = null,
-        val unit: String? = null
+        val unit: String? = null,
+        val supplementalInfo: String? = null // Nouveau champ pour les infos entre parenthèses
     )
 
     // Changement en internal pour être accessible par OcrCategorizer
@@ -25,6 +26,7 @@ object IngredientParser {
     
     private val rangeRegex = Regex("^\\s*(\\d+)\\s*(?:ou|à|-)\\s*(\\d+[.,]?\\d*)", RegexOption.IGNORE_CASE)
     private val fractionRegex = Regex("^\\s*(\\d+)/(\\d+)\\s*(.*)$")
+    private val parenthesesRegex = Regex("\\s*\\((.*?)\\)")
 
     /**
      * Nettoie les erreurs courantes d'OCR et les approximations.
@@ -72,40 +74,52 @@ object IngredientParser {
     }
 
     fun parse(input: String): ParsedIngredient {
-        val cleanedText = preClean(input)
+        // 1. Extraire et stocker l'information entre parenthèses
+        val parentheticalMatch = parenthesesRegex.find(input)
+        val supplementalInfo = parentheticalMatch?.groupValues?.get(1)?.let { preClean(it) }
+        val mainText = input.replace(parenthesesRegex, "").trim()
+
+        // 2. Continuer le parsing sur le texte principal nettoyé
+        val cleanedText = preClean(mainText)
+        
         val fractionMatch = fractionRegex.find(cleanedText)
         if (fractionMatch != null) {
             val numerator = fractionMatch.groupValues[1].toDoubleOrNull() ?: 0.0
             val denominator = fractionMatch.groupValues[2].toDoubleOrNull() ?: 1.0
             val rest = fractionMatch.groupValues[3].trim()
-            val subParsed = parseStandard(rest)
-            return ParsedIngredient(name = subParsed.name, quantity = numerator / denominator, unit = subParsed.unit)
+            val subParsed = parseStandard(rest, supplementalInfo)
+            return ParsedIngredient(name = subParsed.name, quantity = numerator / denominator, unit = subParsed.unit, supplementalInfo = supplementalInfo)
         }
+        
         val rangeMatch = rangeRegex.find(cleanedText)
         if (rangeMatch != null) {
             val secondQty = rangeMatch.groupValues[2].replace(",", ".").toDoubleOrNull()
             val rest = cleanedText.substring(rangeMatch.range.last + 1).trim()
-            val subParsed = parseStandard(rest)
-            return ParsedIngredient(name = subParsed.name, quantity = secondQty, unit = subParsed.unit)
+            val subParsed = parseStandard(rest, supplementalInfo)
+            return ParsedIngredient(name = subParsed.name, quantity = secondQty, unit = subParsed.unit, supplementalInfo = supplementalInfo)
         }
-        return parseStandard(cleanedText)
+        
+        return parseStandard(cleanedText, supplementalInfo)
     }
 
-    private fun parseStandard(input: String): ParsedIngredient {
+    private fun parseStandard(input: String, supplementalInfo: String?): ParsedIngredient {
         val matcher = Pattern.compile("^\\s*(\\d+[.,]?\\d*)\\s*(.*)$").matcher(input)
-        if (!matcher.find()) return ParsedIngredient(input)
+        if (!matcher.find()) return ParsedIngredient(input, supplementalInfo = supplementalInfo)
+        
         val qty = matcher.group(1)?.replace(",", ".")?.toDoubleOrNull()
         val rest = matcher.group(2)?.trim() ?: ""
-        if (rest.isEmpty()) return ParsedIngredient("", qty, null)
+        if (rest.isEmpty()) return ParsedIngredient("", qty, null, supplementalInfo)
+        
         for (unit in units.sortedByDescending { it.length }) {
             val unitPattern = Regex("^${Pattern.quote(unit)}(?:\\s+|de\\s+|d['’]\\s*|\\.|\\b)", RegexOption.IGNORE_CASE)
             val match = unitPattern.find(rest)
             if (match != null) {
                 val namePart = rest.substring(match.range.last + 1).trim()
                 val finalName = namePart.replace(Regex("^(?:de\\s+|d['’]\\s*)", RegexOption.IGNORE_CASE), "").trim()
-                return ParsedIngredient(if (finalName.isEmpty()) rest else finalName, qty, unit)
+                return ParsedIngredient(if (finalName.isEmpty()) rest else finalName, qty, unit, supplementalInfo)
             }
         }
-        return ParsedIngredient(rest, qty, null)
+        
+        return ParsedIngredient(rest, qty, null, supplementalInfo)
     }
 }

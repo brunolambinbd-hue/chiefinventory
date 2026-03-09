@@ -62,7 +62,7 @@ class RecipeRepository(
             val rawName = ri.ingredientName.trim()
             if (rawName.isEmpty()) continue
             
-            // On ne filtre plus ici (déjà fait par l'OCR), on parse pour extraire Qté/Unité/Nom
+            // On ne filtre plus ici (déjà fait par l'OCR), on parse pour extraire Qté/Unité/Nom/Supplemental
             val parsed = IngredientParser.parse(rawName)
             val nameToStore = parsed.name
             
@@ -70,11 +70,13 @@ class RecipeRepository(
             val existing = allExisting.find { normalize(it.name) == normalizedNew }
 
             if (existing == null) {
-                Log.d("RecipeRepository", "Création automatique de l'ingrédient global: $nameToStore")
+                // CORRECTION : On passe maintenant le supplementalInfo (ex: 1 kg) lors de la création de l'ingrédient global
+                Log.d("RecipeRepository", "Création automatique de l'ingrédient global: $nameToStore with info: ${parsed.supplementalInfo ?: "none"}")
                 ingredientDao.insert(Ingredient(
                     name = nameToStore,
                     quantity = parsed.quantity,
-                    unit = parsed.unit
+                    unit = parsed.unit,
+                    supplementalInfo = parsed.supplementalInfo ?: ri.supplementalInfo // On privilégie le parsing frais ou celui déjà dans la liaison
                 ))
             } else {
                 Log.d("RecipeRepository", "L'ingrédient existe déjà: $nameToStore")

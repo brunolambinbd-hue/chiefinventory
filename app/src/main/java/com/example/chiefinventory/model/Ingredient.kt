@@ -20,6 +20,7 @@ data class Ingredient(
     val category: String? = null, // e.g., "Dairy", "Vegetables"
     val expirationDate: Long? = null,
     val description: String? = null,
+    val supplementalInfo: String? = null, // Infos extraites des parenthèses (ex: poids alternatif)
     val imageUri: String? = null,
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
     val imageEmbedding: ByteArray? = null,

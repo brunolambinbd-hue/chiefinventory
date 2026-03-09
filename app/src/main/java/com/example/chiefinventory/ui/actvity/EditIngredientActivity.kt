@@ -21,6 +21,7 @@ import com.example.chiefinventory.ui.viewmodel.EditIngredientViewModel
 import com.example.chiefinventory.ui.viewmodel.ViewModelFactory
 import com.example.chiefinventory.utils.BitmapUtils
 import com.example.chiefinventory.utils.ImageCaptureUtil
+import com.example.chiefinventory.utils.IngredientParser
 import com.example.chiefinventory.utils.TextRecognitionHelper
 import kotlinx.coroutines.launch
 
@@ -109,17 +110,27 @@ class EditIngredientActivity : AppCompatActivity() {
                 if (!extractedOcrText.isNullOrBlank()) {
                     val lines = extractedOcrText!!.lines()
                         .map { it.trim() }
-                        .filter { it.length > 2 }
-                        .filter { !it.contains(Regex("[0-9]{8,13}")) }
+                        .filter { it.length > 2 && !it.contains(Regex("[0-9]{8,13}")) }
 
-                    val suggestedName = lines.firstOrNull { line ->
-                        !line.contains(Regex("\\d+\\s*(g|kg|ml|l|%)", RegexOption.IGNORE_CASE)) &&
-                        !line.contains(Regex("\\d{2}[/. ]\\d{2}[/. ]\\d{2,4}"))
-                    }
+                    val ingredientLine = lines.firstOrNull { it.matches(Regex(".*\\d.*[a-zA-Z].*")) } ?: lines.firstOrNull()
 
-                    if (binding.etName.text.isNullOrBlank() && suggestedName != null) {
-                        binding.etName.setText(suggestedName)
-                        Toast.makeText(this@EditIngredientActivity, "Nom détecté : $suggestedName", Toast.LENGTH_SHORT).show()
+                    if (ingredientLine != null) {
+                        val parsedIngredient = IngredientParser.parse(ingredientLine)
+                        Log.d("OCR_DEBUG", "Parsed from OCR: $parsedIngredient") // LOG 1
+
+                        if (binding.etName.text.isNullOrBlank()) {
+                            binding.etName.setText(parsedIngredient.name)
+                        }
+                        if (binding.etQuantity.text.isNullOrBlank()) {
+                            binding.etQuantity.setText(parsedIngredient.quantity?.toString() ?: "")
+                        }
+                        if (binding.etUnit.text.isNullOrBlank()) {
+                            binding.etUnit.setText(parsedIngredient.unit ?: "")
+                        }
+                        if (binding.etSupplementalInfo.text.isNullOrBlank()) {
+                            binding.etSupplementalInfo.setText(parsedIngredient.supplementalInfo ?: "")
+                        }
+                        Toast.makeText(this@EditIngredientActivity, "Ingrédient détecté !", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
@@ -129,9 +140,11 @@ class EditIngredientActivity : AppCompatActivity() {
     }
 
     private fun updateUI(ingredient: Ingredient) {
+        Log.d("OCR_DEBUG", "Updating UI with supplementalInfo: ${ingredient.supplementalInfo}") // LOG 3
         binding.etName.setText(ingredient.name)
         binding.etQuantity.setText(ingredient.quantity?.toString() ?: "")
         binding.etUnit.setText(ingredient.unit ?: "")
+        binding.etSupplementalInfo.setText(ingredient.supplementalInfo ?: "")
         binding.etDescription.setText(ingredient.description ?: "")
         ingredient.imageUri?.let {
             binding.ivIngredient.isVisible = true
@@ -147,11 +160,15 @@ class EditIngredientActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
+            val supplementalInfoFromUi = binding.etSupplementalInfo.text.toString()
+            Log.d("OCR_DEBUG", "Saving supplementalInfo from UI: $supplementalInfoFromUi") // LOG 2
+
             val embedding = newBitmap?.let { viewModel.calculateSignature(it) } ?: currentIngredient?.imageEmbedding
             val ingredient = (currentIngredient ?: Ingredient(name = "")).copy(
                 name = name,
                 quantity = binding.etQuantity.text.toString().toDoubleOrNull(),
                 unit = binding.etUnit.text.toString(),
+                supplementalInfo = supplementalInfoFromUi,
                 description = binding.etDescription.text.toString(),
                 imageUri = viewModel.imageUri.value?.toString() ?: currentIngredient?.imageUri,
                 imageEmbedding = embedding,

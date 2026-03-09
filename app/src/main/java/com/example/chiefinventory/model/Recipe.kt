@@ -24,14 +24,3 @@ data class Recipe(
     val source: String? = null, // New field for origin (hotel, website, book)
     val updatedAt: Long = System.currentTimeMillis()
 ) : Parcelable
-
-@Entity(
-    tableName = "recipe_ingredients",
-    primaryKeys = ["recipeId", "ingredientName"]
-)
-data class RecipeIngredient(
-    val recipeId: Long,
-    val ingredientName: String,
-    val quantityRequired: Double? = null,
-    val unit: String? = null
-)
