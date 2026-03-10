@@ -25,7 +25,7 @@ import com.example.chiefinventory.model.RecipeIngredient
         Recipe::class,
         RecipeIngredient::class
     ],
-    version = 23, // Passage à 23 pour forcer la réparation de la structure
+    version = 24, // Incremented from 23 to 24
     exportSchema = false
 )
 @TypeConverters(com.example.chiefinventory.data.TypeConverters::class)
@@ -36,7 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
 
     companion object {
-        const val DATABASE_VERSION: Int = 23
+        const val DATABASE_VERSION: Int = 24
         const val DATABASE_NAME: String = "chiefinventory_database"
 
         private val MIGRATION_18_19 = object : Migration(18, 19) {
@@ -57,17 +57,14 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        // Gardée pour compatibilité ascendante (21 → 22)
         private val MIGRATION_21_22 = object : Migration(21, 22) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE recipe_ingredients ADD COLUMN supplementalInfo TEXT")
             }
         }
 
-        // Migration robuste pour réparer la structure de recipe_ingredients (22 → 23)
         private val MIGRATION_22_23 = object : Migration(22, 23) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                // 1. Créer la nouvelle table avec la structure EXACTE attendue (id, FK, Index)
                 db.execSQL("""
                     CREATE TABLE recipe_ingredients_new (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -79,19 +76,20 @@ abstract class AppDatabase : RoomDatabase() {
                         FOREIGN KEY(recipeId) REFERENCES recipes(id) ON UPDATE NO ACTION ON DELETE CASCADE
                     )
                 """.trimIndent())
-
-                // 2. Copier les données (on sait que supplementalInfo existe déjà, car on vient de la v22)
                 db.execSQL("""
                     INSERT INTO recipe_ingredients_new (recipeId, ingredientName, quantityRequired, unit, supplementalInfo)
                     SELECT recipeId, ingredientName, quantityRequired, unit, supplementalInfo FROM recipe_ingredients
                 """.trimIndent())
-
-                // 3. Remplacer l'ancienne table
                 db.execSQL("DROP TABLE recipe_ingredients")
                 db.execSQL("ALTER TABLE recipe_ingredients_new RENAME TO recipe_ingredients")
-
-                // 4. Recréer l'index
                 db.execSQL("CREATE INDEX index_recipe_ingredients_recipeId ON recipe_ingredients(recipeId)")
+            }
+        }
+
+        // Migration pour ajouter le temps de repos (23 -> 24)
+        private val MIGRATION_23_24 = object : Migration(23, 24) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE recipes ADD COLUMN restingTimeMinutes INTEGER")
             }
         }
 
@@ -105,7 +103,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .addMigrations(MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, MIGRATION_21_22, MIGRATION_22_23)
+                .addMigrations(MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24)
                 .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance

@@ -204,7 +204,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="4dp"
-                    android:hint="Prép (min)">
+                    android:hint="Prép(min)">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_prep_time"
@@ -219,7 +219,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
-                    android:hint="Cuisson (min)">
+                    android:layout_marginEnd="4dp"
+                    android:hint="Cuis(min)">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_cook_time"
@@ -233,7 +234,23 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:hint="Repos(min)">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_resting_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.8"
+                    android:layout_marginStart="4dp"
                     android:hint="Pers.">
 
                     <com.google.android.material.textfield.TextInputEditText

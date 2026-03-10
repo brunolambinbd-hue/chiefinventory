@@ -16,6 +16,7 @@ data class Recipe(
     val instructions: String? = null,
     val preparationTimeMinutes: Int? = null,
     val cookingTimeMinutes: Int? = null,
+    val restingTimeMinutes: Int? = null, // Nouveau champ : Temps de repos en minutes
     val servings: Int? = null,
     val category: String? = null,
     val imageUri: String? = null,
