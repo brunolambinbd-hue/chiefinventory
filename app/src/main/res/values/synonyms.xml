@@ -17,6 +17,7 @@
         <item>marseille</item>
         <item>lyon</item>
         <item>nantes</item>
+        <item>chef</item>
     </string-array>
 
     <string-array name="menu_category_keywords">

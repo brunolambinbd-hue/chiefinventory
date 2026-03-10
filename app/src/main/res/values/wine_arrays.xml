@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="wine_appellations">
+        <item>muscat</item>
         <item>saumur</item>
         <item>saumir</item>
         <item>chablis</item>

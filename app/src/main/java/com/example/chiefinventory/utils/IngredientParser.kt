@@ -58,6 +58,7 @@ object IngredientParser {
             
             // Correction robuste du chiffre 1 mal lu (l, I, |, !)
             // Fonctionne au début, après un espace ou après une parenthèse
+            // Supporte maintenant le cas collé (ex: |melon -> 1melon)
             .replace(Regex("(?<=[\\s(]|^)[|Il!|](?=\\s+[a-zA-Z])"), "1")
             
             .replace(Regex("^[|Il!](?=\\s*\\d)"), "1")
@@ -87,10 +88,17 @@ object IngredientParser {
         cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\."), "1 c.")
         
         // Normalisation de "c à", "c.à", "cà" en "c. à"
-        cleaned = cleaned.replace(Regex("(?i)\\bc\\.?\\s*[àa]\\b"), "c. à")
+        cleaned = cleaned.replace(Regex("(?i)\\bc\\.?\\s*[àa](?!\\w)"), "c. à")
         
-        // Correction de "supe" en "soupe" après "c. à"
-        cleaned = cleaned.replace(Regex("(?i)c\\.\\s*à\\s+supe\\b"), "c. à soupe")
+        // Correction de "c. àfé" en "café" (OCR a confondu "ca" avec "c. à")
+        cleaned = cleaned.replace(Regex("(?i)c\\.?\\s*àfé\\b"), "café")
+
+        // Correction de "supe" ou "sope" en "soupe" après "c. à" ou isolés
+        cleaned = cleaned.replace(Regex("(?i)\\b(supe|sope)(s?)\\b"), "soupe$2")
+        cleaned = cleaned.replace(Regex("(?i)c\\.\\s*à\\s+(supe|sope)\\b"), "c. à soupe")
+        
+        // Correction de "orevettes" en "crevettes"
+        cleaned = cleaned.replace(Regex("(?i)\\borevettes?\\b"), "crevettes")
         
         // Correction de "facultari" en "facultatif"
         cleaned = cleaned.replace(Regex("(?i)\\bfacultari\\b"), "facultatif")
@@ -103,11 +111,19 @@ object IngredientParser {
 
         cleaned = cleaned.replace(Regex("^1\\s*12\\b"), "1/2")
         cleaned = cleaned.replace(Regex("^1\\s*14\\b"), "1/4")
+        
+        // Correction des fractions 1/2 lues comme 112, ll2, etc. (support du pipe |)
+        cleaned = cleaned.replace(Regex("(?i)\\b[1Il!|]{2}2\\b"), "1/2")
+        cleaned = cleaned.replace(Regex("(?i)\\b[1Il!|]{2}4\\b"), "1/4")
+        
         cleaned = cleaned.replace(Regex("(?i)\\b[1Il!]{1,2}[I|!l]2\\b"), "1/2")
         cleaned = cleaned.replace(Regex("(?i)\\b[1Il!]{1,2}[I|!l]4\\b"), "1/4")
         
-        // Correction de 12 lu à la place de 1/2 devant un nom singulier (ex: 12 citron -> 1/2 citron)
-        cleaned = cleaned.replace(Regex("(?i)\\b12\\s+(citron|avocat|orange|oignon|gousse|pamplemousse)\\b(?!s)"), "1/2 $1")
+        // Correction de "U2" ou "W2" lu à la place de 1/2
+        cleaned = cleaned.replace(Regex("(?i)\\b[UW]2\\b"), "1/2")
+        
+        // Correction de 12 ou 112 lu à la place de 1/2 devant un nom singulier
+        cleaned = cleaned.replace(Regex("(?i)\\b11?2\\s+(citron|avocat|orange|oignon|gousse|pamplemousse)\\b(?!s)"), "1/2 $1")
 
         return cleaned.trim()
     }
