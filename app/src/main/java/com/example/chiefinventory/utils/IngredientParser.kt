@@ -16,7 +16,7 @@ object IngredientParser {
 
     // Changement en internal pour être accessible par OcrCategorizer
     internal val units = listOf(
-        "g", "kg", "ml", "l", "cl", "dl", 
+        "g", "kg", "ml", "l", "cl", "dl", "litre", "litres",
         "cuillère", "cuillères", "c. à soupe", "c à soupe", "c.à soupe", "c. a soupe", "c a soupe",
         "c. à café", "c à café", "c.à café", "c. a café", "c a café",
         "càs", "càc", "c. à s.", "c. à c.",
@@ -33,6 +33,19 @@ object IngredientParser {
      */
     fun preClean(input: String): String {
         var cleaned = input.trim()
+            // Correction des accents mal lus par l'OCR (ex: ế -> é)
+            .replace('ế', 'é')
+            .replace('ề', 'è')
+            .replace('ệ', 'é')
+            .replace('ẹ', 'e')
+            // Correction pour la lettre 'a'
+            .replace('ấ', 'â')
+            .replace('ầ', 'à')
+            .replace('ả', 'a')
+            .replace('ã', 'a')
+            .replace('ặ', 'a')
+            .replace('ậ', 'â')
+
             .replace("±", "")
             .replace("+/-", "")
             .replace("+-", "")
@@ -40,7 +53,6 @@ object IngredientParser {
             .replace(Regex("(?i)\\bt\\b\\s*(?=[\\d|Il!])"), "")
             
             // Correction robuste du chiffre 1 mal lu (l, I, |, !)
-            // Fonctionne au début, après un espace ou après une parenthèse
             .replace(Regex("(?<=[\\s(]|^)[|Il!|](?=\\s+[a-zA-Z])"), "1")
             
             .replace(Regex("^[|Il!](?=\\s*\\d)"), "1")
@@ -62,6 +74,9 @@ object IngredientParser {
         cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\."), "1 c.")
         cleaned = cleaned.replace(Regex("(?i)c\\.\\s*[àa]"), "c. à")
         cleaned = cleaned.replace(Regex("(?i)c\\s+[àa]"), "c. à")
+        
+        // Correction de "supe" en "soupe" après "c. à"
+        cleaned = cleaned.replace(Regex("(?i)c\\.\\s*à\\s+supe\\b"), "c. à soupe")
 
         cleaned = cleaned.replace(Regex("(\\d)([a-zA-Z])"), "$1 $2")
 

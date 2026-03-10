@@ -15,8 +15,31 @@ object RecipeOcrParser {
         Log.d(TAG, "OCR TEXT ANALYZED:\n$fullText")
         
         val processedText = fullText.replace("|", "\n|")
-        val lines = processedText.lines().map { it.trim() }.filter { it.isNotBlank() }
+        var lines = processedText.lines().map { it.trim() }.filter { it.isNotBlank() }
         if (lines.isEmpty()) return RecipeOcrResult()
+
+        // --- FILTRAGE PUBLICITAIRE EN AMONT ---
+        val adExclusions = try {
+            res.getStringArray(R.array.advertisement_exclusions).toList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+        if (adExclusions.isNotEmpty()) {
+            lines = lines.filter { line ->
+                val isAd = adExclusions.any { adPattern ->
+                    try {
+                        // On traite chaque entrée comme une Regex pour supporter les variations [éėeè]
+                        Regex(adPattern, RegexOption.IGNORE_CASE).containsMatchIn(line)
+                    } catch (e: Exception) {
+                        // Si ce n'est pas une regex valide, on fait une comparaison textuelle simple
+                        line.contains(adPattern, ignoreCase = true)
+                    }
+                }
+                if (isAd) Log.d(TAG, "LIGNE PUBLICITAIRE SUPPRIMÉE: $line")
+                !isAd
+            }
+        }
 
         // 1. IDENTIFICATION DU TITRE - Supprimée pour éviter la capture de mots orphelins
         val titleIndex = -1

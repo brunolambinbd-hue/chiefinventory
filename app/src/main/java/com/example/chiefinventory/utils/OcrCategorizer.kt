@@ -44,12 +44,16 @@ object OcrCategorizer {
         val instructionHeaderKeywords = listOf("préparation", "instructions", "étapes", "réalisation", "méthode", "progression")
         val ingredientHeaderKeywords = listOf("ingrédients", "ingredients", "composition")
 
+        // Nouveaux headers demandés
+        val preparationHeaderKeywords = listOf("Preparation", "preparation", "préparation")
+        val cookingHeaderKeywords = listOf("Cuisson", "cuisson")
+
         val stepStartRegex = Regex("^\\s*(?:[•\\-*]|(?:${(stepActionKeywords + stepConnectors + extraVerbs).joinToString("|")})\\b)", RegexOption.IGNORE_CASE)
         val containsActionRegex = Regex("\\b(?:${(stepActionKeywords + stepConnectors + extraVerbs).joinToString("|")})\\b", RegexOption.IGNORE_CASE)
-        
+
         // Ajout de un/une dans la détection des quantités
         val qtyRegex = Regex("^(?:[|Il!\\d\\-*•¼½¾]|un\\b|une\\b)", RegexOption.IGNORE_CASE)
-        
+
         val servingsRegex = Regex("(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)", RegexOption.IGNORE_CASE)
         val alternateServingsRegex = Regex("(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)", RegexOption.IGNORE_CASE)
 
@@ -83,11 +87,14 @@ object OcrCategorizer {
 
             // D. BASCULES ET REMPLISSAGE
             val containsAction = containsActionRegex.containsMatchIn(trimmedLine)
-            
+
             // Un Header doit être court et NE PAS contenir d'action narrative
-            val isInstructionHeader = instructionHeaderKeywords.any { lowerLine.contains(it) } && 
+            val isInstructionHeader = (instructionHeaderKeywords.any { lowerLine.contains(it) } ||
+                                      preparationHeaderKeywords.any { trimmedLine.contains(it) } ||
+                                      cookingHeaderKeywords.any { trimmedLine.contains(it) }) &&
                                      trimmedLine.length < 25 && !containsAction
-            val isIngredientHeader = ingredientHeaderKeywords.any { lowerLine.contains(it) } && 
+
+            val isIngredientHeader = ingredientHeaderKeywords.any { lowerLine.contains(it) } &&
                                     trimmedLine.length < 25 && !containsAction
 
             if (isInstructionHeader) { currentSection = 2; Log.d(TAG, "Section INSTRUCTIONS détectée"); continue }
@@ -96,15 +103,15 @@ object OcrCategorizer {
             val matchesStepStart = stepStartRegex.containsMatchIn(trimmedLine)
             val lineWithoutBullet = trimmedLine.replace(Regex("^[•\\-*]\\s*"), "")
             val lowerWithoutBullet = lineWithoutBullet.lowercase()
-            
+
             // Vérification si la ligne commence par une unité connue (ex: "brins")
             val startsWithUnit = IngredientParser.units.any { unit ->
-                lowerWithoutBullet.startsWith(unit.lowercase()) && 
+                lowerWithoutBullet.startsWith(unit.lowercase()) &&
                 (lowerWithoutBullet.length == unit.length || !lowerWithoutBullet[unit.length].isLetter())
             }
-            
+
             // Détection si la ligne ressemble à un ingrédient
-            val looksLikeIngredient = qtyRegex.containsMatchIn(lineWithoutBullet.take(8)) || 
+            val looksLikeIngredient = qtyRegex.containsMatchIn(lineWithoutBullet.take(8)) ||
                                      commonIngredientsNoQty.any { lowerWithoutBullet.startsWith(it.lowercase()) } ||
                                      startsWithUnit
 
@@ -134,13 +141,13 @@ object OcrCategorizer {
                 }
                 2 -> {
                     val lastInstruction = results.rawInstructionsList.lastOrNull()
-                    val isNarrativeContinuation = lastInstruction != null && 
-                                                !lastInstruction.trim().endsWith(".") && 
+                    val isNarrativeContinuation = lastInstruction != null &&
+                                                !lastInstruction.trim().endsWith(".") &&
                                                 !lastInstruction.trim().endsWith("!") &&
                                                 !lastInstruction.trim().endsWith("?")
 
                     val startsWithQty = qtyRegex.containsMatchIn(lineWithoutBullet.take(8))
-                    val startsWithKnownIngredient = commonIngredientsNoQty.any { 
+                    val startsWithKnownIngredient = commonIngredientsNoQty.any {
                         lowerWithoutBullet.startsWith(it.lowercase()) && (lineWithoutBullet.length == it.length || !lineWithoutBullet[it.length].isLetter())
                     }
                     val isStrictIngredient = startsWithQty || startsWithKnownIngredient || startsWithUnit
@@ -162,7 +169,7 @@ object OcrCategorizer {
                     Log.d(TAG, "LIGNE EXCLUE (bruit): $trimmedLine")
                     continue
                 }
-                
+
                 // Par défaut, si non géré et non exclu
                 if (trimmedLine.length < 45 || looksLikeIngredient) {
                     results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(trimmedLine, commonIngredientsNoQty))
