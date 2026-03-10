@@ -38,13 +38,17 @@ object IngredientParser {
             .replace('ề', 'è')
             .replace('ệ', 'é')
             .replace('ẹ', 'e')
-            // Correction pour la lettre 'a'
+            
+            // Correction pour la lettre 'a' (variantes OCR courantes)
             .replace('ấ', 'â')
             .replace('ầ', 'à')
             .replace('ả', 'a')
             .replace('ã', 'a')
             .replace('ặ', 'a')
             .replace('ậ', 'â')
+            .replace('ắ', 'a')
+            .replace('ằ', 'à')
+            .replace('ạ', 'a')
 
             .replace("±", "")
             .replace("+/-", "")
@@ -53,13 +57,19 @@ object IngredientParser {
             .replace(Regex("(?i)\\bt\\b\\s*(?=[\\d|Il!])"), "")
             
             // Correction robuste du chiffre 1 mal lu (l, I, |, !)
+            // Fonctionne au début, après un espace ou après une parenthèse
             .replace(Regex("(?<=[\\s(]|^)[|Il!|](?=\\s+[a-zA-Z])"), "1")
             
             .replace(Regex("^[|Il!](?=\\s*\\d)"), "1")
+            // Correction des fractions type l/2 ou I/2 même au milieu du texte
             .replace(Regex("(?i)\\b[|Il!](?=/)"), "1")
             .replace(Regex("^[|Il!]\\s+(?=[a-zA-Z])"), "1 ")
             
             .replace(Regex("\\s+\\|\\s+"), " 1 ")
+            .replace(Regex("(?i)\\bdel\\b"), "de 1")
+            
+            // Correction de "Ldeau" (1 litre d'eau fusionné)
+            .replace(Regex("(?i)\\bld['’]?eau\\b"), "1 l d'eau")
 
         cleaned = cleaned.replace(Regex("^1\\s+e\\s+"), "le ")
         cleaned = cleaned.replace(Regex("^[T1]['’]"), "l'")
@@ -70,13 +80,24 @@ object IngredientParser {
         cleaned = cleaned.replace(Regex("d['’]\\s+"), "d'")
         cleaned = cleaned.replace(Regex("(?i)\\beuf(s?)\\b"), "oeuf$1")
 
+        // Correction des préfixes de cuillères (lc, 1c, !c, |c) même si collés à "à"
+        cleaned = cleaned.replace(Regex("(?i)\\b[1Il!|]c(?=[àa\\s\\.])"), "1 c")
+
         cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\b"), "1 c")
         cleaned = cleaned.replace(Regex("(?i)^[Il!]c\\."), "1 c.")
-        cleaned = cleaned.replace(Regex("(?i)c\\.\\s*[àa]"), "c. à")
-        cleaned = cleaned.replace(Regex("(?i)c\\s+[àa]"), "c. à")
+        
+        // Normalisation de "c à", "c.à", "cà" en "c. à"
+        cleaned = cleaned.replace(Regex("(?i)\\bc\\.?\\s*[àa]\\b"), "c. à")
         
         // Correction de "supe" en "soupe" après "c. à"
         cleaned = cleaned.replace(Regex("(?i)c\\.\\s*à\\s+supe\\b"), "c. à soupe")
+        
+        // Correction de "facultari" en "facultatif"
+        cleaned = cleaned.replace(Regex("(?i)\\bfacultari\\b"), "facultatif")
+        
+        // Normalisation de la casse pour les unités classiques
+        cleaned = cleaned.replace(Regex("(?i)\\bc\\.\\s*à\\s*soupe\\b"), "c. à soupe")
+        cleaned = cleaned.replace(Regex("(?i)\\bc\\.\\s*à\\s*café\\b"), "c. à café")
 
         cleaned = cleaned.replace(Regex("(\\d)([a-zA-Z])"), "$1 $2")
 
@@ -84,6 +105,9 @@ object IngredientParser {
         cleaned = cleaned.replace(Regex("^1\\s*14\\b"), "1/4")
         cleaned = cleaned.replace(Regex("(?i)\\b[1Il!]{1,2}[I|!l]2\\b"), "1/2")
         cleaned = cleaned.replace(Regex("(?i)\\b[1Il!]{1,2}[I|!l]4\\b"), "1/4")
+        
+        // Correction de 12 lu à la place de 1/2 devant un nom singulier (ex: 12 citron -> 1/2 citron)
+        cleaned = cleaned.replace(Regex("(?i)\\b12\\s+(citron|avocat|orange|oignon|gousse|pamplemousse)\\b(?!s)"), "1/2 $1")
 
         return cleaned.trim()
     }

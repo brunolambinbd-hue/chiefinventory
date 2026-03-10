@@ -8,7 +8,7 @@
         <item>champagne</item>
         <item>pauillac</item>
         <item>margaux</item>
-        <item>saint-[éėeè]milion</item>
+        <item>saint-emilion</item>
         <item>pomerol</item>
         <item>gigondas</item>
         <item>chinon</item>
@@ -17,10 +17,13 @@
     </string-array>
 
     <string-array name="wine_producers">
-        <item>alban de saint-p[éėeè]</item>
-        <item>alban de saint-pr[éėeè]</item>
+        <item>alban de saint-pé</item>
+        <item>alban de saint-pe</item>
+        <item>alban de saint-pré</item>
+        <item>alban de saint-pre</item>
         <item>pfaffenheim</item>
-        <item>Atinum</item>
+        <item>atinium</item>
+        <item>atinum</item>
     </string-array>
 
     <string-array name="wine_keywords">
@@ -33,7 +36,7 @@
         <item>bulgarie</item>
         <item>italie</item>
         <item>espagne</item>
-        <item>c[éėeè]page</item>
+        <item>cépage</item>
         <item>region</item>
         <item>chardonnay</item>
         <item>sauvignon</item>
@@ -42,7 +45,9 @@
         <item>vol</item>
         <item>75cl</item>
         <item>75 cl</item>
--        <item>m.o.</item>
+        <item>m.o.</item>
+        <item>château</item>
+        <item>chateau</item>
     </string-array>
 
     <string-array name="wine_title_keywords">
@@ -52,16 +57,14 @@
         <item>boire</item>
         <item>servir avec</item>
         <item>notre vin</item>
-        <item>vin conseill[éėeè]</item>
-        <item>vin suggér[éėeè]</item>
+        <item>vin conseillé</item>
+        <item>vin suggéré</item>
         <item>m.o.</item>
-        <!-- Variantes simplifiées pour la détection -->
-        <item>conseill[éėeè]</item>
-        <item>conseill[éėeè]</item>
-        <item>sugg[éėeè]r[éėeè]</item>
-        <item>sugger[éėeè]</item>
-        <item>recommand[éėeè]</item>
-        <item>recommand[éėeè]</item>
+        <item>conseillé</item>
+        <item>suggéré</item>
+        <item>recommandé</item>
+        <item>château</item>
+        <item>chateau</item>
     </string-array>
 
     <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage robuste) -->

@@ -3,6 +3,7 @@
     <string-array name="common_ingredients_no_qty">
         <item>sel</item>
         <item>poivre</item>
+        <item>sel et poivre</item>
         <item>persil</item>
         <item>haché</item>
         <item>tabasco</item>
@@ -13,5 +14,8 @@
         <item>huile d\'olive</item>
         <item>moutarde</item>
         <item>mayonnaise</item>
+        <item>thym</item>
+        <item>du thym et du romarin</item>
+        <item>romarin</item>
     </string-array>
 </resources>

@@ -152,7 +152,9 @@ object OcrCategorizer {
                     }
                     val isStrictIngredient = startsWithQty || startsWithKnownIngredient || startsWithUnit
 
-                    if (isStrictIngredient && !containsAction && !isNarrativeContinuation && trimmedLine.length < 45 && !matchesStepStart) {
+                    // LEVIER 2 : On assouplit la récupération.
+                    // Si c'est un ingrédient strict sans verbe d'action, on le récupère même si la phrase précédente n'avait pas de point (ou si la ligne est courte).
+                    if (isStrictIngredient && !containsAction && (trimmedLine.length < 35 || !isNarrativeContinuation) && !matchesStepStart) {
                         results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(trimmedLine, commonIngredientsNoQty))
                         Log.d(TAG, "INGRÉDIENT (récupération): $trimmedLine")
                     } else {
