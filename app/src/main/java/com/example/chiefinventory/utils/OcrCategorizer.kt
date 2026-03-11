@@ -12,7 +12,10 @@ data class RawSections(
     val rawInstructionsList: MutableList<String> = mutableListOf(),
     val detectedWineList: MutableList<String> = mutableListOf(),
     val detectedSourceList: MutableList<String> = mutableListOf(),
-    var detectedServings: String? = null
+    var detectedServings: String? = null,
+    var detectedPrepTime: String? = null,
+    var detectedCookTime: String? = null,
+    var detectedRestingTime: String? = null
 )
 
 /**
@@ -39,7 +42,16 @@ object OcrCategorizer {
         val commonIngredientsNoQty = res.getStringArray(R.array.common_ingredients_no_qty).toList()
         val excludedKeywords = res.getStringArray(R.array.excluded_ocr_keywords).toList()
         val stepConnectors = listOf("puis", "ensuite", "enfin", "après", "apres", "alors", "pendant", "dans")
-        val extraVerbs = listOf("plongez", "retirez", "hachez", "ajoutez", "servez", "assaisonnez", "faites", "coupez", "mélangez", "préparez", "décorez", "répartissez", "passez", "prélevez", "lavez")
+        
+        val extraVerbs = listOf(
+            "plongez", "retirez", "hachez", "ajoutez", "servez", "assaisonnez", "faites", "coupez", 
+            "mélangez", "préparez", "décorez", "répartissez", "passez", "prélevez", "lavez",
+            "mixez", "laissez", "réservez", "poursuivez", "versez", "chauffez", "étalez", "badigeonnez",
+            "égouttez", "egouttez", "disposez", "déposez", "deposez", "garnissez", "nappez", "parsemez",
+            "enfournez", "mettez", "posez", "étuvez", "écrasez", "ecrasez", "écalez", "ecalez", "extrayez"
+        )
+
+        val allActionVerbs = (stepActionKeywords + extraVerbs).distinct()
 
         val instructionHeaderKeywords = listOf("préparation", "instructions", "étapes", "réalisation", "méthode", "progression")
         val ingredientHeaderKeywords = listOf("ingrédients", "ingredients", "composition")
@@ -48,18 +60,36 @@ object OcrCategorizer {
         val preparationHeaderKeywords = listOf("Preparation", "preparation", "préparation")
         val cookingHeaderKeywords = listOf("Cuisson", "cuisson")
 
-        val stepStartRegex = Regex("^\\s*(?:[•\\-*]|(?:${(stepActionKeywords + stepConnectors + extraVerbs).joinToString("|")})\\b)", RegexOption.IGNORE_CASE)
-        val containsActionRegex = Regex("\\b(?:${(stepActionKeywords + stepConnectors + extraVerbs).joinToString("|")})\\b", RegexOption.IGNORE_CASE)
+        // Regex améliorée pour détecter les débuts d'étapes (autorise un espace après la puce)
+        val stepStartRegex = Regex("^\\s*(?:[•\\-*]\\s*|\\d+[.)]?\\s+)?(?:${(allActionVerbs + stepConnectors).joinToString("|")})\\b", RegexOption.IGNORE_CASE)
+        val containsActionRegex = Regex("\\b(?:${allActionVerbs.joinToString("|")})\\b", RegexOption.IGNORE_CASE)
 
-        // Ajout de un/une dans la détection des quantités
         val qtyRegex = Regex("^(?:[|Il!\\d\\-*•¼½¾]|un\\b|une\\b)", RegexOption.IGNORE_CASE)
-
         val servingsRegex = Regex("(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)", RegexOption.IGNORE_CASE)
         val alternateServingsRegex = Regex("(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)", RegexOption.IGNORE_CASE)
 
         for ((index, line) in lines.withIndex()) {
             val trimmedLine = line.trim()
             val lowerLine = trimmedLine.lowercase()
+            val containsAction = containsActionRegex.containsMatchIn(trimmedLine)
+
+            // 1. DÉTECTION DES TEMPS (Priorité Haute, sécurisée si pas d'action longue)
+            val isPrep = lowerLine.contains(Regex("préparation|prep\\.?"))
+            val isCook = lowerLine.contains(Regex("cuisson|cuis\\.?"))
+            val isRest = lowerLine.contains(Regex("repos|rest\\.?"))
+            
+            if (!containsAction && (isPrep || isCook || isRest) && trimmedLine.length < 40 && trimmedLine.any { it.isDigit() }) {
+                val mins = extractMinutes(trimmedLine)
+                if (mins != null) {
+                    when {
+                        isPrep -> results.detectedPrepTime = mins
+                        isCook -> results.detectedCookTime = mins
+                        isRest -> results.detectedRestingTime = mins
+                    }
+                    Log.d(TAG, "TIME détecté: $trimmedLine -> $mins min")
+                    continue
+                }
+            }
 
             // A. PORTIONS (Priorité haute)
             val sMatch = servingsRegex.find(trimmedLine) ?: alternateServingsRegex.find(trimmedLine)
@@ -69,8 +99,8 @@ object OcrCategorizer {
                 continue
             }
 
-            // B. VIN
-            if (WineParser.isWineLine(trimmedLine, wineRes)) {
+            // B. VIN (Sécurisé : on ignore si la ligne contient un verbe d'action clair)
+            if (!containsAction && WineParser.isWineLine(trimmedLine, wineRes)) {
                 val cleanedWine = WineParser.cleanWineLine(trimmedLine, wineRes)
                 results.detectedWineList.add(cleanedWine)
                 Log.d(TAG, "WINE détecté: $cleanedWine")
@@ -86,8 +116,6 @@ object OcrCategorizer {
             }
 
             // D. BASCULES ET REMPLISSAGE
-            val containsAction = containsActionRegex.containsMatchIn(trimmedLine)
-
             // Un Header doit être court et NE PAS contenir d'action narrative
             val isInstructionHeader = (instructionHeaderKeywords.any { lowerLine.contains(it) } ||
                                       preparationHeaderKeywords.any { trimmedLine.contains(it) } ||
@@ -110,15 +138,18 @@ object OcrCategorizer {
                 (lowerWithoutBullet.length == unit.length || !lowerWithoutBullet[unit.length].isLetter())
             }
 
-            // Détection si la ligne ressemble à un ingrédient
-            val looksLikeIngredient = qtyRegex.containsMatchIn(lineWithoutBullet.take(8)) ||
-                                     commonIngredientsNoQty.any { lowerWithoutBullet.startsWith(it.lowercase()) } ||
-                                     startsWithUnit
+            // ** CORRECTION CHIRURGICALE **
+            // Un ingrédient ne peut pas être une instruction qui commence.
+            val looksLikeIngredient = !matchesStepStart && (
+                                         qtyRegex.containsMatchIn(lineWithoutBullet.take(8)) ||
+                                         commonIngredientsNoQty.any { lowerWithoutBullet.startsWith(it.lowercase()) } ||
+                                         startsWithUnit
+                                     )
 
             if (matchesStepStart && !looksLikeIngredient) { currentSection = 2 }
 
             val ingredientSequences = OcrHelperUtils.countIngredientSequences(trimmedLine)
-            if (ingredientSequences >= 2) {
+            if (ingredientSequences >= 2 && !matchesStepStart) {
                 Log.d(TAG, "INGRÉDIENT (bloc compact): $trimmedLine")
                 results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(trimmedLine, commonIngredientsNoQty))
                 continue
@@ -153,7 +184,6 @@ object OcrCategorizer {
                     val isStrictIngredient = startsWithQty || startsWithKnownIngredient || startsWithUnit
 
                     // LEVIER 2 : On assouplit la récupération.
-                    // Si c'est un ingrédient strict sans verbe d'action, on le récupère même si la phrase précédente n'avait pas de point (ou si la ligne est courte).
                     if (isStrictIngredient && !containsAction && (trimmedLine.length < 35 || !isNarrativeContinuation) && !matchesStepStart) {
                         results.rawIngredientsList.addAll(OcrHelperUtils.splitCombinedIngredients(trimmedLine, commonIngredientsNoQty))
                         Log.d(TAG, "INGRÉDIENT (récupération): $trimmedLine")
@@ -183,5 +213,25 @@ object OcrCategorizer {
             }
         }
         return results
+    }
+
+    /**
+     * Extrait les minutes d'une ligne de temps OCR avec conversion heures -> minutes.
+     */
+    private fun extractMinutes(line: String): String? {
+        val hPattern = Regex("(\\d+)\\s*[hH]\\s*(\\d*)")
+        val mPattern = Regex("(\\d+)\\s*(?:mn|min|minute)")
+        
+        hPattern.find(line)?.let { 
+            val hours = it.groupValues[1].toIntOrNull() ?: 0
+            val mins = it.groupValues[2].toIntOrNull() ?: 0
+            return (hours * 60 + mins).toString()
+        }
+        
+        mPattern.find(line)?.let {
+            return it.groupValues[1]
+        }
+        
+        return Regex("(\\d+)").find(line)?.groupValues?.get(1)
     }
 }

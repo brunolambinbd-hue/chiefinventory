@@ -36,10 +36,16 @@ object WineParser {
         // Rule: Year + Volume is a very strong indicator of a wine bottle
         if (wineYearRegex.containsMatchIn(line) && wineVolRegex.containsMatchIn(line)) return true
 
-        return resources.appellations.any { lowerLine.contains(it) } ||
-                resources.producers.any { lowerLine.contains(it) } ||
-                resources.keywords.any { lowerLine.contains(it) } ||
-                resources.titleKeywords.any { lowerLine.contains(it) }
+        // Helper to check for whole word matches using Unicode-aware lookarounds
+        fun containsWholeWord(text: String, keyword: String): Boolean {
+            val pattern = Regex("(?<![\\p{L}\\p{N}])${Regex.escape(keyword)}(?![\\p{L}\\p{N}])", RegexOption.IGNORE_CASE)
+            return pattern.containsMatchIn(text)
+        }
+
+        return resources.appellations.any { containsWholeWord(line, it) } ||
+                resources.producers.any { containsWholeWord(line, it) } ||
+                resources.keywords.any { containsWholeWord(line, it) } ||
+                resources.titleKeywords.any { containsWholeWord(line, it) }
     }
 
     fun cleanWineLine(line: String, resources: WineResources): String {
@@ -47,7 +53,7 @@ object WineParser {
         var cleaned = line.replace(wineRemoveRegex, "")
         cleaned = cleaned.replace(extraWineCleanRegex, "").trim()
         cleaned = cleaned.replace(Regex("^[:\\-\\s\\.]+"), "").trim()
-        
+
         return applySpellingCorrections(cleaned)
     }
 
@@ -56,13 +62,13 @@ object WineParser {
      */
     private fun applySpellingCorrections(text: String): String {
         var corrected = text
-        
+
         // Correct "Bordeau" to "Bordeaux" (case-insensitive, word boundary)
         corrected = corrected.replace(Regex("(?i)\\bBordeau\\b"), "Bordeaux")
-        
+
         // Correct "Atinum" to "Atinium" if necessary (based on previous logs)
         corrected = corrected.replace(Regex("(?i)\\bAtinum\\b"), "Atinium")
-        
+
         return corrected
     }
 }

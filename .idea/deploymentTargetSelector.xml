@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-03-09T21:52:41.098466200Z">
+        <DropdownSelection timestamp="2026-03-10T13:45:04.822728400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel_9_-_User_Testing.avd" />
@@ -33,17 +33,6 @@
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel-DevTest.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="RecipeOcrParserInstrumentedTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-03-07T13:49:15.396150600Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel_9_Instrumented_testing.avd" />
             </handle>
           </Target>
         </DropdownSelection>

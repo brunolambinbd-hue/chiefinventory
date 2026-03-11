@@ -9,5 +9,8 @@ data class RecipeOcrResult(
     val instructions: String? = null,
     val wine: String? = null,
     val source: String? = null,
-    val servings: String? = null
+    val servings: String? = null,
+    val prepTime: String? = null,
+    val cookTime: String? = null,
+    val restingTime: String? = null
 )

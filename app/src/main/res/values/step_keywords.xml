@@ -3,45 +3,48 @@
     <string-array name="step_action_keywords">
         <item>faire</item>
         <item>faites</item>
+        <item>Faites</item>
         <item>m[ée]langer</item>
+        <item>m[ée]langez</item>
         <item>couper</item>
+        <item>coupez</item>
         <item>cuire</item>
+        <item>cuisez</item>
         <item>pr[ée]chauffer</item>
         <item>ajouter</item>
+        <item>ajoutez</item>
         <item>pr[ée]levez</item>
         <item>[ée]plucher</item>
         <item>hacher</item>
         <item>[ée]mincer</item>
         <item>verser</item>
+        <item>versez</item>
         <item>fouetter</item>
         <item>incorporer</item>
+        <item>incorporez</item>
         <item>laisser</item>
+        <item>laissez</item>
         <item>mettre</item>
         <item>disposer</item>
+        <item>disposez</item>
         <item>servir</item>
+        <item>servez</item>
         <item>nettoyer</item>
         <item>laver</item>
-        <item>cuisez</item>
-        <item>m[ée]langez</item>
-        <item>coupez</item>
-        <item>versez</item>
-        <item>ajoutez</item>
         <item>battez</item>
         <item>[ée]taler</item>
+        <item>[ée]talez</item>
         <item>saupoudrer</item>
         <item>garnir</item>
-        <item>[ée]talez</item>
         <item>placez</item>
         <item>d[ée]coupez</item>
-        <item>hachez</item>
-        <item>incorporez</item>
         <item>portez</item>
         <item>bouillir</item>
         <item>r[ée]servez</item>
         <item>chauffer</item>
+        <item>chauffez</item>
         <item>badigeonner</item>
         <item>enfourner</item>
-        <item>servez</item>
         <item>dressez</item>
         <item>pr[ée]sentez</item>
         <item>d[ée]corez</item>
@@ -49,5 +52,9 @@
         <item>pr[ée]parez</item>
         <item>vinaigrette</item>
         <item>r[ée]partissez</item>
+        <item>mixez</item>
+        <item>[ée]gouttez</item>
+        <item>[ée]gouttez</item>
+        <item>prélevez</item>
     </string-array>
 </resources>

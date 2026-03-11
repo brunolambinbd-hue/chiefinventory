@@ -26,7 +26,6 @@ import com.example.chiefinventory.utils.ImageCaptureUtil
 import com.example.chiefinventory.utils.RecipeOcrParser
 import com.example.chiefinventory.utils.TextRecognitionHelper
 import com.example.chiefinventory.utils.IngredientParser
-import com.example.chiefinventory.utils.ImageStorageHelper
 import kotlinx.coroutines.launch
 
 class EditRecipeActivity : AppCompatActivity() {
@@ -123,7 +122,6 @@ class EditRecipeActivity : AppCompatActivity() {
         val bitmap = newBitmap ?: return
         lifecycleScope.launch {
             try {
-                // On s'assure d'avoir une String non-nulle pour le parseur
                 val fullText: String = textRecognitionHelper.recognizeText(bitmap) ?: ""
                 val result = RecipeOcrParser.parse(fullText, resources)
                 
@@ -132,6 +130,11 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.etWine.setText(result.wine ?: "")
                 binding.etSource.setText(result.source ?: "")
                 binding.etServings.setText(result.servings ?: "")
+                
+                // AJOUT : Remplissage des champs de temps
+                binding.etPrepTime.setText(result.prepTime ?: "")
+                binding.etCookTime.setText(result.cookTime ?: "")
+                binding.etRestingTime.setText(result.restingTime ?: "")
                 
                 Toast.makeText(this@EditRecipeActivity, "Scan terminé", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {

@@ -12,8 +12,9 @@ object OcrHelperUtils {
     internal fun countIngredientSequences(line: String): Int {
         // On cherche des nombres (ou variantes OCR) qui NE sont PAS précédés par des connecteurs
         // ET qui ne sont PAS suivis par des unités techniques.
+        // On remplace \b par (?:^|(?<=\s)) pour supporter les caractères non-word comme | ou !
         val qtyPattern = "(?:\\d+|[1Il!|])"
-        val pattern = Regex("(?<!(?:ou|à|-|et|sur)\\s)\\b$qtyPattern\\s+(?!(?:mm|cm|min|sec)\\b)[a-zA-Z]", RegexOption.IGNORE_CASE)
+        val pattern = Regex("(?<!(?:ou|et|sur)\\s)(?:^|(?<=\\s))$qtyPattern\\s+(?!(?:mm|cm|min|sec)\\b)[a-zA-Z]", RegexOption.IGNORE_CASE)
         
         // On filtre les séquences qui sont à l'intérieur de parenthèses
         return pattern.findAll(line).count { match ->

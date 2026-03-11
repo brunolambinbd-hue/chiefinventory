@@ -29,10 +29,8 @@ object RecipeOcrParser {
             lines = lines.filter { line ->
                 val isAd = adExclusions.any { adPattern ->
                     try {
-                        // On traite chaque entrée comme une Regex pour supporter les variations [éėeè]
                         Regex(adPattern, RegexOption.IGNORE_CASE).containsMatchIn(line)
                     } catch (e: Exception) {
-                        // Si ce n'est pas une regex valide, on fait une comparaison textuelle simple
                         line.contains(adPattern, ignoreCase = true)
                     }
                 }
@@ -66,7 +64,10 @@ object RecipeOcrParser {
             instructions = finalInstructions.joinToString("\n"),
             wine = if (sections.detectedWineList.isNotEmpty()) sections.detectedWineList.joinToString(" ") else null,
             source = if (sections.detectedSourceList.isNotEmpty()) sections.detectedSourceList.joinToString(", ") else null,
-            servings = sections.detectedServings
+            servings = sections.detectedServings,
+            prepTime = sections.detectedPrepTime,
+            cookTime = sections.detectedCookTime,
+            restingTime = sections.detectedRestingTime
         )
     }
 }
