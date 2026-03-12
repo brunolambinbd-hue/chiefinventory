@@ -8,6 +8,24 @@
         <item>m[ée]langez</item>
         <item>couper</item>
         <item>coupez</item>
+        <item>étuvez</item>
+        <item>éplucher</item>
+        <item>épluchez</item>
+        <item>pelez</item>
+        <item>peler</item>
+        <item>roulez</item>
+        <item>rouler</item>
+        <item>delayez</item>
+        <item>délayez</item>
+        <item>délayer</item>
+        <item>decortiquez</item>
+        <item>distribuez</item>
+        <item>surmontez</item>
+        <item>décorez</item>
+        <item>déposez</item>
+        <item>déposez</item>
+        <item>préparer</item>
+        <item>préparez</item>
         <item>cuire</item>
         <item>cuisez</item>
         <item>pr[ée]chauffer</item>
@@ -27,6 +45,15 @@
         <item>mettre</item>
         <item>disposer</item>
         <item>disposez</item>
+        <item>retirer</item>
+        <item>retire</item>
+        <item>retirer</item>
+        <item>retirer</item>
+        <item>placer</item>
+        <item>placez</item>
+        <item>Placez</item>
+        <item>posez</item>
+        <item>posez</item>
         <item>servir</item>
         <item>servez</item>
         <item>nettoyer</item>
@@ -56,5 +83,6 @@
         <item>[ée]gouttez</item>
         <item>[ée]gouttez</item>
         <item>prélevez</item>
+        <item>nettoyez</item>
     </string-array>
 </resources>

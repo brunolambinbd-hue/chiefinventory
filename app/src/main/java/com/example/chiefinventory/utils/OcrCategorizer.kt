@@ -46,19 +46,19 @@ object OcrCategorizer {
         val extraVerbs = listOf(
             "plongez", "retirez", "hachez", "ajoutez", "servez", "assaisonnez", "faites", "coupez", 
             "mélangez", "préparez", "décorez", "répartissez", "passez", "prélevez", "lavez",
-            "mixez", "laissez", "réservez", "poursuivez", "versez", "chauffez", "étalez", "badigeonnez",
+            "mixez", "laissez", "Laissez", "réservez", "poursuivez", "versez", "chauffez", "étalez", "badigeonnez",
             "égouttez", "egouttez", "disposez", "déposez", "deposez", "garnissez", "nappez", "parsemez",
-            "enfournez", "mettez", "posez", "étuvez", "écrasez", "ecrasez", "écalez", "ecalez", "extrayez"
+            "enfournez", "mettez", "posez", "étuvez", "Etuvez", "écrasez", "ecrasez", "écalez", "ecalez", "extrayez", "nettoyez", "Placez"
         )
 
         val allActionVerbs = (stepActionKeywords + extraVerbs).distinct()
 
-        val instructionHeaderKeywords = listOf("préparation", "instructions", "étapes", "réalisation", "méthode", "progression")
+        val instructionHeaderKeywords = listOf("instructions", "étapes", "réalisation", "méthode", "progression")
         val ingredientHeaderKeywords = listOf("ingrédients", "ingredients", "composition")
 
         // Nouveaux headers demandés
-        val preparationHeaderKeywords = listOf("Preparation", "preparation", "préparation")
-        val cookingHeaderKeywords = listOf("Cuisson", "cuisson")
+        val preparationHeaderKeywords = listOf("Preparation", "preparation", "préparation", "Temps de préparation")
+        val cookingHeaderKeywords = listOf("Cuisson", "cuisson", "Temps de cuisson")
 
         // Regex améliorée pour détecter les débuts d'étapes (autorise un espace après la puce)
         val stepStartRegex = Regex("^\\s*(?:[•\\-*]\\s*|\\d+[.)]?\\s+)?(?:${(allActionVerbs + stepConnectors).joinToString("|")})\\b", RegexOption.IGNORE_CASE)

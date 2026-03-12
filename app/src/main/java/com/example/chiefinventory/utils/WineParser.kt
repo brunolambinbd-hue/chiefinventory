@@ -27,6 +27,7 @@ object WineParser {
             titleKeywords = res.getStringArray(R.array.wine_title_keywords).toList(),
             removePattern = res.getString(R.string.wine_remove_pattern)
         )
+
     }
 
     fun isWineLine(line: String, resources: WineResources): Boolean {
@@ -68,6 +69,8 @@ object WineParser {
 
         // Correct "Atinum" to "Atinium" if necessary (based on previous logs)
         corrected = corrected.replace(Regex("(?i)\\bAtinum\\b"), "Atinium")
+        corrected = corrected.replace(Regex("(?i)\\bChậteau\\b"), "Château")
+
 
         return corrected
     }

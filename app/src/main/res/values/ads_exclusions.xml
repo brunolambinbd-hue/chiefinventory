@@ -2,6 +2,7 @@
 <resources>
     <string-array name="advertisement_exclusions">
         <item>Assiette de présentation disponible dans les Maxi GB</item>
+        <item>Assiette de présentation disponible dans les Maxi GE</item>
         <item>Assiette de pr[éėeè]sentation disponible dans les Maxi GB</item>
         <item>Plat disponible dans les Maxi GB</item>
         <item>GB</item>

@@ -15,6 +15,13 @@
         <item>chinon</item>
         <item>vouvray</item>
         <item>muscadet</item>
+        <item>merlot</item>
+        <item>bourgueil</item>
+        <item>gewurztraminer</item>
+        <item>pinot</item>
+        <item>chardonnay</item>
+        <item>sauvignon</item>
+        <item>touraine</item>
     </string-array>
 
     <string-array name="wine_producers">
@@ -49,6 +56,10 @@
         <item>m.o.</item>
         <item>château</item>
         <item>chateau</item>
+        <item>Chậteau</item>
+        <item>marquèz</item>
+        <item>Marqués</item>
+        <item>Domaine</item>
     </string-array>
 
     <string-array name="wine_title_keywords">
@@ -64,10 +75,10 @@
         <item>conseillé</item>
         <item>suggéré</item>
         <item>recommandé</item>
-        <item>château</item>
-        <item>chateau</item>
     </string-array>
 
     <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage robuste) -->
-    <string name="wine_remove_pattern">^(?:notre\\s+)?vin\\s+(?:conseill[éėeè]|sugg[éėeè]r[éėeè]|recommand[éėeè])?\\s*:?</string>
-</resources>
+    <string name="wine_remove_pattern">
+            ^(?:notre\\s+)?vin\\s+(?:conseill[éėeè]|sugg[éėeè]r[éėeè]|recommand[éėeè])?\\s*:?|^conseil\\s+vin\\s*:?
+    </string>
+    </resources>
