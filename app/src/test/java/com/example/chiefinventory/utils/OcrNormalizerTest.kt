@@ -1,9 +1,12 @@
 package com.example.chiefinventory.utils
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class IngredientParserTest {
+class OcrNormalizerTest {
+
 
     @Test
     fun `getUnits coverage verification`() {
@@ -119,7 +122,7 @@ class IngredientParserTest {
         assertEquals("1/2", OcrNormalizer.normalize("lI2"))
         assertEquals("1/4", OcrNormalizer.normalize("114"))
     }
-//    @Test
+    //    @Test
 //    fun `preClean global test`() {
 //        // Check if OCR misreads like '1 12', '112', or 'lI2' are correctly converted to standard fraction strings '1/2' or '1/4'.
 //        assertEquals("1/2", IngredientParser.preClean("1 12"))
@@ -198,7 +201,7 @@ class IngredientParserTest {
         // Test both comma and dot as decimal separators (e.g., '1,5 kg' and '1.5 kg') yield quantity 1.5.
         val result1 = IngredientParser.parse("1,5 kg")
         assertEquals(1.5, result1.quantity!!, 0.01)
-        
+
         val result2 = IngredientParser.parse("1.5 kg")
         assertEquals(1.5, result2.quantity!!, 0.01)
     }
@@ -219,6 +222,134 @@ class IngredientParserTest {
         assertEquals("", result.name)
         assertNull(result.quantity)
         assertNull(result.unit)
+    }
+    @Test
+    fun `Blank and empty input handling`() {
+        // Verify that empty strings or strings consisting only of whitespace return an empty string.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Vietnamese to French accent mapping`() {
+        // Ensure characters like 'ế', 'ề', 'ệ', 'ẹ', 'ấ', 'ầ', 'ả', 'ã', 'ặ', 'ậ', 'ắ', 'ằ', 'ạ' 
+        // are correctly mapped to their French equivalents like 'é', 'è', 'â', 'à', 'a'.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Tolerance symbol and  environ  removal`() {
+        // Validate that '±', '+/-', '+-' and the word 'environ' (case-insensitive) are removed from the output.
+        // TODO implement test
+    }
+
+    @Test
+    fun `OCR  t  prefix removal before digits`() {
+        // Check if a 't' followed by spaces and a digit/OCR-digit-equivalent is removed.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Misread digit 1 as symbol or letter  T `() {
+        // Test if symbols like '|', 'I', 'l', '!', or 'T' are converted to '1' when followed by letters, 
+        // digits, or slashes, while respecting negative lookbehind for surrounding alphanumeric characters.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Fraction normalization for 1 2`() {
+        // Verify that variants like 'II2', '!!2', 'U2', 'W2', and '1 12' at start of line 
+        // are correctly normalized to '1/2'.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Fraction normalization for 1 4`() {
+        // Verify that variants like 'II4', '!!4', and '1 14' at start of line are correctly normalized to '1/4'.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Fraction context preservation for mid sentence 1 2`() {
+        // Ensure '112' or '12' followed by a word is normalized to '1/2 [word]' specifically for recipe contexts.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Number correction for  del  and  ld eau `() {
+        // Validate that 'del' becomes 'de 1' and 'ld'eau' (or variations with 'ld’eau') 
+        // becomes '1 l d'eau' for liquid measurements.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Article normalization for leading  1 e  and  T  `() {
+        // Check if leading '1 e ' is converted to 'le ' and if 'T'' or '1'' is converted to 'l''.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Linguistic spacing for apostrophes`() {
+        // Ensure a space is added before 'd'' if preceded by a letter, and spaces after 
+        // 'd'' are removed (e.g., 'd'  eau' becomes 'd'eau').
+        // TODO implement test
+    }
+
+    @Test
+    fun `Spelling correction for  oeuf  and  l ajout `() {
+        // Test if 'euf(s)' is corrected to 'oeuf(s)' and 'lajout' is corrected to 'l'ajout'.
+        // TODO implement test
+    }
+
+    @Test
+    fun `OCR correction for  longueur    les   and  gris `() {
+        // Verify that common OCR errors like '1ongueur', '1 es', and 'grib/gri6/gril' 
+        // are corrected to 'longueur', 'les', and 'gris'.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Spoon unit normalization   Soup`() {
+        // Validate that 'cas', 'c. à supe', 'c. à sope', and 'c à soupe' (with various spacing) 
+        // are all normalized to 'c. à soupe'.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Spoon unit normalization   Coffee`() {
+        // Validate that 'cac', 'c. à café', and 'c à fé' are all normalized to 'c. à café'.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Spoon shorthand at line start`() {
+        // Ensure shorthand like 'lc', 'Ic', '!c' at the start of a string is normalized to '1 c'.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Digit and unit separation`() {
+        // Check that a space is injected between a digit and a trailing letter (e.g., '500g' to '500 g').
+        // TODO implement test
+    }
+
+    @Test
+    fun `Whitespace collapse and trimming`() {
+        // Verify that the final output has all internal redundant spaces collapsed to a single 
+        // space and no leading/trailing whitespace.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Negative lookahead lookbehind for isolated fractions`() {
+        // Ensure that 'II2' inside a word like 'HAII2A' is NOT converted to '1/2' 
+        // because of the negative lookbehind/lookahead for letters/numbers.
+        // TODO implement test
+    }
+
+    @Test
+    fun `Case insensitivity check for regex rules`() {
+        // Verify that rules marked with (?i) correctly identify 'DEL', 'ENVIRON', 'CAS', and 'EUF'.
+        // TODO implement test
     }
 
 }

@@ -2,64 +2,50 @@ package com.example.chiefinventory.utils
 
 import android.content.res.Resources
 import android.util.Log
-import com.example.chiefinventory.R
 
 /**
- * Orchestrateur pour le parsing OCR des recettes.
+ * Orchestrateur principal du pipeline OCR.
+ * Connecte le Normalizer, Cleaner, Categorizer et Merger.
  */
 object RecipeOcrParser {
     private const val TAG = "RecipeOCR"
 
+    /**
+     * Point d'entrée principal pour le parsing d'une recette.
+     */
     fun parse(fullText: String, res: Resources): RecipeOcrResult {
-        Log.d(TAG, "--- DÉBUT ANALYSE OCR ---")
-        Log.d(TAG, "OCR TEXT ANALYZED:\n$fullText")
-        
-        val processedText = fullText.replace("|", "\n|")
-        var lines = processedText.lines().map { it.trim() }.filter { it.isNotBlank() }
-        if (lines.isEmpty()) return RecipeOcrResult()
+        Log.d(TAG, "--- DÉBUT PIPELINE OCR ---")
+        Log.d(TAG, "TEXTE ANALYSÉ:\n$fullText")
 
-        // --- FILTRAGE PUBLICITAIRE EN AMONT ---
-        val adExclusions = try {
-            res.getStringArray(R.array.advertisement_exclusions).toList()
-        } catch (e: Exception) {
-            emptyList()
-        }
+        if (fullText.isBlank()) return RecipeOcrResult()
 
-        if (adExclusions.isNotEmpty()) {
-            lines = lines.filter { line ->
-                val isAd = adExclusions.any { adPattern ->
-                    try {
-                        Regex(adPattern, RegexOption.IGNORE_CASE).containsMatchIn(line)
-                    } catch (e: Exception) {
-                        line.contains(adPattern, ignoreCase = true)
-                    }
-                }
-                if (isAd) Log.d(TAG, "LIGNE PUBLICITAIRE SUPPRIMÉE: $line")
-                !isAd
-            }
-        }
+        // 1. Découpage initial des lignes (support du séparateur '|')
+        val rawLines = fullText.replace("|", "\n|")
+            .lines()
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
 
-        // 1. IDENTIFICATION DU TITRE - Supprimée pour éviter la capture de mots orphelins
-        val titleIndex = -1
+        // ÉTAPE 1 : Normalisation (Réparation des caractères et symboles)
+        // Transforme le "bruit machine" en texte français propre.
+        val normalizedLines = rawLines.map { OcrNormalizer.normalize(it) }
 
-        // 2. PARSING DES SECTIONS (Délégué au Categorizer)
-        val sections = OcrCategorizer.categorizeLines(lines, titleIndex, res)
+        // ÉTAPE 2 : Nettoyage (Suppression des publicités et du bruit numérique)
+        // Utilise les listes d'exclusions XML.
+        val cleanedLines = OcrCleaner.clean(normalizedLines, res)
 
-        // 3. FUSION DES INGRÉDIENTS (Délégué au Merger)
-        val finalIngredients = OcrMerger.mergeIngredients(
-            sections.rawIngredientsList, 
-            sections.rawInstructionsList, 
-            res
-        )
+        // ÉTAPE 3 : Catégorisation (Tri sélectif dans les compartiments)
+        // Décide si une ligne est un ingrédient, une instruction, du vin, etc.
+        val sections = OcrCategorizer.categorize(cleanedLines, res)
 
-        // 4. FUSION DES INSTRUCTIONS (Délégué au Merger)
-        val finalInstructions = OcrMerger.mergeInstructions(
-            sections.rawInstructionsList, 
-            res
-        )
+        // ÉTAPE 4 : Fusion (Reconstruction sémantique des phrases)
+        // Gère les césures (tirets) et les retours à la ligne des colonnes étroites.
+        val finalIngredients = OcrMerger.mergeIngredients(sections.rawIngredientsList)
+        val finalInstructions = OcrMerger.mergeInstructions(sections.rawInstructionsList)
+
+        Log.d(TAG, "--- FIN PIPELINE OCR ---")
 
         return RecipeOcrResult(
-            title = null,
+            title = null, // Le titre sera extrait via une logique spatiale ultérieurement
             ingredients = finalIngredients.joinToString("\n"),
             instructions = finalInstructions.joinToString("\n"),
             wine = if (sections.detectedWineList.isNotEmpty()) sections.detectedWineList.joinToString(" ") else null,

@@ -23,9 +23,9 @@ import com.example.chiefinventory.ui.viewmodel.EditRecipeViewModel
 import com.example.chiefinventory.ui.viewmodel.ViewModelFactory
 import com.example.chiefinventory.utils.BitmapUtils
 import com.example.chiefinventory.utils.ImageCaptureUtil
+import com.example.chiefinventory.utils.IngredientParser
 import com.example.chiefinventory.utils.RecipeOcrParser
 import com.example.chiefinventory.utils.TextRecognitionHelper
-import com.example.chiefinventory.utils.IngredientParser
 import kotlinx.coroutines.launch
 
 class EditRecipeActivity : AppCompatActivity() {

@@ -1,137 +1,87 @@
 package com.example.chiefinventory.utils
 
 import android.content.res.Resources
-import android.util.Log
-import com.example.chiefinventory.R
 
 /**
- * Gère la fusion finale des lignes OCR pour reconstituer des blocs cohérents.
+ * Step 4 of the OCR pipeline: Final semantic reconstruction.
+ * Responsibility: Merge broken lines, handle hyphenation, and format paragraphs.
  */
 object OcrMerger {
-    private const val TAG = "RecipeOCR"
 
     /**
-     * Fusionne les lignes d'ingrédients brutes en une liste d'ingrédients propres.
+     * Merges broken lines of ingredients into a clean list.
      */
-    internal fun mergeIngredients(
-        rawIngredientsList: List<String>,
-        rawInstructionsList: MutableList<String>,
-        res: Resources
-    ): List<String> {
-        if (rawIngredientsList.isEmpty()) return emptyList()
-
-        val commonIngredientsNoQty = res.getStringArray(R.array.common_ingredients_no_qty).toList()
-        val excludedKeywords = res.getStringArray(R.array.excluded_ocr_keywords).toList()
+    fun mergeIngredients(rawIngredients: List<String>): List<String> {
+        if (rawIngredients.isEmpty()) return emptyList()
         
-        val semanticExclusions = try {
-            res.getStringArray(R.array.ingredient_semantic_exclusions).toList()
-        } catch (e: Exception) {
-            Log.e(TAG, "Erreur lors du chargement des exclusions sémantiques: ${e.message}")
-            emptyList()
-        }
+        val merged = mutableListOf<String>()
+        var current = ""
 
-        val stepActionKeywords = res.getStringArray(R.array.step_action_keywords).toList()
-        val stepConnectors = listOf("puis", "ensuite", "enfin", "après", "apres", "alors", "pendant", "dans")
-        val extraVerbs = listOf("plongez", "retirez", "hachez", "ajoutez", "servez", "assaisonnez", "faites", "coupez", "mélangez", "préparez", "décorez", "répartissez", "passez", "prélevez", "lavez")
-        
-        val qtyRegex = Regex("^[|Il!\\d\\-*•¼½¾]")
-        val containsActionRegex = Regex("\\b(?:${(stepActionKeywords + stepConnectors + extraVerbs).joinToString("|")})\\b", RegexOption.IGNORE_CASE)
+        for (line in rawIngredients) {
+            val normalizedLine = OcrNormalizer.normalize(line)
+            if (normalizedLine.isEmpty()) continue
 
-        val finalIngredients = mutableListOf<String>()
-        
-        // Nettoyage initial : on enlève le bullet pour permettre au preClean de voir le chiffre/lettre
-        fun cleanLineCompletely(line: String): String {
-            val withoutBullet = line.trim().replace(Regex("^[•\\-*]\\s*"), "")
-            return IngredientParser.preClean(withoutBullet)
-        }
-
-        var currentIng = cleanLineCompletely(rawIngredientsList[0])
-
-        for (i in 1 until rawIngredientsList.size) {
-            val nextLineRaw = rawIngredientsList[i]
-            val nextLine = cleanLineCompletely(nextLineRaw)
-            val lowerNext = nextLine.lowercase()
-            
-            val connectors = listOf("de", "du", "des", "d'", "et", "ou", "à")
-            val currentLower = currentIng.lowercase().trim()
-            val isBrokenSyntax = connectors.any { currentLower.endsWith(" $it") || currentLower.endsWith("$it") }
-
-            // Détection de nouvel ingrédient : soit une quantité, soit un bullet dans la ligne brute
-            val nextIsNew = qtyRegex.containsMatchIn(nextLineRaw.take(5)) || 
-                           commonIngredientsNoQty.any { kw -> lowerNext.startsWith(kw) }
-            
-            val lineContainsAction = containsActionRegex.containsMatchIn(nextLine)
-            val lineIsLongList = OcrHelperUtils.countIngredientSequences(nextLine) >= 2
-
-            val shouldMerge = !qtyRegex.containsMatchIn(nextLineRaw.take(5)) && (isBrokenSyntax || !nextIsNew)
-
-            if (lineContainsAction && !nextIsNew && !lineIsLongList && nextLine.length > 50) {
-                val cleaned = OcrHelperUtils.cleanIngredientSemantics(currentIng, excludedKeywords, semanticExclusions)
-                if (cleaned.isNotBlank()) {
-                    Log.d(TAG, "Ajout ingrédient (action detect): $cleaned")
-                    finalIngredients.add(cleaned)
-                }
-                rawInstructionsList.add(nextLineRaw)
-                currentIng = ""
-            } else if (shouldMerge && nextLine.length > 2 && nextLine.length < 35 && !nextLine.endsWith(".")) {
-                currentIng += " $nextLine"
+            // On fusionne si la ligne actuelle ne commence pas par une quantité/bullet
+            // ou si la ligne précédente semble inachevée (syntaxe brisée)
+            if (current.isNotEmpty() && !startsWithQuantity(line)) {
+                current = mergeLines(current, normalizedLine)
             } else {
-                val cleaned = OcrHelperUtils.cleanIngredientSemantics(currentIng, excludedKeywords, semanticExclusions)
-                if (cleaned.isNotBlank()) {
-                    Log.d(TAG, "Ajout ingrédient: $cleaned")
-                    finalIngredients.add(cleaned)
-                }
-                currentIng = nextLine
+                if (current.isNotEmpty()) merged.add(current)
+                current = normalizedLine
             }
         }
-        
-        if (currentIng.isNotBlank()) {
-            val cleanedLast = OcrHelperUtils.cleanIngredientSemantics(currentIng, excludedKeywords, semanticExclusions)
-            if (cleanedLast.isNotBlank()) {
-                Log.d(TAG, "Ajout dernier ingrédient: $cleanedLast")
-                finalIngredients.add(cleanedLast)
-            }
-        }
-        
-        return finalIngredients
+        if (current.isNotEmpty()) merged.add(current)
+        return merged
     }
 
     /**
-     * Fusionne les lignes d'instructions brutes en étapes cohérentes.
+     * Merges narrative instructions into coherent steps.
      */
-    internal fun mergeInstructions(
-        rawInstructionsList: List<String>,
-        res: Resources
-    ): List<String> {
-        if (rawInstructionsList.isEmpty()) return emptyList()
+    fun mergeInstructions(rawInstructions: List<String>): List<String> {
+        if (rawInstructions.isEmpty()) return emptyList()
 
-        val wineRes = WineParser.loadResources(res)
-        val stepActionKeywords = res.getStringArray(R.array.step_action_keywords).toList()
-        val stepConnectors = listOf("puis", "ensuite", "enfin", "après", "apres", "alors", "pendant", "dans")
-        val extraVerbs = listOf("plongez", "retirez", "hachez", "ajoutez", "servez", "assaisonnez", "faites", "coupez", "mélangez", "préparez", "décorez", "répartissez", "passez", "prélevez", "lavez")
-        val instructionHeaderKeywords = listOf("préparation", "instructions", "étapes", "réalisation", "méthode", "progression")
-        
-        val stepStartRegex = Regex("^\\s*(?:[•\\-*]|(?:${(stepActionKeywords + stepConnectors + extraVerbs).joinToString("|")})\\b)", RegexOption.IGNORE_CASE)
+        val mergedSteps = mutableListOf<String>()
+        var currentStep = ""
 
-        val finalInstructions = mutableListOf<String>()
-        var currentStep = IngredientParser.preClean(rawInstructionsList[0])
+        for (line in rawInstructions) {
+            val normalizedLine = OcrNormalizer.normalize(line)
+            if (normalizedLine.isEmpty()) continue
 
-        for (i in 1 until rawInstructionsList.size) {
-            val nextLine = IngredientParser.preClean(rawInstructionsList[i])
-            val isNewStep = stepStartRegex.containsMatchIn(rawInstructionsList[i]) ||
-                           instructionHeaderKeywords.any { nextLine.lowercase().contains(it) } ||
-                           WineParser.isWineLine(nextLine, wineRes)
-            
-            if (!isNewStep && nextLine.isNotBlank() && !currentStep.endsWith(".")) {
-                currentStep += " $nextLine"
+            // On fusionne si ce n'est pas un nouveau point (•, -, chiffre)
+            // et si la ligne précédente ne finit pas par une ponctuation forte
+            if (currentStep.isNotEmpty() && !isNewStep(line) && !isSentenceEnd(currentStep)) {
+                currentStep = mergeLines(currentStep, normalizedLine)
             } else {
-                finalInstructions.add(currentStep)
-                currentStep = nextLine
+                if (currentStep.isNotEmpty()) mergedSteps.add(currentStep)
+                currentStep = normalizedLine
             }
         }
-        
-        if (currentStep.isNotBlank()) finalInstructions.add(currentStep)
-        
-        return finalInstructions
+        if (currentStep.isNotEmpty()) mergedSteps.add(currentStep)
+        return mergedSteps
+    }
+
+    /**
+     * Core merging logic: handle hyphenation and spaces.
+     */
+    private fun mergeLines(prev: String, next: String): String {
+        // Règle 1: Fusion des mots coupés par un tiret (césure)
+        if (prev.endsWith("-")) {
+            return prev.dropLast(1) + next
+        }
+        // Règle 2: Espace normal entre deux morceaux de phrase
+        return "$prev $next"
+    }
+
+    private fun startsWithQuantity(line: String): Boolean {
+        return Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|[|Il!](?=[\\s\\d]))", RegexOption.IGNORE_CASE).containsMatchIn(line)
+    }
+
+    private fun isNewStep(line: String): Boolean {
+        return Regex("^\\s*[•\\-*\\d]").containsMatchIn(line)
+    }
+
+    private fun isSentenceEnd(text: String): Boolean {
+        val last = text.trim().lastOrNull() ?: return false
+        return last == '.' || last == '!' || last == '?' || last == ':'
     }
 }
