@@ -48,43 +48,47 @@ object OcrCategorizer {
         val xmlactionVerbs = res.getStringArray(R.array.step_action_keywords).toList()
         val actionVerbs = (xmlactionVerbs + extraVerbs).distinct()
         val commonIngredients = res.getStringArray(R.array.common_ingredients_no_qty).toList()
+        val excludedKeywords = res.getStringArray(R.array.excluded_ocr_keywords).toList()
 
-        val ingredientHeaders = listOf("ingrédients", "ingredients", "composition")
-        val instructionHeaders = listOf("préparation", "instructions", "étapes", "réalisation", "méthode", "progression", "cuisson")
+        val ingredientHeaders = listOf("ingrédients", "ingredients", "composition", "ngrédients")
+        val instructionHeaders = listOf("préparation", "instructions", "nstructions", "étapes", "réalisation", "méthode", "progression", "cuisson")
 
         val servingsRegex = Regex("(?i)(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)")
         val alternateServingsRegex = Regex("(?i)(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)")
         
         val qtyRegex = Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|[|Il!](?=[\\s\\d]))", RegexOption.IGNORE_CASE)
         val containsActionRegex = Regex("(?i)\\b(?:${actionVerbs.joinToString("|")})\\b")
+        
+        val ingredientConnectors = listOf("de", "du", "des", "d'", "au", "aux", "à")
 
         for (line in lines) {
-            val trimmedLine = line.trim()
-            if (trimmedLine.isEmpty()) continue
+            var workingLine = line.trim()
+            if (workingLine.isEmpty()) continue
 
-            val lowerLine = trimmedLine.lowercase()
-            val containsAction = containsActionRegex.containsMatchIn(trimmedLine)
+            val containsAction = containsActionRegex.containsMatchIn(workingLine)
+            val startsWithBullet = workingLine.startsWith("•") || workingLine.startsWith("-") || workingLine.startsWith("*")
+            val lowerLine = workingLine.lowercase()
+            val startsWithConnector = ingredientConnectors.any { lowerLine.startsWith("$it ") || (it.endsWith("'") && lowerLine.startsWith(it)) }
 
-            // 1. PROTECTION DES DIMENSIONS (ex: 5 mm sur 5 mm) -> Toujours Instruction
-            if (OcrCleaner.isTechnicalDimension(trimmedLine)) {
-                results.rawInstructionsList.add(trimmedLine)
+            // 1. PROTECTION DES DIMENSIONS
+            if (OcrCleaner.isTechnicalDimension(workingLine)) {
+                results.rawInstructionsList.add(workingLine)
                 continue
             }
 
-            // 2. DÉTECTION DES TEMPS ET PORTIONS
-            // Portions (Pers.)
-            val sMatch = servingsRegex.find(trimmedLine) ?: alternateServingsRegex.find(trimmedLine)
+            // 2. CONSOMMATION DES PORTIONS
+            val sMatch = servingsRegex.find(workingLine) ?: alternateServingsRegex.find(workingLine)
             if (sMatch != null) {
                 if (results.detectedServings == null) {
                     results.detectedServings = if (sMatch.groupValues[1].any { it.isDigit() }) sMatch.groupValues[1] else sMatch.groupValues[2]
-                    Log.d(TAG, "PERS détecté: ${results.detectedServings}")
                 }
+                workingLine = workingLine.replace(sMatch.value, "").trim()
             }
 
-            // Temps (Prép, Cuisson, Repos) - Sécurisé : pas d'action narrative et ligne courte
+            // 3. CONSOMMATION DES TEMPS
             val timePattern = Regex("(?i)(préparation|cuisson|repos|prep\\.?|cuis\\.?|rest\\.?)\\s*:?\\s*(\\d+\\s*(?:mn|min|h|heure|u))")
-            val tMatch = timePattern.find(trimmedLine)
-            if (tMatch != null && !containsAction && trimmedLine.length < 35) {
+            var tMatch = timePattern.find(workingLine)
+            while (tMatch != null) {
                 val type = tMatch.groupValues[1].lowercase()
                 val mins = extractMinutes(tMatch.groupValues[2])
                 when {
@@ -92,60 +96,73 @@ object OcrCategorizer {
                     type.startsWith("cuis") || type.startsWith("cuisson") -> results.detectedCookTime = mins
                     type.startsWith("re") -> results.detectedRestingTime = mins
                 }
-                Log.d(TAG, "TIME détecté: ${tMatch.groupValues[1]} -> $mins min")
-
-                val remainder = trimmedLine.replace(tMatch.groupValues[0], "").replace(Regex("^[:.,\\s]+"), "").trim()
-                if (remainder.length <= 3) continue
+                workingLine = workingLine.replace(tMatch.groupValues[0], "").trim()
+                tMatch = timePattern.find(workingLine)
             }
 
-            // 3. DÉTECTION VIN
-            if (!containsAction && WineParser.isWineLine(trimmedLine, wineRes)) {
-                results.detectedWineList.add(WineParser.cleanWineLine(trimmedLine, wineRes))
-                continue
+            // 4. CONSOMMATION DES MOTS-CLÉS D'EXCLUSION
+            for (word in excludedKeywords) {
+                val pattern = Regex("(?i)(?<!\\p{L})${Regex.escape(word)}(?!\\p{L})")
+                if (pattern.containsMatchIn(workingLine)) {
+                    workingLine = pattern.replace(workingLine, "").trim()
+                }
             }
 
-            // 4. DÉTECTION SOURCE (Auteur, Hôtel...)
-            if (OcrHelperUtils.isLikelyProperNameOrSource(trimmedLine) || SourceParser.isSourceLine(trimmedLine, sourceRes)) {
-                results.detectedSourceList.add(SourceParser.cleanSourceLine(trimmedLine, sourceRes))
-                continue
+            // 5. VIN ET SOURCE (Sécurisé : On n'extrait la source que si ce n'est PAS une action)
+            if (!containsAction && !startsWithConnector) {
+                if (WineParser.isWineLine(workingLine, wineRes)) {
+                    results.detectedWineList.add(WineParser.cleanWineLine(workingLine, wineRes))
+                    continue
+                }
+                // Détection Source : On ignore si la ligne commence par une minuscule (fragment probable)
+                val isLikelySource = (OcrHelperUtils.isLikelyProperNameOrSource(workingLine) || SourceParser.isSourceLine(workingLine, sourceRes))
+                if (isLikelySource && workingLine.firstOrNull()?.isUpperCase() == true) {
+                    results.detectedSourceList.add(SourceParser.cleanSourceLine(workingLine, sourceRes))
+                    continue
+                }
             }
 
-            // 5. CHANGEMENT DE SECTION (Headers)
-            val isInstrHeader = instructionHeaders.any { lowerLine.contains(it) } && trimmedLine.length < 35 && !containsAction
-            val isIngrHeader = ingredientHeaders.any { lowerLine.contains(it) } && trimmedLine.length < 35 && !containsAction
+            // 6. CONSOMMATION DES HEADERS (BASCULE)
+            val isInstrHeader = instructionHeaders.any { workingLine.lowercase().contains(it) } && workingLine.length < 35 && !containsAction
+            val isIngrHeader = ingredientHeaders.any { workingLine.lowercase().contains(it) } && workingLine.length < 35 && !containsAction
 
-            if (isInstrHeader) { currentSection = SECTION_INSTRUCTIONS; continue }
-            if (isIngrHeader) { currentSection = SECTION_INGREDIENTS; continue }
-
-            // 6. CLASSIFICATION DE LA LIGNE
-            val looksLikeIngredient = qtyRegex.containsMatchIn(trimmedLine.take(8)) ||
-                    commonIngredients.any { lowerLine.startsWith(it.lowercase()) }
-
-            // Priorité aux verbes d'action pour les étapes numérotées
-            if (containsAction && trimmedLine.length > 25) {
+            if (isInstrHeader) {
                 currentSection = SECTION_INSTRUCTIONS
-            } else if (currentSection == SECTION_NONE && looksLikeIngredient) {
+                workingLine = workingLine.replace(Regex("(?i)(?<!\\p{L})(?:${instructionHeaders.joinToString("|")})(?!\\p{L})"), "").trim()
+            } else if (isIngrHeader) {
+                currentSection = SECTION_INGREDIENTS
+                workingLine = workingLine.replace(Regex("(?i)(?<!\\p{L})(?:${ingredientHeaders.joinToString("|")})(?!\\p{L})"), "").trim()
+            }
+
+            // 7. NETTOYAGE DU BRUIT RÉSIDUEL
+            if (workingLine.isEmpty() || !workingLine.any { it.isLetter() }) continue
+
+            // 8. CLASSIFICATION DE LA LIGNE
+            val looksLikeIngredient = qtyRegex.containsMatchIn(workingLine.take(8)) ||
+                    commonIngredients.any { workingLine.lowercase().startsWith(it.lowercase()) }
+
+            if (containsAction && (workingLine.length > 25 || startsWithBullet)) {
+                currentSection = SECTION_INSTRUCTIONS
+            } else if (currentSection == SECTION_NONE && (looksLikeIngredient || startsWithConnector)) {
                 currentSection = SECTION_INGREDIENTS
             }
 
             when (currentSection) {
-                SECTION_INGREDIENTS -> results.rawIngredientsList.add(trimmedLine)
+                SECTION_INGREDIENTS -> results.rawIngredientsList.add(workingLine)
                 SECTION_INSTRUCTIONS -> {
-                    // Protection contre la récupération d'ingrédients égarés (exclure les dimensions techniques)
-                    val isStrictIngredient = looksLikeIngredient && !containsAction && !OcrCleaner.isTechnicalDimension(trimmedLine)
-                    if (isStrictIngredient && trimmedLine.length < 45) {
-                        results.rawIngredientsList.add(trimmedLine)
+                    val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !OcrCleaner.isTechnicalDimension(workingLine)
+                    if (isStrictIngredient && workingLine.length < 45) {
+                        results.rawIngredientsList.add(workingLine)
                     } else {
-                        results.rawInstructionsList.add(trimmedLine)
+                        results.rawInstructionsList.add(workingLine)
                     }
                 }
                 else -> {
-                    if (looksLikeIngredient) results.rawIngredientsList.add(trimmedLine)
-                    else results.rawInstructionsList.add(trimmedLine)
+                    if (looksLikeIngredient || startsWithConnector) results.rawIngredientsList.add(workingLine)
+                    else results.rawInstructionsList.add(workingLine)
                 }
             }
         }
-
         return results
     }
 

@@ -1,12 +1,15 @@
 package com.example.chiefinventory.utils
 
-import android.content.res.Resources
-
 /**
  * Step 4 of the OCR pipeline: Final semantic reconstruction.
  * Responsibility: Merge broken lines, handle hyphenation, and format paragraphs.
  */
 object OcrMerger {
+
+    private val INGREDIENT_CONNECTORS = listOf("de", "du", "des", "d'", "au", "aux", "à")
+    
+    // Noms qui appellent presque toujours un complément "de ..."
+    private val HANGING_NOUNS = listOf("vinaigre", "huile", "jus", "zeste", "pincée", "pincee", "filet", "brin", "brins", "botte", "gousse", "gousses", "cuillère", "cuillere", "verre")
 
     /**
      * Merges broken lines of ingredients into a clean list.
@@ -21,12 +24,21 @@ object OcrMerger {
             val normalizedLine = OcrNormalizer.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
-            // On fusionne si la ligne actuelle ne commence pas par une quantité/bullet
-            // ou si la ligne précédente semble inachevée (syntaxe brisée)
-            if (current.isNotEmpty() && !startsWithQuantity(line)) {
+            if (current.isEmpty()) {
+                current = normalizedLine
+                continue
+            }
+
+            // On fusionne si ce n'est pas un nouveau départ clair (chiffre/unité)
+            // ET qu'on a un indice de coupure (connecteur ou nom en attente)
+            val isNewStart = startsWithQuantity(normalizedLine)
+            val prevIsHanging = isHanging(current)
+            val nextStartsWithConnector = startsWithConnector(normalizedLine)
+
+            if (!isNewStart && (prevIsHanging || nextStartsWithConnector)) {
                 current = mergeLines(current, normalizedLine)
             } else {
-                if (current.isNotEmpty()) merged.add(current)
+                merged.add(current)
                 current = normalizedLine
             }
         }
@@ -35,53 +47,70 @@ object OcrMerger {
     }
 
     /**
-     * Merges narrative instructions into coherent steps.
+     * Merges narrative instructions and splits them into one sentence per line.
      */
     fun mergeInstructions(rawInstructions: List<String>): List<String> {
         if (rawInstructions.isEmpty()) return emptyList()
 
-        val mergedSteps = mutableListOf<String>()
-        var currentStep = ""
+        val resultSentences = mutableListOf<String>()
+        var currentBlock = ""
 
         for (line in rawInstructions) {
             val normalizedLine = OcrNormalizer.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
-            // On fusionne si ce n'est pas un nouveau point (•, -, chiffre)
-            // et si la ligne précédente ne finit pas par une ponctuation forte
-            if (currentStep.isNotEmpty() && !isNewStep(line) && !isSentenceEnd(currentStep)) {
-                currentStep = mergeLines(currentStep, normalizedLine)
+            if (currentBlock.isNotEmpty() && !isNewStep(line)) {
+                currentBlock = mergeLines(currentBlock, normalizedLine)
             } else {
-                if (currentStep.isNotEmpty()) mergedSteps.add(currentStep)
-                currentStep = normalizedLine
+                if (currentBlock.isNotEmpty()) {
+                    resultSentences.addAll(splitIntoSentences(currentBlock))
+                }
+                currentBlock = normalizedLine
             }
         }
-        if (currentStep.isNotEmpty()) mergedSteps.add(currentStep)
-        return mergedSteps
+        
+        if (currentBlock.isNotEmpty()) {
+            resultSentences.addAll(splitIntoSentences(currentBlock))
+        }
+
+        return resultSentences
     }
 
-    /**
-     * Core merging logic: handle hyphenation and spaces.
-     */
+    private fun splitIntoSentences(text: String): List<String> {
+        val pattern = Regex("(?<=[.!?])\\s+")
+        return text.split(pattern)
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+    }
+
     private fun mergeLines(prev: String, next: String): String {
-        // Règle 1: Fusion des mots coupés par un tiret (césure)
-        if (prev.endsWith("-")) {
-            return prev.dropLast(1) + next
+        val p = prev.trim()
+        val n = next.trim()
+        
+        if (p.endsWith("-") && p.length >= 2 && p[p.length-2].isLetter() && n.firstOrNull()?.isLetter() == true) {
+            return p.dropLast(1) + n
         }
-        // Règle 2: Espace normal entre deux morceaux de phrase
-        return "$prev $next"
+        
+        return "$p $n"
+    }
+
+    private fun isHanging(text: String): Boolean {
+        val lower = text.lowercase().trim()
+        val endsWithConnector = INGREDIENT_CONNECTORS.any { lower.endsWith(" $it") || lower.endsWith("$it") }
+        val endsWithHangingNoun = HANGING_NOUNS.any { lower.endsWith(" $it") || lower == it }
+        return endsWithConnector || endsWithHangingNoun
+    }
+
+    private fun startsWithConnector(text: String): Boolean {
+        val lower = text.lowercase().trim()
+        return INGREDIENT_CONNECTORS.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
     }
 
     private fun startsWithQuantity(line: String): Boolean {
-        return Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|[|Il!](?=[\\s\\d]))", RegexOption.IGNORE_CASE).containsMatchIn(line)
+        return Regex("^(?:\\d|un\\b|une\\b|•|\\-|\\*)", RegexOption.IGNORE_CASE).containsMatchIn(line)
     }
 
     private fun isNewStep(line: String): Boolean {
         return Regex("^\\s*[•\\-*\\d]").containsMatchIn(line)
-    }
-
-    private fun isSentenceEnd(text: String): Boolean {
-        val last = text.trim().lastOrNull() ?: return false
-        return last == '.' || last == '!' || last == '?' || last == ':'
     }
 }

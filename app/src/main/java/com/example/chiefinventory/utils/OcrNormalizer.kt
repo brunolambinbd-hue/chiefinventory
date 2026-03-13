@@ -7,7 +7,6 @@ package com.example.chiefinventory.utils
 object OcrNormalizer {
 
     private val FRACTION_RULES = listOf(
-        // Correction des fractions type ll2, lI2, 112 en utilisant des frontières souples
         Regex("(?i)(?<![\\p{L}\\p{N}])[1Il!|]{2}2(?![\\p{L}\\p{N}])") to "1/2",
         Regex("(?i)(?<![\\p{L}\\p{N}])[1Il!|]{2}4(?![\\p{L}\\p{N}])") to "1/4",
         Regex("^1\\s*12\\b") to "1/2",
@@ -54,42 +53,32 @@ object OcrNormalizer {
         Regex("(?i)\\bc\\.\\s*à\\s*café\\b") to "c. à café"
     )
 
-    // Correction du chiffre 1 mal lu (l, I, |, !) au début de la ligne ou après une puce
-    // On normalise systématiquement avec un espace ("1 ") pour aider le parseur ultérieur
-    private val OCR_ONE_CORRECTION = Regex("(^|•\\s*|[\\-*]\\s*|\\()([|Il!|])(?=[\\s\\p{L}])")
-
     /**
-     * Main entry point for text normalization.
+     * Correction du chiffre 1 mal lu.
+     * On ne convertit 'I' ou 'l' en '1' QUE s'il est suivi d'un espace ET d'un chiffre/unité.
+     * Cela protège "INGRÉDIENTS".
      */
+    private val OCR_ONE_CORRECTION = Regex("(^|•\\s*|[\\-*]\\s*|\\()([|!](?=[\\s\\p{L}])|[Il](?=\\s+(?:\\d|g\\b|kg|cl|ml|c\\.|un\\b|une\\b)))")
+
     fun normalize(input: String): String {
         if (input.isBlank()) return ""
-
         var text = input.trim()
-            // 1. Correction des accents OCR (Vietnamien -> Français)
             .replace('ế', 'é').replace('ề', 'è').replace('ệ', 'é').replace('ẹ', 'e')
             .replace('ấ', 'â').replace('ầ', 'à').replace('ả', 'a').replace('ã', 'a')
             .replace('ặ', 'a').replace('ậ', 'â').replace('ắ', 'a').replace('ằ', 'à').replace('ạ', 'a')
-            
-            // 2. Suppression des symboles de tolérance
             .replace("±", "").replace("+/-", "").replace("+-", "")
             .replace(Regex("(?i)\\benviron\\b"), "")
             .replace(Regex("(?i)\\bt\\b\\s*(?=[\\d|Il!])"), "")
 
-        // 3. Correction du chiffre 1 mal lu isolée ou collé à une unité
-        text = text.replace(OCR_ONE_CORRECTION) { match ->
-            match.groupValues[1] + "1 "
-        }
+        text = text.replace(OCR_ONE_CORRECTION) { match -> match.groupValues[1] + "1 " }
 
-        // 4. Application des règles par groupes
         FRACTION_RULES.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         NUMBER_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         ARTICLE_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         LINGUISTIC_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         SPOON_NORMALIZATION.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
-        // 5. Normalisation des espaces
         text = text.replace(Regex("(\\d)([a-zA-Z])"), "$1 $2")
-        
         return text.replace(Regex("\\s+"), " ").trim()
     }
 }

@@ -22,6 +22,7 @@
         <item>chardonnay</item>
         <item>sauvignon</item>
         <item>touraine</item>
+        <item>Haut-Medoc</item>
     </string-array>
 
     <string-array name="wine_producers">
@@ -32,6 +33,7 @@
         <item>pfaffenheim</item>
         <item>atinium</item>
         <item>atinum</item>
+        <item>VERDIGNAN</item>
     </string-array>
 
     <string-array name="wine_keywords">
@@ -60,6 +62,7 @@
         <item>marquèz</item>
         <item>Marqués</item>
         <item>Domaine</item>
+        <item>Caves</item>
     </string-array>
 
     <string-array name="wine_title_keywords">

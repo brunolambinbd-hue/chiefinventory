@@ -105,5 +105,12 @@
         <item>Prelevez</item>
         <item>Assemblez</item>
         <item>Trempez</item>
+        <item>Coupez</item>
+        <item>Saupaudrez</item>
+        <item>Saupoudrez</item>
+        <item>Placez</item>
+        <item>Farcissez</item>
+        <item>Découpez</item>
+        <item>Otez</item>
     </string-array>
 </resources>
