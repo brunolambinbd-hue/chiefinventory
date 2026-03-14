@@ -70,6 +70,10 @@ object OcrCategorizer {
             val lowerLine = workingLine.lowercase()
             val startsWithConnector = ingredientConnectors.any { lowerLine.startsWith("$it ") || (it.endsWith("'") && lowerLine.startsWith(it)) }
 
+            // A. CLASSIFICATION PRÉCOCE (Pour protéger les ingrédients du détecteur de vin)
+            val looksLikeIngredient = qtyRegex.containsMatchIn(workingLine.take(8)) ||
+                    commonIngredients.any { lowerLine.startsWith(it.lowercase()) }
+
             // 1. PROTECTION DES DIMENSIONS
             if (OcrCleaner.isTechnicalDimension(workingLine)) {
                 results.rawInstructionsList.add(workingLine)
@@ -108,15 +112,16 @@ object OcrCategorizer {
                 }
             }
 
-            // 5. VIN ET SOURCE (Sécurisé : On n'extrait la source que si ce n'est PAS une action)
+            // 5. VIN ET SOURCE (Sécurisé : On n'extrait le vin que si ce n'est PAS un ingrédient probable)
             if (!containsAction && !startsWithConnector) {
-                if (WineParser.isWineLine(workingLine, wineRes)) {
+                // On ignore la détection du vin si on est dans la section ingrédients et que la ligne commence par un chiffre (ex: 5 cl d'huile)
+                val isStrictIngredient = looksLikeIngredient && (currentSection == SECTION_INGREDIENTS || startsWithBullet)
+                
+                if (!isStrictIngredient && WineParser.isWineLine(workingLine, wineRes)) {
                     results.detectedWineList.add(WineParser.cleanWineLine(workingLine, wineRes))
                     continue
                 }
-                // Détection Source : On ignore si la ligne commence par une minuscule (fragment probable)
-                val isLikelySource = (OcrHelperUtils.isLikelyProperNameOrSource(workingLine) || SourceParser.isSourceLine(workingLine, sourceRes))
-                if (isLikelySource && workingLine.firstOrNull()?.isUpperCase() == true) {
+                if (OcrHelperUtils.isLikelyProperNameOrSource(workingLine) || SourceParser.isSourceLine(workingLine, sourceRes)) {
                     results.detectedSourceList.add(SourceParser.cleanSourceLine(workingLine, sourceRes))
                     continue
                 }
@@ -137,10 +142,7 @@ object OcrCategorizer {
             // 7. NETTOYAGE DU BRUIT RÉSIDUEL
             if (workingLine.isEmpty() || !workingLine.any { it.isLetter() }) continue
 
-            // 8. CLASSIFICATION DE LA LIGNE
-            val looksLikeIngredient = qtyRegex.containsMatchIn(workingLine.take(8)) ||
-                    commonIngredients.any { workingLine.lowercase().startsWith(it.lowercase()) }
-
+            // 8. CLASSIFICATION FINALE
             if (containsAction && (workingLine.length > 25 || startsWithBullet)) {
                 currentSection = SECTION_INSTRUCTIONS
             } else if (currentSection == SECTION_NONE && (looksLikeIngredient || startsWithConnector)) {

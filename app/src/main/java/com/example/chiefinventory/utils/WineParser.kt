@@ -11,6 +11,9 @@ object WineParser {
     private val wineVolRegex = Regex("\\b\\d+(?:[\\s.,]\\d+)?\\s*(?:cl|ml|l|vol)\\b", RegexOption.IGNORE_CASE)
     private val extraWineCleanRegex = Regex("(?i)^(?:accord|boisson|boire|servir avec|suggestion)\\s*:?", RegexOption.IGNORE_CASE)
 
+    // Mots-clés qui indiquent qu'il s'agit d'un ingrédient de cuisine et NON de vin
+    private val WINE_EXCLUSION_REGEX = Regex("(?i)\\b(huile|vinaigre|beurre|crème|creme|lait|bouillon|eau|jus|sirop)\\b")
+
     data class WineResources(
         val appellations: List<String>,
         val producers: List<String>,
@@ -27,17 +30,19 @@ object WineParser {
             titleKeywords = res.getStringArray(R.array.wine_title_keywords).toList(),
             removePattern = res.getString(R.string.wine_remove_pattern)
         )
-
     }
 
     fun isWineLine(line: String, resources: WineResources): Boolean {
-        val lowerLine = line.lowercase()
-        if (lowerLine.contains("vinaigre")) return false
+        // 1. Exclusion immédiate si contient un ingrédient culinaire (ex: 5 cl d'huile)
+        if (WINE_EXCLUSION_REGEX.containsMatchIn(line)) return false
 
-        // Rule: Year + Volume is a very strong indicator of a wine bottle
+        // 2. Ancienne règle du vinaigre (couverte par la regex ci-dessus mais conservée par sécurité)
+        if (line.lowercase().contains("vinaigre")) return false
+
+        // 3. Règle forte : Année + Volume (ex: 2015 75cl)
         if (wineYearRegex.containsMatchIn(line) && wineVolRegex.containsMatchIn(line)) return true
 
-        // Helper to check for whole word matches using Unicode-aware lookarounds
+        // Helper pour détecter les mots entiers (Unicode aware)
         fun containsWholeWord(text: String, keyword: String): Boolean {
             val pattern = Regex("(?<![\\p{L}\\p{N}])${Regex.escape(keyword)}(?![\\p{L}\\p{N}])", RegexOption.IGNORE_CASE)
             return pattern.containsMatchIn(text)
@@ -63,15 +68,9 @@ object WineParser {
      */
     private fun applySpellingCorrections(text: String): String {
         var corrected = text
-
-        // Correct "Bordeau" to "Bordeaux" (case-insensitive, word boundary)
         corrected = corrected.replace(Regex("(?i)\\bBordeau\\b"), "Bordeaux")
-
-        // Correct "Atinum" to "Atinium" if necessary (based on previous logs)
         corrected = corrected.replace(Regex("(?i)\\bAtinum\\b"), "Atinium")
         corrected = corrected.replace(Regex("(?i)\\bChậteau\\b"), "Château")
-
-
         return corrected
     }
 }

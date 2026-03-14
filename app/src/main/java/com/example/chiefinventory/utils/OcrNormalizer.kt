@@ -2,7 +2,7 @@ package com.example.chiefinventory.utils
 
 /**
  * Step 1 of the OCR pipeline: Character and symbol normalization.
- * Responsibility: Transform "broken" OCR text into standard French text.
+ * Responsibility: Transform "broken" OCR text into standard French text and remove metadata noise.
  */
 object OcrNormalizer {
 
@@ -21,6 +21,16 @@ object OcrNormalizer {
         Regex("\\s+\\|\\s+") to " 1 ",
         Regex("(?i)\\bdel\\b") to "de 1",
         Regex("(?i)\\bld['’]?eau\\b") to "1 l d'eau"
+    )
+
+    // Règles pour supprimer les dates et prix (Bruit historique)
+    private val NOISE_REMOVAL = listOf(
+        // Dates: 14/12/94, 14/12/1994, 14-12-94
+        Regex("\\b\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{2,4}\\b") to "",
+        // Prix en Francs: 209 F, 209f, 209 Francs
+        Regex("\\b\\d+(?:[.,]\\d+)?\\s*(?:F|francs?)\\b", RegexOption.IGNORE_CASE) to "",
+        // Prix en Euros: 15 €, 15 euro, 15EUR
+        Regex("\\b\\d+(?:[.,]\\d+)?\\s*(?:€|EUR|euros?)\\b", RegexOption.IGNORE_CASE) to ""
     )
 
     private val ARTICLE_CORRECTIONS = listOf(
@@ -53,11 +63,6 @@ object OcrNormalizer {
         Regex("(?i)\\bc\\.\\s*à\\s*café\\b") to "c. à café"
     )
 
-    /**
-     * Correction du chiffre 1 mal lu.
-     * On ne convertit 'I' ou 'l' en '1' QUE s'il est suivi d'un espace ET d'un chiffre/unité.
-     * Cela protège "INGRÉDIENTS".
-     */
     private val OCR_ONE_CORRECTION = Regex("(^|•\\s*|[\\-*]\\s*|\\()([|!](?=[\\s\\p{L}])|[Il](?=\\s+(?:\\d|g\\b|kg|cl|ml|c\\.|un\\b|une\\b)))")
 
     fun normalize(input: String): String {
@@ -70,8 +75,13 @@ object OcrNormalizer {
             .replace(Regex("(?i)\\benviron\\b"), "")
             .replace(Regex("(?i)\\bt\\b\\s*(?=[\\d|Il!])"), "")
 
+        // 1. Suppression du bruit (Dates, Prix)
+        NOISE_REMOVAL.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
+
+        // 2. Correction du chiffre 1 mal lu
         text = text.replace(OCR_ONE_CORRECTION) { match -> match.groupValues[1] + "1 " }
 
+        // 3. Application des autres règles
         FRACTION_RULES.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         NUMBER_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         ARTICLE_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
@@ -79,6 +89,10 @@ object OcrNormalizer {
         SPOON_NORMALIZATION.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
         text = text.replace(Regex("(\\d)([a-zA-Z])"), "$1 $2")
+        
+        // 4. Nettoyage final de la ponctuation orpheline en fin de ligne (,, :, -)
+        text = text.replace(Regex("[,:;\\s\\-]+$"), "")
+
         return text.replace(Regex("\\s+"), " ").trim()
     }
 }
