@@ -53,71 +53,71 @@ class IngredientParserTest {
     @Test
     fun `preClean basic trimming and symbol removal`() {
         // Test if leading/trailing whitespace and symbols like ±, +/-, and +- are removed correctly.
-        assertEquals("100 g", OcrNormalizer.normalize("  ± 100 g  "))
-        assertEquals("200 g", OcrNormalizer.normalize("200 g +/-"))
-        assertEquals("50 g", OcrNormalizer.normalize("+- 50 g"))
+        assertEquals("100 g", Ocr1Normalizer.normalize("  ± 100 g  "))
+        assertEquals("200 g", Ocr1Normalizer.normalize("200 g +/-"))
+        assertEquals("50 g", Ocr1Normalizer.normalize("+- 50 g"))
     }
 
     @Test
     fun `preClean keyword  environ  removal`() {
         // Ensure the word 'environ' is removed case-insensitively from any position in the string.
-        assertEquals("100 g", OcrNormalizer.normalize("environ 100 g"))
-        assertEquals("200 g", OcrNormalizer.normalize("200 g ENVIRON"))
+        assertEquals("100 g", Ocr1Normalizer.normalize("environ 100 g"))
+        assertEquals("200 g", Ocr1Normalizer.normalize("200 g ENVIRON"))
     }
 
     @Test
     fun `preClean OCR  1  correction for special characters`() {
         // Verify that characters like |, I, l, ! are converted to '1' when appearing at start, before a slash, or before letters.
-        assertEquals("1 citron", OcrNormalizer.normalize("| citron"))
-        assertEquals("1 orange", OcrNormalizer.normalize("I orange"))
-        assertEquals("1/2", OcrNormalizer.normalize("l/2"))
-        assertEquals("1 gousse", OcrNormalizer.normalize("! gousse"))
+        assertEquals("1 citron", Ocr1Normalizer.normalize("| citron"))
+        assertEquals("1 orange", Ocr1Normalizer.normalize("I orange"))
+        assertEquals("1/2", Ocr1Normalizer.normalize("l/2"))
+        assertEquals("1 gousse", Ocr1Normalizer.normalize("! gousse"))
     }
 
     @Test
     fun `preClean OCR  le  and  l  article correction`() {
         // Check if misread prefixes like '1 e ', 'T'', or '1'' are correctly restored to linguistic articles 'le ' and 'l''.
-        assertEquals("le citron", OcrNormalizer.normalize("1 e citron"))
-        assertEquals("l'oignon", OcrNormalizer.normalize("T'oignon"))
-        assertEquals("l'ail", OcrNormalizer.normalize("1'ail"))
+        assertEquals("le citron", Ocr1Normalizer.normalize("1 e citron"))
+        assertEquals("l'oignon", Ocr1Normalizer.normalize("T'oignon"))
+        assertEquals("l'ail", Ocr1Normalizer.normalize("1'ail"))
     }
 
     @Test
     fun `preClean apostrophe and spacing normalization`() {
         // Test if spacing around 'd' followed by apostrophes is normalized (e.g., 'd' ' -> d') and 'jauned' euf' correction.
-        assertEquals("jaune d'oeuf", OcrNormalizer.normalize("jauned' euf"))
-        assertEquals("jus d'orange", OcrNormalizer.normalize("jus d' orange"))
+        assertEquals("jaune d'oeuf", Ocr1Normalizer.normalize("jauned' euf"))
+        assertEquals("jus d'orange", Ocr1Normalizer.normalize("jus d' orange"))
     }
 
     @Test
     fun `preClean  oeuf  spelling correction`() {
         // Verify that 'euf' and 'eufs' are corrected to 'oeuf' and 'oeufs' respectively regardless of case.
-        assertEquals("1 oeuf", OcrNormalizer.normalize("1 euf"))
-        assertEquals("2 oeufs", OcrNormalizer.normalize("2 eufs"))
+        assertEquals("1 oeuf", Ocr1Normalizer.normalize("1 euf"))
+        assertEquals("2 oeufs", Ocr1Normalizer.normalize("2 eufs"))
     }
 
     @Test
     fun `preClean abbreviated unit  c   normalization`() {
         // Test if OCR errors like 'Ic' or '!c.' are converted to '1 c' or '1 c.' and 'c à' is standardized to 'c. à'.
-        assertEquals("1 c. à soupe", OcrNormalizer.normalize("Ic à soupe"))
-        assertEquals("1 c. à café", OcrNormalizer.normalize("!c. à café"))
-        assertEquals("c. à soupe", OcrNormalizer.normalize("c à soupe"))
+        assertEquals("1 c. à soupe", Ocr1Normalizer.normalize("Ic à soupe"))
+        assertEquals("1 c. à café", Ocr1Normalizer.normalize("!c. à café"))
+        assertEquals("c. à soupe", Ocr1Normalizer.normalize("c à soupe"))
     }
 
     @Test
     fun `preClean space insertion between digit and letter`() {
         // Ensure a space is inserted when a number is directly followed by a letter (e.g., '200g' -> '200 g').
-        assertEquals("200 g", OcrNormalizer.normalize("200g"))
-        assertEquals("1 l", OcrNormalizer.normalize("1l"))
+        assertEquals("200 g", Ocr1Normalizer.normalize("200g"))
+        assertEquals("1 l", Ocr1Normalizer.normalize("1l"))
     }
 
     @Test
     fun `preClean fraction reconstruction for halves and quarters`() {
         // Check if OCR misreads like '1 12', '112', or 'lI2' are correctly converted to standard fraction strings '1/2' or '1/4'.
-        assertEquals("1/2", OcrNormalizer.normalize("1 12"))
-        assertEquals("1/2", OcrNormalizer.normalize("112"))
-        assertEquals("1/2", OcrNormalizer.normalize("lI2"))
-        assertEquals("1/4", OcrNormalizer.normalize("114"))
+        assertEquals("1/2", Ocr1Normalizer.normalize("1 12"))
+        assertEquals("1/2", Ocr1Normalizer.normalize("112"))
+        assertEquals("1/2", Ocr1Normalizer.normalize("lI2"))
+        assertEquals("1/4", Ocr1Normalizer.normalize("114"))
     }
 //    @Test
 //    fun `preClean global test`() {

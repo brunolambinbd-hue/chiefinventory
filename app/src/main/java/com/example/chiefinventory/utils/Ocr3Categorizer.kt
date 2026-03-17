@@ -1,7 +1,6 @@
 package com.example.chiefinventory.utils
 
 import android.content.res.Resources
-import android.util.Log
 import com.example.chiefinventory.R
 import kotlin.collections.distinct
 import kotlin.collections.plus
@@ -21,7 +20,7 @@ data class RawSections(
     var detectedRestingTime: String? = null
 )
 
-object OcrCategorizer {
+object Ocr3Categorizer {
     private const val TAG = "RecipeOCR"
 
     private const val SECTION_NONE = 0
@@ -75,7 +74,7 @@ object OcrCategorizer {
                     commonIngredients.any { lowerLine.startsWith(it.lowercase()) }
 
             // 1. PROTECTION DES DIMENSIONS
-            if (OcrCleaner.isTechnicalDimension(workingLine)) {
+            if (Ocr2Cleaner.isTechnicalDimension(workingLine)) {
                 results.rawInstructionsList.add(workingLine)
                 continue
             }
@@ -90,7 +89,8 @@ object OcrCategorizer {
             }
 
             // 3. CONSOMMATION DES TEMPS
-            val timePattern = Regex("(?i)(préparation|cuisson|repos|prep\\.?|cuis\\.?|rest\\.?)\\s*:?\\s*(\\d+\\s*(?:mn|min|h|heure|u))")
+            // Regex améliorée pour capturer Prép (avec accent) et les durées composées (1h 20)
+            val timePattern = Regex("(?i)(préparation|cuisson|repos|prép\\.?|prep\\.?|cuis\\.?|rest\\.?)\\s*:?\\s*(\\d+\\s*[hH](?:\\s*\\d+)?|\\d+\\s*(?:mn|min|minute|u|h|heure))")
             var tMatch = timePattern.find(workingLine)
             while (tMatch != null) {
                 val type = tMatch.groupValues[1].lowercase()
@@ -111,6 +111,9 @@ object OcrCategorizer {
                     workingLine = pattern.replace(workingLine, "").trim()
                 }
             }
+            // Correction double espace après suppression
+            workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
+            if (workingLine.isEmpty()) continue
 
             // 5. VIN ET SOURCE (Sécurisé : On n'extrait le vin que si ce n'est PAS un ingrédient probable)
             if (!containsAction && !startsWithConnector) {
@@ -152,7 +155,7 @@ object OcrCategorizer {
             when (currentSection) {
                 SECTION_INGREDIENTS -> results.rawIngredientsList.add(workingLine)
                 SECTION_INSTRUCTIONS -> {
-                    val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !OcrCleaner.isTechnicalDimension(workingLine)
+                    val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !Ocr2Cleaner.isTechnicalDimension(workingLine)
                     if (isStrictIngredient && workingLine.length < 45) {
                         results.rawIngredientsList.add(workingLine)
                     } else {

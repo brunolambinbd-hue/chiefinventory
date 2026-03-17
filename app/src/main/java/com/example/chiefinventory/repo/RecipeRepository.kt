@@ -52,17 +52,14 @@ class RecipeRepository(
         
         Log.d("RecipeRepository", "Insertion de ${ingredients.size} ingrédients pour la recette")
         
-        // Sauvegarde des liaisons pour cette recette
         recipeDao.insertRecipeIngredients(ingredients)
         
-        // Récupérer le stock existant pour éviter les doublons (normalisation accents/espaces)
         val allExisting = ingredientDao.getAllSync()
 
         for (ri in ingredients) {
             val rawName = ri.ingredientName.trim()
             if (rawName.isEmpty()) continue
             
-            // On ne filtre plus ici (déjà fait par l'OCR), on parse pour extraire Qté/Unité/Nom/Supplemental
             val parsed = IngredientParser.parse(rawName)
             val nameToStore = parsed.name
             
@@ -70,14 +67,18 @@ class RecipeRepository(
             val existing = allExisting.find { normalize(it.name) == normalizedNew }
 
             if (existing == null) {
-                // CORRECTION : On passe maintenant le supplementalInfo (ex: 1 kg) lors de la création de l'ingrédient global
-                Log.d("RecipeRepository", "Création automatique de l'ingrédient global: $nameToStore with info: ${parsed.supplementalInfo ?: "none"}")
-                ingredientDao.insert(Ingredient(
-                    name = nameToStore,
-                    quantity = parsed.quantity,
-                    unit = parsed.unit,
-                    supplementalInfo = parsed.supplementalInfo ?: ri.supplementalInfo // On privilégie le parsing frais ou celui déjà dans la liaison
-                ))
+
+                    // ON UTILISE DIRECTEMENT ri.quantityRequired, ri.unit, etc.
+                    Log.d("RecipeRepository", "Création automatique de l'ingrédient global: ${ri.ingredientName} " +
+                            "[Qty: ${ri.quantityRequired}, Unit: ${ri.unit}, Info: ${ri.supplementalInfo}]")
+
+                    ingredientDao.insert(Ingredient(
+                        name = ri.ingredientName,
+                        quantity = ri.quantityRequired,
+                        unit = ri.unit,
+                        supplementalInfo = ri.supplementalInfo
+                    ))
+
             } else {
                 Log.d("RecipeRepository", "L'ingrédient existe déjà: $nameToStore")
             }

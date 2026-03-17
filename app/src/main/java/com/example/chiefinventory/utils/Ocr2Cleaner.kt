@@ -8,7 +8,7 @@ import com.example.chiefinventory.R
  * Step 2 of the OCR pipeline: Text cleaning and noise removal.
  * Responsibility: Remove advertisements, page numbers, and protect technical dimensions.
  */
-object OcrCleaner {
+object Ocr2Cleaner {
     private const val TAG = "RecipeOCR"
 
     // Regex pour détecter les dimensions techniques (ex: 5 mm sur 5 mm)

@@ -4,7 +4,7 @@ package com.example.chiefinventory.utils
  * Step 4 of the OCR pipeline: Final semantic reconstruction.
  * Responsibility: Merge broken lines, handle hyphenation, and format paragraphs.
  */
-object OcrMerger {
+object Ocr4Merger {
 
     private val INGREDIENT_CONNECTORS = listOf("de", "du", "des", "d'", "au", "aux", "à")
     
@@ -21,7 +21,7 @@ object OcrMerger {
         var current = ""
 
         for (line in rawIngredients) {
-            val normalizedLine = OcrNormalizer.normalize(line)
+            val normalizedLine = Ocr1Normalizer.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
             if (current.isEmpty()) {
@@ -29,13 +29,15 @@ object OcrMerger {
                 continue
             }
 
-            // On fusionne si ce n'est pas un nouveau départ clair (chiffre/unité)
-            // ET qu'on a un indice de coupure (connecteur ou nom en attente)
             val isNewStart = startsWithQuantity(normalizedLine)
             val prevIsHanging = isHanging(current)
             val nextStartsWithConnector = startsWithConnector(normalizedLine)
+            val prevEndsWithPunctuation = current.trim().lastOrNull()?.let { it == ',' || it == '.' } ?: false
+            
+            // On ajoute la détection du tiret comme signal de fusion
+            val prevIsHyphenated = current.trim().endsWith("-")
 
-            if (!isNewStart && (prevIsHanging || nextStartsWithConnector)) {
+            if (!isNewStart && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevIsHyphenated)) {
                 current = mergeLines(current, normalizedLine)
             } else {
                 merged.add(current)
@@ -56,7 +58,7 @@ object OcrMerger {
         var currentBlock = ""
 
         for (line in rawInstructions) {
-            val normalizedLine = OcrNormalizer.normalize(line)
+            val normalizedLine = Ocr1Normalizer.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
             if (currentBlock.isNotEmpty() && !isNewStep(line)) {
@@ -83,11 +85,19 @@ object OcrMerger {
             .filter { it.isNotEmpty() }
     }
 
+    /**
+     * Core merging logic: handles hyphenation (césure) and structural spaces.
+     */
     private fun mergeLines(prev: String, next: String): String {
         val p = prev.trim()
         val n = next.trim()
         
-        if (p.endsWith("-") && p.length >= 2 && p[p.length-2].isLetter() && n.firstOrNull()?.isLetter() == true) {
+        // Règle de fusion des mots coupés par un tiret
+        val letterPattern = Regex("^\\p{L}")
+        val prevHasLetterBeforeDash = p.length >= 2 && (p[p.length - 2].isLetter() || Regex("\\p{L}").matches(p[p.length - 2].toString()))
+        val nextStartsWithLetter = letterPattern.containsMatchIn(n)
+        
+        if (p.endsWith("-") && prevHasLetterBeforeDash && nextStartsWithLetter) {
             return p.dropLast(1) + n
         }
         
@@ -107,7 +117,7 @@ object OcrMerger {
     }
 
     private fun startsWithQuantity(line: String): Boolean {
-        return Regex("^(?:\\d|un\\b|une\\b|•|\\-|\\*)", RegexOption.IGNORE_CASE).containsMatchIn(line)
+        return Regex("^(?:\\d|un\\b|une\\b|des\\b|du\\b|de la\\b|de l'|quelques\\b|plusieurs\\b|un peu\\b|•|\\-|\\*)", RegexOption.IGNORE_CASE).containsMatchIn(line)
     }
 
     private fun isNewStep(line: String): Boolean {

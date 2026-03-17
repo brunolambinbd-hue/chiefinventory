@@ -49,15 +49,15 @@ object RecipeOcrParser {
      */
     private fun executePipeline(rawLines: List<String>, res: Resources): RecipeOcrResult {
         // ÉTAPE 1 : Normalisation (Réparation des caractères et symboles)
-        val normalizedLines = rawLines.map { OcrNormalizer.normalize(it) }
+        val normalizedLines = rawLines.map { Ocr1Normalizer.normalize(it) }
         Log.d(TAG, "[1] APRÈS NORMALISATION:\n${normalizedLines.joinToString("\n")}")
 
         // ÉTAPE 2 : Nettoyage (Suppression des publicités et du bruit numérique)
-        val cleanedLines = OcrCleaner.clean(normalizedLines, res)
+        val cleanedLines = Ocr2Cleaner.clean(normalizedLines, res)
         Log.d(TAG, "[2] APRÈS NETTOYAGE (Sans pub/bruit):\n${cleanedLines.joinToString("\n")}")
 
         // ÉTAPE 3 : Catégorisation (Tri sélectif dans les compartiments)
-        val sections = OcrCategorizer.categorize(cleanedLines, res)
+        val sections = Ocr3Categorizer.categorize(cleanedLines, res)
         Log.d(TAG, "[3] CATÉGORISATION TERMINÉE")
         
         // LOG DES LIGNES BRUTES APRÈS TRI
@@ -67,8 +67,8 @@ object RecipeOcrParser {
         sections.rawInstructionsList.forEachIndexed { i, line -> Log.d(TAG, "    [$i] $line") }
 
         // ÉTAPE 4 : Fusion (Reconstruction sémantique des phrases)
-        val finalIngredients = OcrMerger.mergeIngredients(sections.rawIngredientsList)
-        val finalInstructions = OcrMerger.mergeInstructions(sections.rawInstructionsList)
+        val finalIngredients = Ocr4Merger.mergeIngredients(sections.rawIngredientsList)
+        val finalInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
 
         // LOG LIGNE PAR LIGNE DES RÉSULTATS FUSIONNÉS
         Log.d(TAG, "[4] RÉSULTATS APRÈS FUSION (MERGER):")
