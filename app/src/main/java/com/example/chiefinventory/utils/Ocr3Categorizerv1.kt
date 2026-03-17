@@ -9,7 +9,7 @@ import kotlin.collections.plus
  * Step 3 of the OCR pipeline: Line categorization.
  * Responsibility: Classify cleaned and normalized lines into specific recipe sections.
  */
-data class RawSections(
+data class RawSectionsv1(
     val rawIngredientsList: MutableList<String> = mutableListOf(),
     val rawInstructionsList: MutableList<String> = mutableListOf(),
     val detectedWineList: MutableList<String> = mutableListOf(),
@@ -20,7 +20,7 @@ data class RawSections(
     var detectedRestingTime: String? = null
 )
 
-object Ocr3Categorizer {
+object Ocr3Categorizerv1 {
     private const val TAG = "RecipeOCR"
 
     private const val SECTION_NONE = 0
@@ -39,8 +39,9 @@ object Ocr3Categorizer {
             "mélangez", "préparez", "décorez", "répartissez", "passez", "prélevez", "lavez",
             "mixez", "laissez", "Laissez", "réservez", "poursuivez", "versez", "chauffez", "étalez", "badigeonnez",
             "égouttez", "egouttez", "disposez", "déposez", "deposez", "garnissez", "nappez", "parsemez",
-            "enfournez", "mettez", "posez", "étuvez", "Etuvez", "écrasez", "ecrasez", "écalez", "ecalez",
-            "extrayez", "nettoyez", "Placez", "Creusez"
+            "enfournez", "mettez", "posez", "étuvez", "Etuvez", "écrasez", "ecrasez", "écalez", "ecalez", "extrayez",
+            "nettoyez", "Placez", "Creusez"
+
         )
 
         val wineRes = WineParser.loadResources(res)
@@ -55,16 +56,24 @@ object Ocr3Categorizer {
 
         val servingsRegex = Regex("(?i)(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)")
         val alternateServingsRegex = Regex("(?i)(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)")
-
-        // Regex de quantité enrichie avec les quantificateurs indéfinis
-        val qtyRegex = Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|quelques\\b|plusieurs\\b|un peu\\b|[|Il!](?=[\\s\\d]))", RegexOption.IGNORE_CASE)
+        
+        val qtyRegex = Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|[|Il!](?=[\\s\\d]))", RegexOption.IGNORE_CASE)
         val containsActionRegex = Regex("(?i)\\b(?:${actionVerbs.joinToString("|")})\\b")
-
+        
         val ingredientConnectors = listOf("de", "du", "des", "d'", "au", "aux", "à")
 
         for (line in lines) {
             var workingLine = line.trim()
             if (workingLine.isEmpty()) continue
+
+            val containsAction = containsActionRegex.containsMatchIn(workingLine)
+            val startsWithBullet = workingLine.startsWith("•") || workingLine.startsWith("-") || workingLine.startsWith("*")
+            val lowerLine = workingLine.lowercase()
+            val startsWithConnector = ingredientConnectors.any { lowerLine.startsWith("$it ") || (it.endsWith("'") && lowerLine.startsWith(it)) }
+
+            // A. CLASSIFICATION PRÉCOCE (Pour protéger les ingrédients du détecteur de vin)
+            val looksLikeIngredient = qtyRegex.containsMatchIn(workingLine.take(8)) ||
+                    commonIngredients.any { lowerLine.startsWith(it.lowercase()) }
 
             // 1. PROTECTION DES DIMENSIONS
             if (Ocr2Cleaner.isTechnicalDimension(workingLine)) {
@@ -81,7 +90,8 @@ object Ocr3Categorizer {
                 workingLine = workingLine.replace(sMatch.value, "").trim()
             }
 
-            // 3. CONSOMMATION DES TEMPS (Supporte 1h 20)
+            // 3. CONSOMMATION DES TEMPS
+            // Regex améliorée pour capturer Prép (avec accent) et les durées composées (1h 20)
             val timePattern = Regex("(?i)(préparation|cuisson|repos|prép\\.?|prep\\.?|cuis\\.?|rest\\.?)\\s*:?\\s*(\\d+\\s*[hH](?:\\s*\\d+)?|\\d+\\s*(?:mn|min|minute|u|h|heure))")
             var tMatch = timePattern.find(workingLine)
             while (tMatch != null) {
@@ -96,26 +106,22 @@ object Ocr3Categorizer {
                 tMatch = timePattern.find(workingLine)
             }
 
-            // 4. CONSOMMATION DES MOTS-CLÉS D'EXCLUSION ET NORMALISATION ESPACES
+            // 4. CONSOMMATION DES MOTS-CLÉS D'EXCLUSION
             for (word in excludedKeywords) {
                 val pattern = Regex("(?i)(?<!\\p{L})${Regex.escape(word)}(?!\\p{L})")
-                workingLine = pattern.replace(workingLine, "").trim()
+                if (pattern.containsMatchIn(workingLine)) {
+                    workingLine = pattern.replace(workingLine, "").trim()
+                }
             }
+            // Correction double espace après suppression
             workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
             if (workingLine.isEmpty()) continue
 
-            val containsAction = containsActionRegex.containsMatchIn(workingLine)
-            val startsWithBullet = workingLine.startsWith("•") || workingLine.startsWith("-") || workingLine.startsWith("*")
-            val lowerLine = workingLine.lowercase()
-            val startsWithConnector = ingredientConnectors.any { lowerLine.startsWith("$it ") || (it.endsWith("'") && lowerLine.startsWith(it)) }
-
-            // A. CLASSIFICATION PRÉCOCE
-            val looksLikeIngredient = qtyRegex.containsMatchIn(workingLine.take(12)) ||
-                    commonIngredients.any { lowerLine.startsWith(it.lowercase()) }
-
-            // 5. VIN ET SOURCE (Sécurisé)
+            // 5. VIN ET SOURCE (Sécurisé : On n'extrait le vin que si ce n'est PAS un ingrédient probable)
             if (!containsAction && !startsWithConnector) {
+                // On ignore la détection du vin si on est dans la section ingrédients et que la ligne commence par un chiffre (ex: 5 cl d'huile)
                 val isStrictIngredient = looksLikeIngredient && (currentSection == SECTION_INGREDIENTS || startsWithBullet)
+                
                 if (!isStrictIngredient && WineParser.isWineLine(workingLine, wineRes)) {
                     results.detectedWineList.add(WineParser.cleanWineLine(workingLine, wineRes))
                     continue
@@ -127,8 +133,8 @@ object Ocr3Categorizer {
             }
 
             // 6. CONSOMMATION DES HEADERS (BASCULE)
-            val isInstrHeader = instructionHeaders.any { lowerLine.contains(it) } && workingLine.length < 35 && !containsAction
-            val isIngrHeader = ingredientHeaders.any { lowerLine.contains(it) } && workingLine.length < 35 && !containsAction
+            val isInstrHeader = instructionHeaders.any { workingLine.lowercase().contains(it) } && workingLine.length < 35 && !containsAction
+            val isIngrHeader = ingredientHeaders.any { workingLine.lowercase().contains(it) } && workingLine.length < 35 && !containsAction
 
             if (isInstrHeader) {
                 currentSection = SECTION_INSTRUCTIONS
@@ -137,7 +143,6 @@ object Ocr3Categorizer {
                 currentSection = SECTION_INGREDIENTS
                 workingLine = workingLine.replace(Regex("(?i)(?<!\\p{L})(?:${ingredientHeaders.joinToString("|")})(?!\\p{L})"), "").trim()
             }
-            workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
 
             // 7. NETTOYAGE DU BRUIT RÉSIDUEL
             if (workingLine.isEmpty() || !workingLine.any { it.isLetter() }) continue

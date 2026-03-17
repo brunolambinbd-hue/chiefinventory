@@ -18,14 +18,14 @@ class Ocr3CategorizerTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         val emptyArr = arrayOf<String>()
-        
+
         // Mocks de base pour les ressources utilisées par le catégoriseur
         `when`(res.getStringArray(R.array.step_action_keywords)).thenReturn(arrayOf("faites", "mélangez", "coupez", "ajoutez"))
         `when`(res.getStringArray(R.array.common_ingredients_no_qty)).thenReturn(arrayOf("sel", "poivre", "beurre"))
         `when`(res.getStringArray(R.array.excluded_ocr_keywords)).thenReturn(arrayOf("SAVEUR", "POUR"))
         `when`(res.getStringArray(R.array.source_keywords)).thenReturn(arrayOf("hôtel", "rue"))
         `when`(res.getStringArray(R.array.phone_prefixes)).thenReturn(arrayOf("tél"))
-        
+
         // Mocks pour WineParser et SourceParser
         `when`(res.getStringArray(R.array.wine_keywords)).thenReturn(arrayOf("merlot"))
         `when`(res.getStringArray(R.array.wine_appellations)).thenReturn(emptyArr)
@@ -53,7 +53,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Technical dimension preservation`() {
-        // Verify that lines matching Ocr2Cleaner.isTechnicalDimension are always added to rawInstructionsList and 
+        // Verify that lines matching Ocr2Cleaner.isTechnicalDimension are always added to rawInstructionsList and
         // bypass further categorization logic.
         val input = listOf("5 mm x 5 mm")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -63,7 +63,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Servings extraction standard format`() {
-        // Test 'Pour 4 personnes' or 'Serves: 6' patterns to ensure the digit is extracted into detectedServings 
+        // Test 'Pour 4 personnes' or 'Serves: 6' patterns to ensure the digit is extracted into detectedServings
         // and the text is removed from the working line.
         val input = listOf("Pour 4 personnes")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -123,7 +123,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Excluded keywords removal`() {
-        // Verify that words defined in R.array.excluded_ocr_keywords are stripped from the line without 
+        // Verify that words defined in R.array.excluded_ocr_keywords are stripped from the line without
         // leaving orphaned characters or affecting word boundaries.
         val input = listOf("200 g SAVEUR beurre")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -133,7 +133,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Wine detection exclusion for ingredients`() {
-        // Ensure a line like '5 cl d'huile' is NOT categorized as wine even if it matches wine patterns, 
+        // Ensure a line like '5 cl d'huile' is NOT categorized as wine even if it matches wine patterns,
         // because it looks like a strict ingredient.
         val input = listOf("5 cl d'huile")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -143,7 +143,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Wine detection and cleaning`() {
-        // Verify that valid wine lines are cleaned via WineParser and added to detectedWineList, 
+        // Verify that valid wine lines are cleaned via WineParser and added to detectedWineList,
         // stopping further processing for that line.
         val input = listOf("Suggestion : Merlot 2015")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -162,7 +162,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Ingredient header state transition`() {
-        // Test that lines like 'Ingrédients' (length < 35) switch currentSection to SECTION_INGREDIENTS 
+        // Test that lines like 'Ingrédients' (length < 35) switch currentSection to SECTION_INGREDIENTS
         // and the header text itself is stripped.
         val input = listOf("Ingrédients", "200 g de beurre")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -181,7 +181,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Header length constraint`() {
-        // Verify that a very long line (> 35 chars) containing a header word is NOT treated as a section 
+        // Verify that a very long line (> 35 chars) containing a header word is NOT treated as a section
         // header switch.
         val input = listOf("Ceci est une phrase très longue qui contient le mot ingrédients mais qui n'est pas un header")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -208,7 +208,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Ingredient classification via quantity regex`() {
-        // Test lines starting with '1/', 'Une', or symbols like '|' followed by digits to ensure they are 
+        // Test lines starting with '1/', 'Une', or symbols like '|' followed by digits to ensure they are
         // categorized as ingredients.
         val input = listOf("1/2 oignon", "| 2 citrons")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -225,7 +225,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Bullet point instruction classification`() {
-        // Test that lines starting with '•' or '-' containing an action verb are categorized as instructions 
+        // Test that lines starting with '•' or '-' containing an action verb are categorized as instructions
         // regardless of length.
         val input = listOf("• Ajoutez le sel")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -234,7 +234,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Ingredient detection within instruction section`() {
-        // Verify that short lines (< 45 chars) without action verbs found inside an instruction section 
+        // Verify that short lines (< 45 chars) without action verbs found inside an instruction section
         // are 'pulled back' into the rawIngredientsList.
         val input = listOf("Réalisation", "200 g de beurre", "Faites fondre")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -244,7 +244,7 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Default classification fallback`() {
-        // Test how lines are handled when currentSection is SECTION_NONE and no clear ingredient/instruction 
+        // Test how lines are handled when currentSection is SECTION_NONE and no clear ingredient/instruction
         // indicators are present.
         val input = listOf("Phrase lambda sans signal")
         val result = Ocr3Categorizer.categorize(input, res)
@@ -271,7 +271,7 @@ class Ocr3CategorizerTest {
     @Test
     fun `Case insensitivity of headers and verbs`() {
         // Verify that 'INGRÉDIENTS' or 'mélangez' (lowercase) are correctly identified using case-insensitive regex/logic.
-        val input = listOf("INGRÉDIENTS", "mélangez doucement")
+        val input = listOf("INGRÉDIENTS", "mélangez doucement tous les ingrédients dans un grand bol")
         val result = Ocr3Categorizer.categorize(input, res)
         // mélangez est dans les instructions (action verb)
         assertEquals(1, result.rawInstructionsList.size)
@@ -280,11 +280,70 @@ class Ocr3CategorizerTest {
 
     @Test
     fun `Common ingredient list matching`() {
-        // Verify that lines starting with words from common_ingredients_no_qty are categorized as ingredients 
+        // Verify that lines starting with words from common_ingredients_no_qty are categorized as ingredients
         // even without leading quantities.
         val input = listOf("sel et poivre")
         val result = Ocr3Categorizer.categorize(input, res)
         assertTrue(result.rawIngredientsList.contains("sel et poivre"))
     }
 
+    @Test
+    fun `Vague quantity detection at start`() {
+        // Verify that quantifiers like 'quelques' or 'un peu' trigger SECTION_INGREDIENTS
+        val input = listOf("quelques feuilles de menthe")
+        val result = Ocr3Categorizer.categorize(input, res)
+        assertTrue("Devrait être dans ingrédients", result.rawIngredientsList.contains("quelques feuilles de menthe"))
+    }
+
+    @Test
+    fun `Source security - action verb forbids source classification`() {
+        // Fragment often misread by ML Kit. The verb 'placez' must force it to instructions.
+        val input = listOf("cée de sel et placez-y le fromage")
+        val result = Ocr3Categorizer.categorize(input, res)
+
+        assertTrue("Ne doit pas être une source", result.detectedSourceList.isEmpty())
+        assertTrue("Doit être une instruction", result.rawInstructionsList.contains("cée de sel et placez-y le fromage"))
+    }
+
+    @Test
+    fun `Wine security - culinary ingredient protects from wine theft`() {
+        // 'cl' usually triggers wine, but 'huile' is a culinary exclusion
+        val input = listOf("5 cl d'huile")
+        val result = Ocr3Categorizer.categorize(input, res)
+
+        assertTrue("L'huile doit rester dans ingrédients", result.rawIngredientsList.contains("5 cl d'huile"))
+        assertTrue("Ne doit pas être dans le vin", result.detectedWineList.isEmpty())
+    }
+
+    @Test
+    fun `Source preservation of uppercase names`() {
+        // Since we removed global lowercase(), names like YILMAZ should stay uppercase
+        val input = listOf("Chef Nahit YILMAZ")
+        val result = Ocr3Categorizer.categorize(input, res)
+
+        assertTrue(result.detectedSourceList.any { it.contains("YILMAZ") })
+    }
+
+    @Test
+    fun `Instruction recovery lever 2 - mid-block ingredient`() {
+        // Verify that an ingredient lost in instructions is pulled back
+        val input = listOf("Réalisation", "Faites fondre le chocolat", "200 g de sucre", "Mélangez")
+        val result = Ocr3Categorizer.categorize(input, res)
+
+        assertTrue("Le sucre doit être récupéré", result.rawIngredientsList.contains("200 g de sucre"))
+        assertEquals("Faites fondre le chocolat", result.rawInstructionsList[0])
+        assertEquals("Mélangez", result.rawInstructionsList[1])
+    }
+
+    @Test
+    fun `Multiple headers support`() {
+        // Test that both Preparation and Cuisson act as instruction headers
+        val input1 = listOf("Préparation", "Coupez tout")
+        val result1 = Ocr3Categorizer.categorize(input1, res)
+        assertTrue(result1.rawInstructionsList.contains("Coupez tout"))
+
+        val input2 = listOf("Cuisson", "Faites dorer")
+        val result2 = Ocr3Categorizer.categorize(input2, res)
+        assertTrue(result2.rawInstructionsList.contains("Faites dorer"))
+    }
 }

@@ -11,6 +11,22 @@ object Ocr4Merger {
     // Noms qui appellent presque toujours un complément "de ..."
     private val HANGING_NOUNS = listOf("vinaigre", "huile", "jus", "zeste", "pincée", "pincee", "filet", "brin", "brins", "botte", "gousse", "gousses", "cuillère", "cuillere", "verre")
 
+    // Modificateurs de préparation qui sont souvent coupés sur une nouvelle ligne
+    private val PREPARATION_MODIFIERS = listOf(
+        "haché", "hachée", "hachés", "hachées",
+        "émincé", "émincée", "émincés", "émincées",
+        "ciselé", "ciselée", "ciselés", "ciselées",
+        "coupé", "coupée", "coupés", "coupées",
+        "râpé", "râpée", "râpés", "râpées",
+        "frais", "fraîche", "fraîches",
+        "fondue", "fondu", "fondus", "fondues",
+        "concasse", "concassé", "concassée",
+        "pressé", "pressée", "découpé", "découpée",
+        "égoutté", "egoutté", "nettoyé", "moulu",
+        "en dés", "en rondelles", "en tranches", "en cubes",
+        "truite", "salade", "frais haché", "frais hachée", "frais hachés", "frais hachées"
+    )
+
     /**
      * Merges broken lines of ingredients into a clean list.
      */
@@ -19,6 +35,7 @@ object Ocr4Merger {
         
         val merged = mutableListOf<String>()
         var current = ""
+        var prevOriginalLine = ""
 
         for (line in rawIngredients) {
             val normalizedLine = Ocr1Normalizer.normalize(line)
@@ -26,23 +43,38 @@ object Ocr4Merger {
 
             if (current.isEmpty()) {
                 current = normalizedLine
+                prevOriginalLine = line
                 continue
             }
 
             val isNewStart = startsWithQuantity(normalizedLine)
             val prevIsHanging = isHanging(current)
             val nextStartsWithConnector = startsWithConnector(normalizedLine)
+            val nextIsModifier = isOrphanModifier(normalizedLine)
             val prevEndsWithPunctuation = current.trim().lastOrNull()?.let { it == ',' || it == '.' } ?: false
-            
-            // On ajoute la détection du tiret comme signal de fusion
-            val prevIsHyphenated = current.trim().endsWith("-")
+            val prevWasHyphenated = prevOriginalLine.trim().endsWith("-")
 
-            if (!isNewStart && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevIsHyphenated)) {
-                current = mergeLines(current, normalizedLine)
+            // Fusion si : Connecteur OR Tiret OR Modificateur orphelin (ex: haché)
+            if (!isNewStart && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier)) {
+                if (prevWasHyphenated) {
+                    val trimmedOriginal = prevOriginalLine.trim()
+                    val charBeforeDash = if (trimmedOriginal.length >= 2) trimmedOriginal[trimmedOriginal.length - 2] else ' '
+                    val isCesure = Regex("\\p{L}").matches(charBeforeDash.toString()) && 
+                                  Regex("^\\p{L}").containsMatchIn(normalizedLine)
+                    
+                    current = if (isCesure) {
+                        current.trim() + normalizedLine.trim()
+                    } else {
+                        current.trim() + "- " + normalizedLine.trim()
+                    }
+                } else {
+                    current = mergeLines(current, normalizedLine)
+                }
             } else {
                 merged.add(current)
                 current = normalizedLine
             }
+            prevOriginalLine = line
         }
         if (current.isNotEmpty()) merged.add(current)
         return merged
@@ -56,19 +88,36 @@ object Ocr4Merger {
 
         val resultSentences = mutableListOf<String>()
         var currentBlock = ""
+        var prevOriginalLine = ""
 
         for (line in rawInstructions) {
             val normalizedLine = Ocr1Normalizer.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
             if (currentBlock.isNotEmpty() && !isNewStep(line)) {
-                currentBlock = mergeLines(currentBlock, normalizedLine)
+                val prevWasHyphenated = prevOriginalLine.trim().endsWith("-")
+                
+                if (prevWasHyphenated) {
+                    val trimmedOriginal = prevOriginalLine.trim()
+                    val charBeforeDash = if (trimmedOriginal.length >= 2) trimmedOriginal[trimmedOriginal.length - 2] else ' '
+                    val isCesure = Regex("\\p{L}").matches(charBeforeDash.toString()) && 
+                                  Regex("^\\p{L}").containsMatchIn(normalizedLine)
+                    
+                    currentBlock = if (isCesure) {
+                        currentBlock.trim() + normalizedLine.trim()
+                    } else {
+                        currentBlock.trim() + "- " + normalizedLine.trim()
+                    }
+                } else {
+                    currentBlock = mergeLines(currentBlock, normalizedLine)
+                }
             } else {
                 if (currentBlock.isNotEmpty()) {
                     resultSentences.addAll(splitIntoSentences(currentBlock))
                 }
                 currentBlock = normalizedLine
             }
+            prevOriginalLine = line
         }
         
         if (currentBlock.isNotEmpty()) {
@@ -85,23 +134,8 @@ object Ocr4Merger {
             .filter { it.isNotEmpty() }
     }
 
-    /**
-     * Core merging logic: handles hyphenation (césure) and structural spaces.
-     */
     private fun mergeLines(prev: String, next: String): String {
-        val p = prev.trim()
-        val n = next.trim()
-        
-        // Règle de fusion des mots coupés par un tiret
-        val letterPattern = Regex("^\\p{L}")
-        val prevHasLetterBeforeDash = p.length >= 2 && (p[p.length - 2].isLetter() || Regex("\\p{L}").matches(p[p.length - 2].toString()))
-        val nextStartsWithLetter = letterPattern.containsMatchIn(n)
-        
-        if (p.endsWith("-") && prevHasLetterBeforeDash && nextStartsWithLetter) {
-            return p.dropLast(1) + n
-        }
-        
-        return "$p $n"
+        return "${prev.trim()} ${next.trim()}"
     }
 
     private fun isHanging(text: String): Boolean {
@@ -114,6 +148,17 @@ object Ocr4Merger {
     private fun startsWithConnector(text: String): Boolean {
         val lower = text.lowercase().trim()
         return INGREDIENT_CONNECTORS.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
+    }
+
+    private fun isOrphanModifier(text: String): Boolean {
+        val lower = text.lowercase().trim()
+        if (lower.startsWith(",")) return true
+        
+        // Si la ligne est courte et commence par un mot de préparation
+        val words = lower.split(Regex("\\s+"))
+        if (words.size > 3) return false
+        
+        return PREPARATION_MODIFIERS.any { lower.startsWith(it) }
     }
 
     private fun startsWithQuantity(line: String): Boolean {

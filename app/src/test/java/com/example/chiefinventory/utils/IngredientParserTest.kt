@@ -1,5 +1,6 @@
 package com.example.chiefinventory.utils
 
+import com.example.chiefinventory.utils.IngredientParser.units
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -87,6 +88,9 @@ class IngredientParserTest {
         // Test if spacing around 'd' followed by apostrophes is normalized (e.g., 'd' ' -> d') and 'jauned' euf' correction.
         assertEquals("jaune d'oeuf", Ocr1Normalizer.normalize("jauned' euf"))
         assertEquals("jus d'orange", Ocr1Normalizer.normalize("jus d' orange"))
+        assertTrue(IngredientParser.units.contains("feuilles"))
+        assertTrue(IngredientParser.units.contains("branche"))
+        assertTrue(IngredientParser.units.contains("c. à dessert"))
     }
 
     @Test
@@ -102,6 +106,39 @@ class IngredientParserTest {
         assertEquals("1 c. à soupe", Ocr1Normalizer.normalize("Ic à soupe"))
         assertEquals("1 c. à café", Ocr1Normalizer.normalize("!c. à café"))
         assertEquals("c. à soupe", Ocr1Normalizer.normalize("c à soupe"))
+    }
+    @Test
+    fun `parse vague quantity and adjective extraction`() {
+        // Test pour "des petites feuilles de chicon"
+        val input = Ocr1Normalizer.normalize("des petites feuilles de chicon")
+        val result = IngredientParser.parse(input)
+
+        assertEquals("chicon", result.name)
+        // 'feuilles' est extrait vers info supp par vagueQuantityRegex récursive
+        assertTrue(result.supplementalInfo?.contains("des") == true)
+        assertTrue(result.supplementalInfo?.contains("petites") == true)
+        assertTrue(result.supplementalInfo?.contains("feuilles") == true)
+    }
+
+    @Test
+    fun `parse vague quantity with branches`() {
+        // Test pour "quelques branches d'aneth"
+        val input = Ocr1Normalizer.normalize("quelques branches d'aneth")
+        val result = IngredientParser.parse(input)
+
+        assertEquals("aneth", result.name)
+        assertTrue(result.supplementalInfo?.contains("quelques") == true)
+        assertTrue(result.supplementalInfo?.contains("branches") == true)
+    }
+
+    @Test
+    fun `parse dessert spoon unit`() {
+        val input = Ocr1Normalizer.normalize("1 c. à dessert de rhum")
+        val result = IngredientParser.parse(input)
+
+        assertEquals(1.0, result.quantity!!, 0.01)
+        assertEquals("c. à dessert", result.unit)
+        assertEquals("rhum", result.name)
     }
 
     @Test
@@ -137,6 +174,8 @@ class IngredientParserTest {
         assertTrue(result.name.contains("eau"))
         assertEquals("l", result.unit)
         assertEquals("eau", result.name)
+        assertEquals("Sel et poivre", result.name)
+        assertEquals("sel et poivre", result.name) // Normalizer puts lowercase
     }
 
     @Test
@@ -206,7 +245,9 @@ class IngredientParserTest {
     @Test
     fun `parse complex case with multiple preClean steps`() {
         // Integration test: '! environ 200g d' eufs' should parse to quantity 200.0, unit 'g', name 'oeufs'.
-        val result = IngredientParser.parse("! environ 200g d' eufs")
+
+        val normalized = Ocr1Normalizer.normalize("! environ 200g d' eufs")
+        val result = IngredientParser.parse(normalized)
         assertEquals(200.0, result.quantity!!, 0.01)
         assertEquals("g", result.unit)
         assertEquals("oeufs", result.name)
@@ -221,4 +262,43 @@ class IngredientParserTest {
         assertNull(result.unit)
     }
 
+    @Test
+    fun `parse grosses fines adjectifs extraction`() {
+        val input = Ocr1Normalizer.normalize("2 grosses tomates fines")
+        val result = IngredientParser.parse(input)
+        assertEquals(2.0, result.quantity!!, 0.01)
+        // 'grosses' est extrait, 'fines' reste car pas au début
+        assertTrue(result.supplementalInfo?.contains("grosses") == true)
+        assertEquals("tomates fines", result.name)
+    }
+
+    @Test
+    fun `parse poignee de quantificateur`() {
+        val input = Ocr1Normalizer.normalize("une poignée de sel")
+        val result = IngredientParser.parse(input)
+        assertEquals("sel", result.name)
+        assertTrue(result.supplementalInfo?.contains("une poignée de") == true)
+    }
+
+    @Test
+    fun `parse plant units branches and leaves`() {
+        val input1 = Ocr1Normalizer.normalize("2 feuilles de laurier")
+        val result1 = IngredientParser.parse(input1)
+        assertEquals("laurier", result1.name)
+        assertTrue(result1.supplementalInfo?.contains("feuilles") == true)
+
+        val input2 = Ocr1Normalizer.normalize("1 branche de thym")
+        val result2 = IngredientParser.parse(input2)
+        assertEquals("thym", result2.name)
+        assertTrue(result2.supplementalInfo?.contains("branche") == true)
+    }
+
+    @Test
+    fun `parse case standardisation from normalizer`() {
+        val input = Ocr1Normalizer.normalize("200G de SUCRE")
+        val result = IngredientParser.parse(input)
+        assertEquals(200.0, result.quantity!!, 0.01)
+        assertEquals("g", result.unit)
+        assertEquals("sucre", result.name)
+    }
 }
