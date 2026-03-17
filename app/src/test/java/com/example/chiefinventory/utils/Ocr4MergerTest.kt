@@ -46,7 +46,7 @@ class Ocr4MergerTest {
         val input = listOf("Pommes de terre", "à l'huile")
         val result = Ocr4Merger.mergeIngredients(input)
         assertEquals(1, result.size)
-        assertEquals("pommes de terre à l'huile", result[0])
+        assertEquals("Pommes de terre à l'huile", result[0])
     }
 
     @Test
@@ -93,6 +93,16 @@ class Ocr4MergerTest {
     }
 
     @Test
+    fun `mergeIngredients word hyphenation reconstruction without acccent`() {
+        // Test the logic where a word split by a hyphen at the end of a line is
+        // reconstructed without the hyphen and space.
+        val input = listOf("une pin-", "ce de sel")
+        val result = Ocr4Merger.mergeIngredients(input)
+        assertEquals(1, result.size)
+        assertEquals("une pince de sel", result[0])
+    }
+
+    @Test
     fun `mergeIngredients non letter hyphen preservation`() {
         // Ensure that a trailing hyphen is not removed if the character preceding it is 
         // not a letter (e.g., a digit or symbol).
@@ -113,6 +123,33 @@ class Ocr4MergerTest {
     }
 
     @Test
+    fun `mergeIngredients orphan modifier haché`() {
+        // Verify that a preparation modifier like 'haché' alone on a line is merged back.
+        val input = listOf("1 c. à soupe de cerfeuil", "haché")
+        val result = Ocr4Merger.mergeIngredients(input)
+        assertEquals(1, result.size)
+        assertEquals("1 c. à soupe de cerfeuil haché", result[0])
+    }
+
+    @Test
+    fun `mergeIngredients orphan modifier with comma`() {
+        // Check that a line starting with a comma is merged as a continuation.
+        val input = listOf("2 oignons", ", émincés")
+        val result = Ocr4Merger.mergeIngredients(input)
+        assertEquals(1, result.size)
+        assertEquals("2 oignons , émincés", result[0])
+    }
+
+    @Test
+    fun `mergeIngredients modifier length safety`() {
+        // Verify that a long line starting with a modifier word is NOT merged (likely a new instruction).
+        val input = listOf("100 g de beurre", "fondu doucement dans une casserole à feu doux")
+        val result = Ocr4Merger.mergeIngredients(input)
+        // La ligne est trop longue (> 3 mots), elle ne doit pas fusionner par cette règle
+        assertEquals(2, result.size)
+    }
+
+    @Test
     fun `mergeInstructions empty input`() {
         // Verify that an empty input list returns an empty list for instructions.
         val result = Ocr4Merger.mergeInstructions(emptyList())
@@ -126,7 +163,7 @@ class Ocr4MergerTest {
         val input = listOf("Plongez les aubergines", "dans l'eau bouillante")
         val result = Ocr4Merger.mergeInstructions(input)
         assertEquals(1, result.size)
-        assertEquals("plongez les aubergines dans l'eau bouillante", result[0])
+        assertEquals("Plongez les aubergines dans l'eau bouillante", result[0])
     }
 
     @Test
@@ -145,9 +182,9 @@ class Ocr4MergerTest {
         val input = listOf("Mélangez. Ajoutez le sel! Servez?")
         val result = Ocr4Merger.mergeInstructions(input)
         assertEquals(3, result.size)
-        assertEquals("mélangez.", result[0])
-        assertEquals("ajoutez le sel!", result[1])
-        assertEquals("servez?", result[2])
+        assertEquals("Mélangez.", result[0])
+        assertEquals("Ajoutez le sel!", result[1])
+        assertEquals("Servez?", result[2])
     }
 
     @Test
@@ -156,8 +193,8 @@ class Ocr4MergerTest {
         // marks are preserved at the end of the resulting strings.
         val input = listOf("Faites cuire. Coupez ensuite.")
         val result = Ocr4Merger.mergeInstructions(input)
-        assertEquals("faites cuire.", result[0])
-        assertEquals("coupez ensuite.", result[1])
+        assertEquals("Faites cuire.", result[0])
+        assertEquals("Coupez ensuite.", result[1])
     }
 
     @Test
@@ -166,7 +203,7 @@ class Ocr4MergerTest {
         // are trimmed and cleaned.
         val input = listOf("  Ligne 1  ", "   Ligne 2   ")
         val result = Ocr4Merger.mergeInstructions(input)
-        assertEquals("ligne 1 ligne 2", result[0])
+        assertEquals("Ligne 1 Ligne 2", result[0])
     }
 
     @Test
@@ -185,7 +222,7 @@ class Ocr4MergerTest {
         val input = listOf("Attention !!! C'est chaud.")
         val result = Ocr4Merger.mergeInstructions(input)
         assertEquals(2, result.size)
-        assertEquals("attention !!!", result[0])
+        assertEquals("Attention !!!", result[0])
     }
 
     @Test
@@ -195,7 +232,7 @@ class Ocr4MergerTest {
         val input = listOf("Attendez 5 minutes", "puis servez.")
         val result = Ocr4Merger.mergeInstructions(input)
         assertEquals(1, result.size)
-        assertEquals("attendez 5 minutes puis servez.", result[0])
+        assertEquals("Attendez 5 minutes puis servez.", result[0])
     }
 
     @Test

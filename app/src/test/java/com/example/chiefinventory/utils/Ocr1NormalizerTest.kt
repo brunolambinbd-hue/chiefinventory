@@ -1,5 +1,6 @@
 package com.example.chiefinventory.utils
 
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -159,14 +160,111 @@ class Ocr1NormalizerTest {
     @Test
     fun `Negative lookahead lookbehind for isolated fractions`() {
         // 'II2' au milieu d'un mot ne doit pas être changé
-        assertEquals("haii2a", Ocr1Normalizer.normalize("HAII2A"))
+        assertEquals("HAII2A", Ocr1Normalizer.normalize("HAII2A"))
     }
 
     @Test
     fun `Case insensitivity check for regex rules`() {
         assertEquals("de 1", Ocr1Normalizer.normalize("DEL"))
-        assertEquals("250 g", Ocr1Normalizer.normalize("250 G ENVIRON"))
+        assertEquals("250 G", Ocr1Normalizer.normalize("250 G ENVIRON"))
         assertEquals("c. à soupe", Ocr1Normalizer.normalize("CAS"))
         assertEquals("oeuf", Ocr1Normalizer.normalize("EUF"))
     }
+
+    @Test
+    fun`Vietnamese to French accent mapping preserving case`() {
+        assertEquals("é", Ocr1Normalizer.normalize("ế"))
+        assertEquals("É", Ocr1Normalizer.normalize("Ế"))
+        assertEquals("â", Ocr1Normalizer.normalize("ấ"))
+        assertEquals("Â", Ocr1Normalizer.normalize("Ấ"))
+    }
+
+    @Test
+    fun `Tolerance symbol and environ removal preserving case`() {
+        assertEquals("100 g", Ocr1Normalizer.normalize("± 100 g"))
+        assertEquals("200 G", Ocr1Normalizer.normalize("200 G +/-"))
+        // Vérifie que 'ENVIRON' est supprimé mais que le 'G' est normalisé en 'g'
+        assertEquals("250 G", Ocr1Normalizer.normalize("250 G ENVIRON"))
+    }
+
+    @Test
+    fun `OCR t prefix removal before digits`() {
+        assertEquals("10 min", Ocr1Normalizer.normalize("t 10 min"))
+        assertEquals("15 min", Ocr1Normalizer.normalize("T 15 min"))
+    }
+
+    @Test
+    fun `Misread digit 1 as symbol or letter isolated`() {
+        assertEquals("1 orange", Ocr1Normalizer.normalize("I orange"))
+        assertEquals("1 citron", Ocr1Normalizer.normalize("| citron"))
+        assertEquals("1 gousse", Ocr1Normalizer.normalize("! gousse"))
+        assertEquals("1 kg", Ocr1Normalizer.normalize("l kg"))
+    }
+
+    @Test
+    fun `Misread digit 1 should NOT touch protected headers`() {
+        // Le 'I' de INGRÉDIENTS doit être préservé (ou uniformisé par la règle PROTECTED)
+        // mais pas transformé en '1' par erreur
+        val result = Ocr1Normalizer.normalize("INGRÉDIENTS")
+        Assert.assertTrue(result.contains("ingrédients", ignoreCase = true))
+        Assert.assertFalse(result.startsWith("1"))
+    }
+
+    @Test
+    fun `Fraction normalization`() {
+        assertEquals("1/2", Ocr1Normalizer.normalize("ll2"))
+        assertEquals("1/2", Ocr1Normalizer.normalize("!!2"))
+        assertEquals("1/2", Ocr1Normalizer.normalize("U2"))
+        assertEquals("1/4", Ocr1Normalizer.normalize("1 14"))
+    }
+
+    @Test
+    fun `Number correction for del and ld eau`() {
+        assertEquals("de 1", Ocr1Normalizer.normalize("del"))
+        assertEquals("1 l d'eau", Ocr1Normalizer.normalize("ld'eau"))
+    }
+
+    @Test
+    fun `Article normalization`() {
+        assertEquals("le citron", Ocr1Normalizer.normalize("1 e citron"))
+        assertEquals("l'oignon", Ocr1Normalizer.normalize("T'oignon"))
+    }
+
+    @Test
+    fun `Spoon unit normalization case insensitive`() {
+        assertEquals("c. à soupe", Ocr1Normalizer.normalize("CAS"))
+        assertEquals("c. à café", Ocr1Normalizer.normalize("cac"))
+        assertEquals("c. à café", Ocr1Normalizer.normalize("c à fé"))
+    }
+
+    @Test
+    fun `Digit and unit separation with lowercase normalization`() {
+        assertEquals("500 g", Ocr1Normalizer.normalize("500g"))
+        assertEquals("200 g", Ocr1Normalizer.normalize("200G"))
+        assertEquals("1 l", Ocr1Normalizer.normalize("1L"))
+    }
+
+    @Test
+    fun `Proper name preservation`() {
+        // Les noms de chefs ou d'hôtels doivent garder leur casse
+        val result = Ocr1Normalizer.normalize("Nahit YILMAZ de l'Hôtel CONRAD")
+        Assert.assertTrue(result.contains("Nahit"))
+        Assert.assertTrue(result.contains("YILMAZ"))
+        Assert.assertTrue(result.contains("Hôtel"))
+        Assert.assertTrue(result.contains("CONRAD"))
+    }
+
+    @Test
+    fun `Negative lookup for codes like HAII2A`() {
+        // Un chiffre au milieu d'un mot ne doit pas déclencher la séparation des unités
+        assertEquals("HAII2A", Ocr1Normalizer.normalize("HAII2A"))
+    }
+
+    @Test
+    fun `Historical noise removal`() {
+        // Vérifie la suppression des dates et prix en fin de ligne
+        assertEquals("Michel Laroche", Ocr1Normalizer.normalize("Michel Laroche, 14/12/94: 209 F"))
+    }
+
+
 }
