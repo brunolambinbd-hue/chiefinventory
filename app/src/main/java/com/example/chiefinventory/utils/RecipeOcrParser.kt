@@ -2,6 +2,7 @@ package com.example.chiefinventory.utils
 
 import android.content.res.Resources
 import android.util.Log
+import com.example.chiefinventory.R
 import com.google.mlkit.vision.text.Text
 
 /**
@@ -48,8 +49,13 @@ object RecipeOcrParser {
      * Exécute les 4 étapes du pipeline sur une liste de lignes brutes.
      */
     private fun executePipeline(rawLines: List<String>, res: Resources): RecipeOcrResult {
+        // Chargement des modificateurs de préparation (Utilisés par Stage 3 et 4)
+        val preparationModifiers = res.getStringArray(R.array.ingredient_preparation_modifiers).toList()
+        val repairs = res.getStringArray(R.array.ocr_spelling_repairs)
+
+
         // ÉTAPE 1 : Normalisation (Réparation des caractères et symboles)
-        val normalizedLines = rawLines.map { Ocr1Normalizer.normalize(it) }
+        val normalizedLines = rawLines.map { Ocr1Normalizer.normalize(it, repairs.toList()) }
         Log.d(TAG, "[1] APRÈS NORMALISATION:\n${normalizedLines.joinToString("\n")}")
 
         // ÉTAPE 2 : Nettoyage (Suppression des publicités et du bruit numérique)
@@ -67,7 +73,8 @@ object RecipeOcrParser {
         sections.rawInstructionsList.forEachIndexed { i, line -> Log.d(TAG, "    [$i] $line") }
 
         // ÉTAPE 4 : Fusion (Reconstruction sémantique des phrases)
-        val finalIngredients = Ocr4Merger.mergeIngredients(sections.rawIngredientsList)
+        // On injecte la liste des modificateurs pour la fusion intelligente
+        val finalIngredients = Ocr4Merger.mergeIngredients(sections.rawIngredientsList, preparationModifiers)
         val finalInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
 
         // LOG LIGNE PAR LIGNE DES RÉSULTATS FUSIONNÉS

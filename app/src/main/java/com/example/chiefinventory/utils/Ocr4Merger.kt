@@ -11,26 +11,12 @@ object Ocr4Merger {
     // Noms qui appellent presque toujours un complément "de ..."
     private val HANGING_NOUNS = listOf("vinaigre", "huile", "jus", "zeste", "pincée", "pincee", "filet", "brin", "brins", "botte", "gousse", "gousses", "cuillère", "cuillere", "verre")
 
-    // Modificateurs de préparation qui sont souvent coupés sur une nouvelle ligne
-    private val PREPARATION_MODIFIERS = listOf(
-        "haché", "hachée", "hachés", "hachées",
-        "émincé", "émincée", "émincés", "émincées",
-        "ciselé", "ciselée", "ciselés", "ciselées",
-        "coupé", "coupée", "coupés", "coupées",
-        "râpé", "râpée", "râpés", "râpées",
-        "frais", "fraîche", "fraîches",
-        "fondue", "fondu", "fondus", "fondues",
-        "concasse", "concassé", "concassée",
-        "pressé", "pressée", "découpé", "découpée",
-        "égoutté", "egoutté", "nettoyé", "moulu",
-        "en dés", "en rondelles", "en tranches", "en cubes",
-        "truite", "salade", "frais haché", "frais hachée", "frais hachés", "frais hachées"
-    )
-
     /**
      * Merges broken lines of ingredients into a clean list.
+     * @param rawIngredients The list of ingredient lines to merge.
+     * @param preparationModifiers The list of modifiers (from XML) that trigger a merge.
      */
-    fun mergeIngredients(rawIngredients: List<String>): List<String> {
+    fun mergeIngredients(rawIngredients: List<String>, preparationModifiers: List<String>): List<String> {
         if (rawIngredients.isEmpty()) return emptyList()
         
         val merged = mutableListOf<String>()
@@ -50,21 +36,25 @@ object Ocr4Merger {
             val isNewStart = startsWithQuantity(normalizedLine)
             val prevIsHanging = isHanging(current)
             val nextStartsWithConnector = startsWithConnector(normalizedLine)
-            val nextIsModifier = isOrphanModifier(normalizedLine)
+            val nextIsModifier = isOrphanModifier(normalizedLine, preparationModifiers)
             val prevEndsWithPunctuation = current.trim().lastOrNull()?.let { it == ',' || it == '.' } ?: false
+            
+            // On vérifie si la ligne originale précédente se terminait par un tiret
             val prevWasHyphenated = prevOriginalLine.trim().endsWith("-")
 
-            // Fusion si : Connecteur OR Tiret OR Modificateur orphelin (ex: haché)
             if (!isNewStart && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier)) {
                 if (prevWasHyphenated) {
                     val trimmedOriginal = prevOriginalLine.trim()
                     val charBeforeDash = if (trimmedOriginal.length >= 2) trimmedOriginal[trimmedOriginal.length - 2] else ' '
-                    val isCesure = Regex("\\p{L}").matches(charBeforeDash.toString()) && 
-                                  Regex("^\\p{L}").containsMatchIn(normalizedLine)
                     
-                    current = if (isCesure) {
+                    // Logique simplifiée pour la césure : si ça finit et commence par une lettre, on colle
+                    val endsWithLetter = current.lastOrNull()?.isLetter() == true
+                    val startsWithLetter = normalizedLine.firstOrNull()?.isLetter() == true
+                    
+                    current = if (endsWithLetter && startsWithLetter) {
                         current.trim() + normalizedLine.trim()
                     } else {
+                        // Pas une césure (ex: Zone 5-), on garde le tiret et on ajoute un espace
                         current.trim() + "- " + normalizedLine.trim()
                     }
                 } else {
@@ -98,12 +88,10 @@ object Ocr4Merger {
                 val prevWasHyphenated = prevOriginalLine.trim().endsWith("-")
                 
                 if (prevWasHyphenated) {
-                    val trimmedOriginal = prevOriginalLine.trim()
-                    val charBeforeDash = if (trimmedOriginal.length >= 2) trimmedOriginal[trimmedOriginal.length - 2] else ' '
-                    val isCesure = Regex("\\p{L}").matches(charBeforeDash.toString()) && 
-                                  Regex("^\\p{L}").containsMatchIn(normalizedLine)
-                    
-                    currentBlock = if (isCesure) {
+                    val endsWithLetter = currentBlock.lastOrNull()?.isLetter() == true
+                    val startsWithLetter = normalizedLine.firstOrNull()?.isLetter() == true
+
+                    currentBlock = if (endsWithLetter && startsWithLetter) {
                         currentBlock.trim() + normalizedLine.trim()
                     } else {
                         currentBlock.trim() + "- " + normalizedLine.trim()
@@ -150,15 +138,20 @@ object Ocr4Merger {
         return INGREDIENT_CONNECTORS.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
     }
 
-    private fun isOrphanModifier(text: String): Boolean {
+    private fun isOrphanModifier(text: String, preparationModifiers: List<String>): Boolean {
         val lower = text.lowercase().trim()
-        if (lower.startsWith(",")) return true
         
-        // Si la ligne est courte et commence par un mot de préparation
+        // Une ligne commençant par une virgule ou une parenthèse est TOUJOURS une suite d'ingrédient
+        if (lower.startsWith(",") || lower.startsWith("(")) return true
+        
+        // Si la ligne est courte (jusqu'à 5 mots)
         val words = lower.split(Regex("\\s+"))
-        if (words.size > 3) return false
+        if (words.size > 5) return false
         
-        return PREPARATION_MODIFIERS.any { lower.startsWith(it) }
+        // On nettoie la ponctuation de début pour matcher le dictionnaire (ex: (moulu -> moulu)
+        val cleanStart = lower.replace(Regex("^[^\\p{L}]+"), "")
+        
+        return preparationModifiers.any { cleanStart.startsWith(it.lowercase()) }
     }
 
     private fun startsWithQuantity(line: String): Boolean {

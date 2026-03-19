@@ -1,5 +1,7 @@
 package com.example.chiefinventory.utils
 
+import java.util.regex.Pattern
+
 /**
  * Step 1 of the OCR pipeline: Character and symbol normalization.
  * Responsibility: Transform "broken" OCR text into standard French text and remove metadata noise.
@@ -18,7 +20,10 @@ object Ocr1Normalizer {
 
     private val NUMBER_CORRECTIONS = listOf(
         Regex("(?i)^[|il!]c(?=[\\s.àa])") to "1 c",
-        Regex("(?i)\\bld['’]?eau\\b") to "1 l d'eau",
+        // Cas 1 : ld'eau après un chiffre -> l. d'eau (on ne rajoute pas de 1)
+        Regex("(?i)(?<=\\d)\\s*l[d'’\\s]+eau\\b") to " l. d'eau",
+        // Cas 2 : ld'eau seul ou après du texte -> 1 l. d'eau
+        Regex("(?i)(?<!\\d)(?<!\\d\\s)\\bl[d'’\\s]+eau\\b") to "1 l. d'eau",
         Regex("(?i)\\b1 ajout\\b") to "l'ajout",
         Regex("(?i)^[|il!]\\s*(?=\\d)") to "1",
         Regex("(?i)[|il!](?=/)") to "1",
@@ -40,7 +45,7 @@ object Ocr1Normalizer {
 
     private val VIETNAMESE_ACCENT_MAP = mapOf(
         'ế' to 'é', 'Ế' to 'É', 'ề' to 'è', 'Ề' to 'È', 'ệ' to 'é', 'Ệ' to 'É',
-        'ấ' to 'â', 'Ấ' to 'Â', 'ầ' to 'à', 'Ầ' to 'À', 'ả' to 'a', 'Ả' to 'A',
+        'ấ' to 'â', 'Ấ' to 'Â', 'ầ' to 'à', 'À' to 'À', 'ả' to 'a', 'Ả' to 'A',
         'ặ' to 'a', 'Ặ' to 'A', 'ậ' to 'â', 'Ậ' to 'Â', 'ắ' to 'a', 'Ắ' to 'A'
     )
 
@@ -65,56 +70,71 @@ object Ocr1Normalizer {
 
     private val PROTECTED_KEYWORDS = Regex("(?i)^(?:i|l)\\s*(ngrédients|nstructions)\\b")
     
-    /**
-     * Règle de détection du 1 plus fine :
-     * - Symboles (| ou !) : Convertis si suivis d'une lettre ou d'un espace.
-     * - Lettres (i ou l) : Convertis UNIQUEMENT si suivis d'un espace (isolés).
-     */
     private val OCR_ONE_CORRECTION = Regex("(?i)(^|•\\s*|[\\-*]\\s*|\\()([|!|](?=[\\s\\p{L}])|[il](?=\\s+\\p{L}))")
 
-    fun normalize(input: String): String {
+    /**
+     * Normalizes a single line of OCR text.
+     * @param input The raw line from ML Kit.
+     * @param spellingRepairs Optional list of repairs from XML (format: "wrong|correct").
+     */
+    fun normalize(input: String, spellingRepairs: List<String> = emptyList()): String {
         if (input.isBlank()) return ""
 
-        // A. ON NE PASSE PLUS TOUT EN LOWERCASE. On travaille sur le texte original.
         var text = input.trim()
 
-        // 1. Réparation préalable des mots-clés (garde la casse probable)
+        // A. Réparations orthographiques spécifiques (Dictionnaire XML)
+        text = applySpellingRepairs(text, spellingRepairs)
+
+        // B. Réparation préalable des mots-clés
         text = text.replace(PROTECTED_KEYWORDS) { match ->
             val suffix = match.groupValues[1]
             if (suffix.lowercase().startsWith("n")) "ingrédients" else "instructions"
         }
         text = text.replace(Regex("(?i)^t\\s*(?=\\d)"), "")
 
-        // 2. Nettoyage global (Symboles, puces devant chiffres)
+        // C. Nettoyage global
         text = text.replace("±", "").replace("+/-", "").replace("+-", "")
             .replace(Regex("(?i)\\benviron\\b"), "")
             .replace(Regex("(?i)^[!|il!|•\\-*]\\s+(?=\\d)"), "")
 
-        // 3. Bruit historique (Dates, Prix)
         NOISE_REMOVAL.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
-        // 4. Correction du chiffre 1 (Sécurisée par la règle de l'espace)
+        // D. Correction du chiffre 1
         text = text.replace(OCR_ONE_CORRECTION) { match -> match.groupValues[1] + "1 " }
 
-        // 5. Fractions et Corrections de nombres
+        // E. Pipeline de transformation
         FRACTION_RULES.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         NUMBER_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
-        // 6. Accents (Gère majuscules et minuscules via la map enrichie)
         text = text.map { VIETNAMESE_ACCENT_MAP[it] ?: it }.joinToString("")
         
         ARTICLE_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         LINGUISTIC_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         SPOON_NORMALIZATION.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
-        // 7. Séparation chiffres/lettres SÉCURISÉE
-        // On normalise les unités en minuscules dans le remplacement (ex: 200G -> 200 g)
         text = text.replace(Regex("(?i)(?<!\\p{L})(\\d+)([a-z]+)")) { match ->
             "${match.groupValues[1]} ${match.groupValues[2].lowercase()}"
         }
 
-        // 8. Nettoyage final ponctuation et espaces
         text = text.replace(Regex("[,:;\\s\\-]+$"), "")
         return text.replace(Regex("\\s+"), " ").trim()
+    }
+
+    private fun applySpellingRepairs(text: String, repairs: List<String>): String {
+        var result = text
+        for (repair in repairs) {
+            val parts = repair.split("|")
+            if (parts.size == 2) {
+                val wrong = parts[0]
+                val correct = parts[1]
+                // On utilise \b pour ne remplacer que le mot entier (insensible à la casse)
+                //val pattern = Regex("(?i)\\b${Pattern.quote(wrong)}\\b")
+                val pattern = wrong
+                    .replace(" ", "\\s+")
+                    .toRegex(RegexOption.IGNORE_CASE)
+                result = result.replace(pattern, correct)
+            }
+        }
+        return result
     }
 }

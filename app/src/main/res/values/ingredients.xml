@@ -6,6 +6,12 @@
         <item>sel et poivre</item>
         <item>persil</item>
         <item>haché</item>
+        <item>décortiquées</item>
+        <item>frais haché</item>
+        <item>frais hachés</item>
+        <item>demi-écrémé sucré</item>
+        <item>beurre</item>
+        <item>salade</item>
         <item>tabasco</item>
         <item>aneth</item>
         <item>ciboulette</item>
@@ -17,5 +23,6 @@
         <item>thym</item>
         <item>du thym et du romarin</item>
         <item>romarin</item>
+        <item>italien</item>
     </string-array>
 </resources>

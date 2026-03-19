@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ingredient_preparation_modifiers">
+        <item>haché</item>
+        <item>hachée</item>
+        <item>hachés</item>
+        <item>hachées</item>
+        <item>frais hachés</item>
+        <item>frais haché</item>
+        <item>émincé</item>
+        <item>émincée</item>
+        <item>émincés</item>
+        <item>émincées</item>
+        <item>ciselé</item>
+        <item>ciselée</item>
+        <item>ciselés</item>
+        <item>ciselées</item>
+        <item>coupé</item>
+        <item>coupée</item>
+        <item>coupés</item>
+        <item>coupées</item>
+        <item>râpé</item>
+        <item>râpée</item>
+        <item>râpés</item>
+        <item>râpées</item>
+        <item>frais</item>
+        <item>fraîche</item>
+        <item>fraîches</item>
+        <item>fondue</item>
+        <item>fondu</item>
+        <item>fondus</item>
+        <item>fondues</item>
+        <item>concassé</item>
+        <item>concassée</item>
+        <item>concassés</item>
+        <item>pressé</item>
+        <item>pressée</item>
+        <item>pressés</item>
+        <item>pressées</item>
+        <item>découpé</item>
+        <item>découpée</item>
+        <item>égoutté</item>
+        <item>egoutté</item>
+        <item>nettoyé</item>
+        <item>moulu</item>
+        <item>moulé</item>
+        <item>fumé</item>
+        <item>fumée</item>
+        <item>fumés</item>
+        <item>fumées</item>
+        <item>fouetté</item>
+        <item>fouettée</item>
+        <item>fouettés</item>
+        <item>fouettées</item>
+        <item>grises décortiquées</item>
+        <item>décortiquées</item>
+        <item>en dés</item>
+        <item>en rondelles</item>
+        <item>en tranches</item>
+        <item>en cubes</item>
+        <item>salade</item>
+        <item>princesses</item>
+        <item>(moulu ou en morceaux)</item>
+        <item>italien</item>
+        <item>italienne</item>
+        <item>français</item>
+        <item>francais</item>
+        <item>française</item>
+        <item>francaise</item>
+        <item>destragon haché</item>
+        <item>d\'estragon haché</item>
+        <item>surgelé</item>
+        <item>1/2 la décoration)</item>
+        <item>en fines tranches</item>
+        <item>poids égoutté)</item>
+    </string-array>
+</resources>

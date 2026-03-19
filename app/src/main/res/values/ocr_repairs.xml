@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ocr_spelling_repairs">
+        <item>dépinards|d\'épinards</item>
+        <item>depinards|d\'épinards</item>
+        <item>lajout|l\'ajout</item>
+        <item>lail|l\'ail</item>
+        <item>loignon|l\'oignon</item>
+        <item>lhuile|l\'huile</item>
+        <item>loeuf|l\'œuf</item>
+        <item>deuf|d\'œuf</item>
+        <item>eifs|œufs</item>
+        <item>her bes|herbes</item>
+        <item>1oasts|toasts</item>
+    </string-array>
+</resources>

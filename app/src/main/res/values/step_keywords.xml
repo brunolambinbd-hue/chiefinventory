@@ -23,7 +23,6 @@
         <item>surmontez</item>
         <item>décorez</item>
         <item>déposez</item>
-        <item>déposez</item>
         <item>préparer</item>
         <item>préparez</item>
         <item>cuire</item>
@@ -47,12 +46,9 @@
         <item>disposez</item>
         <item>retirer</item>
         <item>retire</item>
-        <item>retirer</item>
-        <item>retirer</item>
         <item>placer</item>
         <item>placez</item>
         <item>Placez</item>
-        <item>posez</item>
         <item>posez</item>
         <item>servir</item>
         <item>servez</item>
@@ -63,7 +59,6 @@
         <item>[ée]talez</item>
         <item>saupoudrer</item>
         <item>garnir</item>
-        <item>placez</item>
         <item>d[ée]coupez</item>
         <item>portez</item>
         <item>bouillir</item>
@@ -74,18 +69,12 @@
         <item>enfourner</item>
         <item>dressez</item>
         <item>pr[ée]sentez</item>
-        <item>d[ée]corez</item>
         <item>accompagnez</item>
-        <item>pr[ée]parez</item>
         <item>vinaigrette</item>
         <item>r[ée]partissez</item>
         <item>mixez</item>
         <item>[ée]gouttez</item>
-        <item>[ée]gouttez</item>
         <item>Egouttez</item>
-        <item>prélevez</item>
-        <item>nettoyez</item>
-        <item>RecouVrez</item>
         <item>Recouvrez</item>
         <item>Nappez</item>
         <item>Evidez</item>
@@ -99,18 +88,27 @@
         <item>Garnissez</item>
         <item>Hachez</item>
         <item>Arrosez</item>
-        <item>Eplucher</item>
-        <item>Eplucher</item>
         <item>Prenez</item>
         <item>Prelevez</item>
         <item>Assemblez</item>
         <item>Trempez</item>
         <item>Coupez</item>
-        <item>Saupaudrez</item>
         <item>Saupoudrez</item>
         <item>Placez</item>
         <item>Farcissez</item>
-        <item>Découpez</item>
         <item>Otez</item>
+        <item>Salez et poivrez</item>
+        <item>Salez</item>
+        <item>Poivrez</item>
+        <item>entourez</item>
+        <item>Plongez</item>
+        <item>Retirez</item>
+        <item>Ajoutez</item>
+        <item>Assaisonnez</item>
+        <item>Mélangez</item>
+        <item>Préparez</item>
+        <item>Répartissez</item>
+        <item>Servez</item>
+        <item>Rafraîchissez</item>
     </string-array>
 </resources>
