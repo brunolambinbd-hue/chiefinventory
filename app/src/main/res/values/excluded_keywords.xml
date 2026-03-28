@@ -41,5 +41,6 @@
         <item>€ee</item>
         <item>€e</item>
         <item>€</item>
+        <item>\$</item>
     </string-array>
 </resources>
