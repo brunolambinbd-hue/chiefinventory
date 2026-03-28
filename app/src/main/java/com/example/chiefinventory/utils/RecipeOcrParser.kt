@@ -14,13 +14,11 @@ object RecipeOcrParser {
 
     /**
      * Point d'entrée recommandé utilisant l'objet structurel Text de ML Kit.
-     * Permet de respecter l'ordre des blocs (colonnes) de la recette.
      */
     fun parse(visionText: Text, res: Resources): RecipeOcrResult {
         Log.d(TAG, "=== DÉBUT PIPELINE OCR (Extraction par blocs) ===")
-        Log.d(TAG, "[0] TEXTE DE DÉPART (ML KIT):\n${visionText.text}")
 
-        // Extraction hiérarchique : on traite chaque bloc entièrement avant de passer au suivant
+        // Extraction hiérarchique par blocs
         val rawLines = visionText.textBlocks.flatMap { block ->
             block.lines.map { it.text }
         }
@@ -33,12 +31,10 @@ object RecipeOcrParser {
      */
     fun parse(fullText: String, res: Resources): RecipeOcrResult {
         Log.d(TAG, "=== DÉBUT PIPELINE OCR (Texte brut) ===")
-        Log.d(TAG, "[0] TEXTE DE DÉPART (BRUT):\n$fullText")
-        
+
         if (fullText.isBlank()) return RecipeOcrResult()
 
-        val rawLines = fullText.replace("|", "\n|")
-            .lines()
+        val rawLines = fullText.lines()
             .map { it.trim() }
             .filter { it.isNotBlank() }
 
@@ -46,47 +42,34 @@ object RecipeOcrParser {
     }
 
     /**
-     * Exécute les 4 étapes du pipeline sur une liste de lignes brutes.
+     * Exécute les 4 étapes du pipeline.
      */
     private fun executePipeline(rawLines: List<String>, res: Resources): RecipeOcrResult {
-        // Chargement des modificateurs de préparation (Utilisés par Stage 3 et 4)
+        // Chargement des dictionnaires XML
         val preparationModifiers = res.getStringArray(R.array.ingredient_preparation_modifiers).toList()
-        val repairs = res.getStringArray(R.array.ocr_spelling_repairs)
+        val repairs = res.getStringArray(R.array.ocr_spelling_repairs).toList()
 
-
-        // ÉTAPE 1 : Normalisation (Réparation des caractères et symboles)
-        val normalizedLines = rawLines.map { Ocr1Normalizer.normalize(it, repairs.toList()) }
+        // ÉTAPE 1 : Normalisation (avec dictionnaire de réparations)
+        val normalizedLines = rawLines.map { Ocr1Normalizer.normalize(it, repairs) }
         Log.d(TAG, "[1] APRÈS NORMALISATION:\n${normalizedLines.joinToString("\n")}")
 
-        // ÉTAPE 2 : Nettoyage (Suppression des publicités et du bruit numérique)
+        // ÉTAPE 2 : Nettoyage
         val cleanedLines = Ocr2Cleaner.clean(normalizedLines, res)
-        Log.d(TAG, "[2] APRÈS NETTOYAGE (Sans pub/bruit):\n${cleanedLines.joinToString("\n")}")
+        Log.d(TAG, "[2] APRÈS NETTOYAGE:\n${cleanedLines.joinToString("\n")}")
 
-        // ÉTAPE 3 : Catégorisation (Tri sélectif dans les compartiments)
+        // ÉTAPE 3 : Catégorisation
         val sections = Ocr3Categorizer.categorize(cleanedLines, res)
         Log.d(TAG, "[3] CATÉGORISATION TERMINÉE")
-        
-        // LOG DES LIGNES BRUTES APRÈS TRI
-        Log.d(TAG, "    --- INGRÉDIENTS BRUTS (Catégorisés) ---")
-        sections.rawIngredientsList.forEachIndexed { i, line -> Log.d(TAG, "    [$i] $line") }
-        Log.d(TAG, "    --- INSTRUCTIONS BRUTS (Catégorisées) ---")
-        sections.rawInstructionsList.forEachIndexed { i, line -> Log.d(TAG, "    [$i] $line") }
 
-        // ÉTAPE 4 : Fusion (Reconstruction sémantique des phrases)
-        // On injecte la liste des modificateurs pour la fusion intelligente
+        // ÉTAPE 4 : Fusion (Merger)
         val finalIngredients = Ocr4Merger.mergeIngredients(sections.rawIngredientsList, preparationModifiers)
         val finalInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
 
-        // LOG LIGNE PAR LIGNE DES RÉSULTATS FUSIONNÉS
-        Log.d(TAG, "[4] RÉSULTATS APRÈS FUSION (MERGER):")
-        Log.d(TAG, "    --- INGRÉDIENTS FINAUX ---")
-        finalIngredients.forEachIndexed { i, ing -> Log.d(TAG, "    [$i] $ing") }
-        
-        Log.d(TAG, "    --- INSTRUCTIONS FINALES ---")
-        finalInstructions.forEachIndexed { i, inst -> Log.d(TAG, "    [$i] $inst") }
+        Log.d(TAG, "[4] RÉSULTATS FINAUX (MERGER):")
+        finalIngredients.forEachIndexed { i, ing -> Log.d(TAG, "    ING[$i]: $ing") }
 
-        val result = RecipeOcrResult(
-            title = null, 
+        return RecipeOcrResult(
+            title = null,
             ingredients = finalIngredients.joinToString("\n"),
             instructions = finalInstructions.joinToString("\n"),
             wine = if (sections.detectedWineList.isNotEmpty()) sections.detectedWineList.joinToString(" ") else null,
@@ -96,17 +79,5 @@ object RecipeOcrParser {
             cookTime = sections.detectedCookTime,
             restingTime = sections.detectedRestingTime
         )
-
-        // LOG FINAL DES MÉTA-DONNÉES
-        Log.d(TAG, "[5] MÉTA-DONNÉES EXTRAITES:")
-        Log.d(TAG, "    - Portions: ${result.servings ?: "N/A"}")
-        Log.d(TAG, "    - Prép (min): ${result.prepTime ?: "N/A"}")
-        Log.d(TAG, "    - Cuisson (min): ${result.cookTime ?: "N/A"}")
-        Log.d(TAG, "    - Repos (min): ${result.restingTime ?: "N/A"}")
-        Log.d(TAG, "    - Vin: ${result.wine ?: "N/A"}")
-        Log.d(TAG, "    - Source: ${result.source ?: "N/A"}")
-        Log.d(TAG, "=== FIN PIPELINE OCR ===")
-
-        return result
     }
 }

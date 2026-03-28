@@ -50,6 +50,9 @@ object Ocr3Categorizer {
         val commonIngredients = res.getStringArray(R.array.common_ingredients_no_qty).toList()
         val excludedKeywords = res.getStringArray(R.array.excluded_ocr_keywords).toList()
         val preparationModifiers = res.getStringArray(R.array.ingredient_preparation_modifiers).toList()
+        
+        // NOUVEAU : Chargement des déclencheurs d'instructions
+        val instructionTriggers = res.getStringArray(R.array.instruction_switch_keywords).toList()
 
         val ingredientHeaders = listOf("ingrédients", "ingredients", "composition", "ngrédients")
         val instructionHeaders = listOf("préparation", "instructions", "nstructions", "étapes", "réalisation", "méthode", "progression", "cuisson")
@@ -104,9 +107,9 @@ object Ocr3Categorizer {
             workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
             if (workingLine.isEmpty()) continue
 
+            val lowerLine = workingLine.lowercase()
             val containsAction = containsActionRegex.containsMatchIn(workingLine)
             val startsWithBullet = workingLine.startsWith("•") || workingLine.startsWith("-") || workingLine.startsWith("*")
-            val lowerLine = workingLine.lowercase()
             val startsWithConnector = ingredientConnectors.any { lowerLine.startsWith("$it ") || (it.endsWith("'") && lowerLine.startsWith(it)) }
 
             // A. CLASSIFICATION PRÉCOCE
@@ -115,11 +118,15 @@ object Ocr3Categorizer {
             val hasQuantity = qtyRegex.containsMatchIn(workingLine) ||
                     OcrHelperUtils.countIngredientSequences(workingLine) > 0
             val startsWithModifier = preparationModifiers.any { lowerLine.startsWith(it.lowercase()) }
+            
+            // NOUVEAU : Signal fort d'instruction (ex: contient "pendant", "minutes"...)
+            val hasInstructionTrigger = instructionTriggers.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(workingLine) }
 
-            val looksLikeIngredient = hasQuantity || hasWeight || startsWithModifier ||
-                    commonIngredients.any { lowerLine.startsWith(it.lowercase()) }
+            // Une ligne est un ingrédient SI (elle a une qty/poids/modifier) ET (elle n'a PAS de déclencheur d'instruction)
+            val looksLikeIngredient = (hasQuantity || hasWeight || startsWithModifier ||
+                    commonIngredients.any { lowerLine.startsWith(it.lowercase()) }) && !hasInstructionTrigger
 
-            // 5. VIN ET SOURCE (Sécurisé)
+            // 5. VIN ET SOURCE
             if (!containsAction && !startsWithConnector) {
                 val isStrictIngredient = looksLikeIngredient && (currentSection == SECTION_INGREDIENTS || startsWithBullet)
                 if (!isStrictIngredient && WineParser.isWineLine(workingLine, wineRes)) {
@@ -149,8 +156,8 @@ object Ocr3Categorizer {
             if (workingLine.isEmpty() || !workingLine.any { it.isLetter() }) continue
 
             // 8. CLASSIFICATION FINALE
-            // RÉGLE D'OR : Si ligne longue (> 35 car.) ET verbe d'action, c'est TOUJOURS une instruction
-            val isInstructionSignal = containsAction && (workingLine.length > 35 || startsWithBullet)
+            // RÉGLE D'OR : Si déclencheur d'instruction OU (ligne longue + action), c'est une instruction
+            val isInstructionSignal = hasInstructionTrigger || (containsAction && (workingLine.length > 35 || startsWithBullet))
             
             if (isInstructionSignal) {
                 currentSection = SECTION_INSTRUCTIONS
@@ -161,7 +168,8 @@ object Ocr3Categorizer {
             when (currentSection) {
                 SECTION_INGREDIENTS -> results.rawIngredientsList.add(workingLine)
                 SECTION_INSTRUCTIONS -> {
-                    val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !Ocr2Cleaner.isTechnicalDimension(workingLine)
+                    // On ne "rattrape" l'ingrédient QUE s'il n'a pas de déclencheur d'instruction
+                    val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !Ocr2Cleaner.isTechnicalDimension(workingLine) && !hasInstructionTrigger
                     if (isStrictIngredient && workingLine.length < 45) {
                         results.rawIngredientsList.add(workingLine)
                     } else {

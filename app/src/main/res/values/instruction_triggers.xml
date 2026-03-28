@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="instruction_switch_keywords">
+        <!-- Mots qui disqualifient une ligne comme ingrédient et forcent le passage en instruction -->
+        <item>pendant</item>
+        <item>jusqu\'à</item>
+        <item>jusqu\’à</item>
+        <item>ensuite</item>
+        <item>puis</item>
+        <item>réserver</item>
+        <item>four</item>
+        <item>servir</item>
+        <item>décoration</item>
+        <item>accompagnement</item>
+        <item>astuce</item>
+        <item>note</item>
+        <item>attention</item>
+        <item>chaud</item>
+        <item>froid</item>
+        <item>tiède</item>
+        <item>environ</item>
+        <item>minutes</item>
+        <item>heures</item>
+        <item>contenant</item>
+        <item>une poêle</item>
+    </string-array>
+</resources>
