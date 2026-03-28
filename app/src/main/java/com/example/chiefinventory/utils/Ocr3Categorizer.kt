@@ -2,6 +2,7 @@ package com.example.chiefinventory.utils
 
 import android.content.res.Resources
 import com.example.chiefinventory.R
+import java.util.regex.Pattern
 import kotlin.collections.distinct
 import kotlin.collections.plus
 
@@ -50,8 +51,6 @@ object Ocr3Categorizer {
         val commonIngredients = res.getStringArray(R.array.common_ingredients_no_qty).toList()
         val excludedKeywords = res.getStringArray(R.array.excluded_ocr_keywords).toList()
         val preparationModifiers = res.getStringArray(R.array.ingredient_preparation_modifiers).toList()
-        
-        // NOUVEAU : Chargement des déclencheurs d'instructions
         val instructionTriggers = res.getStringArray(R.array.instruction_switch_keywords).toList()
 
         val ingredientHeaders = listOf("ingrédients", "ingredients", "composition", "ngrédients")
@@ -59,6 +58,16 @@ object Ocr3Categorizer {
 
         val servingsRegex = Regex("(?i)(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)")
         val alternateServingsRegex = Regex("(?i)(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)")
+
+        // Configuration pour la détection des temps
+        val durationPatternStr = "(\\d+\\s*[hH](?:\\s*\\d+)?|\\d+\\s*(?:mn|min|minute|u|h|heure))"
+        val timeTypePatternStr = "(préparation|cuisson|repos|prép\\.?|prep\\.?|cuis\\.?|rest\\.?)"
+        
+        // 1. Cas combiné : "15 min + 30 min de cuisson" (15 = prép, 30 = cuisson)
+        val timePatternCombined = Regex("(?i)$durationPatternStr\\s*\\+\\s*$durationPatternStr\\s+(?:de\\s+)?cuisson")
+        // 2. Cas classiques préfixes/suffixes
+        val timePatternPrefix = Regex("(?i)$timeTypePatternStr\\s*:?\\s*(?:de\\s+)?$durationPatternStr")
+        val timePatternSuffix = Regex("(?i)$durationPatternStr\\s+(?:de\\s+)?$timeTypePatternStr")
 
         val qtyRegex = Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|quelques\\b|plusieurs\\b|un peu\\b|[|Il!](?=[\\s\\d]))", RegexOption.IGNORE_CASE)
         val containsActionRegex = Regex("(?i)\\b(?:${actionVerbs.joinToString("|")})\\b")
@@ -85,23 +94,37 @@ object Ocr3Categorizer {
             }
 
             // 3. CONSOMMATION DES TEMPS
-            val timePattern = Regex("(?i)(préparation|cuisson|repos|prép\\.?|prep\\.?|cuis\\.?|rest\\.?)\\s*:?\\s*(\\d+\\s*[hH](?:\\s*\\d+)?|\\d+\\s*(?:mn|min|minute|u|h|heure))")
-            var tMatch = timePattern.find(workingLine)
-            while (tMatch != null) {
-                val type = tMatch.groupValues[1].lowercase()
-                val mins = extractMinutes(tMatch.groupValues[2])
+            var foundTime = true
+            while (foundTime) {
+                val matchComb = timePatternCombined.find(workingLine)
+                val matchPre = timePatternPrefix.find(workingLine)
+                val matchSuf = timePatternSuffix.find(workingLine)
+                
                 when {
-                    type.startsWith("prép") || type.startsWith("prep") -> results.detectedPrepTime = mins
-                    type.startsWith("cuis") || type.startsWith("cuisson") -> results.detectedCookTime = mins
-                    type.startsWith("re") -> results.detectedRestingTime = mins
+                    matchComb != null -> {
+                        results.detectedPrepTime = extractMinutes(matchComb.groupValues[1])
+                        results.detectedCookTime = extractMinutes(matchComb.groupValues[2])
+                        workingLine = workingLine.replace(matchComb.value, "").trim()
+                    }
+                    matchPre != null -> {
+                        val mins = extractMinutes(matchPre.groupValues[2])
+                        val type = matchPre.groupValues[1].lowercase()
+                        updateTimeResult(results, type, mins)
+                        workingLine = workingLine.replace(matchPre.value, "").trim()
+                    }
+                    matchSuf != null -> {
+                        val mins = extractMinutes(matchSuf.groupValues[1])
+                        val type = matchSuf.groupValues[2].lowercase()
+                        updateTimeResult(results, type, mins)
+                        workingLine = workingLine.replace(matchSuf.value, "").trim()
+                    }
+                    else -> foundTime = false
                 }
-                workingLine = workingLine.replace(tMatch.groupValues[0], "").trim()
-                tMatch = timePattern.find(workingLine)
             }
 
             // 4. CONSOMMATION DES MOTS-CLÉS D'EXCLUSION
             for (word in excludedKeywords) {
-                val pattern = Regex("(?i)(?<!\\p{L})${Regex.escape(word)}(?!\\p{L})")
+                val pattern = Regex("(?i)(?<!\\p{L})${Pattern.quote(word)}(?!\\p{L})")
                 workingLine = pattern.replace(workingLine, "").trim()
             }
             workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
@@ -117,13 +140,13 @@ object Ocr3Categorizer {
             val hasWeight = weightRegex.containsMatchIn(workingLine)
             val hasQuantity = qtyRegex.containsMatchIn(workingLine) ||
                     OcrHelperUtils.countIngredientSequences(workingLine) > 0
-            val startsWithModifier = preparationModifiers.any { lowerLine.startsWith(it.lowercase()) }
             
-            // NOUVEAU : Signal fort d'instruction (ex: contient "pendant", "minutes"...)
-            val hasInstructionTrigger = instructionTriggers.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(workingLine) }
+            val wordsList = workingLine.split(Regex("\\s+"))
+            val isIsolatedModifier = wordsList.size <= 3 && preparationModifiers.any { lowerLine.startsWith(it.lowercase()) }
+            
+            val hasInstructionTrigger = instructionTriggers.any { Regex("(?i)\\b${Pattern.quote(it)}\\b").containsMatchIn(workingLine) }
 
-            // Une ligne est un ingrédient SI (elle a une qty/poids/modifier) ET (elle n'a PAS de déclencheur d'instruction)
-            val looksLikeIngredient = (hasQuantity || hasWeight || startsWithModifier ||
+            val looksLikeIngredient = (hasQuantity || hasWeight || isIsolatedModifier ||
                     commonIngredients.any { lowerLine.startsWith(it.lowercase()) }) && !hasInstructionTrigger
 
             // 5. VIN ET SOURCE
@@ -156,8 +179,7 @@ object Ocr3Categorizer {
             if (workingLine.isEmpty() || !workingLine.any { it.isLetter() }) continue
 
             // 8. CLASSIFICATION FINALE
-            // RÉGLE D'OR : Si déclencheur d'instruction OU (ligne longue + action), c'est une instruction
-            val isInstructionSignal = hasInstructionTrigger || (containsAction && (workingLine.length > 35 || startsWithBullet))
+            val isInstructionSignal = hasInstructionTrigger || (containsAction && (workingLine.length > 25 || startsWithBullet))
             
             if (isInstructionSignal) {
                 currentSection = SECTION_INSTRUCTIONS
@@ -168,7 +190,6 @@ object Ocr3Categorizer {
             when (currentSection) {
                 SECTION_INGREDIENTS -> results.rawIngredientsList.add(workingLine)
                 SECTION_INSTRUCTIONS -> {
-                    // On ne "rattrape" l'ingrédient QUE s'il n'a pas de déclencheur d'instruction
                     val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !Ocr2Cleaner.isTechnicalDimension(workingLine) && !hasInstructionTrigger
                     if (isStrictIngredient && workingLine.length < 45) {
                         results.rawIngredientsList.add(workingLine)
@@ -183,6 +204,14 @@ object Ocr3Categorizer {
             }
         }
         return results
+    }
+
+    private fun updateTimeResult(results: RawSections, type: String, mins: String?) {
+        when {
+            type.startsWith("prép") || type.startsWith("prep") -> results.detectedPrepTime = mins
+            type.startsWith("cuis") || type.startsWith("cuisson") -> results.detectedCookTime = mins
+            type.startsWith("re") -> results.detectedRestingTime = mins
+        }
     }
 
     private fun extractMinutes(timeStr: String): String? {

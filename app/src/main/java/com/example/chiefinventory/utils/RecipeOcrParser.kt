@@ -67,6 +67,7 @@ object RecipeOcrParser {
 
         Log.d(TAG, "[4] RÉSULTATS FINAUX (MERGER):")
         finalIngredients.forEachIndexed { i, ing -> Log.d(TAG, "    ING[$i]: $ing") }
+        finalInstructions.forEachIndexed { i, inst -> Log.d(TAG, "    INSTR[$i]: $inst") }
 
         return RecipeOcrResult(
             title = null,

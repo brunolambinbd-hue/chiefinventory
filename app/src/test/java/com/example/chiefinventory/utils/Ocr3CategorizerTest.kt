@@ -24,6 +24,7 @@ class Ocr3CategorizerTest {
         `when`(res.getStringArray(R.array.common_ingredients_no_qty)).thenReturn(arrayOf("sel", "poivre", "beurre", "salade"))
         `when`(res.getStringArray(R.array.excluded_ocr_keywords)).thenReturn(arrayOf("SAVEUR", "POUR", "PAGE"))
         `when`(res.getStringArray(R.array.ingredient_preparation_modifiers)).thenReturn(arrayOf("haché", "hachés", "frais hachés", "émincé", "salade"))
+        `when`(res.getStringArray(R.array.instruction_switch_keywords)).thenReturn(arrayOf("pendant", "ensuite", "cuisson"))
 
         // 2. Mocks pour SourceParser et WineParser
         `when`(res.getStringArray(R.array.source_keywords)).thenReturn(arrayOf("hôtel", "rue"))
@@ -373,5 +374,32 @@ class Ocr3CategorizerTest {
         val result = Ocr3Categorizer.categorize(input, res)
 
         assertTrue("La ligne 'salade' doit être dans les ingrédients", result.rawIngredientsList.contains("salade"))
+    }
+
+    @Test
+    fun `Time extraction combined preparation and cooking`() {
+        // Test "15 min + 30 min de cuisson" -> 15 = prép, 30 = cuisson
+        val input = listOf("15 min + 30 min de cuisson")
+        val result = Ocr3Categorizer.categorize(input, res)
+        assertEquals("15", result.detectedPrepTime)
+        assertEquals("30", result.detectedCookTime)
+    }
+
+    @Test
+    fun `Time extraction suffix format`() {
+        // Test "30 min de cuisson"
+        val input = listOf("30 min de cuisson")
+        val result = Ocr3Categorizer.categorize(input, res)
+        assertEquals("30", result.detectedCookTime)
+    }
+
+    @Test
+    fun `Disqualification via instruction trigger`() {
+        // Contient "pendant", donc doit être une instruction malgré le chiffre 10
+        val input = listOf("Cuire pendant 10 min")
+        val result = Ocr3Categorizer.categorize(input, res)
+        assertTrue("Doit être une instruction à cause du déclencheur 'pendant'", 
+            result.rawInstructionsList.contains("Cuire pendant 10 min"))
+        assertTrue("Ne doit pas être un ingrédient", result.rawIngredientsList.isEmpty())
     }
 }
