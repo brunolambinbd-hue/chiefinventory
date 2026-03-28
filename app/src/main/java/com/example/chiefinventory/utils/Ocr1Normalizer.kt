@@ -26,7 +26,8 @@ object Ocr1Normalizer {
         Regex("(?i)(?<!\\d)(?<!\\d\\s)\\bl[d'’\\s]+eau\\b") to "1 l. d'eau",
         Regex("(?i)\\b1 ajout\\b") to "l'ajout",
         Regex("(?i)^[|il!]\\s*(?=\\d)") to "1",
-        Regex("(?i)[|il!](?=/)") to "1",
+        // Correction fraction : remplace |il! par 1 uniquement si pas précédé d'une lettre (évite KCAL/POR -> KCA1/POR)
+        Regex("(?i)(?<!\\p{L})[|il!](?=/)") to "1",
         Regex("\\s+\\|\\s+") to " 1 ",
         Regex("(?i)\\bdel\\b") to "de 1"
     )
@@ -45,7 +46,7 @@ object Ocr1Normalizer {
 
     private val VIETNAMESE_ACCENT_MAP = mapOf(
         'ế' to 'é', 'Ế' to 'É', 'ề' to 'è', 'Ề' to 'È', 'ệ' to 'é', 'Ệ' to 'É',
-        'ấ' to 'â', 'Ấ' to 'Â', 'ầ' to 'à', 'Ầ' to 'À', 'ả' to 'a', 'Ả' to 'A',
+        'ấ' to 'â', 'Ấ' to 'Â', 'ầ' to 'à', 'À' to 'À', 'ả' to 'a', 'Ả' to 'A',
         'ặ' to 'a', 'Ặ' to 'A', 'ậ' to 'â', 'Ậ' to 'Â', 'ắ' to 'a', 'Ắ' to 'A', 'ạ' to 'a', 'Ạ' to 'A'
     )
 
@@ -98,30 +99,28 @@ object Ocr1Normalizer {
             .replace(Regex("(?i)\\benviron\\b"), "")
             .replace(Regex("(?i)^[!|il!|•\\-*]\\s+(?=\\d)"), "")
 
-        // 4. Bruit historique (Dates, Prix)
         NOISE_REMOVAL.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
-        // 5. Correction du chiffre 1 mal lu
+        // 4. Correction du chiffre 1 mal lu
         text = text.replace(OCR_ONE_CORRECTION) { match -> match.groupValues[1] + "1 " }
 
-        // 6. Fractions et Corrections de nombres
+        // 5. Fractions et Corrections de nombres
         FRACTION_RULES.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         NUMBER_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
-        // 7. Accents (Gère majuscules et minuscules)
         text = text.map { VIETNAMESE_ACCENT_MAP[it] ?: it }.joinToString("")
         
         ARTICLE_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         LINGUISTIC_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         SPOON_NORMALIZATION.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
-        // 8. Séparation chiffres/lettres SÉCURISÉE
+        // 6. Séparation chiffres/lettres SÉCURISÉE
         // On normalise les unités en minuscules dans le remplacement (ex: 200G -> 200 g)
         text = text.replace(Regex("(?i)(?<!\\p{L})(\\d+)([a-z]+)")) { match ->
             "${match.groupValues[1]} ${match.groupValues[2].lowercase()}"
         }
 
-        // 9. Nettoyage final ponctuation et espaces
+        // 7. Nettoyage final ponctuation et espaces
         text = text.replace(Regex("[,:;\\s\\-]+$"), "")
         return text.replace(Regex("\\s+"), " ").trim()
     }

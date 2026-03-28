@@ -18,7 +18,9 @@ data class RawSections(
     var detectedServings: String? = null,
     var detectedPrepTime: String? = null,
     var detectedCookTime: String? = null,
-    var detectedRestingTime: String? = null
+    var detectedRestingTime: String? = null,
+    var detectedKcal: String? = null,    // Kcal par portion
+    var detectedDifficulty: String? = null // Difficulté
 )
 
 object Ocr3Categorizer {
@@ -59,13 +61,16 @@ object Ocr3Categorizer {
         val servingsRegex = Regex("(?i)(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)")
         val alternateServingsRegex = Regex("(?i)(\\d+)\\s*(?:pers\\.?|personnes?|portions?|servings?)")
 
+        // Regex pour Kcal/portion (ex: 500 kcal/por, 500 kilo calories)
+        val kcalRegex = Regex("(?i)(\\d+)\\s*(?:kcal|kilo\\s*calories?)(?:/por\\.?)?")
+        
+        // Regex pour la difficulté (facile, moyen, difficile)
+        val difficultyRegex = Regex("(?i)\\b(facile|moyen|difficile|diffcile)\\b")
+
         // Configuration pour la détection des temps
         val durationPatternStr = "(\\d+\\s*[hH](?:\\s*\\d+)?|\\d+\\s*(?:mn|min|minute|u|h|heure))"
         val timeTypePatternStr = "(préparation|cuisson|repos|prép\\.?|prep\\.?|cuis\\.?|rest\\.?)"
-        
-        // 1. Cas combiné : "15 min + 30 min de cuisson" (15 = prép, 30 = cuisson)
         val timePatternCombined = Regex("(?i)$durationPatternStr\\s*\\+\\s*$durationPatternStr\\s+(?:de\\s+)?cuisson")
-        // 2. Cas classiques préfixes/suffixes
         val timePatternPrefix = Regex("(?i)$timeTypePatternStr\\s*:?\\s*(?:de\\s+)?$durationPatternStr")
         val timePatternSuffix = Regex("(?i)$durationPatternStr\\s+(?:de\\s+)?$timeTypePatternStr")
 
@@ -84,16 +89,33 @@ object Ocr3Categorizer {
                 continue
             }
 
-            // 2. CONSOMMATION DES PORTIONS
+            // 2. CONSOMMATION DES KCAL ET DIFFICULTÉ (Priorité sur les portions pour éviter la confusion)
+            val kcalMatch = kcalRegex.find(workingLine)
+            if (kcalMatch != null) {
+                if (results.detectedKcal == null) {
+                    results.detectedKcal = kcalMatch.groupValues[1]
+                }
+                workingLine = workingLine.replace(kcalMatch.value, "").trim()
+            }
+            
+            val diffMatch = difficultyRegex.find(workingLine)
+            if (diffMatch != null) {
+                if (results.detectedDifficulty == null) {
+                    results.detectedDifficulty = diffMatch.groupValues[1].lowercase().replace("diffcile", "difficile")
+                }
+                workingLine = workingLine.replace(diffMatch.value, "").trim()
+            }
+
+            // 3. CONSOMMATION DES PORTIONS
             val sMatch = servingsRegex.find(workingLine) ?: alternateServingsRegex.find(workingLine)
             if (sMatch != null) {
                 if (results.detectedServings == null) {
-                    results.detectedServings = if (sMatch.groupValues[1].any { it.isDigit() }) sMatch.groupValues[1] else sMatch.groupValues[2]
+                    results.detectedServings = sMatch.groupValues[1]
                 }
                 workingLine = workingLine.replace(sMatch.value, "").trim()
             }
 
-            // 3. CONSOMMATION DES TEMPS
+            // 4. CONSOMMATION DES TEMPS
             var foundTime = true
             while (foundTime) {
                 val matchComb = timePatternCombined.find(workingLine)
@@ -122,7 +144,7 @@ object Ocr3Categorizer {
                 }
             }
 
-            // 4. CONSOMMATION DES MOTS-CLÉS D'EXCLUSION
+            // 5. CONSOMMATION DES MOTS-CLÉS D'EXCLUSION
             for (word in excludedKeywords) {
                 val pattern = Regex("(?i)(?<!\\p{L})${Pattern.quote(word)}(?!\\p{L})")
                 workingLine = pattern.replace(workingLine, "").trim()
@@ -140,16 +162,15 @@ object Ocr3Categorizer {
             val hasWeight = weightRegex.containsMatchIn(workingLine)
             val hasQuantity = qtyRegex.containsMatchIn(workingLine) ||
                     OcrHelperUtils.countIngredientSequences(workingLine) > 0
-            
+
             val wordsList = workingLine.split(Regex("\\s+"))
             val isIsolatedModifier = wordsList.size <= 3 && preparationModifiers.any { lowerLine.startsWith(it.lowercase()) }
-            
             val hasInstructionTrigger = instructionTriggers.any { Regex("(?i)\\b${Pattern.quote(it)}\\b").containsMatchIn(workingLine) }
 
             val looksLikeIngredient = (hasQuantity || hasWeight || isIsolatedModifier ||
                     commonIngredients.any { lowerLine.startsWith(it.lowercase()) }) && !hasInstructionTrigger
 
-            // 5. VIN ET SOURCE
+            // 6. VIN ET SOURCE
             if (!containsAction && !startsWithConnector) {
                 val isStrictIngredient = looksLikeIngredient && (currentSection == SECTION_INGREDIENTS || startsWithBullet)
                 if (!isStrictIngredient && WineParser.isWineLine(workingLine, wineRes)) {
@@ -162,7 +183,7 @@ object Ocr3Categorizer {
                 }
             }
 
-            // 6. CONSOMMATION DES HEADERS
+            // 7. CONSOMMATION DES HEADERS
             val isInstrHeader = instructionHeaders.any { lowerLine.contains(it) } && workingLine.length < 35 && !containsAction
             val isIngrHeader = ingredientHeaders.any { lowerLine.contains(it) } && workingLine.length < 35 && !containsAction
 
@@ -175,10 +196,10 @@ object Ocr3Categorizer {
             }
             workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
 
-            // 7. NETTOYAGE DU BRUIT RÉSIDUEL
+            // 8. NETTOYAGE DU BRUIT RÉSIDUEL
             if (workingLine.isEmpty() || !workingLine.any { it.isLetter() }) continue
 
-            // 8. CLASSIFICATION FINALE
+            // 9. CLASSIFICATION FINALE
             val isInstructionSignal = hasInstructionTrigger || (containsAction && (workingLine.length > 25 || startsWithBullet))
             
             if (isInstructionSignal) {

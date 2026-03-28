@@ -6,14 +6,6 @@
         <item>Assiette de pr[éėeè]sentation disponible dans les Maxi GB</item>
         <item>Plat disponible dans les Maxi GB</item>
         <item>GB</item>
-        <item>sh</item> <!-- pour le symbole de Delhaize -->
-        <item>S3</item> <!-- pour le symbole de Delhaize -->
-        <item>EEE</item>
-        <item>eee</item>
-        <item>€€€</item>
-        <item>€ee</item>
-        <item>€e</item>
-        <item>€</item>
 <!--        <item>$</item>--> <!-- car $ can not be used in string-array -->
         <item>nutriscore</item>
         <item>Nutriscore</item>

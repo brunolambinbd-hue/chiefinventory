@@ -25,7 +25,7 @@ import com.example.chiefinventory.model.RecipeIngredient
         Recipe::class,
         RecipeIngredient::class
     ],
-    version = 24, // Incremented from 23 to 24
+    version = 25, // Incrémenté à 25
     exportSchema = false
 )
 @TypeConverters(com.example.chiefinventory.data.TypeConverters::class)
@@ -36,7 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
 
     companion object {
-        const val DATABASE_VERSION: Int = 24
+        const val DATABASE_VERSION: Int = 25
         const val DATABASE_NAME: String = "chiefinventory_database"
 
         private val MIGRATION_18_19 = object : Migration(18, 19) {
@@ -86,10 +86,17 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        // Migration pour ajouter le temps de repos (23 -> 24)
         private val MIGRATION_23_24 = object : Migration(23, 24) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE recipes ADD COLUMN restingTimeMinutes INTEGER")
+            }
+        }
+
+        // Migration pour ajouter Kcal et Difficulté (24 -> 25)
+        private val MIGRATION_24_25 = object : Migration(24, 25) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE recipes ADD COLUMN kcalPerServing INTEGER")
+                db.execSQL("ALTER TABLE recipes ADD COLUMN difficulty TEXT")
             }
         }
 
@@ -103,7 +110,10 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .addMigrations(MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24)
+                .addMigrations(
+                    MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, 
+                    MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25
+                )
                 .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance

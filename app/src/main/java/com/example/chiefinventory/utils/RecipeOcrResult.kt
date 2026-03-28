@@ -12,5 +12,7 @@ data class RecipeOcrResult(
     val servings: String? = null,
     val prepTime: String? = null,
     val cookTime: String? = null,
-    val restingTime: String? = null
+    val restingTime: String? = null,
+    val kcalPerServing: String? = null, // Nouveau champ pour l'OCR
+    val difficulty: String? = null      // Nouveau champ pour l'OCR
 )

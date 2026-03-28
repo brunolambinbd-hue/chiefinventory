@@ -33,5 +33,13 @@
         <item>ROYAUME UNI</item>
         <item>Prix indicatif</item>
         <item>ONNES</item>
+        <item>sh</item> <!-- pour le symbole de Delhaize -->
+        <item>S3</item> <!-- pour le symbole de Delhaize -->
+        <item>EEE</item>
+        <item>eee</item>
+        <item>€€€</item>
+        <item>€ee</item>
+        <item>€e</item>
+        <item>€</item>
     </string-array>
 </resources>

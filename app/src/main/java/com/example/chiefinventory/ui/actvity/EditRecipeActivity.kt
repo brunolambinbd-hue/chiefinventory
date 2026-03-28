@@ -68,6 +68,7 @@ class EditRecipeActivity : AppCompatActivity() {
             if (uri != null) handleNewImage(uri)
         }
         setupCategoryDropdown()
+        setupDifficultyDropdown()
 
         if (recipeId != -1L) {
             binding.btnDelete.isVisible = true
@@ -110,6 +111,12 @@ class EditRecipeActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupDifficultyDropdown() {
+        val difficulties = arrayOf("facile", "moyen", "difficile")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, difficulties)
+        binding.actvDifficulty.setAdapter(adapter)
+    }
+
     private fun handleNewImage(uri: Uri) {
         lastImageUri = uri
         binding.ivRecipe.isVisible = true
@@ -131,11 +138,12 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.etSource.setText(result.source ?: "")
                 binding.etServings.setText(result.servings ?: "")
                 
-                // AJOUT : Remplissage des champs de temps
                 binding.etPrepTime.setText(result.prepTime ?: "")
                 binding.etCookTime.setText(result.cookTime ?: "")
                 binding.etRestingTime.setText(result.restingTime ?: "")
-                
+                binding.etKcal.setText(result.kcalPerServing ?: "")
+                binding.actvDifficulty.setText(result.difficulty ?: "", false) // false pour ne pas filtrer la liste
+
                 Toast.makeText(this@EditRecipeActivity, "Scan terminé", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Log.e("EditRecipe", "OCR failed", e)
@@ -153,6 +161,8 @@ class EditRecipeActivity : AppCompatActivity() {
         binding.etServings.setText(recipe.servings?.toString() ?: "")
         binding.etWine.setText(recipe.wineRecommendation ?: "")
         binding.etSource.setText(recipe.source ?: "")
+        binding.etKcal.setText(recipe.kcalPerServing?.toString() ?: "")
+        binding.actvDifficulty.setText(recipe.difficulty ?: "", false)
         
         recipe.imageUri?.let {
             val uri = Uri.parse(it)
@@ -190,6 +200,8 @@ class EditRecipeActivity : AppCompatActivity() {
                 cookingTimeMinutes = binding.etCookTime.text.toString().toIntOrNull(),
                 restingTimeMinutes = binding.etRestingTime.text.toString().toIntOrNull(),
                 servings = binding.etServings.text.toString().toIntOrNull(),
+                kcalPerServing = binding.etKcal.text.toString().toIntOrNull(),
+                difficulty = binding.actvDifficulty.text.toString().takeIf { it.isNotBlank() },
                 wineRecommendation = binding.etWine.text.toString(),
                 source = binding.etSource.text.toString(),
                 locationId = selectedLocationId,

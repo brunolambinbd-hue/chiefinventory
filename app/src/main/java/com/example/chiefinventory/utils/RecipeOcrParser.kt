@@ -45,6 +45,8 @@ object RecipeOcrParser {
      * Exécute les 4 étapes du pipeline.
      */
     private fun executePipeline(rawLines: List<String>, res: Resources): RecipeOcrResult {
+
+        Log.d(TAG, "[0] AVANT NORMALISATION: texte brut:\n${rawLines.joinToString("\n")}")
         // Chargement des dictionnaires XML
         val preparationModifiers = res.getStringArray(R.array.ingredient_preparation_modifiers).toList()
         val repairs = res.getStringArray(R.array.ocr_spelling_repairs).toList()
@@ -69,7 +71,7 @@ object RecipeOcrParser {
         finalIngredients.forEachIndexed { i, ing -> Log.d(TAG, "    ING[$i]: $ing") }
         finalInstructions.forEachIndexed { i, inst -> Log.d(TAG, "    INSTR[$i]: $inst") }
 
-        return RecipeOcrResult(
+        val result = RecipeOcrResult(
             title = null,
             ingredients = finalIngredients.joinToString("\n"),
             instructions = finalInstructions.joinToString("\n"),
@@ -78,7 +80,23 @@ object RecipeOcrParser {
             servings = sections.detectedServings,
             prepTime = sections.detectedPrepTime,
             cookTime = sections.detectedCookTime,
-            restingTime = sections.detectedRestingTime
+            restingTime = sections.detectedRestingTime,
+            kcalPerServing = sections.detectedKcal,
+            difficulty = sections.detectedDifficulty
         )
+
+        // LOG FINAL DES MÉTA-DONNÉES EXTRAITES
+        Log.d(TAG, "[5] MÉTA-DONNÉES EXTRAITES:")
+        Log.d(TAG, "    - Portions: ${result.servings ?: "N/A"}")
+        Log.d(TAG, "    - Kcal/por: ${result.kcalPerServing ?: "N/A"}")
+        Log.d(TAG, "    - Difficulté: ${result.difficulty ?: "N/A"}")
+        Log.d(TAG, "    - Prép (min): ${result.prepTime ?: "N/A"}")
+        Log.d(TAG, "    - Cuisson (min): ${result.cookTime ?: "N/A"}")
+        Log.d(TAG, "    - Repos (min): ${result.restingTime ?: "N/A"}")
+        Log.d(TAG, "    - Vin: ${result.wine ?: "N/A"}")
+        Log.d(TAG, "    - Source: ${result.source ?: "N/A"}")
+        Log.d(TAG, "=== FIN PIPELINE OCR ===")
+
+        return result
     }
 }
