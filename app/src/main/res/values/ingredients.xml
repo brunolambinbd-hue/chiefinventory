@@ -19,10 +19,12 @@
         <item>ail</item>
         <item>huile d\'olive</item>
         <item>moutarde</item>
-        <item>mayonnaise</item>
+<!--        <item>mayonnaise</item>-->
         <item>thym</item>
         <item>du thym et du romarin</item>
         <item>romarin</item>
         <item>italien</item>
+        <item>jus de</item>
+        <item>jus</item>
     </string-array>
 </resources>

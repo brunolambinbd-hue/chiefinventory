@@ -58,7 +58,7 @@
         <item>en rondelles</item>
         <item>en tranches</item>
         <item>en cubes</item>
-        <item>salade</item>
+<!--        <item>salade</item>-->
         <item>princesses</item>
         <item>(moulu ou en morceaux)</item>
         <item>italien</item>
@@ -83,5 +83,7 @@
         <item>en cubes</item>
         <item>en morceaux</item>
         <item>usages</item>
+        <item>demi-écrémé sucré</item>
+        <item>melon au sirop</item>
     </string-array>
 </resources>

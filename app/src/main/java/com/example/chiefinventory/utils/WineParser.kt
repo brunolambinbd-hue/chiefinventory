@@ -13,6 +13,9 @@ object WineParser {
 
     // Mots-clés qui indiquent qu'il s'agit d'un ingrédient de cuisine et NON de vin
     private val WINE_EXCLUSION_REGEX = Regex("(?i)\\b(huile|vinaigre|beurre|crème|creme|lait|bouillon|eau|jus|sirop)\\b")
+    
+    // NOUVEAU : Unités purement culinaires qui disqualifient une recommandation de vin (ex: 2 dl de vin)
+    private val CULINARY_UNITS_REGEX = Regex("(?i)\\b(\\d+\\s*(?:dl|g|mg|kg)|c\\.?\\s*[àa]\\s*(?:soupe|caf[eé]|dessert))\\b")
 
     data class WineResources(
         val appellations: List<String>,
@@ -33,13 +36,16 @@ object WineParser {
     }
 
     fun isWineLine(line: String, resources: WineResources): Boolean {
-        // 1. Exclusion immédiate si contient un ingrédient culinaire (ex: 5 cl d'huile)
+        // 1. Exclusion si contient un ingrédient culinaire explicite
         if (WINE_EXCLUSION_REGEX.containsMatchIn(line)) return false
+        
+        // 2. Exclusion si contient une unité de mesure culinaire (ex: 2 dl, 50 g)
+        if (CULINARY_UNITS_REGEX.containsMatchIn(line)) return false
 
-        // 2. Ancienne règle du vinaigre (couverte par la regex ci-dessus mais conservée par sécurité)
+        // 3. Ancienne règle du vinaigre
         if (line.lowercase().contains("vinaigre")) return false
 
-        // 3. Règle forte : Année + Volume (ex: 2015 75cl)
+        // 4. Règle forte : Année + Volume (ex: 2015 75cl)
         if (wineYearRegex.containsMatchIn(line) && wineVolRegex.containsMatchIn(line)) return true
 
         // Helper pour détecter les mots entiers (Unicode aware)

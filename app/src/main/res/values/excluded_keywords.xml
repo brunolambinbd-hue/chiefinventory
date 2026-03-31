@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="excluded_ocr_keywords">
-        <item>POUR</item>
         <item>BR</item>
         <item>PAGE</item>
         <item>RECETTE</item>
+        <item>cet te</item>
         <item>N°</item>
         <item>NOTES</item>
         <item>ASTUCE</item>
@@ -31,6 +31,8 @@
         <item>Carrefour</item>
         <item>Royaume-Uni</item>
         <item>ROYAUME UNI</item>
+        <item>ROYAUME</item>
+        <item>UNI</item>
         <item>Prix indicatif</item>
         <item>ONNES</item>
         <item>sh</item> <!-- pour le symbole de Delhaize -->

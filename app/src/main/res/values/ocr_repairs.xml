@@ -11,6 +11,8 @@
         <item>deuf|d\'œuf</item>
         <item>eifs|œufs</item>
         <item>euts|œufs</item>
+        <item>eufs|œufs</item>
+        <item>oeufs|œufs</item>
         <item>her bes|herbes</item>
         <item>1oasts|toasts</item>
         <item>douN|doux</item>
@@ -63,5 +65,15 @@
         <item>cerneauX|cerneaux</item>
         <item>KCA1|KCAL</item>
         <item>KCAUPOR|KCAL/POR</item>
+        <item>I\'eau|l\'eau</item>
+        <item>got|goût</item>
+        <item>le jus de l citron|le jus de 1 citron</item>
+        <item>le jus de l orange|le jus de 1 orange</item>
+        <item>Ld\'eau|l. d\'eau</item>
+        <item>dolive|d\'olive</item>
+        <item>ROYAU)ME|ROYAUME</item>
+        <item>cresSonnette|cressonnette</item>
+        <item>poOuvez|pouvez</item>
+        <item>ArrTOsez|Arrosez</item>
     </string-array>
 </resources>

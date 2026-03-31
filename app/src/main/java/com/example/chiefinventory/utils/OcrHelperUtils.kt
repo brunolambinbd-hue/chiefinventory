@@ -7,14 +7,14 @@ object OcrHelperUtils {
 
     /**
      * Compte le nombre de séquences d'ingrédients sur une ligne.
-     * Reconnait les chiffres et les variantes OCR courantes pour le chiffre 1 (l, I, |, !).
+     * Reconnait les chiffres, les fractions (1/2) et les variantes OCR courantes pour le chiffre 1 (l, I, |, !).
      */
     internal fun countIngredientSequences(line: String): Int {
-        // On cherche des nombres (ou variantes OCR) qui NE sont PAS précédés par des connecteurs
-        // ET qui ne sont PAS suivis par des unités techniques.
-        // On remplace \b par (?:^|(?<=\s)) pour supporter les caractères non-word comme | ou !
-        val qtyPattern = "(?:\\d+|[1Il!|])"
-        val pattern = Regex("(?<!(?:ou|et|sur)\\s)(?:^|(?<=\\s))$qtyPattern\\s+(?!(?:mm|cm|min|sec)\\b)[a-zA-Z]", RegexOption.IGNORE_CASE)
+        // On cherche des nombres ou fractions qui NE sont PAS précédés par des connecteurs
+        // ET qui ne sont PAS suivis par des unités techniques (dimensions ou temps).
+        // qtyPattern supporte désormais les fractions comme 1/2 ou l/4
+        val qtyPattern = "(?:\\d+(?:/\\d+)?|[1Il!|](?:/\\d+)?)"
+        val pattern = Regex("(?<!(?:ou|et|sur)\\s)(?:^|(?<=\\s))$qtyPattern\\s+(?!(?:mm|cm|min|sec)\\b)[\\p{L}]", RegexOption.IGNORE_CASE)
         
         // On filtre les séquences qui sont à l'intérieur de parenthèses
         return pattern.findAll(line).count { match ->
@@ -40,13 +40,14 @@ object OcrHelperUtils {
         val hacheRegex = hacheVariants.joinToString("|") { Regex.escape(it) }
 
         val connectors = "et|ou|à|\\-|de|du|des|d'|sur"
-        val qtyPattern = "(?:\\d+|[1Il!|])"
+        // Support des fractions dans le découpage également
+        val qtyPattern = "(?:\\d+(?:/\\d+)?|[1Il!|](?:/\\d+)?)"
 
         // On identifie tous les splits potentiels par Regex
         val potentialSplits = Regex(
-            "(?<=[a-zA-Z).])(?<!\\b(?:$connectors))\\s+(?!(?:$connectors)\\s+)(?=$qtyPattern\\s+[a-zA-Z])|" +
-            "(?<=[a-zA-Z])(?<!\\b(?:$connectors))\\s+(?=$otherKeywordsRegex)|" +
-            "(?<=[a-zA-Z])(?<!\\b(?:$connectors))\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))",
+            "(?<=[a-zA-Z).])(?<!\\b(?:$connectors))\\s+(?!(?:$connectors)\\s+)(?=$qtyPattern\\s+[\\p{L}])|" +
+            "(?<=[\\p{L}])(?<!\\b(?:$connectors))\\s+(?=$otherKeywordsRegex)|" +
+            "(?<=[\\p{L}])(?<!\\b(?:$connectors))\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))",
             RegexOption.IGNORE_CASE
         )
 
@@ -70,8 +71,10 @@ object OcrHelperUtils {
     private fun isInsideParentheses(text: String, position: Int): Boolean {
         var openCount = 0
         for (i in 0 until position) {
-            if (text[i] == '(') openCount++
-            if (text[i] == ')') openCount--
+            if (i < text.length) {
+                if (text[i] == '(') openCount++
+                if (text[i] == ')') openCount--
+            }
         }
         return openCount > 0
     }
