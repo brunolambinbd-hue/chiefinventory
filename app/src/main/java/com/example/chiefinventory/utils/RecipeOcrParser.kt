@@ -7,7 +7,7 @@ import com.google.mlkit.vision.text.Text
 
 /**
  * Orchestrateur principal du pipeline OCR.
- * Connecte le Normalizer, Cleaner, Categorizer et Merger.
+ * Connecte le Normalizer, Cleaner, Categorizer, Merger et Beautifier.
  */
 object RecipeOcrParser {
     private const val TAG = "RecipeOCR"
@@ -42,32 +42,38 @@ object RecipeOcrParser {
     }
 
     /**
-     * Exécute les 4 étapes du pipeline.
+     * Exécute les 5 étapes du pipeline.
      */
     private fun executePipeline(rawLines: List<String>, res: Resources): RecipeOcrResult {
 
         Log.d(TAG, "[0] AVANT NORMALISATION: texte brut:\n${rawLines.joinToString("\n")}")
+
         // Chargement des dictionnaires XML
         val preparationModifiers = res.getStringArray(R.array.ingredient_preparation_modifiers).toList()
+        val commonIngredients = res.getStringArray(R.array.common_ingredients_no_qty).toList()
         val repairs = res.getStringArray(R.array.ocr_spelling_repairs).toList()
 
         // ÉTAPE 1 : Normalisation (avec dictionnaire de réparations)
         val normalizedLines = rawLines.map { Ocr1Normalizer.normalize(it, repairs) }
         Log.d(TAG, "[1] APRÈS NORMALISATION:\n${normalizedLines.joinToString("\n")}")
 
-        // ÉTAPE 2 : Nettoyage
+        // ÉTAPE 2 : Nettoyage (Suppression du bruit)
         val cleanedLines = Ocr2Cleaner.clean(normalizedLines, res)
         Log.d(TAG, "[2] APRÈS NETTOYAGE:\n${cleanedLines.joinToString("\n")}")
 
-        // ÉTAPE 3 : Catégorisation
+        // ÉTAPE 3 : Catégorisation (Tri intelligent)
         val sections = Ocr3Categorizer.categorize(cleanedLines, res)
         Log.d(TAG, "[3] CATÉGORISATION TERMINÉE")
 
         // ÉTAPE 4 : Fusion (Merger)
-        val finalIngredients = Ocr4Merger.mergeIngredients(sections.rawIngredientsList, preparationModifiers)
-        val finalInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
+        val mergedIngredients = Ocr4Merger.mergeIngredients(sections.rawIngredientsList, preparationModifiers, commonIngredients)
+        val mergedInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
 
-        Log.d(TAG, "[4] RÉSULTATS FINAUX (MERGER):")
+        // ÉTAPE 5 : Beautification (Présentation finale à l'écran)
+        val finalIngredients = Ocr5Beautifier.beautifyIngredients(mergedIngredients)
+        val finalInstructions = Ocr5Beautifier.beautifyInstructions(mergedInstructions)
+
+        Log.d(TAG, "[4-5] RÉSULTATS FINAUX (BEAUTIFIED):")
         finalIngredients.forEachIndexed { i, ing -> Log.d(TAG, "    ING[$i]: $ing") }
         finalInstructions.forEachIndexed { i, inst -> Log.d(TAG, "    INSTR[$i]: $inst") }
 
@@ -86,7 +92,7 @@ object RecipeOcrParser {
         )
 
         // LOG FINAL DES MÉTA-DONNÉES EXTRAITES
-        Log.d(TAG, "[5] MÉTA-DONNÉES EXTRAITES:")
+        Log.d(TAG, "[6] MÉTA-DONNÉES EXTRAITES:")
         Log.d(TAG, "    - Portions: ${result.servings ?: "N/A"}")
         Log.d(TAG, "    - Kcal/por: ${result.kcalPerServing ?: "N/A"}")
         Log.d(TAG, "    - Difficulté: ${result.difficulty ?: "N/A"}")

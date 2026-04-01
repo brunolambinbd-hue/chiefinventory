@@ -13,16 +13,17 @@ object Ocr4Merger {
     // Noms qui appellent presque toujours un complément "de ..."
     private val HANGING_NOUNS = listOf("vinaigre", "huile", "jus", "zeste", "pincée", "pincee", "filet", "brin", "brins", "botte", "gousse", "gousses", "cuillère", "cuillere", "verre")
 
+    // Articles qui, s'ils sont seuls sur une ligne, indiquent une fusion obligatoire
+    private val ARTICLES = listOf("le", "la", "les", "l'", "un", "une", "des", "du")
+
     /**
      * Merges broken lines of ingredients into a clean list.
-     * @param rawIngredients The list of ingredient lines to merge.
-     * @param preparationModifiers The list of modifiers (from XML) that trigger a merge.
      */
-    fun mergeIngredients(rawIngredients: List<String>, preparationModifiers: List<String>): List<String> {
+    fun mergeIngredients(rawIngredients: List<String>, preparationModifiers: List<String>, commonIngredients: List<String>): List<String> {
         if (rawIngredients.isEmpty()) return emptyList()
-        Log.d(TAG, "--- mergeIngredients START (${rawIngredients.size} lines) ---")
+        Log.d(TAG, "--- mergeIngredients START ---")
 
-        val merged = mutableListOf<String>()
+        val intermediateMerged = mutableListOf<String>()
         var current = ""
         var prevOriginalLine = ""
 
@@ -41,14 +42,11 @@ object Ocr4Merger {
             val nextStartsWithConnector = startsWithConnector(normalizedLine)
             val nextIsModifier = isOrphanModifier(normalizedLine, preparationModifiers)
             val prevEndsWithPunctuation = current.trim().lastOrNull()?.let { it == ',' || it == '.' } ?: false
-
-            // On vérifie si la ligne originale précédente se terminait par un tiret
             val prevWasHyphenated = prevOriginalLine.trimEnd().endsWith("-")
 
             if (!isNewStart && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier)) {
                 if (prevWasHyphenated) {
                     val currentClean = current.trimEnd()
-                    // Si le normaliseur a gardé le tiret, on regarde le caractère juste avant
                     val charBeforeDash = if (currentClean.endsWith("-")) {
                         if (currentClean.length >= 2) currentClean[currentClean.length - 2] else null
                     } else {
@@ -58,27 +56,30 @@ object Ocr4Merger {
                     val endsWithLetter = charBeforeDash?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
                     val startsWithLetter = normalizedLine.firstOrNull()?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
 
-                    Log.d(TAG, "INGR - Césure check: beforeDash='$charBeforeDash', next='${normalizedLine.firstOrNull()}' | endsWithLetter=$endsWithLetter, startsWithLetter=$startsWithLetter")
-
-                    current = if (endsWithLetter && startsWithLetter) {
-                        Log.d(TAG, "INGR - Fusion COLLÉE (sans espace)")
+                    if (endsWithLetter && startsWithLetter) {
                         val base = if (currentClean.endsWith("-")) currentClean.dropLast(1) else currentClean
-                        base.trim() + normalizedLine.trim()
+                        current = base.trim() + normalizedLine.trim()
                     } else {
-                        Log.d(TAG, "INGR - Fusion ESPACÉE")
-                        current.trim() + " " + normalizedLine.trim()
+                        current = "${current.trim()} ${normalizedLine.trim()}"
                     }
                 } else {
                     current = "${current.trim()} ${normalizedLine.trim()}"
                 }
             } else {
-                merged.add(current)
+                intermediateMerged.add(current)
                 current = normalizedLine
             }
             prevOriginalLine = line
         }
-        if (current.isNotEmpty()) merged.add(current)
-        return merged
+        if (current.isNotEmpty()) intermediateMerged.add(current)
+
+        val finalSplitList = mutableListOf<String>()
+        for (mergedIng in intermediateMerged) {
+            val splits = OcrHelperUtils.splitCombinedIngredients(mergedIng, commonIngredients)
+            finalSplitList.addAll(splits)
+        }
+
+        return finalSplitList
     }
 
     /**
@@ -86,16 +87,13 @@ object Ocr4Merger {
      */
     fun mergeInstructions(rawInstructions: List<String>): List<String> {
         if (rawInstructions.isEmpty()) return emptyList()
-        Log.d(TAG, "--- mergeInstructions START (${rawInstructions.size} lines) ---")
+        Log.d(TAG, "--- mergeInstructions START ---")
 
         val resultSentences = mutableListOf<String>()
         var currentBlock = ""
         var prevOriginalLine = ""
 
         for (line in rawInstructions) {
-            val trimmedRaw = line.trimEnd()
-            val lastChar = trimmedRaw.lastOrNull()
-            Log.d(TAG, "INSTR RAW: '$trimmedRaw' | LastChar: '$lastChar' | ASCII: ${lastChar?.code}")
             val normalizedLine = Ocr1Normalizer.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
@@ -104,7 +102,6 @@ object Ocr4Merger {
 
                 if (prevWasHyphenated) {
                     val blockClean = currentBlock.trimEnd()
-                    // Si le normaliseur a gardé le tiret, on regarde le caractère juste avant
                     val charBeforeDash = if (blockClean.endsWith("-")) {
                         if (blockClean.length >= 2) blockClean[blockClean.length - 2] else null
                     } else {
@@ -113,9 +110,7 @@ object Ocr4Merger {
 
                     val endsWithLetter = charBeforeDash?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
                     val startsWithLetter = normalizedLine.firstOrNull()?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
-
-                    Log.d(TAG, "  > Césure check: beforeDash='$charBeforeDash', next='${normalizedLine.firstOrNull()}' | collé=${endsWithLetter && startsWithLetter}")
-
+                    
                     currentBlock = if (endsWithLetter && startsWithLetter) {
                         val base = if (blockClean.endsWith("-")) blockClean.dropLast(1) else blockClean
                         base.trim() + normalizedLine.trim()
@@ -148,6 +143,10 @@ object Ocr4Merger {
 
     private fun isHanging(text: String): Boolean {
         val lower = text.lowercase().trim()
+        
+        // NOUVEAU : Un article seul sur une ligne est forcément "pendant"
+        if (ARTICLES.contains(lower)) return true
+        
         val endsWithConnector = INGREDIENT_CONNECTORS.any { lower.endsWith(" $it") || lower.endsWith("$it") }
         val endsWithHangingNoun = HANGING_NOUNS.any { lower.endsWith(" $it") || lower == it }
         return endsWithConnector || endsWithHangingNoun
@@ -168,7 +167,6 @@ object Ocr4Merger {
     }
 
     private fun startsWithQuantity(line: String): Boolean {
-        // Ajout des articles le, la, les, l' pour éviter la fusion sauvage de lignes descriptives
         return Regex("^(?:\\d|un\\b|une\\b|des\\b|du\\b|de la\\b|de l'|le\\b|la\\b|les\\b|l['’]|quelques\\b|plusieurs\\b|un peu\\b|•|\\-|\\*)", RegexOption.IGNORE_CASE).containsMatchIn(line)
     }
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ingredient_end_markers">
+        <item>sel</item>
+        <item>poivre</item>
+        <item>sel et poivre</item>
+        <item>baies</item>
+        <item>espelette</item>
+        <item>muscade</item>
+        <item>cayenne</item>
+        <item>sucre glace</item>
+        <item>nappage</item>
+    </string-array>
+</resources>

@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="instruction_switch_keywords">
-        <!-- Mots qui disqualifient une ligne comme ingrédient et forcent le passage en instruction -->
+        <!-- Connecteurs temporels et logiques -->
         <item>pendant</item>
         <item>jusqu\'à</item>
         <item>jusqu\’à</item>
         <item>ensuite</item>
         <item>puis</item>
-        <item>réserver</item>
+        <item>ainsi</item>
+        <item>alors</item>
+        <item>lorsque</item>
+        <item>quand</item>
+
+        <!-- Lieux et outils de cuisson -->
         <item>four</item>
+        <item>poêle</item>
+        <item>casserole</item>
+        <item>saladier</item>
+        <item>réfrigérateur</item>
+
+        <!-- Verbes à l'infinitif (souvent instructions) -->
+        <item>réserver</item>
         <item>servir</item>
+        <item>cuire</item>
+        <item>laisser</item>
+        <item>obtenir</item>
+
+        <!-- Contextes narratifs -->
         <item>décoration</item>
         <item>accompagnement</item>
         <item>astuce</item>
@@ -21,25 +38,13 @@
         <item>environ</item>
         <item>minutes</item>
         <item>heures</item>
-        <item>contenant</item>
-        <item>une poêle</item>
-        <item>1/2 la décoration)</item>
-        <item>4 petites bûches par personne.</item>
-        <item>des roulades</item>
-        <item>de surimi.</item>
         <item>à feu doux</item>
-        <item>aux échalotes</item>
-        <item>aux jaunes</item>
-        <item>moitié coupée</item>
-        <item>de cressonnette</item>
-        <item>aux herbes qui</item>
-        <item>et l</item>
+        <item>à l\'aide</item>
+
+        <!-- Connecteurs de fin de phrase -->
         <item>personne</item>
         <item>personnes</item>
         <item>et au</item>
         <item>et aux</item>
-        <item>Découpez</item>
-        <item>à l\'aide</item>
-        <item>dans</item>
     </string-array>
 </resources>

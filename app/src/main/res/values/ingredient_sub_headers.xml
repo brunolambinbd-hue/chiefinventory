@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ingredient_sub_headers">
+        <item>Pour la vinaigrette</item>
+        <item>Pour la sauce</item>
+        <item>Pour la garniture</item>
+        <item>Pour la pâte</item>
+        <item>Pour le dressage</item>
+        <item>Pour la décoration</item>
+        <item>Pour la marinade</item>
+        <item>Pour le service</item>
+        <item>Pour la finition</item>
+        <item>Pour l\'accompagnement</item>
+    </string-array>
+</resources>

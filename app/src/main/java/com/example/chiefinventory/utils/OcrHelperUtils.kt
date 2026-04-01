@@ -7,27 +7,22 @@ object OcrHelperUtils {
 
     /**
      * Compte le nombre de séquences d'ingrédients sur une ligne.
-     * Reconnait les chiffres, les fractions (1/2) et les variantes OCR courantes pour le chiffre 1 (l, I, |, !).
      */
     internal fun countIngredientSequences(line: String): Int {
-        // On cherche des nombres ou fractions qui NE sont PAS précédés par des connecteurs
-        // ET qui ne sont PAS suivis par des unités techniques (dimensions ou temps).
-        // qtyPattern supporte désormais les fractions comme 1/2 ou l/4
         val qtyPattern = "(?:\\d+(?:/\\d+)?|[1Il!|](?:/\\d+)?)"
         val pattern = Regex("(?<!(?:ou|et|sur)\\s)(?:^|(?<=\\s))$qtyPattern\\s+(?!(?:mm|cm|min|sec)\\b)[\\p{L}]", RegexOption.IGNORE_CASE)
         
-        // On filtre les séquences qui sont à l'intérieur de parenthèses
         return pattern.findAll(line).count { match ->
             !isInsideParentheses(line, match.range.first)
         }
     }
 
     /**
-     * Découpe une ligne contenant plusieurs ingrédients.
-     * Ignore les séparateurs potentiels situés à l'intérieur de parenthèses.
+     * Découpe une ligne contenant plusieurs ingrédients (ex: "4 toasts salade de blé").
+     * Utilise les ingrédients communs sans quantité comme points de rupture.
      */
     internal fun splitCombinedIngredients(line: String, commonItems: List<String>): List<String> {
-        var cleaned = line.replace(Regex("^\\d+\\s+\\d+\\s+"), "").trim()
+        if (line.isBlank()) return emptyList()
         
         val hacheVariants = listOf("haché", "hachée", "hachés", "hachées")
         val otherKeywords = commonItems.filter { it.lowercase() !in hacheVariants }
@@ -40,34 +35,31 @@ object OcrHelperUtils {
         val hacheRegex = hacheVariants.joinToString("|") { Regex.escape(it) }
 
         val connectors = "et|ou|à|\\-|de|du|des|d'|sur"
-        // Support des fractions dans le découpage également
         val qtyPattern = "(?:\\d+(?:/\\d+)?|[1Il!|](?:/\\d+)?)"
 
-        // On identifie tous les splits potentiels par Regex
+        // Regex de split améliorée : accepte la virgule ou la fin de mot avant l'ingrédient connu
         val potentialSplits = Regex(
-            "(?<=[a-zA-Z).])(?<!\\b(?:$connectors))\\s+(?!(?:$connectors)\\s+)(?=$qtyPattern\\s+[\\p{L}])|" +
-            "(?<=[\\p{L}])(?<!\\b(?:$connectors))\\s+(?=$otherKeywordsRegex)|" +
-            "(?<=[\\p{L}])(?<!\\b(?:$connectors))\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))",
+            "(?<=[\\p{L}).,])(?<!\\b(?:$connectors))\\s+(?!(?:$connectors)\\s+)(?=$qtyPattern\\s+[\\p{L}])|" +
+            "(?<=[\\p{L},])(?<!\\b(?:$connectors))\\s+(?=$otherKeywordsRegex)|" +
+            "(?<=[\\p{L},])(?<!\\b(?:$connectors))\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))",
             RegexOption.IGNORE_CASE
         )
 
-        // On ne garde que les splits qui ne sont PAS à l'intérieur de parenthèses
-        val sb = StringBuilder(cleaned)
+        val sb = StringBuilder(line)
         var offset = 0
-        potentialSplits.findAll(cleaned).forEach { match ->
-            if (!isInsideParentheses(cleaned, match.range.first)) {
+        potentialSplits.findAll(line).forEach { match ->
+            if (!isInsideParentheses(line, match.range.first)) {
                 val splitPos = match.range.first + offset
                 sb.insert(splitPos + 1, "##SPLIT##")
                 offset += "##SPLIT##".length
             }
         }
 
-        return sb.toString().split("##SPLIT##").map { it.trim() }.filter { it.isNotBlank() }
+        return sb.toString().split("##SPLIT##")
+            .map { it.trim().replace(Regex("[,:;\\s\\-]+$"), "") } // Nettoyage des résidus de ponctuation
+            .filter { it.isNotBlank() }
     }
 
-    /**
-     * Vérifie si une position donnée dans une chaîne est à l'intérieur de parenthèses.
-     */
     private fun isInsideParentheses(text: String, position: Int): Boolean {
         var openCount = 0
         for (i in 0 until position) {
@@ -87,34 +79,17 @@ object OcrHelperUtils {
         return words.all { word -> word.isNotEmpty() && (word[0].isUpperCase() || word.all { it.isUpperCase() }) }
     }
 
-    internal fun isExcluded(line: String, excludedKeywords: List<String>): Boolean {
-        val upperLine = line.uppercase().trim()
-        if (upperLine.isEmpty()) return false
-        return excludedKeywords.any { upperLine == it.uppercase().trim() }
-    }
-
-    /**
-     * Nettoyage sémantique final des ingrédients.
-     * Désormais, on CONSERVE le contenu des parenthèses car il contient le poids (ex: (t l kg)).
-     */
     internal fun cleanIngredientSemantics(
         text: String, 
         excludedKeywords: List<String>, 
         semanticExclusions: List<String> = emptyList()
     ): String {
-        // 1. Suppression des puces au début (•, -, *)
         var cleaned = text.trim().replace(Regex("^[•\\-*]\\s*"), "")
-        
-        // 2. Vérification de la validité
         if (!cleaned.any { it.isLetter() } || cleaned.length <= 1) return ""
         if (isLikelyProperNameOrSource(cleaned)) return ""
         
         val upperCleaned = cleaned.uppercase().trim()
-        
-        // 3. Vérification contre l'exclusion globale (stricte)
         if (excludedKeywords.any { upperCleaned == it.uppercase().trim() }) return ""
-        
-        // 4. Vérification contre l'exclusion sémantique spécifique aux ingrédients (ex: POUR)
         if (semanticExclusions.any { upperCleaned == it.uppercase().trim() }) return ""
 
         return cleaned

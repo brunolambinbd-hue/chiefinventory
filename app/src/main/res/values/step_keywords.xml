@@ -104,6 +104,7 @@
         <item>Plongez</item>
         <item>Retirez</item>
         <item>Ajoutez</item>
+        <item>dans</item>
         <item>Assaisonnez</item>
         <item>Mélangez</item>
         <item>Préparez</item>
@@ -128,5 +129,32 @@
         <item>de se passer</item>
         <item>Versez</item>
         <item>Comptez</item>
+        <item>passez</item>
+        <item>passer</item>
+        <item>poursuivez</item>
+        <item>poursuivre</item>
+        <item>badigeonnez</item>
+        <item>parsemez</item>
+        <item>parsemer</item>
+        <item>enfournez</item>
+        <item>mettez</item>
+        <item>[ée]crasez</item>
+        <item>[ée]craser</item>
+        <item>[ée]calez</item>
+        <item>[ée]caler</item>
+        <item>extrayez</item>
+        <item>extraire</item>
+        <item>nettoyez</item>
+        <item>creusez</item>
+        <item>creuser</item>
+        <item>taillez</item>
+        <item>tailler</item>
+        <item>mouillez</item>
+        <item>arrosez</item>
+        <item>Lavez</item>
+        <item>sous</item>
+        <item>Découpez</item>
+        <item>obtenez</item>
+        <item>permet</item>
     </string-array>
 </resources>

@@ -36,25 +36,22 @@ object Ocr3Categorizer {
     fun categorize(lines: List<String>, res: Resources): RawSections {
         val results = RawSections()
         var currentSection = SECTION_NONE
+        var isIngredientListClosed = false
+        val seenIngredientKeywords = mutableSetOf<String>()
 
-        val extraVerbs = listOf(
-            "plongez", "retirez", "hachez", "ajoutez", "servez", "assaisonnez", "faites", "coupez",
-            "mélangez", "préparez", "décorez", "répartissez", "passez", "prélevez", "lavez",
-            "mixez", "laissez", "Laissez", "réservez", "poursuivez", "versez", "chauffez", "étalez", "badigeonnez",
-            "égouttez", "egouttez", "disposez", "déposez", "deposez", "garnissez", "nappez", "parsemez",
-            "enfournez", "mettez", "posez", "étuvez", "Etuvez", "écrasez", "ecrasez", "écalez", "ecalez",
-            "extrayez", "nettoyez", "Placez", "Creusez", "obtenez"
-        )
-
-        val wineRes = WineParser.loadResources(res)
-        val sourceRes = SourceParser.loadResources(res)
+        // Chargement des ressources XML
         val xmlactionVerbs = res.getStringArray(R.array.step_action_keywords).toList()
-        val actionVerbs = (xmlactionVerbs + extraVerbs).distinct()
+        val actionVerbs = xmlactionVerbs.distinct()
         val commonIngredients = res.getStringArray(R.array.common_ingredients_no_qty).toList()
         val excludedKeywords = res.getStringArray(R.array.excluded_ocr_keywords).toList()
         val preparationModifiers = res.getStringArray(R.array.ingredient_preparation_modifiers).toList()
         val instructionTriggers = res.getStringArray(R.array.instruction_switch_keywords).toList()
         val semanticExclusions = res.getStringArray(R.array.ingredient_semantic_exclusions).toList()
+        val endMarkers = res.getStringArray(R.array.ingredient_end_markers).toList()
+        val subHeaders = res.getStringArray(R.array.ingredient_sub_headers).toList()
+
+        val wineRes = WineParser.loadResources(res)
+        val sourceRes = SourceParser.loadResources(res)
 
         val ingredientHeaders = listOf("ingrédients", "ingredients", "composition", "ngrédients")
         val instructionHeaders = listOf("préparation", "instructions", "nstructions", "étapes", "réalisation", "méthode", "progression", "cuisson")
@@ -69,10 +66,11 @@ object Ocr3Categorizer {
         val timePatternPrefix = Regex("(?i)$timeTypePatternStr\\s*:?\\s*(?:de\\s+)?$durationPatternStr")
         val timePatternSuffix = Regex("(?i)$durationPatternStr\\s+(?:de\\s+)?$timeTypePatternStr")
 
-        // Regex de quantité enrichie avec les articles (le, la, l', les)
+        // Séparation des détections de quantité : Forte (chiffres/fractions) vs Faible (articles)
+        val hardQtyRegex = Regex("^[\\d¼½¾]|[|Il!](?=[\\s\\d])|\\d+/\\d+", RegexOption.IGNORE_CASE)
         val qtyRegex = Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|des\\b|du\\b|de la\\b|de l'|le\\b|la\\b|les\\b|l['’]|quelques\\b|plusieurs\\b|un peu\\b|[|Il!](?=[\\s\\d]))", RegexOption.IGNORE_CASE)
+        
         val containsActionRegex = Regex("(?i)\\b(?:${actionVerbs.joinToString("|")})\\b")
-
         val ingredientConnectors = listOf("de", "du", "des", "d'", "au", "aux", "à")
 
         for (line in lines) {
@@ -84,6 +82,7 @@ object Ocr3Categorizer {
                 continue
             }
 
+            // Extraction métadonnées
             val kcalMatch = kcalRegex.find(workingLine)
             if (kcalMatch != null) {
                 if (results.detectedKcal == null) results.detectedKcal = kcalMatch.groupValues[1]
@@ -94,20 +93,17 @@ object Ocr3Categorizer {
                 if (results.detectedDifficulty == null) results.detectedDifficulty = diffMatch.groupValues[1].lowercase().replace("diffcile", "difficile")
                 workingLine = workingLine.replace(diffMatch.value, "").trim()
             }
-
             val sMatch = servingsRegex.find(workingLine)
             if (sMatch != null) {
                 if (results.detectedServings == null) {
                     results.detectedServings = when {
                         sMatch.groupValues[1].isNotEmpty() -> sMatch.groupValues[1]
                         sMatch.groupValues[2].isNotEmpty() -> sMatch.groupValues[2]
-                        sMatch.groupValues.size > 3 && sMatch.groupValues[3].isNotEmpty() -> sMatch.groupValues[3]
-                        else -> null
+                        else -> sMatch.groupValues[3]
                     }
                 }
                 workingLine = workingLine.replace(sMatch.value, "").trim()
             }
-
             var foundTime = true
             while (foundTime) {
                 val matchComb = timePatternCombined.find(workingLine)
@@ -148,16 +144,20 @@ object Ocr3Categorizer {
             val weightRegex = Regex("(?i)\\(\\d+\\s*(?:g|kg|ml|cl|l|oz|lb|pcs|pce|un|une)\\)")
             val hasWeight = weightRegex.containsMatchIn(workingLine)
             
-            // Support des fractions dans la détection de quantité (ex: 1/2)
-            val hasQuantity = qtyRegex.containsMatchIn(workingLine) || 
-                    OcrHelperUtils.countIngredientSequences(workingLine) > 0 || 
-                    Regex("\\d+/\\d+").containsMatchIn(workingLine)
+            val hasHardQuantity = hardQtyRegex.containsMatchIn(workingLine) || OcrHelperUtils.countIngredientSequences(workingLine) > 0
+            val hasQuantity = qtyRegex.containsMatchIn(workingLine) || hasHardQuantity
+
+            // Détection de réapparition (Uniquement si pas de quantité forte associée)
+            val isReappearance = seenIngredientKeywords.any { word ->
+                lowerLine.contains(Regex("\\b${Regex.escape(word)}\\b")) && !hasHardQuantity && !hasWeight
+            }
 
             val isIsolatedModifier = preparationModifiers.any { it.equals(workingLine, ignoreCase = true) }
             val hasInstructionTrigger = instructionTriggers.any { Regex("(?i)\\b${Pattern.quote(it)}\\b").containsMatchIn(workingLine) }
+            val isSubHeader = subHeaders.any { it.equals(workingLine, ignoreCase = true) }
 
             val looksLikeIngredient = (hasQuantity || hasWeight || isIsolatedModifier ||
-                    commonIngredients.any { lowerLine.startsWith(it.lowercase()) }) && !hasInstructionTrigger
+                    commonIngredients.any { lowerLine.startsWith(it.lowercase()) }) && !hasInstructionTrigger && !isReappearance
 
             if (!containsAction && !startsWithConnector) {
                 val isStrictIngredient = looksLikeIngredient && (currentSection == SECTION_INGREDIENTS || startsWithBullet)
@@ -177,8 +177,9 @@ object Ocr3Categorizer {
             if (isInstrHeader) {
                 currentSection = SECTION_INSTRUCTIONS
                 workingLine = workingLine.replace(Regex("(?i)(?<!\\p{L})(?:${instructionHeaders.joinToString("|")})(?!\\p{L})"), "").trim()
-            } else if (isIngrHeader) {
+            } else if (isIngrHeader || isSubHeader) {
                 currentSection = SECTION_INGREDIENTS
+                if (isSubHeader) isIngredientListClosed = false
                 workingLine = workingLine.replace(Regex("(?i)(?<!\\p{L})(?:${ingredientHeaders.joinToString("|")})(?!\\p{L})"), "").trim()
             }
             workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
@@ -186,27 +187,53 @@ object Ocr3Categorizer {
             workingLine = OcrHelperUtils.cleanIngredientSemantics(workingLine, excludedKeywords, semanticExclusions)
             if (workingLine.isEmpty() || !workingLine.any { it.isLetter() }) continue
 
-            val isInstructionSignal = hasInstructionTrigger || (containsAction && (workingLine.length > 25 || startsWithBullet))
-            if (isInstructionSignal) {
+            val isInstructionSignal = hasInstructionTrigger || isReappearance || (containsAction && (workingLine.length > 25 || startsWithBullet))
+
+            if (isIngredientListClosed && !hasHardQuantity && !hasWeight) {
+                currentSection = SECTION_INSTRUCTIONS
+            } else if (isInstructionSignal) {
                 currentSection = SECTION_INSTRUCTIONS
             } else if (currentSection == SECTION_NONE && (looksLikeIngredient || startsWithConnector)) {
                 currentSection = SECTION_INGREDIENTS
             }
 
             when (currentSection) {
-                SECTION_INGREDIENTS -> results.rawIngredientsList.add(workingLine)
+                SECTION_INGREDIENTS -> {
+                    val foundMarkers = endMarkers.count { lowerLine.contains(it) }
+                    if (!containsAction && (foundMarkers >= 2 || (lowerLine.contains("poivre") && workingLine.length < 20))) {
+                        isIngredientListClosed = true
+                    }
+                    results.rawIngredientsList.add(workingLine)
+                    seenIngredientKeywords.addAll(extractIngredientKeywords(workingLine))
+                }
                 SECTION_INSTRUCTIONS -> {
                     val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !Ocr2Cleaner.isTechnicalDimension(workingLine) && !hasInstructionTrigger
-                    if (isStrictIngredient && workingLine.length < 45) results.rawIngredientsList.add(workingLine)
-                    else results.rawInstructionsList.add(workingLine)
+                    val shouldPullBack = if (isIngredientListClosed) (isStrictIngredient && (hasHardQuantity || hasWeight)) else (isStrictIngredient && workingLine.length < 45)
+
+                    if (shouldPullBack) {
+                        results.rawIngredientsList.add(workingLine)
+                        seenIngredientKeywords.addAll(extractIngredientKeywords(workingLine))
+                    } else {
+                        results.rawInstructionsList.add(workingLine)
+                    }
                 }
                 else -> {
-                    if (looksLikeIngredient || startsWithConnector) results.rawIngredientsList.add(workingLine)
-                    else results.rawInstructionsList.add(workingLine)
+                    if (looksLikeIngredient || startsWithConnector) {
+                        results.rawIngredientsList.add(workingLine)
+                        seenIngredientKeywords.addAll(extractIngredientKeywords(workingLine))
+                    } else {
+                        results.rawInstructionsList.add(workingLine)
+                    }
                 }
             }
         }
         return results
+    }
+
+    private fun extractIngredientKeywords(line: String): List<String> {
+        val stopWords = setOf("dans", "avec", "pour", "plus", "moins", "vers", "sous", "sur", "chez", "entre", "faire", "faites")
+        val units = setOf("grammes", "kilos", "litres", "centilitres", "millilitres", "cuillere", "soupe", "cafe", "pincee", "gousse", "boite", "boites", "pot", "pots")
+        return line.lowercase().split(Regex("[\\s,.'’()\\-*•/0-9]+")).filter { it.length >= 4 && it !in stopWords && it !in units }
     }
 
     private fun updateTimeResult(results: RawSections, type: String, mins: String?) {
