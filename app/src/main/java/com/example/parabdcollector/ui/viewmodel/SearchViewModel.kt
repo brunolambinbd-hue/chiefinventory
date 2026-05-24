@@ -12,6 +12,7 @@ import com.example.parabdcollector.R
 import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.utils.ImageProcessingUtils
 import com.example.parabdcollector.utils.SignatureUtils
 import com.example.parabdcollector.utils.TextRecognitionHelper
 import kotlinx.coroutines.async
@@ -111,14 +112,32 @@ class SearchViewModel(application: Application, private val repository: Collecti
         _searchResultState.value = SearchResultState.Loading
         searchJob = viewModelScope.launch {
             try {
-                // On lance la vision et l'OCR en parallèle
+                // 1. Premier essai avec l'image brute
                 val embeddingDeferred = async { bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() } }
                 val wordsDeferred = async { bitmap?.let { TextRecognitionHelper.extractText(it) } ?: emptyList() }
                 
                 val queryEmbedding = embeddingDeferred.await()
                 val detectedWords = wordsDeferred.await()
                 
-                val searchResult = repository.advancedSearch(criteria, queryEmbedding, detectedWords)
+                var searchResult = repository.advancedSearch(criteria, queryEmbedding, detectedWords)
+
+                // 2. Si le résultat est incertain (Fallback) et qu'on a une image, on tente le DEUXIÈME ESSAI
+                if (searchResult.isFallback && bitmap != null) {
+                    Log.i("SearchViewModel", "Résultat incertain. Tentative de traitement d'image (2ème essai)...")
+                    
+                    val enhancedBitmap = ImageProcessingUtils.enhanceContrast(bitmap)
+                    val enhancedEmbedding = imageEmbedderHelper.computeSignature(enhancedBitmap)?.floatEmbedding()
+                    
+                    if (enhancedEmbedding != null) {
+                        val secondResult = repository.advancedSearch(criteria, enhancedEmbedding, detectedWords)
+                        
+                        // Si le deuxième essai donne un résultat de haute confiance, on le prend
+                        if (!secondResult.isFallback) {
+                            Log.i("SearchViewModel", "Succès au 2ème essai !")
+                            searchResult = secondResult
+                        }
+                    }
+                }
 
                 _searchResultState.value = SearchResultState.Success(
                     results = searchResult.results, 
