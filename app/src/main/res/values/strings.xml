@@ -172,6 +172,7 @@
     <string name="generic_field_format">%1$s: %2$s</string>
     <string name="signature_preview_format">[%1$s,…]</string>
     <string name="search_no_similar_results">Aucun résultat suffisamment similaire trouvé (seuil &gt; 65%)</string>
+    <string name="search_fallback_results">Aucune correspondance exacte trouvée. Voici les résultats les plus proches :</string>
     <string name="annuler">Annuler</string>
     <string name="ajouter">Ajouter</string>
     <string name="modifier">Modifier</string>

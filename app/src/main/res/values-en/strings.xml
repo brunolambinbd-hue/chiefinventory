@@ -119,6 +119,7 @@
     <string name="generic_field_format">%1$s: %2$s</string>
     <string name="signature_preview_format">[%1$s,…]</string>
     <string name="annuler">Cancel</string>
+    <string name="search_fallback_results">No exact match found. Showing the closest results:</string>
     <string name="modifier">Modify</string>
     <string name="la_racine">Root</string>
     <string name="nouvel_emplacement">New location</string>

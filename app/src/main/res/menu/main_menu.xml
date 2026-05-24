@@ -9,6 +9,10 @@
             android:icon="@android:drawable/ic_menu_myplaces"
             android:title="@string/menu_home_title" />
         <item
+            android:id="@+id/nav_collection_plan"
+            android:icon="@android:drawable/ic_menu_sort_by_size"
+            android:title="Plan de la Collection" />
+        <item
             android:id="@+id/nav_products"
             android:icon="@android:drawable/ic_menu_directions"
             android:title="@string/menu_products_title" />

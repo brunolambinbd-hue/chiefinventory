@@ -43,6 +43,7 @@
         <activity android:name=".ui.actvity.BatchPossessionActivity" />
         <activity android:name=".ui.actvity.CategoryAuditActivity" />
         <activity android:name=".ui.actvity.ImportHistoryActivity" />
+        <activity android:name=".ui.actvity.CollectionPlanActivity" />
         <activity android:name=".ui.actvity.CrashActivity" />
 
         <!-- Déclaration de l'activité de la librairie de recadrage avec un thème approprié -->

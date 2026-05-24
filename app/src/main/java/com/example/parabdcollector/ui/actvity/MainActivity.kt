@@ -145,6 +145,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         when (item.itemId) {
             R.id.nav_home -> { /* Already here */ }
+            R.id.nav_collection_plan -> {
+                startActivity(Intent(this, CollectionPlanActivity::class.java))
+            }
             R.id.nav_products -> {
                 val intent = Intent(this, CategoryListActivity::class.java).apply {
                     putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_POSSESSED)

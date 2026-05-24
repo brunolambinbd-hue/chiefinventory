@@ -10,5 +10,7 @@ import com.example.parabdcollector.ui.model.SearchResultItem
  */
 data class AdvancedSearchResult(
     val results: List<SearchResultItem>,
-    val totalCount: Int
+    val totalCount: Int,
+    /** True if the results are "best guesses" because no item met the high-confidence threshold. */
+    val isFallback: Boolean = false
 )

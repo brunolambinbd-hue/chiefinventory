@@ -118,6 +118,20 @@ interface CollectionDao {
     @Query("SELECT id, remoteId, titre, editeur, annee, mois, categorie, superCategorie, materiau, tirage, dimensions, prixAchat, valeurEstimee, lieuAchat, description, locationId, isPossessed, lastSessionId, updatedAt, imageUri FROM collection_items WHERE lastSessionId = :sessionId ORDER BY titre ASC")
     fun getItemsBySession(sessionId: Long): LiveData<List<CollectionItem>>
 
+    @Query("""
+        SELECT 
+            superCategorie, 
+            categorie, 
+            SUM(CASE WHEN isPossessed = 1 THEN 1 ELSE 0 END) as possessedCount, 
+            COUNT(id) as totalCount 
+        FROM collection_items 
+        WHERE superCategorie IS NOT NULL AND superCategorie != '' 
+          AND categorie IS NOT NULL AND categorie != ''
+        GROUP BY superCategorie, categorie
+        ORDER BY superCategorie ASC, categorie ASC
+    """)
+    fun getFullHierarchy(): LiveData<List<FullHierarchyItem>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: CollectionItem)
 

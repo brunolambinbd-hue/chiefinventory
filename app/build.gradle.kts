@@ -118,6 +118,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.mediapipe.tasks.vision)
     implementation(libs.image.cropper)
+    implementation(libs.play.services.mlkit.text.recognition)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)

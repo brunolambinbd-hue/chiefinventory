@@ -33,6 +33,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(BackupViewModel::class.java) -> BackupViewModel(application) as T
             modelClass.isAssignableFrom(BatchPossessionViewModel::class.java) -> BatchPossessionViewModel(collectionRepository, locationRepository) as T
             modelClass.isAssignableFrom(CategoryAuditViewModel::class.java) -> CategoryAuditViewModel(collectionRepository, ioDispatcher) as T
+            modelClass.isAssignableFrom(CollectionPlanViewModel::class.java) -> CollectionPlanViewModel(collectionRepository) as T
             else -> throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
         }
     }

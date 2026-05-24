@@ -13,6 +13,8 @@ import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.utils.SignatureUtils
+import com.example.parabdcollector.utils.TextRecognitionHelper
+import kotlinx.coroutines.async
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
@@ -26,7 +28,11 @@ sealed class SearchResultState {
     /** The search is in progress. */
     object Loading : SearchResultState()
     /** The search completed successfully. */
-    data class Success(val results: List<SearchResultItem>, val totalCount: Int = results.size) : SearchResultState()
+    data class Success(
+        val results: List<SearchResultItem>, 
+        val totalCount: Int = results.size,
+        val isFallback: Boolean = false
+    ) : SearchResultState()
     /** The search failed. */
     data class Error(val message: String) : SearchResultState()
 }
@@ -105,9 +111,20 @@ class SearchViewModel(application: Application, private val repository: Collecti
         _searchResultState.value = SearchResultState.Loading
         searchJob = viewModelScope.launch {
             try {
-                val queryEmbedding = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
-                val searchResult = repository.advancedSearch(criteria, queryEmbedding)
-                _searchResultState.value = SearchResultState.Success(searchResult.results, searchResult.totalCount)
+                // On lance la vision et l'OCR en parallèle
+                val embeddingDeferred = async { bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() } }
+                val wordsDeferred = async { bitmap?.let { TextRecognitionHelper.extractText(it) } ?: emptyList() }
+                
+                val queryEmbedding = embeddingDeferred.await()
+                val detectedWords = wordsDeferred.await()
+                
+                val searchResult = repository.advancedSearch(criteria, queryEmbedding, detectedWords)
+
+                _searchResultState.value = SearchResultState.Success(
+                    results = searchResult.results, 
+                    totalCount = searchResult.totalCount,
+                    isFallback = searchResult.isFallback
+                )
             } catch (e: CancellationException) {
                 Log.i("SearchViewModel", "Advanced search cancelled.")
                 throw e

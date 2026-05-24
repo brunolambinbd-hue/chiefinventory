@@ -81,21 +81,29 @@ class SearchActivity : AppCompatActivity() {
             b.tvNoResults.isVisible = s is SearchResultState.Success && s.results.isEmpty() && bmp == null
             b.fabScrollToTop.isVisible = s is SearchResultState.Success && s.results.isNotEmpty()
             if (s is SearchResultState.Success) {
-                ad.submitList(s.results); updateResultSummary(s.totalCount, s.results.size)
-            } else if (s is SearchResultState.Idle) { ad.submitList(emptyList()); updateResultSummary(0, 0) }
+                ad.submitList(s.results); updateResultSummary(s.totalCount, s.results.size, s.isFallback)
+            } else if (s is SearchResultState.Idle) { ad.submitList(emptyList()); updateResultSummary(0, 0, false) }
         }
         vm.signaturePreview.observe(this) { p -> b.tvSignaturePreview.text = p; b.tvSignaturePreview.isVisible = p.isNotBlank() }
     }
 
-    private fun updateResultSummary(total: Int, displayed: Int) {
+    private fun updateResultSummary(total: Int, displayed: Int, isFallback: Boolean) {
         if (total > 0) {
             val base = resources.getQuantityString(R.plurals.search_results_count_with_criteria, total, total, desc)
+            
             val info = when {
+                bmp != null && isFallback -> getString(R.string.search_fallback_results)
                 bmp != null -> getString(R.string.search_visual_matches, displayed)
                 total > displayed -> getString(R.string.search_displayed_count, displayed)
                 else -> ""
             }
-            b.tvResultsSummary.text = getString(R.string.search_results_summary_format, base, info)
+            
+            if (bmp != null && isFallback) {
+                // En mode fallback, on remplace tout le texte par l'avertissement
+                b.tvResultsSummary.text = info
+            } else {
+                b.tvResultsSummary.text = getString(R.string.search_results_summary_format, base, info)
+            }
             b.tvResultsSummary.isVisible = true
         } else if (bmp != null) {
             b.tvResultsSummary.text = getString(R.string.search_no_visual_matches)

@@ -48,8 +48,13 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     suspend fun search(q: String): List<CollectionItem> = collectionDao.search("%$q%")
     suspend fun getAllByTitle(t: String): List<CollectionItem> = collectionDao.getAllByTitle("%$t%")
 
-    open suspend fun advancedSearch(cr: SearchCriteria, qE: FloatArray?): AdvancedSearchResult {
+    open suspend fun advancedSearch(
+        cr: SearchCriteria, 
+        qE: FloatArray?, 
+        detectedWords: List<String> = emptyList()
+    ): AdvancedSearchResult {
         val conditions = mutableListOf<String>(); val args = mutableListOf<Any?>()
+        // ... (critères texte habituels)
         cr.titre?.takeIf { it.isNotBlank() }?.let { conditions.add("titre LIKE ?"); args.add("%$it%") }
         cr.editeur?.takeIf { it.isNotBlank() }?.let { conditions.add("editeur LIKE ?"); args.add("%$it%") }
         cr.annee?.let { conditions.add("annee = ?"); args.add(it) }
@@ -76,14 +81,41 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
             collectionDao.countAdvancedSearch(countQ)
         } else items.size
 
-        val res = if (qE != null) {
-            val filtered = items.filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
-                .map { SearchResultItem(it, cosineSimilarity(qE, it.imageEmbedding!!).toDouble()) }
-                .filter { it.similarity != null && it.similarity >= 0.65 }
+        if (qE != null) {
+            val allSimilar = items.filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
+                .map { item ->
+                    var visualScore = cosineSimilarity(qE, item.imageEmbedding!!).toDouble()
+                    
+                    // --- LOGIQUE HYBRIDE : BOOST PAR OCR (Ajustée) ---
+                    if (detectedWords.isNotEmpty()) {
+                        var boost = 0.0
+                        // On vérifie si AU MOINS UN mot correspond à l'éditeur ou au titre
+                        val matchEditor = detectedWords.any { word -> item.editeur?.contains(word, ignoreCase = true) == true }
+                        val matchTitle = detectedWords.any { word -> item.titre.contains(word, ignoreCase = true) == true }
+
+                        if (matchEditor) boost += 0.10 // +10% pour l'éditeur
+                        if (matchTitle) boost += 0.05  // +5% pour le titre
+
+                        if (boost > 0) {
+                            visualScore += boost
+                            // On plafonne à 0.99 pour laisser la place au 100% visuel pur
+                            if (visualScore > 0.99) visualScore = 0.99
+                        }
+                    }
+                    SearchResultItem(item, visualScore)
+                }
                 .sortedByDescending { it.similarity }
-            return AdvancedSearchResult(filtered.take(10), filtered.size)
-        } else items.map { SearchResultItem(it) }
+            
+            val highConfidence = allSimilar.filter { it.similarity != null && it.similarity >= 0.65 }
+            
+            return if (highConfidence.isNotEmpty()) {
+                AdvancedSearchResult(highConfidence.take(15), highConfidence.size, isFallback = false)
+            } else {
+                AdvancedSearchResult(allSimilar.take(15), allSimilar.size, isFallback = true)
+            }
+        }
         
+        val res = items.map { SearchResultItem(it) }
         return AdvancedSearchResult(res, total)
     }
 
@@ -144,6 +176,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         collectionDao.getSignatureReportItems()
 
     fun getItemsBySession(sessionId: Long): LiveData<List<CollectionItem>> = collectionDao.getItemsBySession(sessionId)
+    fun getFullHierarchy(): LiveData<List<com.example.parabdcollector.dao.FullHierarchyItem>> = collectionDao.getFullHierarchy()
     suspend fun insert(item: CollectionItem): Unit = collectionDao.insert(item.copy(updatedAt = System.currentTimeMillis()))
     suspend fun insertAll(items: List<CollectionItem>): Unit = collectionDao.insertAll(items.map { it.copy(updatedAt = System.currentTimeMillis()) })
     suspend fun update(item: CollectionItem): Unit = collectionDao.update(item.copy(updatedAt = System.currentTimeMillis()))
