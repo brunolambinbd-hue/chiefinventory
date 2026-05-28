@@ -23,10 +23,19 @@ object TextRecognitionHelper {
             val image = InputImage.fromBitmap(bitmap, 0)
             val result = Tasks.await(recognizer.process(image))
             
-            // On récupère tous les mots et on garde ceux de plus de 3 caractères
-            result.text.split("\\s+".toRegex())
+            // On récupère tous les mots
+            val allWords = result.text.split("\\s+".toRegex())
                 .map { it.trim().lowercase() }
-                .filter { it.length > 3 }
+            
+            // On filtre : 
+            // 1. Longueur >= 2 (pour Ed., BD, etc.)
+            // 2. Pas de patterns type tirage "118/300"
+            // 3. Pas uniquement des chiffres
+            allWords.filter { word ->
+                word.length >= 2 &&
+                !word.matches(Regex(".*\\d+/\\d+.*")) && // Exclut 118/300
+                !word.all { it.isDigit() } // Exclut les nombres purs
+            }
         } catch (e: Exception) {
             emptyList()
         }

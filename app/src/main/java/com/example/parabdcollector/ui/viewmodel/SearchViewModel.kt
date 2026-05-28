@@ -57,6 +57,26 @@ class SearchViewModel(application: Application, private val repository: Collecti
     /** A formatted string preview of the last computed image signature. */
     val signaturePreview: LiveData<String> = _signaturePreview
 
+    private val _detectedWords = MutableLiveData<List<String>>()
+    /** Individual words detected in the image for background boosting. */
+    val detectedWords: LiveData<List<String>> = _detectedWords
+
+    private val _matchedPublisher = MutableLiveData<String?>()
+    /** The official publisher name if a match was found in the database. */
+    val matchedPublisher: LiveData<String?> = _matchedPublisher
+
+    private var knownPublishers: List<String> = emptyList()
+
+    init {
+        viewModelScope.launch {
+            try {
+                knownPublishers = repository.getAllPublishers()
+            } catch (e: Exception) {
+                Log.e("SearchViewModel", "Failed to load publishers", e)
+            }
+        }
+    }
+
     private var searchJob: Job? = null
 
     private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(
@@ -77,6 +97,59 @@ class SearchViewModel(application: Application, private val repository: Collecti
         viewModelScope.launch {
             val signature = imageEmbedderHelper.computeSignature(bitmap)
             _signaturePreview.value = SignatureUtils.formatSignaturePreview(getApplication(), signature?.floatEmbedding())
+
+            // 1. Premier essai OCR avec l'image brute
+            var words = TextRecognitionHelper.extractText(bitmap)
+            Log.d("SearchViewModel", "OCR Essai 1 (Brut) : $words")
+            
+            // 2. Si le résultat est pauvre, on tente une "seconde chance" avec l'image boostée
+            if (words.size < 2 || words.all { it.length < 5 }) {
+                val enhanced = ImageProcessingUtils.enhanceContrast(bitmap)
+                val newWords = TextRecognitionHelper.extractText(enhanced)
+                Log.d("SearchViewModel", "OCR Essai 2 (Boosté) : $newWords")
+                
+                if (newWords.size > words.size) {
+                    words = newWords
+                }
+            }
+
+            if (words.isNotEmpty()) {
+                // 3. Fusion et corrections OCR classiques
+                var fullDetectedText = words.joinToString(" ").lowercase()
+
+                // On corrige les erreurs courantes d'OCR pour faciliter le match (ex: 'dc' au lieu de 'de')
+                fullDetectedText = fullDetectedText
+                    .replace(" dc ", " de ")
+                    .replace(" dc-", " de-")
+                    .replace("-dc ", "-de ")
+                    .replace(" mcr", " mer")
+                    .replace(" flestival", " festival")
+
+                Log.d("SearchViewModel", "Texte après corrections OCR : '$fullDetectedText'")
+
+                val officialPublisher = if (knownPublishers.isNotEmpty()) {
+                    knownPublishers.find { publisher ->
+                        val cleanPublisher = publisher.lowercase().trim()
+
+                        // Stratégie A : Inclusion directe (la plus sûre)
+                        val directMatch = fullDetectedText.contains(cleanPublisher) || cleanPublisher.contains(fullDetectedText)
+
+                        // Stratégie B : Match par mots significatifs (si A échoue)
+                        // On vérifie si tous les mots longs de l'éditeur officiel sont présents
+                        val wordsMatch = if (!directMatch) {
+                            val pubWords = cleanPublisher.split(" ", "-", "/").filter { it.length > 3 }
+                            pubWords.isNotEmpty() && pubWords.all { fullDetectedText.contains(it) }
+                        } else false
+
+                        val match = directMatch || wordsMatch
+                        if (match) Log.d("SearchViewModel", "Match trouvé ! Base: '$cleanPublisher' vs Image: '$fullDetectedText'")
+                        match
+                    }
+                } else null
+                
+                _matchedPublisher.value = officialPublisher
+                _detectedWords.value = words
+            }
         }
     }
 

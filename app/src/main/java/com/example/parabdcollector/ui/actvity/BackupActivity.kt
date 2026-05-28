@@ -55,6 +55,7 @@ class BackupActivity : AppCompatActivity() {
         setupClickListeners()
         observeViewModel()
         displayVersionInfo()
+        checkHardwareDiagnostic()
     }
 
     /**
@@ -143,6 +144,29 @@ class BackupActivity : AppCompatActivity() {
 
         // Format the string using the resource and set it to the TextView
         binding.tvVersionInfo.text = getString(R.string.version_info_format, appVersion, dbVersion, apiUrl, commitHash)
+    }
+
+    /**
+     * Checks hardware capabilities like ARCore and displays status.
+     */
+    private fun checkHardwareDiagnostic() {
+        val isSupported = com.example.parabdcollector.utils.ARCoreHelper.isARCoreSupported(this)
+        val isReady = com.example.parabdcollector.utils.ARCoreHelper.isARCoreReady(this)
+
+        val statusText = when {
+            isReady -> "ARCore : Disponible"
+            isSupported -> "ARCore : Installation requise"
+            else -> "ARCore : Non supporté"
+        }
+
+        val iconRes = when {
+            isReady -> android.R.drawable.presence_online
+            isSupported -> android.R.drawable.presence_away
+            else -> android.R.drawable.presence_busy
+        }
+
+        binding.tvArcoreStatus.text = statusText
+        binding.tvArcoreStatus.setCompoundDrawablesWithIntrinsicBounds(iconRes, 0, 0, 0)
     }
 
     /**

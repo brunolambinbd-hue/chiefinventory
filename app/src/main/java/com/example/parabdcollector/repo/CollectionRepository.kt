@@ -8,6 +8,7 @@ import com.example.parabdcollector.model.*
 import com.example.parabdcollector.ui.model.CategoryInfo
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.utils.CategoryMapper
+import com.example.parabdcollector.utils.DimensionUtils
 import kotlinx.coroutines.Dispatchers
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -54,7 +55,13 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         detectedWords: List<String> = emptyList()
     ): AdvancedSearchResult {
         val conditions = mutableListOf<String>(); val args = mutableListOf<Any?>()
-        // ... (critères texte habituels)
+        
+        // --- PARSING DES DIMENSIONS (Manuelles ou AR) ---
+        val manualDim = DimensionUtils.parseDimensions(cr.dimensions)
+        val finalWidth = cr.detectedWidth ?: manualDim?.first
+        val finalHeight = cr.detectedHeight ?: manualDim?.second
+        val hasPhysicalDimensions = finalWidth != null && finalHeight != null
+
         cr.titre?.takeIf { it.isNotBlank() }?.let { conditions.add("titre LIKE ?"); args.add("%$it%") }
         cr.editeur?.takeIf { it.isNotBlank() }?.let { conditions.add("editeur LIKE ?"); args.add("%$it%") }
         cr.annee?.let { conditions.add("annee = ?"); args.add(it) }
@@ -63,15 +70,30 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         cr.categorie?.takeIf { it.isNotBlank() }?.let { conditions.add("categorie LIKE ?"); args.add("%$it%") }
         cr.description?.takeIf { it.isNotBlank() }?.let { conditions.add("description LIKE ?"); args.add("%$it%") }
         cr.tirage?.takeIf { it.isNotBlank() }?.let { conditions.add("tirage LIKE ?"); args.add("%$it%") }
-        cr.dimensions?.takeIf { it.isNotBlank() }?.let { conditions.add("dimensions LIKE ?"); args.add("%$it%") }
+        
+        // On n'ajoute la condition textuelle sur les dimensions QUE si on n'a pas pu parser de chiffres
+        if (!hasPhysicalDimensions) {
+            cr.dimensions?.takeIf { it.isNotBlank() }?.let { conditions.add("dimensions LIKE ?"); args.add("%$it%") }
+        }
+
+        // On assouplit la recherche d'éditeur s'il vient de l'OCR
+        val finalEditor = cr.editeur?.trim()
+        if (!finalEditor.isNullOrBlank()) {
+            // "COLLATE NOCASE" permet d'ignorer les majuscules/minuscules en SQLite
+            conditions.add("editeur LIKE ? COLLATE NOCASE")
+            args.add("%$finalEditor%")
+        }
+
         cr.isPossessed?.let { conditions.add("isPossessed = ?"); args.add(if (it) 1 else 0) }
         
         val hasTextCriteria = conditions.isNotEmpty()
         val wh = if (hasTextCriteria) " WHERE ${conditions.joinToString(" AND ")}" else ""
         
-        val items = if (qE != null && !hasTextCriteria) {
+        val items = if ((qE != null || detectedWords.isNotEmpty() || hasPhysicalDimensions) && !hasTextCriteria) {
+            // Mode INTELLIGENT (Photo, OCR ou Mesure AR/Manuelle)
             collectionDao.getAllItemsWithEmbeddings()
         } else {
+            // Mode TEXTUEL classique
             val dataQ = androidx.sqlite.db.SimpleSQLiteQuery("SELECT * FROM collection_items$wh ORDER BY annee DESC, mois DESC LIMIT 200", args.toTypedArray())
             collectionDao.advancedSearch(dataQ)
         }
@@ -81,17 +103,25 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
             collectionDao.countAdvancedSearch(countQ)
         } else items.size
 
-        if (qE != null) {
+        if (qE != null || detectedWords.isNotEmpty() || hasPhysicalDimensions) {
             val allSimilar = items.filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
                 .map { item ->
-                    var visualScore = cosineSimilarity(qE, item.imageEmbedding!!).toDouble()
+                    var visualScore = if (qE != null) {
+                        cosineSimilarity(qE, item.imageEmbedding!!).toDouble()
+                    } else {
+                        0.5 // Score neutre si on n'a que de l'OCR ou de la mesure
+                    }
                     
                     // --- LOGIQUE HYBRIDE : BOOST PAR OCR (Ajustée) ---
                     if (detectedWords.isNotEmpty()) {
                         var boost = 0.0
-                        // On vérifie si AU MOINS UN mot correspond à l'éditeur ou au titre
-                        val matchEditor = detectedWords.any { word -> item.editeur?.contains(word, ignoreCase = true) == true }
-                        val matchTitle = detectedWords.any { word -> item.titre.contains(word, ignoreCase = true) == true }
+                        // On vérifie si AU MOINS UN mot correspond à l'éditeur ou au titre (ignoreCase = true)
+                        val matchEditor = detectedWords.any { word -> 
+                            item.editeur?.contains(word, ignoreCase = true) == true 
+                        }
+                        val matchTitle = detectedWords.any { word -> 
+                            item.titre.contains(word, ignoreCase = true) == true 
+                        }
 
                         if (matchEditor) boost += 0.10 // +10% pour l'éditeur
                         if (matchTitle) boost += 0.05  // +5% pour le titre
@@ -102,6 +132,39 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
                             if (visualScore > 0.99) visualScore = 0.99
                         }
                     }
+
+                    // --- LOGIQUE DIMENSIONS : FILTRAGE INTELLIGENT (AR ou Manuel) ---
+                    if (hasPhysicalDimensions) {
+                        val itemDim = DimensionUtils.parseDimensions(item.dimensions)
+                        if (itemDim != null) {
+                            val isMatch = DimensionUtils.isWithinTolerance(
+                                Pair(finalWidth!!, finalHeight!!),
+                                itemDim
+                            )
+                            if (!isMatch) {
+                                // On applique une pénalité sévère si les dimensions ne collent pas
+                                visualScore -= 0.50
+                                if (visualScore < 0.0) visualScore = 0.0
+                            } else {
+                                // Petit boost si les dimensions sont parfaites
+                                visualScore += 0.05
+                                if (visualScore > 1.0) visualScore = 1.0
+                            }
+                        }
+                    } else if (cr.queryAspectRatio != null) {
+                        // --- FALLBACK : FILTRAGE PAR RATIO D'IMAGE ---
+                        val itemDim = DimensionUtils.parseDimensions(item.dimensions)
+                        if (itemDim != null) {
+                            val itemRatio = itemDim.first / itemDim.second
+                            val isRatioMatch = DimensionUtils.isRatioMatch(cr.queryAspectRatio, itemRatio)
+                            if (!isRatioMatch) {
+                                // Pénalité légère si le ratio (format) ne correspond pas du tout
+                                visualScore -= 0.15
+                                if (visualScore < 0.0) visualScore = 0.0
+                            }
+                        }
+                    }
+
                     SearchResultItem(item, visualScore)
                 }
                 .sortedByDescending { it.similarity }
@@ -177,6 +240,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
 
     fun getItemsBySession(sessionId: Long): LiveData<List<CollectionItem>> = collectionDao.getItemsBySession(sessionId)
     fun getFullHierarchy(): LiveData<List<com.example.parabdcollector.dao.FullHierarchyItem>> = collectionDao.getFullHierarchy()
+    suspend fun getAllPublishers(): List<String> = collectionDao.getAllPublishers()
     suspend fun insert(item: CollectionItem): Unit = collectionDao.insert(item.copy(updatedAt = System.currentTimeMillis()))
     suspend fun insertAll(items: List<CollectionItem>): Unit = collectionDao.insertAll(items.map { it.copy(updatedAt = System.currentTimeMillis()) })
     suspend fun update(item: CollectionItem): Unit = collectionDao.update(item.copy(updatedAt = System.currentTimeMillis()))

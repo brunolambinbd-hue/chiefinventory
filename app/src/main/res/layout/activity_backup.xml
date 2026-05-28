@@ -153,6 +153,32 @@
                 android:text="@string/test_crash"
                 android:textColor="@android:color/holo_red_dark" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:background="?android:attr/listDivider" />
+
+            <!-- Section 4: Diagnostic Matériel -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Diagnostic Matériel"
+                android:textStyle="bold"
+                android:textAppearance="?attr/textAppearanceSubtitle1" />
+
+            <TextView
+                android:id="@+id/tv_arcore_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical"
+                android:textAppearance="?attr/textAppearanceBody2"
+                tools:text="ARCore : Disponible"
+                app:drawableStartCompat="@android:drawable/presence_online" />
+
             <TextView
                 android:id="@+id/tv_version_info"
                 android:layout_width="match_parent"

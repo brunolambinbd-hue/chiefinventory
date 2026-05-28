@@ -13,6 +13,7 @@ coil = "2.7.0"
 download = "5.6.0"
 work = "2.9.0"
 imageCropper = "4.6.0"
+arcore = "1.47.0"
 truth = "1.4.2"
 
 # Nouvelle version pour MediaPipe
@@ -61,6 +62,7 @@ androidx-lifecycle-testing = { group = "androidx.lifecycle", name = "lifecycle-r
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 play-services-mlkit-text-recognition = { module = "com.google.android.gms:play-services-mlkit-text-recognition", version.ref = "playServicesMlkitTextRecognition" }
+arcore = { group = "com.google.ar", name = "core", version.ref = "arcore" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 
 [plugins]

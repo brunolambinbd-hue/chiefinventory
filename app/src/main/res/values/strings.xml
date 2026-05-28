@@ -214,5 +214,11 @@
     <string name="import_history_title">Historique des Imports</string>
     <string name="import_added_format">%1$d nouveaux</string>
     <string name="import_updated_format">%1$d mis à jour</string>
+    <string name="measure_dimensions">Mesurer l\'objet (AR)</string>
+    <string name="measure_instructions_plane">Déplacez le téléphone pour détecter la table</string>
+    <string name="measure_instructions_point2">Visez le deuxième point de l\'objet</string>
+    <string name="measure_instructions_done">Mesure terminée. Touchez à nouveau pour changer.</string>
+    <string name="measure_validate">Valider les dimensions</string>
+    <string name="measure_format">%.1f cm</string>
 
 </resources>

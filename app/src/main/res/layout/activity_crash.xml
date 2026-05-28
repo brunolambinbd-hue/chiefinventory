@@ -31,8 +31,9 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:background="#33AAAAAA"
-        app:layout_constraintBottom_toTopOf="@+id/btn_restart"
+        app:layout_constraintBottom_toTopOf="@+id/crash_buttons_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_crash_subtitle">
@@ -43,21 +44,37 @@
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:padding="8dp"
+            android:textIsSelectable="true"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="12sp"
             tools:text="java.lang.RuntimeException: This is a long sample error trace...\n    at com.example.app.MyClass.myMethod(MyClass.java:123)\n    ..." />
 
     </ScrollView>
 
-    <Button
-        android:id="@+id/btn_restart"
-        style="@style/Widget.MaterialComponents.Button"
+    <LinearLayout
+        android:id="@+id/crash_buttons_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/restart_app"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/btn_copy"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Copier" />
+
+        <Button
+            android:id="@+id/btn_restart"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/restart_app" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

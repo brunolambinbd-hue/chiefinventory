@@ -14,5 +14,11 @@ data class SearchCriteria(
     val description: String? = null,
     val tirage: String? = null,
     val dimensions: String? = null,
-    val isPossessed: Boolean? = null
+    val isPossessed: Boolean? = null,
+    /** Detected width in cm during search. */
+    val detectedWidth: Double? = null,
+    /** Detected height in cm during search. */
+    val detectedHeight: Double? = null,
+    /** Aspect ratio of the captured image (width/height). */
+    val queryAspectRatio: Double? = null
 ) : Parcelable

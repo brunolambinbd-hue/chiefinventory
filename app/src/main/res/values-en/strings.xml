@@ -182,6 +182,12 @@
     <string name="search_visual_matches">" — %1$d visual correspondance(s)"</string>
     <string name="search_displayed_count">" — %1$d displayed"</string>
     <string name="ajouter">Add</string>
+    <string name="measure_dimensions">Measure object (AR)</string>
+    <string name="measure_instructions_plane">Move phone to detect the surface</string>
+    <string name="measure_instructions_point2">Aim at the second point of the object</string>
+    <string name="measure_instructions_done">Measurement done. Tap again to change.</string>
+    <string name="measure_validate">Validate dimensions</string>
+    <string name="measure_format">%.1f cm</string>
     <string name="import_history_title">Import History</string>
     <string name="import_added_format">%1$d new items</string>
     <string name="import_updated_format">%1$d updated items</string>

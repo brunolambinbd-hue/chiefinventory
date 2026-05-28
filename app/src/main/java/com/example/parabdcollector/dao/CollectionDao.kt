@@ -132,6 +132,9 @@ interface CollectionDao {
     """)
     fun getFullHierarchy(): LiveData<List<FullHierarchyItem>>
 
+    @Query("SELECT DISTINCT editeur FROM collection_items WHERE editeur IS NOT NULL AND editeur != ''")
+    suspend fun getAllPublishers(): List<String>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: CollectionItem)
 

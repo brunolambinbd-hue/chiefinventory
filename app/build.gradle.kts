@@ -119,6 +119,7 @@ dependencies {
     implementation(libs.mediapipe.tasks.vision)
     implementation(libs.image.cropper)
     implementation(libs.play.services.mlkit.text.recognition)
+    implementation(libs.arcore)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)

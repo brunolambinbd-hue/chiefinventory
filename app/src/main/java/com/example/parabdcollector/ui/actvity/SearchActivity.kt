@@ -1,12 +1,15 @@
 package com.example.parabdcollector.ui.actvity
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.*
@@ -22,6 +25,40 @@ import com.example.parabdcollector.utils.*
 class SearchActivity : AppCompatActivity() {
     private lateinit var b: ActivitySearchBinding; private lateinit var ad: CollectionAdapter; private lateinit var img: ImageCaptureUtil
     private var desc = ""; private var bmp: Bitmap? = null; private var simple = true; private var q: String? = null; private var crit: SearchCriteria? = null
+    private var dWidth: Double? = null; private var dHeight: Double? = null
+    private var currentImageUri: Uri? = null
+    
+    private val measureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+        if (res.resultCode == Activity.RESULT_OK) {
+            val data = res.data
+            // On vérifie intelligemment quelle activité a renvoyé les données
+            val w = if (data?.hasExtra(MeasureActivity.EXTRA_WIDTH) == true) {
+                data.getDoubleExtra(MeasureActivity.EXTRA_WIDTH, 0.0)
+            } else {
+                data?.getDoubleExtra(CoinMeasureActivity.EXTRA_RESULT_WIDTH, 0.0) ?: 0.0
+            }
+            
+            val h = if (data?.hasExtra(MeasureActivity.EXTRA_HEIGHT) == true) {
+                data.getDoubleExtra(MeasureActivity.EXTRA_HEIGHT, 0.0)
+            } else {
+                data?.getDoubleExtra(CoinMeasureActivity.EXTRA_RESULT_HEIGHT, 0.0) ?: 0.0
+            }
+            
+            dWidth = w; dHeight = h
+            if (dWidth != null && dWidth!! > 0.1) {
+                val formatString = if (dHeight!! > 0.1) {
+                    String.format("%.1f / %.1f", dWidth, dHeight)
+                } else {
+                    String.format("%.1f", dWidth)
+                }
+                
+                if (b.advancedSearchFields.isGone) toggleAdvancedSearch()
+                b.etSearchDimensions.setText(formatString)
+                Toast.makeText(this, "Dimensions capturées : $formatString cm", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private val vm: SearchViewModel by viewModels { val a = application as CollectionApplication; ViewModelFactory(a, a.repository, a.locationRepository) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +68,7 @@ class SearchActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(b.root) { v, i -> val s = i.getInsets(WindowInsetsCompat.Type.systemBars()); v.updatePadding(s.left, s.top, s.right, s.bottom); WindowInsetsCompat.CONSUMED }
         img = ImageCaptureUtil(this) { u ->
             if (u == null) return@ImageCaptureUtil
+            currentImageUri = u
             val bit = BitmapUtils.getBitmapFromUri(this, u)
             if (bit != null) {
                 bmp = bit; b.ivSearchImagePreview.setImageBitmap(bit)
@@ -40,6 +78,9 @@ class SearchActivity : AppCompatActivity() {
             validateSearchButton()
         }
         setupRecyclerView(); setupSpinners(); setupClickListeners(); setupTextWatchers(); observeViewModel(); validateSearchButton()
+        
+        // Le bouton de mesure est toujours visible, car on a le fallback 2€.
+        b.btnMeasure.isVisible = true
     }
 
     private fun setupClickListeners() {
@@ -49,6 +90,21 @@ class SearchActivity : AppCompatActivity() {
         b.btnRetry.setOnClickListener { retryLastSearch() }
         b.btnSearchByCamera.setOnClickListener { img.startCamera() }
         b.btnSearchByGallery.setOnClickListener { img.startGallery() }
+        b.btnMeasure.setOnClickListener { 
+            if (ARCoreHelper.isARCoreSupported(this)) {
+                measureLauncher.launch(Intent(this, MeasureActivity::class.java))
+            } else {
+                // Pour la pièce de 2€, on a besoin d'une photo déjà prise
+                if (currentImageUri != null) {
+                    val intent = Intent(this, CoinMeasureActivity::class.java)
+                    intent.putExtra(CoinMeasureActivity.EXTRA_IMAGE_URI, currentImageUri.toString())
+                    measureLauncher.launch(intent)
+                } else {
+                    Toast.makeText(this, "Prenez d'abord une photo avec la pièce de 2€", Toast.LENGTH_LONG).show()
+                    img.startCamera()
+                }
+            }
+        }
         b.fabScrollToTop.setOnClickListener { b.searchScrollView.smoothScrollTo(0, 0) }
     }
 
@@ -85,6 +141,24 @@ class SearchActivity : AppCompatActivity() {
             } else if (s is SearchResultState.Idle) { ad.submitList(emptyList()); updateResultSummary(0, 0, false) }
         }
         vm.signaturePreview.observe(this) { p -> b.tvSignaturePreview.text = p; b.tvSignaturePreview.isVisible = p.isNotBlank() }
+        
+        vm.detectedWords.observe(this) { words ->
+            if (words.isNotEmpty()) {
+                val text = words.joinToString(" ")
+                // On informe l'utilisateur, mais on ne remplit pas le champ ici
+                Toast.makeText(this, "Indices textuels détectés : $text", Toast.LENGTH_SHORT).show()
+                if (b.advancedSearchFields.isGone) toggleAdvancedSearch()
+            }
+        }
+
+        vm.matchedPublisher.observe(this) { publisher ->
+            if (!publisher.isNullOrBlank()) {
+                // On remplit le champ éditeur avec le nom officiel
+                b.etSearchEditor.setText(publisher)
+                Toast.makeText(this, "Éditeur reconnu : $publisher", Toast.LENGTH_SHORT).show()
+                if (b.advancedSearchFields.isGone) toggleAdvancedSearch()
+            }
+        }
     }
 
     private fun updateResultSummary(total: Int, displayed: Int, isFallback: Boolean) {
@@ -116,6 +190,7 @@ class SearchActivity : AppCompatActivity() {
         b.etSearchSuperCategory.setText("", false); b.etSearchCategory.setText("", false)
         b.etSearchStatus.setText(resources.getStringArray(R.array.search_status_options)[0], false)
         bmp = null; b.ivSearchImagePreview.isGone = true; b.tvSignaturePreview.isGone = true
+        dWidth = null; dHeight = null
     }
 
     private fun resetSearchState() {
@@ -156,11 +231,25 @@ class SearchActivity : AppCompatActivity() {
         if (b.advancedSearchFields.isVisible) {
             val o = resources.getStringArray(R.array.search_status_options); val s = b.etSearchStatus.text.toString()
             val isP = when (s) { o[1] -> true; o[2] -> false; else -> null }
-            val c = SearchCriteria(b.etSearchTitle.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchSuperCategory.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchCategory.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchEditor.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchYear.text.toString().trim().toIntOrNull(), b.etSearchMonth.text.toString().trim().toIntOrNull(), b.etSearchDescription.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() }, b.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }, isP)
+            val c = SearchCriteria(
+                titre = b.etSearchTitle.text.toString().trim().takeIf { it.isNotBlank() }, 
+                superCategorie = b.etSearchSuperCategory.text.toString().trim().takeIf { it.isNotBlank() }, 
+                categorie = b.etSearchCategory.text.toString().trim().takeIf { it.isNotBlank() }, 
+                editeur = b.etSearchEditor.text.toString().trim().takeIf { it.isNotBlank() }, 
+                annee = b.etSearchYear.text.toString().trim().toIntOrNull(), 
+                mois = b.etSearchMonth.text.toString().trim().toIntOrNull(), 
+                description = b.etSearchDescription.text.toString().trim().takeIf { it.isNotBlank() }, 
+                tirage = b.etSearchTirage.text.toString().trim().takeIf { it.isNotBlank() }, 
+                dimensions = b.etSearchDimensions.text.toString().trim().takeIf { it.isNotBlank() }, 
+                isPossessed = isP,
+                detectedWidth = dWidth?.takeIf { it > 0.1 },
+                detectedHeight = dHeight?.takeIf { it > 0.1 },
+                queryAspectRatio = bmp?.let { it.width.toDouble() / it.height.toDouble() }
+            )
             crit = c 
             simple = false
             val prefix = if (bmp != null) "Image + " else ""
-            desc = prefix + listOfNotNull(c.titre, s, c.superCategorie, c.categorie).joinToString(", ").ifBlank { "Avancée" }
+            desc = prefix + listOfNotNull(c.titre, c.editeur, s, c.superCategorie, c.categorie).joinToString(", ").ifBlank { "Avancée" }
             vm.advancedSearch(c, bmp)
         } else {
             val query = b.etSearchSimple.text.toString().trim()

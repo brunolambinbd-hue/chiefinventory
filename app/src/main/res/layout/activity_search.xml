@@ -74,6 +74,18 @@
                         android:src="@android:drawable/ic_menu_camera" />
 
                     <ImageButton
+                        android:id="@+id/btn_measure"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/measure_dimensions"
+                        android:padding="8dp"
+                        android:src="@android:drawable/ic_menu_edit"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <ImageButton
                         android:id="@+id/btn_search_by_gallery"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
