@@ -195,5 +195,15 @@
     <string name="cloud_backup_status">Activated (Google account)</string>
     <string name="cloud_backup_description">Your data are saved each night in Goodle dirvbe (with wifi)</string>
     <string name="cloud_backup_title">Cloud backup automatic</string>
+    <string name="todo">TODO</string>
+    <string name="sauvegarde_locale_manuelle">Sauvegarde Locale (Manuelle)</string>
+    <string name="outils_et_maintenance">Outils et Maintenance</string>
+    <string name="diagnostic_mat_riel">Diagnostic Matériel</string>
+    <string name="ajustez_le_cercle_bleu_2_et_le_cadre_rouge">Ajustez le cercle bleu (2€) et le cadre rouge</string>
+    <string name="r_init">Réinit.</string>
+    <string name="valider">Valider</string>
+    <string name="copier">Copier</string>
+    <string name="plan_de_la_collection">Plan de la Collection</string>
+    <string name="historique_des_imports">Historique des imports</string>
 
 </resources>

@@ -22,11 +22,11 @@ android {
     namespace = "com.example.parabdcollector"
     compileSdk = 35
 
-    @Suppress("UnstableApiUsage")
-    androidResources {
-        // La nouvelle API pour filtrer les locales
-        localeFilters += listOf("fr", "en")
-    }
+//    @Suppress("UnstableApiUsage")
+//    androidResources {
+//        // La nouvelle API pour filtrer les locales
+//        localeFilters.addAll(listOf("fr", "en"))
+//    }
 
     sourceSets {
         getByName("androidTest") {
@@ -67,6 +67,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
         buildConfigField("String", "GIT_COMMIT_HASH", "\"$gitCommitHash\"")
+        // NOUVELLE LIGNE : Filtrer les locales pour l'APK final
+        resourceConfigurations += listOf("fr", "en")
     }
 
     buildTypes {
@@ -108,6 +110,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+//    implementation(libs.androidx.ui.text)
     implementation(libs.material)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

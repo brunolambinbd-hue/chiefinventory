@@ -4,23 +4,33 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.parabdcollector.R
 import com.example.parabdcollector.dao.FullHierarchyItem
 import com.example.parabdcollector.databinding.ItemCollectionPlanCardBinding
-import com.google.android.material.chip.Chip
 
 class CollectionPlanAdapter(
     private val onCategoryClicked: (superCat: String, cat: String) -> Unit
-) : RecyclerView.Adapter<CollectionPlanAdapter.ViewHolder>() {
+) : ListAdapter<CollectionPlanAdapter.SuperCategoryGroup, CollectionPlanAdapter.ViewHolder>(DiffCallback) {
 
-    private var groupedData: Map<String, List<FullHierarchyItem>> = emptyMap()
-    private var superCategories: List<String> = emptyList()
+    /**
+     * Représente un groupe de catégories pour une Super-Catégorie donnée.
+     * Utilisé pour permettre à DiffUtil de comparer les données efficacement.
+     */
+    data class SuperCategoryGroup(
+        val name: String,
+        val items: List<FullHierarchyItem>
+    )
 
-    fun submitList(list: List<FullHierarchyItem>) {
-        groupedData = list.groupBy { it.superCategorie }
-        superCategories = groupedData.keys.toList()
-        notifyDataSetChanged()
+    /**
+     * Transforme la liste brute du DAO en liste groupée et la soumet à l'adapteur.
+     */
+    fun submitFullList(list: List<FullHierarchyItem>) {
+        val grouped = list.groupBy { it.superCategorie }
+            .map { SuperCategoryGroup(it.key, it.value) }
+        submitList(grouped)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,12 +39,9 @@ class CollectionPlanAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val superCat = superCategories[position]
-        val categories = groupedData[superCat] ?: emptyList()
-        holder.bind(superCat, categories)
+        val group = getItem(position)
+        holder.bind(group.name, group.items)
     }
-
-    override fun getItemCount(): Int = superCategories.size
 
     inner class ViewHolder(private val binding: ItemCollectionPlanCardBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(superCat: String, categories: List<FullHierarchyItem>) {
@@ -42,17 +49,16 @@ class CollectionPlanAdapter(
             binding.cgCategories.removeAllViews()
 
             for (item in categories) {
-                // Utilisation d'un TextView simple avec taille confort
                 val textView = TextView(binding.root.context).apply {
-                    text = "${item.categorie} (${item.possessedCount}/${item.totalCount})"
-                    textSize = 14f // Taille standard confortable
-                    setTypeface(null, android.graphics.Typeface.BOLD) // Gras pour la lisibilité
+                    text = context.getString(R.string.collection_plan_category_format, item.categorie, item.possessedCount, item.totalCount)
+                    textSize = 14f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
                     setTextColor(ContextCompat.getColor(context, android.R.color.black))
-                    setPadding(16, 10, 16, 10) // Plus d'espace pour cliquer
+                    setPadding(16, 10, 16, 10)
                     setBackgroundResource(R.drawable.status_background_light)
                     setOnClickListener { onCategoryClicked(superCat, item.categorie) }
                 }
-                
+
                 val params = ViewGroup.MarginLayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
@@ -61,6 +67,20 @@ class CollectionPlanAdapter(
                 }
                 textView.layoutParams = params
                 binding.cgCategories.addView(textView)
+            }
+        }
+    }
+
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<SuperCategoryGroup>() {
+            override fun areItemsTheSame(oldItem: SuperCategoryGroup, newItem: SuperCategoryGroup): Boolean {
+                // Identité basée sur le nom de la Super-Catégorie
+                return oldItem.name == newItem.name
+            }
+
+            override fun areContentsTheSame(oldItem: SuperCategoryGroup, newItem: SuperCategoryGroup): Boolean {
+                // Comparaison du contenu (grâce au data class SuperCategoryGroup)
+                return oldItem == newItem
             }
         }
     }

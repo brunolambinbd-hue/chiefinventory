@@ -1,6 +1,5 @@
 package com.example.parabdcollector.ui.actvity
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -21,6 +20,7 @@ import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.ui.adapter.CollectionAdapter
 import com.example.parabdcollector.ui.viewmodel.*
 import com.example.parabdcollector.utils.*
+import kotlin.text.format
 
 class SearchActivity : AppCompatActivity() {
     private lateinit var b: ActivitySearchBinding; private lateinit var ad: CollectionAdapter; private lateinit var img: ImageCaptureUtil
@@ -29,7 +29,7 @@ class SearchActivity : AppCompatActivity() {
     private var currentImageUri: Uri? = null
     
     private val measureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
-        if (res.resultCode == Activity.RESULT_OK) {
+        if (res.resultCode == RESULT_OK) {
             val data = res.data
             // On vérifie intelligemment quelle activité a renvoyé les données
             val w = if (data?.hasExtra(MeasureActivity.EXTRA_WIDTH) == true) {
@@ -45,11 +45,12 @@ class SearchActivity : AppCompatActivity() {
             }
             
             dWidth = w; dHeight = h
-            if (dWidth != null && dWidth!! > 0.1) {
+            if (dWidth != null && (dWidth!! > 0.1)) {
                 val formatString = if (dHeight!! > 0.1) {
-                    String.format("%.1f / %.1f", dWidth, dHeight)
+                    // Utilisation de la locale par défaut (fr_FR ou en_US) pour l'affichage utilisateur
+                    String.format(java.util.Locale.getDefault(), "%.1f / %.1f", dWidth, dHeight)
                 } else {
-                    String.format("%.1f", dWidth)
+                    String.format(java.util.Locale.getDefault(), "%.1f", dWidth)
                 }
                 
                 if (b.advancedSearchFields.isGone) toggleAdvancedSearch()
@@ -138,7 +139,7 @@ class SearchActivity : AppCompatActivity() {
             b.fabScrollToTop.isVisible = s is SearchResultState.Success && s.results.isNotEmpty()
             if (s is SearchResultState.Success) {
                 ad.submitList(s.results); updateResultSummary(s.totalCount, s.results.size, s.isFallback)
-            } else if (s is SearchResultState.Idle) { ad.submitList(emptyList()); updateResultSummary(0, 0, false) }
+            } else if (s is SearchResultState.Idle) { ad.submitList(emptyList()); updateResultSummary(0, 0, isFallback = false) }
         }
         vm.signaturePreview.observe(this) { p -> b.tvSignaturePreview.text = p; b.tvSignaturePreview.isVisible = p.isNotBlank() }
         
@@ -244,7 +245,7 @@ class SearchActivity : AppCompatActivity() {
                 isPossessed = isP,
                 detectedWidth = dWidth?.takeIf { it > 0.1 },
                 detectedHeight = dHeight?.takeIf { it > 0.1 },
-                queryAspectRatio = bmp?.let { it.width.toDouble() / it.height.toDouble() }
+                queryAspectRatio = bmp?.let { it.width.toDouble() / it.height.toDouble() },
             )
             crit = c 
             simple = false

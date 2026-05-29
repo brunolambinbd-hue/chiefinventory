@@ -65,6 +65,7 @@
         android:id="@+id/iv_center_marker"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:contentDescription="@string/todo"
         android:src="@android:drawable/ic_menu_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

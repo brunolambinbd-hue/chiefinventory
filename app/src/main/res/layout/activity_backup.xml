@@ -30,7 +30,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sauvegarde Locale (Manuelle)"
+                android:text="@string/sauvegarde_locale_manuelle"
                 android:textStyle="bold"
                 android:textAppearance="?attr/textAppearanceSubtitle1" />
 
@@ -112,7 +112,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Outils et Maintenance"
+                android:text="@string/outils_et_maintenance"
                 android:textStyle="bold"
                 android:textAppearance="?attr/textAppearanceSubtitle1" />
 
@@ -164,7 +164,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Diagnostic Matériel"
+                android:text="@string/diagnostic_mat_riel"
                 android:textStyle="bold"
                 android:textAppearance="?attr/textAppearanceSubtitle1" />
 

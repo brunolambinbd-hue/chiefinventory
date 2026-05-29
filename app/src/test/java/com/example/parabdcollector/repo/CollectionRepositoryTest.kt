@@ -5,7 +5,6 @@ import androidx.lifecycle.Observer
 import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchCriteria
-import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest

@@ -141,7 +141,7 @@
     <string name="restart_app">Redémarrage de l\'app</string>
     <string name="crash_info">crash_info</string>
     <string name="extra_crash_info">EXTRA_CRASH_INFO</string>
-    <string name="importation_en_cours">Importation en cours...</string>
+    <string name="importation_en_cours">Importation en cours…</string>
     <string name="Display_of_all_objets_to_be_implemented">Affichage de tous les objets (à implémenter)</string>
     <string name="possessed_status">POSSÉDÉ</string>
     <string name="sought_status">RECHERCHÉ</string>
@@ -183,6 +183,16 @@
     <string name="measure_instructions_point2">Visez le deuxième point de l\'objet</string>
     <string name="measure_instructions_done">Mesure terminée. Touchez à nouveau pour changer.</string>
     <string name="measure_validate">Valider les dimensions</string>
+    <string name="todo">A faire</string>
+    <string name="sauvegarde_locale_manuelle">Sauvegarde Locale (Manuelle)</string>
+    <string name="outils_et_maintenance">Outils et Maintenance</string>
+    <string name="diagnostic_mat_riel">Diagnostic Matériel</string>
+    <string name="ajustez_le_cercle_bleu_2_et_le_cadre_rouge">Ajustez le cercle bleu (2€) et le cadre rouge</string>
+    <string name="r_init">Réinit.</string>
+    <string name="valider">Valider</string>
+    <string name="copier">Copier</string>
+    <string name="plan_de_la_collection">Plan de la Collection</string>
+    <string name="historique_des_imports">Historique des imports</string>
 
 
 </resources>

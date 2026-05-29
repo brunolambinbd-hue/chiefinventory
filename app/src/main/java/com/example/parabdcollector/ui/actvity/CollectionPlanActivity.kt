@@ -41,7 +41,8 @@ class CollectionPlanActivity : AppCompatActivity() {
         binding.rvCollectionPlan.adapter = adapter
 
         viewModel.hierarchy.observe(this) { list ->
-            adapter.submitList(list)
+            adapter.submitFullList(list)
+
         }
     }
 

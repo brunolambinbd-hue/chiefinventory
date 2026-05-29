@@ -1,10 +1,11 @@
 package com.example.parabdcollector.ui.actvity
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
+import com.example.parabdcollector.R
 import com.example.parabdcollector.databinding.ActivityCoinMeasureBinding
 import com.example.parabdcollector.utils.BitmapUtils
 
@@ -30,7 +31,7 @@ class CoinMeasureActivity : AppCompatActivity() {
         // Get the image URI from the intent
         val uriStr = intent.getStringExtra(EXTRA_IMAGE_URI)
         if (uriStr != null) {
-            imageUri = Uri.parse(uriStr)
+            imageUri = uriStr.toUri()
             val bitmap = BitmapUtils.getBitmapFromUri(this, imageUri!!)
             if (bitmap != null) {
                 binding.ivPhoto.setImageBitmap(bitmap)
@@ -45,7 +46,9 @@ class CoinMeasureActivity : AppCompatActivity() {
         binding.overlayView.onDimensionsChanged = { width, height ->
             finalWidth = width
             finalHeight = height
-            binding.tvResult.text = getString(com.example.parabdcollector.R.string.measure_format, width) + " x " + getString(com.example.parabdcollector.R.string.measure_format, height)
+            val wStr = getString(R.string.measure_format, width)
+            val hStr = getString(R.string.measure_format, height)
+            binding.tvResult.text = getString(R.string.measure_result_format, wStr, hStr)
         }
         
         // On force le placement initial (coins de la photo et pièce en bas à gauche)
@@ -63,7 +66,7 @@ class CoinMeasureActivity : AppCompatActivity() {
             val resultIntent = Intent()
             resultIntent.putExtra(EXTRA_RESULT_WIDTH, finalWidth)
             resultIntent.putExtra(EXTRA_RESULT_HEIGHT, finalHeight)
-            setResult(Activity.RESULT_OK, resultIntent)
+            setResult(RESULT_OK, resultIntent)
             finish()
         }
     }
@@ -79,10 +82,10 @@ class CoinMeasureActivity : AppCompatActivity() {
         val viewWidth = imageView.width.toFloat()
         val viewHeight = imageView.height.toFloat()
 
-        if (viewWidth <= 0 || viewHeight <= 0) return null
+        if ((viewWidth <= 0) || (viewHeight <= 0)) return null
 
         // Calcul de l'échelle fitCenter
-        val scale = Math.min(viewWidth / bitmapWidth, viewHeight / bitmapHeight)
+        val scale = kotlin.math.min(viewWidth / bitmapWidth, viewHeight / bitmapHeight)
         
         // Calcul des marges (bandes noires/grises)
         val actualWidth = bitmapWidth * scale

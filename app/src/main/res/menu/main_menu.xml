@@ -11,7 +11,7 @@
         <item
             android:id="@+id/nav_collection_plan"
             android:icon="@android:drawable/ic_menu_sort_by_size"
-            android:title="Plan de la Collection" />
+            android:title="@string/plan_de_la_collection" />
         <item
             android:id="@+id/nav_products"
             android:icon="@android:drawable/ic_menu_directions"
@@ -39,7 +39,7 @@
         <item
             android:id="@+id/nav_import_history"
             android:icon="@android:drawable/ic_menu_recent_history"
-            android:title="Historique des imports" />
+            android:title="@string/historique_des_imports" />
         <item
             android:id="@+id/nav_backup"
             android:icon="@android:drawable/ic_menu_save"

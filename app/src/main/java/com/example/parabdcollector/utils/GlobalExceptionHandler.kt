@@ -14,7 +14,10 @@ import kotlin.system.exitProcess
 /**
  * Custom uncaught exception handler that logs the crash to a file and launches a CrashActivity.
  */
-class GlobalExceptionHandler(private val applicationContext: Context) : Thread.UncaughtExceptionHandler {
+class GlobalExceptionHandler(
+    private val applicationContext: Context,
+    private val defaultHandler: Thread.UncaughtExceptionHandler?
+) : Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(t: Thread, e: Throwable) {
         // Écrire l'exception dans un fichier de log
@@ -27,6 +30,11 @@ class GlobalExceptionHandler(private val applicationContext: Context) : Thread.U
             putExtra(CrashActivity.EXTRA_CRASH_INFO, stackTrace)
         }
         applicationContext.startActivity(intent)
+
+        // On laisse le handler par défaut s'occuper de la suite si nécessaire (ex: logcat, crash reporting système)
+        // Mais comme on a lancé une nouvelle activité et qu'on va tuer le processus, 
+        // l'appel au handler par défaut est principalement pour satisfaire Lint et assurer le log système.
+        defaultHandler?.uncaughtException(t, e)
 
         // Tuer le processus de l'application pour forcer un redémarrage propre.
         Process.killProcess(Process.myPid())

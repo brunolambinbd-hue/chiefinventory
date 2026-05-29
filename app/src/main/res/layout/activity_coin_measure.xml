@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Format : -- x -- cm"
+            android:text="@string/format_x_cm"
             android:textAppearance="?attr/textAppearanceSubtitle1"
             android:textColor="?attr/colorPrimary"
             android:textStyle="bold" />
@@ -43,10 +43,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Ajustez le cercle bleu (2€) et le cadre rouge"
+            android:text="@string/ajustez_le_cercle_bleu_2_et_le_cadre_rouge"
             android:textSize="12sp" />
 
         <LinearLayout
+            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -54,20 +55,21 @@
 
             <Button
                 android:id="@+id/btn_reset"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:text="Réinit." />
+                android:text="@string/r_init" />
 
             <Button
                 android:id="@+id/btn_validate"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
-                android:text="Valider" />
+                android:text="@string/valider" />
         </LinearLayout>
     </LinearLayout>
 
@@ -87,6 +89,7 @@
             android:id="@+id/iv_photo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:contentDescription="@string/todo"
             android:scaleType="fitCenter"
             tools:src="@tools:sample/avatars" />
 
