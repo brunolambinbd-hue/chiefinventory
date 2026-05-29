@@ -127,6 +127,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.contrib)
     androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.lifecycle.testing)
     androidTestImplementation(libs.kotlinx.coroutines.test)

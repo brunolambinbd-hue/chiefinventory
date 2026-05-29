@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.parabdcollector.R
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.Locale
 
 /**
  * A utility object for formatting and handling image signatures (embeddings) for UI display.
@@ -45,7 +46,7 @@ object SignatureUtils {
         return embedding?.let {
             if (it.isNotEmpty()) {
                 val preview = it.take(5).joinToString(", ") { value ->
-                    "%.2f".format(value)
+                    "%.2f".format(Locale.US, value)
                 }
                 context.getString(R.string.signature_preview_format, preview)
             } else {

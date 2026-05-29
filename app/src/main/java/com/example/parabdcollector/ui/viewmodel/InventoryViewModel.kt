@@ -20,13 +20,12 @@ import kotlinx.coroutines.launch
  */
 class InventoryViewModel(
     application: Application,
-    private val repository: CollectionRepository
+    private val repository: CollectionRepository,
+    private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(context = application, listener = null)
 ) : AndroidViewModel(application) {
 
     private val _similarItems = MutableLiveData<Pair<List<SearchResultItem>, Uri>>()
     val similarItems: LiveData<Pair<List<SearchResultItem>, Uri>> = _similarItems
-
-    private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(context = application, listener = null)
 
     /**
      * Takes a bitmap, computes its signature, and finds the top 3 most similar items.

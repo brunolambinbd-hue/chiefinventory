@@ -214,8 +214,8 @@ class SearchActivityTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val app = context as CollectionApplication
         val mockRepo = object : CollectionRepository(dao) {
-            override suspend fun advancedSearch(cr: SearchCriteria, qE: FloatArray?): AdvancedSearchResult {
-                return super.advancedSearch(cr, qE)
+            override suspend fun advancedSearch(cr: SearchCriteria, qE: FloatArray?, detectedWords: List<String>): AdvancedSearchResult {
+                return super.advancedSearch(cr, qE, detectedWords)
             }
         }
         app.repository = mockRepo

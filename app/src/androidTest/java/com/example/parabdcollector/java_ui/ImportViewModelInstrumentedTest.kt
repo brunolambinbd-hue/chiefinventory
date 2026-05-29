@@ -11,6 +11,7 @@ import com.example.parabdcollector.dao.CollectionDao
 import com.example.parabdcollector.data.AppDatabase
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.repo.ImportRepository
 import com.example.parabdcollector.ui.viewmodel.ImportViewModel
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,7 +52,8 @@ class ImportViewModelInstrumentedTest {
             .build()
         dao = db.collectionDao()
         repository = CollectionRepository(dao)
-        viewModel = ImportViewModel(context as Application, repository)
+        val importRepository = ImportRepository(db.importSessionDao())
+        viewModel = ImportViewModel(context as Application, repository, importRepository)
     }
 
     @After

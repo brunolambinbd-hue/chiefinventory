@@ -12,6 +12,8 @@ import com.example.parabdcollector.R
 import com.example.parabdcollector.model.SearchCriteria
 import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.repo.CollectionRepository
+import com.example.parabdcollector.utils.IImageProcessor
+import com.example.parabdcollector.utils.ITextRecognizer
 import com.example.parabdcollector.utils.ImageProcessingUtils
 import com.example.parabdcollector.utils.SignatureUtils
 import com.example.parabdcollector.utils.TextRecognitionHelper
@@ -47,7 +49,21 @@ sealed class SearchResultState {
  * @param application The application instance, required for the AndroidViewModel and ImageEmbedderHelper.
  * @param repository The [CollectionRepository] from which to get the data.
  */
-class SearchViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
+class SearchViewModel(
+    application: Application,
+    private val repository: CollectionRepository,
+    private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(
+        context = application,
+        listener = object : ImageEmbedderHelper.EmbedderListener {
+            override fun onError(error: String, errorCode: Int) {
+                Log.e("SearchViewModel", "ImageEmbedderHelper Error ($errorCode): $error")
+            }
+        }
+    ),
+    private val dispatcher: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.IO,
+    private val textRecognizer: ITextRecognizer = TextRecognitionHelper,
+    private val imageProcessor: IImageProcessor = ImageProcessingUtils
+) : AndroidViewModel(application) {
 
     private val _searchResultState = MutableLiveData<SearchResultState>(SearchResultState.Idle)
     /** The state of the most recent search, exposed as LiveData. */
@@ -79,33 +95,19 @@ class SearchViewModel(application: Application, private val repository: Collecti
 
     private var searchJob: Job? = null
 
-    private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(
-        context = application,
-        listener = object : ImageEmbedderHelper.EmbedderListener {
-            override fun onError(error: String, errorCode: Int) {
-                Log.e("SearchViewModel", "ImageEmbedderHelper Error ($errorCode): $error")
-                _searchResultState.postValue(SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_image_analysis)))
-            }
-        }
-    )
-
-    /**
-     * Calculates the signature of a given bitmap and updates the [signaturePreview] LiveData.
-     * @param bitmap The image for which to compute the signature.
-     */
     fun calculateSignatureForPreview(bitmap: Bitmap) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val signature = imageEmbedderHelper.computeSignature(bitmap)
-            _signaturePreview.value = SignatureUtils.formatSignaturePreview(getApplication(), signature?.floatEmbedding())
+            _signaturePreview.postValue(SignatureUtils.formatSignaturePreview(getApplication(), signature?.floatEmbedding()))
 
             // 1. Premier essai OCR avec l'image brute
-            var words = TextRecognitionHelper.extractText(bitmap)
+            var words = textRecognizer.extractText(bitmap)
             Log.d("SearchViewModel", "OCR Essai 1 (Brut) : $words")
             
             // 2. Si le résultat est pauvre, on tente une "seconde chance" avec l'image boostée
             if (words.size < 2 || words.all { it.length < 5 }) {
-                val enhanced = ImageProcessingUtils.enhanceContrast(bitmap)
-                val newWords = TextRecognitionHelper.extractText(enhanced)
+                val enhanced = imageProcessor.enhanceContrast(bitmap)
+                val newWords = textRecognizer.extractText(enhanced)
                 Log.d("SearchViewModel", "OCR Essai 2 (Boosté) : $newWords")
                 
                 if (newWords.size > words.size) {
@@ -114,42 +116,35 @@ class SearchViewModel(application: Application, private val repository: Collecti
             }
 
             if (words.isNotEmpty()) {
-                // 3. Fusion et corrections OCR classiques
-                var fullDetectedText = words.joinToString(" ").lowercase()
-
-                // On corrige les erreurs courantes d'OCR pour faciliter le match (ex: 'dc' au lieu de 'de')
-                fullDetectedText = fullDetectedText
-                    .replace(" dc ", " de ")
-                    .replace(" dc-", " de-")
-                    .replace("-dc ", "-de ")
-                    .replace(" mcr", " mer")
-                    .replace(" flestival", " festival")
-
-                Log.d("SearchViewModel", "Texte après corrections OCR : '$fullDetectedText'")
-
-                val officialPublisher = if (knownPublishers.isNotEmpty()) {
-                    knownPublishers.find { publisher ->
-                        val cleanPublisher = publisher.lowercase().trim()
-
-                        // Stratégie A : Inclusion directe (la plus sûre)
-                        val directMatch = fullDetectedText.contains(cleanPublisher) || cleanPublisher.contains(fullDetectedText)
-
-                        // Stratégie B : Match par mots significatifs (si A échoue)
-                        // On vérifie si tous les mots longs de l'éditeur officiel sont présents
-                        val wordsMatch = if (!directMatch) {
-                            val pubWords = cleanPublisher.split(" ", "-", "/").filter { it.length > 3 }
-                            pubWords.isNotEmpty() && pubWords.all { fullDetectedText.contains(it) }
-                        } else false
-
-                        val match = directMatch || wordsMatch
-                        if (match) Log.d("SearchViewModel", "Match trouvé ! Base: '$cleanPublisher' vs Image: '$fullDetectedText'")
-                        match
-                    }
-                } else null
-                
-                _matchedPublisher.value = officialPublisher
-                _detectedWords.value = words
+                val officialPublisher = findOfficialPublisher(words)
+                _matchedPublisher.postValue(officialPublisher)
+                _detectedWords.postValue(words)
             }
+        }
+    }
+
+    private fun findOfficialPublisher(words: List<String>): String? {
+        if (knownPublishers.isEmpty()) return null
+        
+        var fullDetectedText = words.joinToString(" ").lowercase()
+        // Corrections OCR classiques
+        fullDetectedText = fullDetectedText
+            .replace(" dc ", " de ")
+            .replace(" dc-", " de-")
+            .replace("-dc ", "-de ")
+            .replace(" mcr", " mer")
+            .replace(" flestival", " festival")
+
+        return knownPublishers.find { publisher ->
+            val cleanPublisher = publisher.lowercase().trim()
+            val directMatch = fullDetectedText.contains(cleanPublisher) || cleanPublisher.contains(fullDetectedText)
+            
+            val wordsMatch = if (!directMatch) {
+                val pubWords = cleanPublisher.split(" ", "-", "/").filter { it.length > 3 }
+                pubWords.isNotEmpty() && pubWords.all { fullDetectedText.contains(it) }
+            } else false
+
+            directMatch || wordsMatch
         }
     }
 
@@ -183,11 +178,11 @@ class SearchViewModel(application: Application, private val repository: Collecti
     fun advancedSearch(criteria: SearchCriteria, bitmap: Bitmap?) {
         searchJob?.cancel()
         _searchResultState.value = SearchResultState.Loading
-        searchJob = viewModelScope.launch {
+        searchJob = viewModelScope.launch(dispatcher) {
             try {
                 // 1. Premier essai avec l'image brute
                 val embeddingDeferred = async { bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() } }
-                val wordsDeferred = async { bitmap?.let { TextRecognitionHelper.extractText(it) } ?: emptyList() }
+                val wordsDeferred = async { bitmap?.let { textRecognizer.extractText(it) } ?: emptyList() }
                 
                 val queryEmbedding = embeddingDeferred.await()
                 val detectedWords = wordsDeferred.await()
@@ -198,7 +193,7 @@ class SearchViewModel(application: Application, private val repository: Collecti
                 if (searchResult.isFallback && bitmap != null) {
                     Log.i("SearchViewModel", "Résultat incertain. Tentative de traitement d'image (2ème essai)...")
                     
-                    val enhancedBitmap = ImageProcessingUtils.enhanceContrast(bitmap)
+                    val enhancedBitmap = imageProcessor.enhanceContrast(bitmap)
                     val enhancedEmbedding = imageEmbedderHelper.computeSignature(enhancedBitmap)?.floatEmbedding()
                     
                     if (enhancedEmbedding != null) {
@@ -212,17 +207,17 @@ class SearchViewModel(application: Application, private val repository: Collecti
                     }
                 }
 
-                _searchResultState.value = SearchResultState.Success(
+                _searchResultState.postValue(SearchResultState.Success(
                     results = searchResult.results, 
                     totalCount = searchResult.totalCount,
                     isFallback = searchResult.isFallback
-                )
+                ))
             } catch (e: CancellationException) {
                 Log.i("SearchViewModel", "Advanced search cancelled.")
                 throw e
             } catch (e: Exception) {
                 Log.e("SearchViewModel", "Advanced search failed", e)
-                _searchResultState.value = SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_advanced))
+                _searchResultState.postValue(SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_advanced)))
             }
         }
     }

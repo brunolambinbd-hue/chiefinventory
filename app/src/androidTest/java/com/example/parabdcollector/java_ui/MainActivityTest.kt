@@ -6,7 +6,9 @@ import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.parabdcollector.CollectionApplication
@@ -48,6 +50,28 @@ class MainActivityTest {
         val app = context as CollectionApplication
         app.repository = CollectionRepository(db.collectionDao())
         app.locationRepository = LocationRepository(db.locationDao())
+    }
+
+    @Test
+    fun openingDrawer_shouldShowNavigationView() {
+        ActivityScenario.launch(MainActivity::class.java)
+        
+        // Open drawer
+        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
+        
+        // Check if navigation view is visible
+        onView(withId(R.id.nav_view)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun clickingSearchAction_shouldOpenSearchActivity() {
+        ActivityScenario.launch(MainActivity::class.java)
+        
+        // Click search in toolbar
+        onView(withId(R.id.action_search)).perform(click())
+        
+        // Verify SearchActivity is shown
+        onView(withId(R.id.et_search_simple)).check(matches(isDisplayed()))
     }
 
     @After

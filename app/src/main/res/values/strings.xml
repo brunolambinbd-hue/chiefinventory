@@ -219,6 +219,6 @@
     <string name="measure_instructions_point2">Visez le deuxième point de l\'objet</string>
     <string name="measure_instructions_done">Mesure terminée. Touchez à nouveau pour changer.</string>
     <string name="measure_validate">Valider les dimensions</string>
-    <string name="measure_format">%.1f cm</string>
+    <string name="measure_format" translatable="false">%.1f cm</string>
 
 </resources>

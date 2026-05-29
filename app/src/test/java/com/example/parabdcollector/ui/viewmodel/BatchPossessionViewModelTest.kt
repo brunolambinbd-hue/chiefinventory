@@ -7,13 +7,18 @@ import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.repo.LocationRepository
 import com.example.parabdcollector.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @ExperimentalCoroutinesApi
 class BatchPossessionViewModelTest {
@@ -26,60 +31,81 @@ class BatchPossessionViewModelTest {
 
     private lateinit var repository: CollectionRepository
     private lateinit var locationRepository: LocationRepository
+    private val testDispatcher = StandardTestDispatcher()
     private lateinit var viewModel: BatchPossessionViewModel
 
     @Before
     fun setup() {
         repository = mock()
         locationRepository = mock()
+        // Mock default for locationRepository.getAll() as it is used in init
         whenever(locationRepository.getAll()).thenReturn(MutableLiveData(emptyList()))
-        
-        viewModel = BatchPossessionViewModel(repository, locationRepository)
+        viewModel = BatchPossessionViewModel(repository, locationRepository, testDispatcher)
     }
 
-    @Test
-    fun `analyzeSeries should correctly identify range size`(): Unit = runTest {
-        val item = createMockItem(1, "Spirou n°1500")
-        whenever(repository.getAllByTitle(any())).thenReturn(listOf(item))
-
-        viewModel.analyzeSeries("Spirou", 1500, 1600)
-        advanceUntilIdle() // Attendre la fin de l'analyse
-
-        val result = viewModel.analysisResult.value
-        assertEquals(101, result?.rangeSize)
-        assertEquals(1, result?.foundCount)
-    }
-
-    @Test
-    fun `applyUpdate should update items with possessed status and selected location`(): Unit = runTest {
-        // GIVEN : Un objet identifié (non possédé par défaut via createMockItem)
-        val item = createMockItem(1, "Spirou n°1500")
-        whenever(repository.getAllByTitle(any())).thenReturn(listOf(item))
-        
-        viewModel.analyzeSeries("Spirou", 1500, 1500)
-        advanceUntilIdle() 
-        
-        val targetLocationId = 100L
-        viewModel.selectedLocationId = targetLocationId
-
-        // WHEN : Application de la mise à jour
-        viewModel.applyUpdate()
-        
-        // Attente pour le changement de contexte vers Dispatchers.IO
-        kotlinx.coroutines.delay(100)
-        advanceUntilIdle()
-
-        // THEN: Le repository doit avoir été appelé
-        verify(repository).update(argThat { 
-            this.id == 1L && this.isPossessed && this.locationId == targetLocationId 
-        })
-        assertEquals(1, viewModel.updateStatus.value)
-    }
-
-    private fun createMockItem(id: Long, title: String, possessed: Boolean = false): CollectionItem {
+    private fun createItem(id: Long, title: String, isPossessed: Boolean = false): CollectionItem {
         return CollectionItem(
-            id = id, titre = title, isPossessed = possessed,
-            editeur = "Dupuis", annee = 1980, mois = 1, categorie = "Spirou", superCategorie = "Magazines"
+            id = id,
+            titre = title,
+            isPossessed = isPossessed,
+            editeur = "Test",
+            annee = 2024,
         )
+    }
+
+    @Test
+    fun `analyzeSeries should identify items within range and not possessed`(): Unit = runTest {
+        // GIVEN
+        val series = "Tintin"
+        val mockItems = listOf(
+            createItem(1, "Tintin n°1"),       // Found
+            createItem(2, "Tintin n°2"),       // Found
+            createItem(3, "Tintin n°5"),       // Out of range
+            createItem(4, "Tintin n°2", isPossessed = true), // Already possessed
+            createItem(5, "Other n°1"),        // Should not be in result of repository.getAllByTitle("Tintin") but good to test filter
+        )
+        whenever(repository.getAllByTitle(series)).thenReturn(mockItems)
+
+        // WHEN
+        viewModel.analyzeSeries(series, 1, 3)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // THEN
+        val result = viewModel.analysisResult.value
+        assertEquals(2, result?.foundCount)
+        assertEquals(3, result?.rangeSize) // Range 1..3 is size 3
+    }
+
+    @Test
+    fun `applyUpdate should update identified items and post status`(): Unit = runTest {
+        // GIVEN
+        val series = "Tintin"
+        val itemToUpdate = createItem(1, "Tintin n°1")
+        whenever(repository.getAllByTitle(series)).thenReturn(listOf(itemToUpdate))
+        
+        viewModel.analyzeSeries(series, 1, 1)
+        testDispatcher.scheduler.advanceUntilIdle()
+        
+        viewModel.selectedLocationId = 100L
+
+        // WHEN
+        viewModel.applyUpdate()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // THEN
+        verify(repository).update(itemToUpdate.copy(isPossessed = true, locationId = 100L))
+        assertEquals(1, viewModel.updateStatus.value)
+        assertNull(viewModel.analysisResult.value)
+    }
+
+    @Test
+    fun `applyUpdate should do nothing if no items analyzed`(): Unit = runTest {
+        // WHEN
+        viewModel.applyUpdate()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // THEN
+        verify(repository, times(0)).update(any())
+        assertNull(viewModel.updateStatus.value)
     }
 }

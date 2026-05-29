@@ -3,7 +3,7 @@ package com.example.parabdcollector.ui
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.example.parabdcollector.model.CollectionItem
+import com.example.parabdcollector.dao.SignatureReportItem
 import com.example.parabdcollector.model.SignatureStats
 import com.example.parabdcollector.repo.CollectionRepository
 import com.example.parabdcollector.ui.viewmodel.SignatureReportViewModel
@@ -37,39 +37,36 @@ class SignatureReportViewModelTest {
     }
 
     @Test
-    fun `filteredItems should contain all problem items and only 5 valid items`() {
+    fun `filteredItems should contain all problem items and only 20 valid items`() {
         // GIVEN: A list of items with various signature statuses
-        val validItems = (1..10).map { 
-            CollectionItem(id = it.toLong(), titre = "Valid $it", imageEmbedding = byteArrayOf(it.toByte())) 
+        // In SignatureReportItem, hasEmbedding=false means it's a "problem"
+        val validItems = (1..30).map { 
+            SignatureReportItem(id = it.toLong(), titre = "Valid $it", imageUri = null, hasEmbedding = true) 
         }
-        val emptyItems = (11..12).map { 
-            CollectionItem(id = it.toLong(), titre = "Empty $it", imageEmbedding = byteArrayOf()) 
+        val problemItems = (31..35).map { 
+            SignatureReportItem(id = it.toLong(), titre = "Problem $it", imageUri = null, hasEmbedding = false) 
         }
-        val missingItems = (13..14).map { 
-            CollectionItem(id = it.toLong(), titre = "Missing $it", imageEmbedding = null) 
-        }
-        val allItems = validItems + emptyItems + missingItems
+        val allItems = validItems + problemItems
 
-        val liveData = MutableLiveData<List<CollectionItem>>()
-        whenever(repository.getAll()).thenReturn(liveData)
+        val liveData = MutableLiveData<List<SignatureReportItem>>()
+        whenever(repository.getSignatureReportItems()).thenReturn(liveData)
 
         // WHEN: The ViewModel is created and its output is observed
         val viewModel = SignatureReportViewModel(repository)
-        val observer = Observer<List<CollectionItem>> { }
+        val observer = Observer<List<SignatureReportItem>> { }
         viewModel.filteredItems.observeForever(observer)
 
         // AND WHEN: The data is emitted from the repository
         liveData.value = allItems
 
-        // THEN: The filtered list should contain all problem items (empty + missing) and only the first 5 valid items.
+        // THEN: The filtered list should contain all problem items (sorted by id) and only the first 20 valid items.
         val filtered = viewModel.filteredItems.value
-        val expectedSize = emptyItems.size + missingItems.size + 5
+        val expectedSize = problemItems.size + 20
 
         assertEquals("Filtered list should have the correct size", expectedSize, filtered?.size)
-        assertTrue("Filtered list should contain all empty items", filtered?.containsAll(emptyItems) ?: false)
-        assertTrue("Filtered list should contain all missing items", filtered?.containsAll(missingItems) ?: false)
-        assertTrue("Filtered list should contain the first 5 valid items", filtered?.containsAll(validItems.take(5)) ?: false)
-        assertTrue("Filtered list should NOT contain the 6th valid item", filtered?.none { it.id == 6L } ?: true)
+        assertTrue("Filtered list should contain all problem items", filtered?.containsAll(problemItems) ?: false)
+        assertTrue("Filtered list should contain the first 20 valid items", filtered?.containsAll(validItems.take(20)) ?: false)
+        assertTrue("Filtered list should NOT contain the 21st valid item", filtered?.none { it.id == 21L } ?: true)
 
         // Clean up the observer
         viewModel.filteredItems.removeObserver(observer)
@@ -81,8 +78,8 @@ class SignatureReportViewModelTest {
         val stats = SignatureStats(totalCount = 20, validCount = 10, emptyCount = 5, missingCount = 5)
         val liveData = MutableLiveData(stats)
         whenever(repository.getSignatureStats()).thenReturn(liveData)
-        // We also need to provide a source for _allItems for the init block to run
-        whenever(repository.getAll()).thenReturn(MutableLiveData(emptyList()))
+        // We also need to provide a source for _reportItems for the init block to run
+        whenever(repository.getSignatureReportItems()).thenReturn(MutableLiveData(emptyList()))
 
         // WHEN: The ViewModel is created
         val viewModel = SignatureReportViewModel(repository)

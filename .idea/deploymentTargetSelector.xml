@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-05-25T10:33:43.163297Z">
+        <DropdownSelection timestamp="2026-05-29T07:17:16.597722800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=43e26b1f" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel_9_New.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -15,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="Run all instrumented Tests">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-01-30T11:06:34.247280Z">
+        <DropdownSelection timestamp="2026-05-28T14:36:27.639077800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel-DevTest.avd" />
@@ -36,35 +36,6 @@
             </handle>
           </Target>
         </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="advancedSearch_shouldDisplayCorrectResults()">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-02-16T13:31:55.500582300Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Medium_Phone.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="MainActivityTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-02-22T11:24:31.325452200Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\bruno\.android\avd\Pixel-DevTest.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="searchByCategories_returnsMatchingItems()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="searchWithNonMatchingKeyword_returnsEmptyList()">
-        <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
     </selectionStates>

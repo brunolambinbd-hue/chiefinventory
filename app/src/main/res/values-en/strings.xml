@@ -160,7 +160,9 @@
     <string name="recent_finds_label">Last findings</string>
     <string name="show_unlocated_items_button">Objects not localised</string>
     <string name="show_located_not_possessed_items_button">Localised Objects, but not possessed</string>
-    <string name="batch_update_title">"Update of "</string>
+    <string name="cloud_backup_content_summary">Included (Room, photos, configutation)</string>
+    <string name="btn_verify_google_drive">Check status on Google Drive</string>
+    <string name="batch_update_title">Update of (Series)</string>
     <string name="batch_update_description">Mark as possessed and put in a location</string>
     <string name="batch_series_name_hint">Name of series</string>
     <string name="batch_default_series_name">Spirou</string>
@@ -187,9 +189,11 @@
     <string name="measure_instructions_point2">Aim at the second point of the object</string>
     <string name="measure_instructions_done">Measurement done. Tap again to change.</string>
     <string name="measure_validate">Validate dimensions</string>
-    <string name="measure_format">%.1f cm</string>
     <string name="import_history_title">Import History</string>
     <string name="import_added_format">%1$d new items</string>
     <string name="import_updated_format">%1$d updated items</string>
+    <string name="cloud_backup_status">Activated (Google account)</string>
+    <string name="cloud_backup_description">Your data are saved each night in Goodle dirvbe (with wifi)</string>
+    <string name="cloud_backup_title">Cloud backup automatic</string>
 
 </resources>

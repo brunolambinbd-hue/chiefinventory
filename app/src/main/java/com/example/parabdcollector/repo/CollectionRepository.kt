@@ -88,10 +88,15 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         
         val hasTextCriteria = conditions.isNotEmpty()
         val wh = if (hasTextCriteria) " WHERE ${conditions.joinToString(" AND ")}" else ""
-        
+
         val items = if ((qE != null || detectedWords.isNotEmpty() || hasPhysicalDimensions) && !hasTextCriteria) {
-            // Mode INTELLIGENT (Photo, OCR ou Mesure AR/Manuelle)
-            collectionDao.getAllItemsWithEmbeddings()
+            // Mode INTELLIGENT pur (sans texte)
+            if (qE != null) {
+                collectionDao.getAllItemsWithEmbeddings()
+            } else {
+                // Si on n'a que des dimensions/OCR, on cherche sur TOUTE la base
+                collectionDao.getAllSuspend()
+            }
         } else {
             // Mode TEXTUEL classique
             val dataQ = androidx.sqlite.db.SimpleSQLiteQuery("SELECT * FROM collection_items$wh ORDER BY annee DESC, mois DESC LIMIT 200", args.toTypedArray())
@@ -104,70 +109,77 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
         } else items.size
 
         if (qE != null || detectedWords.isNotEmpty() || hasPhysicalDimensions) {
-            val allSimilar = items.filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
-                .map { item ->
-                    var visualScore = if (qE != null) {
-                        cosineSimilarity(qE, item.imageEmbedding!!).toDouble()
-                    } else {
-                        0.5 // Score neutre si on n'a que de l'OCR ou de la mesure
-                    }
-                    
-                    // --- LOGIQUE HYBRIDE : BOOST PAR OCR (Ajustée) ---
-                    if (detectedWords.isNotEmpty()) {
-                        var boost = 0.0
-                        // On vérifie si AU MOINS UN mot correspond à l'éditeur ou au titre (ignoreCase = true)
-                        val matchEditor = detectedWords.any { word -> 
-                            item.editeur?.contains(word, ignoreCase = true) == true 
-                        }
-                        val matchTitle = detectedWords.any { word -> 
-                            item.titre.contains(word, ignoreCase = true) == true 
-                        }
+            // On ne filtre par embedding QUE si on a une image de requête
+            val candidates = if (qE != null) {
+                items.filter { it.imageEmbedding?.isNotEmpty() == true }
+            } else {
+                items
+            }
 
-                        if (matchEditor) boost += 0.10 // +10% pour l'éditeur
-                        if (matchTitle) boost += 0.05  // +5% pour le titre
-
-                        if (boost > 0) {
-                            visualScore += boost
-                            // On plafonne à 0.99 pour laisser la place au 100% visuel pur
-                            if (visualScore > 0.99) visualScore = 0.99
-                        }
-                    }
-
-                    // --- LOGIQUE DIMENSIONS : FILTRAGE INTELLIGENT (AR ou Manuel) ---
-                    if (hasPhysicalDimensions) {
-                        val itemDim = DimensionUtils.parseDimensions(item.dimensions)
-                        if (itemDim != null) {
-                            val isMatch = DimensionUtils.isWithinTolerance(
-                                Pair(finalWidth!!, finalHeight!!),
-                                itemDim
-                            )
-                            if (!isMatch) {
-                                // On applique une pénalité sévère si les dimensions ne collent pas
-                                visualScore -= 0.50
-                                if (visualScore < 0.0) visualScore = 0.0
-                            } else {
-                                // Petit boost si les dimensions sont parfaites
-                                visualScore += 0.05
-                                if (visualScore > 1.0) visualScore = 1.0
-                            }
-                        }
-                    } else if (cr.queryAspectRatio != null) {
-                        // --- FALLBACK : FILTRAGE PAR RATIO D'IMAGE ---
-                        val itemDim = DimensionUtils.parseDimensions(item.dimensions)
-                        if (itemDim != null) {
-                            val itemRatio = itemDim.first / itemDim.second
-                            val isRatioMatch = DimensionUtils.isRatioMatch(cr.queryAspectRatio, itemRatio)
-                            if (!isRatioMatch) {
-                                // Pénalité légère si le ratio (format) ne correspond pas du tout
-                                visualScore -= 0.15
-                                if (visualScore < 0.0) visualScore = 0.0
-                            }
-                        }
-                    }
-
-                    SearchResultItem(item, visualScore)
+            val allSimilar = candidates.map { item ->
+                var visualScore = if (qE != null) {
+                    cosineSimilarity(qE, item.imageEmbedding!!).toDouble()
+                } else {
+                    0.5 // Score neutre si on n'a que de l'OCR ou de la mesure
                 }
-                .sortedByDescending { it.similarity }
+                
+                // --- LOGIQUE HYBRIDE : BOOST PAR OCR (Ajustée) ---
+                if (detectedWords.isNotEmpty()) {
+                    var boost = 0.0
+                    // On vérifie si AU MOINS UN mot correspond à l'éditeur ou au titre (ignoreCase = true)
+                    val matchEditor = detectedWords.any { word -> 
+                        item.editeur?.contains(word, ignoreCase = true) == true 
+                    }
+                    val matchTitle = detectedWords.any { word -> 
+                        item.titre.contains(word, ignoreCase = true) == true 
+                    }
+
+                    if (matchEditor) boost += 0.10 // +10% pour l'éditeur
+                    if (matchTitle) boost += 0.05  // +5% pour le titre
+
+                    if (boost > 0) {
+                        visualScore += boost
+                        // On plafonne à 0.99 pour laisser la place au 100% visuel pur
+                        if (visualScore > 0.99) visualScore = 0.99
+                    }
+                }
+
+                // --- LOGIQUE DIMENSIONS : FILTRAGE INTELLIGENT (AR ou Manuel) ---
+                if (hasPhysicalDimensions) {
+                    val itemDim = DimensionUtils.parseDimensions(item.dimensions)
+                    if (itemDim != null) {
+                        val isMatch = DimensionUtils.isWithinTolerance(
+                            Pair(finalWidth!!, finalHeight!!),
+                            itemDim
+                        )
+                        if (!isMatch) {
+                            // On applique une pénalité sévère si les dimensions ne collent pas
+                            visualScore -= 0.50
+                        } else {
+                            // Petit boost si les dimensions sont parfaites
+                            visualScore += 0.05
+                        }
+                    } else if (qE == null) {
+                        // Pas de dimensions en base et recherche dimensionnelle pure : petite pénalité
+                        visualScore -= 0.15
+                    }
+                } else if (cr.queryAspectRatio != null) {
+                    // --- FALLBACK : FILTRAGE PAR RATIO D'IMAGE ---
+                    val itemDim = DimensionUtils.parseDimensions(item.dimensions)
+                    if (itemDim != null) {
+                        val itemRatio = itemDim.first / itemDim.second
+                        val isRatioMatch = DimensionUtils.isRatioMatch(cr.queryAspectRatio, itemRatio)
+                        if (!isRatioMatch) {
+                            // Pénalité légère si le ratio (format) ne correspond pas du tout
+                            visualScore -= 0.15
+                        }
+                    }
+                }
+
+                SearchResultItem(item, visualScore.coerceIn(0.0, 1.0))
+            }
+            .filter { (it.similarity ?: 0.0) > 0.1 } // FILTRE STRICT
+            .sortedByDescending { it.similarity }
             
             val highConfidence = allSimilar.filter { it.similarity != null && it.similarity >= 0.65 }
             

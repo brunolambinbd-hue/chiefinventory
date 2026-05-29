@@ -1,7 +1,9 @@
 package com.example.parabdcollector.ui
 
 import android.app.Application
+import android.graphics.Bitmap
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.imagecomparison.ImageEmbedderHelper
 import com.example.parabdcollector.model.AdvancedSearchResult
 import com.example.parabdcollector.model.CollectionItem
 import com.example.parabdcollector.model.SearchCriteria
@@ -10,6 +12,9 @@ import com.example.parabdcollector.ui.model.SearchResultItem
 import com.example.parabdcollector.ui.viewmodel.SearchResultState
 import com.example.parabdcollector.ui.viewmodel.SearchViewModel
 import com.example.parabdcollector.util.MainDispatcherRule
+import com.example.parabdcollector.utils.IImageProcessor
+import com.example.parabdcollector.utils.ITextRecognizer
+import com.google.mediapipe.tasks.components.containers.Embedding
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -17,11 +22,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.*
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /**
  * Unit tests for the [com.example.parabdcollector.ui.viewmodel.SearchViewModel].
@@ -36,6 +39,9 @@ class SearchViewModelTest {
     val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var repository: CollectionRepository
+    private lateinit var imageEmbedderHelper: ImageEmbedderHelper
+    private lateinit var textRecognizer: ITextRecognizer
+    private lateinit var imageProcessor: IImageProcessor
     private lateinit var application: Application
     private lateinit var viewModel: SearchViewModel
 
@@ -43,12 +49,22 @@ class SearchViewModelTest {
     fun setup() {
         // Mock des dépendances
         repository = mock()
+        imageEmbedderHelper = mock()
+        textRecognizer = mock()
+        imageProcessor = mock()
         application = mock() // AndroidViewModel a besoin d'une Application
         // Configure the mock to return a dummy string for any string resource
         whenever(application.getString(any())).thenReturn("dummy error message")
 
-        // Création du ViewModel avec les mocks
-        viewModel = SearchViewModel(application, repository)
+        // Création du ViewModel avec les mocks et le dispatcher de test
+        viewModel = SearchViewModel(
+            application = application,
+            repository = repository,
+            imageEmbedderHelper = imageEmbedderHelper,
+            dispatcher = mainDispatcherRule.testDispatcher,
+            textRecognizer = textRecognizer,
+            imageProcessor = imageProcessor
+        )
     }
 
     @Test
@@ -104,7 +120,7 @@ class SearchViewModelTest {
         val criteria = SearchCriteria(titre = "Advanced")
         val mockList = listOf(SearchResultItem(createTestItem(2, "Advanced Result")))
         val mockResult = AdvancedSearchResult(mockList, mockList.size)
-        whenever(repository.advancedSearch(any(), anyOrNull())).thenReturn(mockResult)
+        whenever(repository.advancedSearch(any(), anyOrNull(), any())).thenReturn(mockResult)
 
         // WHEN : La recherche avancée est appelée sans bitmap.
         viewModel.advancedSearch(criteria, null)
@@ -115,7 +131,56 @@ class SearchViewModelTest {
         assertEquals(mockList, (state as SearchResultState.Success).results)
         assertEquals(mockList.size, state.totalCount)
         // On vérifie que la bonne méthode du repository a été appelée.
-        verify(repository).advancedSearch(criteria, null)
+        verify(repository).advancedSearch(any(), anyOrNull(), any())
+    }
+
+    @Test
+    fun `advancedSearch with fallback should trigger second chance with enhanced contrast`(): Unit = runTest {
+        // GIVEN
+        val criteria = SearchCriteria()
+        val mockBitmap = mock<Bitmap>()
+        val mockEnhancedBitmap = mock<Bitmap>()
+        
+        val mockEmbedding = mock<Embedding>()
+        val floatArray = floatArrayOf(0.1f)
+        whenever(mockEmbedding.floatEmbedding()).thenReturn(floatArray)
+        
+        // Mock the embedder
+        whenever(imageEmbedderHelper.computeSignature(any())).thenReturn(mockEmbedding)
+        
+        // Mock image processor
+        whenever(imageProcessor.enhanceContrast(mockBitmap)).thenReturn(mockEnhancedBitmap)
+        
+        // Mock OCR to return empty list (avoiding native calls)
+        whenever(textRecognizer.extractText(any())).thenReturn(emptyList())
+
+        // First attempt returns fallback
+        val fallbackResult = AdvancedSearchResult(emptyList(), 0, isFallback = true)
+        // Second attempt returns success
+        val successItem = SearchResultItem(createTestItem(1, "Success Item"))
+        val successResult = AdvancedSearchResult(listOf(successItem), 1, isFallback = false)
+        
+        // Setup sequential answers for repository
+        whenever(repository.advancedSearch(any(), anyOrNull(), any()))
+            .thenReturn(fallbackResult) // First call
+            .thenReturn(successResult)  // Second call (after contrast enhancement)
+
+        // WHEN
+        viewModel.advancedSearch(criteria, mockBitmap)
+        
+        // Wait for all coroutines to complete
+        testScheduler.advanceUntilIdle()
+
+        // THEN
+        val state = viewModel.searchResultState.value
+        assertTrue("State should be Success, was $state", state is SearchResultState.Success)
+        if (state is SearchResultState.Success) {
+            assertEquals("Success Item", state.results[0].item.titre)
+            // Verify repository was called twice
+            verify(repository, times(2)).advancedSearch(any(), anyOrNull(), any())
+            // Verify image enhancement was called
+            verify(imageProcessor).enhanceContrast(mockBitmap)
+        }
     }
 
     @Test

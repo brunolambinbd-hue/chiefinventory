@@ -99,6 +99,7 @@
     <string name="generic_field_format">%1$s : %2$s</string>
     <string name="signature_preview_format">[%1$s,…]</string>
     <string name="search_no_similar_results">Aucun résultat suffisamment similaire trouvé (seuil &gt; 65%)</string>
+    <string name="search_fallback_results">Aucune correspondance exacte trouvée. Voici les résultats les plus proches :</string>
     <string name="annuler">Annuler</string>
     <string name="modifier">Modifier</string>
     <string name="la_racine">À la racine</string>
@@ -147,6 +148,8 @@
     <string name="recent_finds_label">Dernières trouvailles</string>
     <string name="show_unlocated_items_button">Objets non localisés</string>
     <string name="show_located_not_possessed_items_button">Objets localisés non possédés</string>
+    <string name="cloud_backup_content_summary">Inclus : Base de données, Photos et Réglages.</string>
+    <string name="btn_verify_google_drive">Vérifier l\'état sur Google Drive</string>
     <string name="batch_update_title">Mise à jour par lot (Séries)</string>
     <string name="batch_update_description">Marquer comme \'Possédés\' et attribuer un emplacement à une série d\'objets</string>
     <string name="batch_series_name_hint">Nom de la série (ex: Spirou)</string>
@@ -169,6 +172,17 @@
     <string name="search_visual_matches">" — %1$d correspondance(s) visuelle(s)"</string>
     <string name="search_displayed_count">" — %1$d affichés"</string>
     <string name="ajouter">Ajouter</string>
+    <string name="cloud_backup_title">Sauvegarde Cloud automatique</string>
+    <string name="cloud_backup_status">Activée (Compte Google)</string>
+    <string name="cloud_backup_description">Vos données sont sauvegardées chaque nuit sur Google Drive (en Wi-Fi).</string>
+    <string name="import_history_title">Historique des Imports</string>
+    <string name="import_added_format">%1$d nouveaux</string>
+    <string name="import_updated_format">%1$d mis à jour</string>
+    <string name="measure_dimensions">Mesurer l\'objet (AR)</string>
+    <string name="measure_instructions_plane">Déplacez le téléphone pour détecter la table</string>
+    <string name="measure_instructions_point2">Visez le deuxième point de l\'objet</string>
+    <string name="measure_instructions_done">Mesure terminée. Touchez à nouveau pour changer.</string>
+    <string name="measure_validate">Valider les dimensions</string>
 
 
 </resources>

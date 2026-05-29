@@ -3,14 +3,22 @@ package com.example.parabdcollector.utils
 import android.graphics.*
 
 /**
+ * Interface for image processing utilities to allow mocking in tests.
+ */
+interface IImageProcessor {
+    fun enhanceContrast(src: Bitmap): Bitmap
+}
+
+/**
  * Utility to enhance images for better AI recognition.
  */
-object ImageProcessingUtils {
+object ImageProcessingUtils : IImageProcessor {
+
 
     /**
      * Applies an auto-contrast filter (histogram stretching equivalent) to a bitmap.
      */
-    fun enhanceContrast(src: Bitmap): Bitmap {
+    override fun enhanceContrast(src: Bitmap): Bitmap {
         val width = src.width
         val height = src.height
         val dest = Bitmap.createBitmap(width, height, src.config ?: Bitmap.Config.ARGB_8888)

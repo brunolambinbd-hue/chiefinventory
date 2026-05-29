@@ -21,7 +21,7 @@ class ViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(MainViewModel::class.java) -> MainViewModel(collectionRepository) as T
-            modelClass.isAssignableFrom(SearchViewModel::class.java) -> SearchViewModel(application, collectionRepository) as T
+            modelClass.isAssignableFrom(SearchViewModel::class.java) -> SearchViewModel(application, collectionRepository, dispatcher = ioDispatcher) as T
             modelClass.isAssignableFrom(ImportViewModel::class.java) -> {
                 val repo = importRepository ?: (application as com.example.parabdcollector.CollectionApplication).importRepository
                 ImportViewModel(application, collectionRepository, repo) as T
