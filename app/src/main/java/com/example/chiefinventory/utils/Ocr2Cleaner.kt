@@ -16,7 +16,7 @@ object Ocr2Cleaner {
     private val DIMENSION_REGEX = Regex("\\d+\\s*(?:mm|cm|cm2|mm2)\\b", RegexOption.IGNORE_CASE)
 
     /**
-     * Cleans a list of lines by removing advertisements and unwanted patterns.
+     * Cleans a list of lines by removing advertisements and unwanted patterns using [Resources].
      */
     fun clean(lines: List<String>, res: Resources): List<String> {
         val adExclusions = try {
@@ -31,35 +31,65 @@ object Ocr2Cleaner {
             emptyList()
         }
 
-        return lines.filter { line ->
-            val trimmed = line.trim()
-            if (trimmed.isEmpty()) return@filter false
+        return clean(lines, excludedKeywords, adExclusions)
+    }
 
-            // 1. Filtrage publicitaire (Regex dynamiques)
-            val isAd = adExclusions.any { adPattern ->
+    /**
+     * Cleans a list of lines by removing advertisements and unwanted patterns using pure [List] collections.
+     */
+    fun clean(lines: List<String>, excludedKeywords: List<String>, adExclusions: List<String> = emptyList()): List<String> {
+        val cleanedLines = mutableListOf<String>()
+
+        for (line in lines) {
+            var trimmed = line.trim()
+            if (trimmed.isEmpty()) continue
+
+            // 1. Nettoyage/Suppression des préfixes et motifs publicitaires
+            var isFullAdLine = false
+            for (adPattern in adExclusions) {
+                if (adPattern.isBlank()) continue
+
+                val rawPattern = adPattern.removePrefix(".*").removeSuffix(".*").trim()
+                if (rawPattern.isBlank()) continue
+
                 try {
-                    Regex(adPattern, RegexOption.IGNORE_CASE).containsMatchIn(trimmed)
-                } catch (e: Exception) {
-                    trimmed.contains(adPattern, ignoreCase = true)
+                    val prefixRegex = Regex("(?i)^.*?" + rawPattern + "\\s*")
+                    if (prefixRegex.containsMatchIn(trimmed)) {
+                        val remaining = prefixRegex.replace(trimmed, "").trim()
+
+                        if (remaining.isEmpty() || remaining.length <= 8) {
+                            isFullAdLine = true
+                            Log.d(TAG, "CLEANER: Ligne publicitaire supprimée -> $trimmed")
+                            break
+                        } else {
+                            Log.d(TAG, "CLEANER: Préfixe publicitaire effacé de -> $trimmed")
+                            trimmed = remaining
+                        }
+                    }
+                } catch (_: Exception) {
+                    if (trimmed.contains(rawPattern, ignoreCase = true)) {
+                        isFullAdLine = true
+                        break
+                    }
                 }
             }
-            if (isAd) {
-                Log.d(TAG, "CLEANER: Ligne publicitaire supprimée -> $trimmed")
-                return@filter false
-            }
+
+            if (isFullAdLine || trimmed.isEmpty()) continue
 
             // 2. Filtrage des mots-clés d'exclusion stricte (ex: PAGE, SAVEUR)
             val isExcluded = excludedKeywords.any { it.equals(trimmed, ignoreCase = true) }
             if (isExcluded) {
                 Log.d(TAG, "CLEANER: Mot-clé exclu supprimé -> $trimmed")
-                return@filter false
+                continue
             }
 
             // 3. Suppression des numéros de page isolés ou dates (bruit OCR courant)
-            if (trimmed.length <= 3 && trimmed.all { it.isDigit() }) return@filter false
+            if (trimmed.length <= 3 && trimmed.all { it.isDigit() }) continue
 
-            true
+            cleanedLines.add(trimmed)
         }
+
+        return cleanedLines
     }
 
     /**

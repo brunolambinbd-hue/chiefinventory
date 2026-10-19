@@ -3,9 +3,9 @@ package com.example.chiefinventory.repo
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.chiefinventory.dao.CollectionDao
 import com.example.chiefinventory.model.CollectionItem
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -29,12 +29,6 @@ class CollectionRepositoryTest {
         repository = CollectionRepository(collectionDao)
     }
 
-    /**
-     * Creates a dummy embedding that has a predictable cosine similarity to the query vector.
-     * The query vector is [1, 0, 0, ...].
-     * This dummy vector is [value, sqrt(1-value^2), 0, ...], ensuring it's normalized.
-     * Their dot product (and cosine similarity) will be exactly `value`.
-     */
     private fun createPredictableEmbedding(similarityValue: Float): ByteArray {
         val floatArray = FloatArray(10) { 0f }
         floatArray[0] = similarityValue
@@ -47,7 +41,6 @@ class CollectionRepositoryTest {
 
     @Test
     fun `findMostSimilarItems should return top 3 sorted results`(): Unit = runTest {
-        // GIVEN: A normalized query embedding and a list of items with predictable similarities.
         val queryEmbedding = FloatArray(10) { 0f }.apply { this[0] = 1f }
 
         val allItemsWithEmbeddings = listOf(
@@ -59,13 +52,11 @@ class CollectionRepositoryTest {
         )
         whenever(collectionDao.getAllItemsWithEmbeddings()).thenReturn(allItemsWithEmbeddings)
 
-        // WHEN: We call the function to find the most similar items.
         val results = repository.findMostSimilarItems(queryEmbedding)
 
-        // THEN: The result should contain exactly 3 items, sorted by similarity descending.
-        assertEquals(3, results.size)
-        assertEquals("Very High Similarity", results[0].item.titre) // Similarity 0.99
-        assertEquals("High Similarity", results[1].item.titre)    // Similarity 0.95
-        assertEquals("Medium Similarity", results[2].item.titre)   // Similarity 0.5
+        assertThat(results).hasSize(3)
+        assertThat(results[0].item.titre).isEqualTo("Very High Similarity")
+        assertThat(results[1].item.titre).isEqualTo("High Similarity")
+        assertThat(results[2].item.titre).isEqualTo("Medium Similarity")
     }
 }

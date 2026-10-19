@@ -102,6 +102,7 @@
     <string name="menu_locations_title">Mes Emplacements</string>
     <string name="menu_ingredients_title">Mes Ingrédients</string>
     <string name="menu_recipes_title">Mes Recettes</string>
+    <string name="menu_kitchen_supertitle">MA CUISINE</string>
     <string name="menu_import_title">Importer / Mettre à jour</string>
     <string name="menu_backup_title">Maintenance / Sauvegarde</string>
     <string name="refine_search_title">Affiner la recherche</string>

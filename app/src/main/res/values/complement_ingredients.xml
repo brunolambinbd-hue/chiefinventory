@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ingredient_mandatory_complements">
+        <item>vinaigre</item>
+        <item>huile</item>
+        <item>jus</item>
+        <item>zeste</item>
+        <item>zestes</item>
+        <item>sauce</item>
+        <item>crème</item>
+        <item>creme</item>
+        <item>chair</item>
+        <item>sirop</item>
+        <item>pâte</item>
+        <item>pate</item>
+        <item>purée</item>
+        <item>puree</item>
+        <item>poudre</item>
+        <item>extrait</item>
+        <item>concentré</item>
+        <item>coulis</item>
+        <item>vin</item>
+    </string-array>
+</resources>

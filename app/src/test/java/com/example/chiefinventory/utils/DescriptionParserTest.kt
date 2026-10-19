@@ -2,16 +2,13 @@
 
 package com.example.chiefinventory.utils
 
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
  * Tests unitaires paramétrés pour l'objet utilitaire [DescriptionParser].
- *
- * Cette classe vérifie que la logique d'extraction des informations
- * fonctionne correctement pour différents formats de chaînes en utilisant un test par cas.
  */
 @RunWith(Parameterized::class)
 class DescriptionParserTest(
@@ -23,7 +20,7 @@ class DescriptionParserTest(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "{0}") // Utilise le premier paramètre (caseName) pour nommer le test
+        @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<Array<Any?>> {
             return listOf(
                 arrayOf(
@@ -66,15 +63,11 @@ class DescriptionParserTest(
         }
     }
 
-    /**
-     * Exécute un seul cas de test fourni par le constructeur paramétré.
-     */
     @Test
     fun `Le cas de test doit passer`() {
-        // WHEN : La fonction parse est appelée avec les données du cas de test.
         val result = DescriptionParser.parse(title, description)
-
-        // THEN : Le résultat doit correspondre au résultat attendu pour ce cas.
-        assertEquals("Échec sur le cas : '$caseName'", expected, result)
+        
+        assertWithMessage("Échec sur le cas : '$caseName'")
+            .that(result).isEqualTo(expected)
     }
 }

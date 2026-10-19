@@ -9,12 +9,15 @@ import com.example.chiefinventory.R
 object WineParser {
     private val wineYearRegex = Regex("\\b(?:19|20)\\d{2}\\b")
     private val wineVolRegex = Regex("\\b\\d+(?:[\\s.,]\\d+)?\\s*(?:cl|ml|l|vol)\\b", RegexOption.IGNORE_CASE)
+    // Regex spécifique pour les bouteilles standards (75 cl, 750 ml)
+    private val standardBottleRegex = Regex("(?i)\\b(75\\s*cl|750\\s*ml|1\\s*5\\s*l|magnum)\\b")
+    
     private val extraWineCleanRegex = Regex("(?i)^(?:accord|boisson|boire|servir avec|suggestion)\\s*:?", RegexOption.IGNORE_CASE)
 
     // Mots-clés qui indiquent qu'il s'agit d'un ingrédient de cuisine et NON de vin
     private val WINE_EXCLUSION_REGEX = Regex("(?i)\\b(huile|vinaigre|beurre|crème|creme|lait|bouillon|eau|jus|sirop)\\b")
     
-    // NOUVEAU : Unités purement culinaires qui disqualifient une recommandation de vin (ex: 2 dl de vin)
+    // Unités purement culinaires qui disqualifient une recommandation de vin
     private val CULINARY_UNITS_REGEX = Regex("(?i)\\b(\\d+\\s*(?:dl|g|mg|kg)|c\\.?\\s*[àa]\\s*(?:soupe|caf[eé]|dessert))\\b")
 
     data class WineResources(
@@ -31,22 +34,36 @@ object WineParser {
             producers = res.getStringArray(R.array.wine_producers).toList(),
             keywords = res.getStringArray(R.array.wine_keywords).toList(),
             titleKeywords = res.getStringArray(R.array.wine_title_keywords).toList(),
-            removePattern = res.getString(R.string.wine_remove_pattern)
+            removePattern = try { res.getString(R.string.wine_remove_pattern) } catch (_: Exception) { "" }
+        )
+    }
+
+    fun isWineLine(line: String, vocabulary: OcrVocabulary): Boolean {
+        return isWineLine(
+            line,
+            WineResources(
+                appellations = vocabulary.wineAppellations,
+                producers = vocabulary.wineProducers,
+                keywords = vocabulary.wineKeywords,
+                titleKeywords = vocabulary.wineTitleKeywords,
+                removePattern = vocabulary.wineRemovePattern
+            )
         )
     }
 
     fun isWineLine(line: String, resources: WineResources): Boolean {
-        // 1. Exclusion si contient un ingrédient culinaire explicite
+        val lower = line.lowercase().trim()
+        if (lower == "vin" || lower == "vin blanc" || lower == "vin rouge" || lower == "du vin blanc" || lower == "du vin rouge") return false
+
+        // 1. Exclusion si contient un ingrédient culinaire ou une unité culinaire
         if (WINE_EXCLUSION_REGEX.containsMatchIn(line)) return false
-        
-        // 2. Exclusion si contient une unité de mesure culinaire (ex: 2 dl, 50 g)
         if (CULINARY_UNITS_REGEX.containsMatchIn(line)) return false
 
-        // 3. Ancienne règle du vinaigre
-        if (line.lowercase().contains("vinaigre")) return false
-
-        // 4. Règle forte : Année + Volume (ex: 2015 75cl)
+        // 2. Règle forte : Année + Volume (ex : 2015 75cl)
         if (wineYearRegex.containsMatchIn(line) && wineVolRegex.containsMatchIn(line)) return true
+        
+        // 3. Règle spécifique : Format bouteille standard (75 cl) sans signal culinaire
+        if (standardBottleRegex.containsMatchIn(line)) return true
 
         // Helper pour détecter les mots entiers (Unicode aware)
         fun containsWholeWord(text: String, keyword: String): Boolean {
@@ -54,24 +71,50 @@ object WineParser {
             return pattern.containsMatchIn(text)
         }
 
-        return resources.appellations.any { containsWholeWord(line, it) } ||
+        // 4. Match contre les listes de ressources
+        val matchesResource = resources.appellations.any { containsWholeWord(line, it) } ||
                 resources.producers.any { containsWholeWord(line, it) } ||
                 resources.keywords.any { containsWholeWord(line, it) } ||
                 resources.titleKeywords.any { containsWholeWord(line, it) }
+        
+        if (matchesResource) return true
+        
+        // 5. Millésime seul (si la ligne est courte et contient une année réaliste)
+        if (line.length < 15 && wineYearRegex.matches(line.trim())) return true
+
+        return false
+    }
+
+    fun hasWineVolume(line: String): Boolean {
+        return wineVolRegex.containsMatchIn(line) || standardBottleRegex.containsMatchIn(line)
+    }
+
+    fun cleanWineLine(line: String, vocabulary: OcrVocabulary): String {
+        return cleanWineLine(
+            line,
+            WineResources(
+                appellations = vocabulary.wineAppellations,
+                producers = vocabulary.wineProducers,
+                keywords = vocabulary.wineKeywords,
+                titleKeywords = vocabulary.wineTitleKeywords,
+                removePattern = vocabulary.wineRemovePattern
+            )
+        )
     }
 
     fun cleanWineLine(line: String, resources: WineResources): String {
-        val wineRemoveRegex = Regex(resources.removePattern, RegexOption.IGNORE_CASE)
-        var cleaned = line.replace(wineRemoveRegex, "")
+        val wineRemoveRegex = if (resources.removePattern.isNotBlank()) {
+            Regex(resources.removePattern, RegexOption.IGNORE_CASE)
+        } else null
+
+        var cleaned = line
+        wineRemoveRegex?.let { cleaned = cleaned.replace(it, "") }
         cleaned = cleaned.replace(extraWineCleanRegex, "").trim()
         cleaned = cleaned.replace(Regex("^[:\\-\\s\\.]+"), "").trim()
 
         return applySpellingCorrections(cleaned)
     }
 
-    /**
-     * Applies common spelling corrections for wine names misread by OCR.
-     */
     private fun applySpellingCorrections(text: String): String {
         var corrected = text
         corrected = corrected.replace(Regex("(?i)\\bBordeau\\b"), "Bordeaux")

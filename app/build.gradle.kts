@@ -20,7 +20,7 @@ val gitCommitHash: String = try {
 
 android {
     namespace = "com.example.chiefinventory"
-    compileSdk = 35
+    compileSdk = libs.versions.sdkCompile.get().toString().toInt()
 
     @Suppress("UnstableApiUsage")
     androidResources {
@@ -65,8 +65,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.chiefinventory"
-        minSdk = 26
-        targetSdk = 35
+        minSdk = libs.versions.sdkMin.get().toString().toInt()
+        targetSdk = libs.versions.sdkTarget.get().toString().toInt()
         versionCode = 1
         versionName = "1.0"
 
@@ -93,11 +93,11 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_18
-        targetCompatibility = JavaVersion.VERSION_18
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get().toString())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get().toString())
     }
     kotlinOptions {
-        jvmTarget = "18"
+        jvmTarget = libs.versions.javaVersion.get().toString()
     }
 
     testOptions {
@@ -111,6 +111,9 @@ android {
 
 dependencies {
     implementation(project(":imagecomparison"))
+    implementation(libs.ocr)
+    implementation(libs.traceability)
+    implementation(libs.locationmanagement)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -125,9 +128,9 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.mediapipe.tasks.vision)
     implementation(libs.image.cropper)
-    implementation(libs.mlkit.text.recognition)
 
     testImplementation(libs.junit)
+    testImplementation(libs.truth)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.androidx.arch.core.testing)
     testImplementation(libs.kotlinx.coroutines.test)

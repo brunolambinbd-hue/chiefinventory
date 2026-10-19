@@ -25,7 +25,7 @@ import com.example.chiefinventory.model.RecipeIngredient
         Recipe::class,
         RecipeIngredient::class
     ],
-    version = 25, // Incrémenté à 25
+    version = 26, // Incrémenté de 25 à 26
     exportSchema = false
 )
 @TypeConverters(com.example.chiefinventory.data.TypeConverters::class)
@@ -36,7 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
 
     companion object {
-        const val DATABASE_VERSION: Int = 25
+        const val DATABASE_VERSION: Int = 26
         const val DATABASE_NAME: String = "chiefinventory_database"
 
         private val MIGRATION_18_19 = object : Migration(18, 19) {
@@ -92,11 +92,43 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        // Migration pour ajouter Kcal et Difficulté (24 -> 25)
         private val MIGRATION_24_25 = object : Migration(24, 25) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE recipes ADD COLUMN kcalPerServing INTEGER")
                 db.execSQL("ALTER TABLE recipes ADD COLUMN difficulty TEXT")
+            }
+        }
+
+        /**
+         * Migration 25 -> 26: Ajout de locationId à recipe_ingredients avec ForeignKey.
+         * SQLite ne supporte pas l'ajout de FK via ALTER TABLE, on doit recréer la table.
+         */
+        private val MIGRATION_25_26 = object : Migration(25, 26) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE recipe_ingredients_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        recipeId INTEGER NOT NULL,
+                        ingredientName TEXT NOT NULL,
+                        quantityRequired REAL,
+                        unit TEXT,
+                        supplementalInfo TEXT,
+                        locationId INTEGER,
+                        FOREIGN KEY(recipeId) REFERENCES recipes(id) ON UPDATE NO ACTION ON DELETE CASCADE,
+                        FOREIGN KEY(locationId) REFERENCES locations(id) ON UPDATE NO ACTION ON DELETE SET_NULL
+                    )
+                """.trimIndent())
+                
+                db.execSQL("""
+                    INSERT INTO recipe_ingredients_new (id, recipeId, ingredientName, quantityRequired, unit, supplementalInfo, locationId)
+                    SELECT id, recipeId, ingredientName, quantityRequired, unit, supplementalInfo, NULL FROM recipe_ingredients
+                """.trimIndent())
+                
+                db.execSQL("DROP TABLE recipe_ingredients")
+                db.execSQL("ALTER TABLE recipe_ingredients_new RENAME TO recipe_ingredients")
+                
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_recipe_ingredients_recipeId ON recipe_ingredients(recipeId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_recipe_ingredients_locationId ON recipe_ingredients(locationId)")
             }
         }
 
@@ -112,7 +144,8 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 .addMigrations(
                     MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, 
-                    MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25
+                    MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24, 
+                    MIGRATION_24_25, MIGRATION_25_26
                 )
                 .fallbackToDestructiveMigration()
                 .build()

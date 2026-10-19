@@ -8,17 +8,14 @@ import com.example.chiefinventory.repo.CollectionRepository
 import com.example.chiefinventory.repo.IngredientRepository
 import com.example.chiefinventory.ui.viewmodel.MainViewModel
 import com.example.chiefinventory.util.MainDispatcherRule
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-/**
- * Unit tests for the [com.example.chiefinventory.ui.viewmodel.MainViewModel].
- */
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
 
@@ -44,7 +41,7 @@ class MainViewModelTest {
         whenever(repository.getAllPossessed()).thenReturn(MutableLiveData(testData))
 
         viewModel = MainViewModel(repository, ingredientRepository)
-        assertEquals(testData, viewModel.possessedItems.value)
+        assertThat(viewModel.possessedItems.value).isEqualTo(testData)
     }
 
     @Test
@@ -53,7 +50,7 @@ class MainViewModelTest {
         whenever(repository.getAllSought()).thenReturn(MutableLiveData(testData))
 
         viewModel = MainViewModel(repository, ingredientRepository)
-        assertEquals(testData, viewModel.soughtItems.value)
+        assertThat(viewModel.soughtItems.value).isEqualTo(testData)
     }
 
     @Test
@@ -61,7 +58,7 @@ class MainViewModelTest {
         whenever(repository.getTotalCount()).thenReturn(MutableLiveData(42))
 
         viewModel = MainViewModel(repository, ingredientRepository)
-        assertEquals(42, viewModel.totalItemsCount.value)
+        assertThat(viewModel.totalItemsCount.value).isEqualTo(42)
     }
 
     @Test
@@ -70,7 +67,7 @@ class MainViewModelTest {
         whenever(repository.getSignatureStats()).thenReturn(MutableLiveData(stats))
 
         viewModel = MainViewModel(repository, ingredientRepository)
-        assertEquals(stats, viewModel.signatureStats.value)
+        assertThat(viewModel.signatureStats.value).isEqualTo(stats)
     }
 
     @Test
@@ -79,7 +76,7 @@ class MainViewModelTest {
         whenever(repository.getRecentPossessed()).thenReturn(MutableLiveData(testData))
 
         viewModel = MainViewModel(repository, ingredientRepository)
-        assertEquals(testData, viewModel.recentPossessedItems.value)
+        assertThat(viewModel.recentPossessedItems.value).isEqualTo(testData)
     }
 
     @Test
@@ -88,7 +85,7 @@ class MainViewModelTest {
         whenever(repository.getRecentLocated()).thenReturn(MutableLiveData(testData))
 
         viewModel = MainViewModel(repository, ingredientRepository)
-        assertEquals(testData, viewModel.recentLocatedItems.value)
+        assertThat(viewModel.recentLocatedItems.value).isEqualTo(testData)
     }
 
     private fun createMockItem(id: Long, possessed: Boolean): CollectionItem {

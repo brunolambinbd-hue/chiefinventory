@@ -2,19 +2,19 @@ package com.example.chiefinventory.utils
 
 import android.content.Context
 import android.content.Intent
-import android.os.Process
 import com.example.chiefinventory.ui.actvity.CrashActivity
 import java.io.File
 import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.system.exitProcess
 
 /**
  * Custom uncaught exception handler that logs the crash to a file and launches a CrashActivity.
  */
 class GlobalExceptionHandler(private val applicationContext: Context) : Thread.UncaughtExceptionHandler {
+
+    private val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
 
     override fun uncaughtException(t: Thread, e: Throwable) {
         val stackTrace = e.stackTraceToString()
@@ -24,18 +24,22 @@ class GlobalExceptionHandler(private val applicationContext: Context) : Thread.U
         
         writeErrorToLog(fullReport)
 
-        val intent = Intent(applicationContext, CrashActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            putExtra(CrashActivity.EXTRA_CRASH_INFO, fullReport)
+        try {
+            val intent = Intent(applicationContext, CrashActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                putExtra(CrashActivity.EXTRA_CRASH_INFO, fullReport)
+            }
+            applicationContext.startActivity(intent)
+        } catch (_: Exception) {
+            defaultHandler?.uncaughtException(t, e)
+            return
         }
-        applicationContext.startActivity(intent)
 
-        Process.killProcess(Process.myPid())
-        exitProcess(10)
+        android.os.Process.killProcess(android.os.Process.myPid())
+        kotlin.system.exitProcess(10)
     }
 
     private fun analyzeException(e: Throwable): String {
-        val message = e.message ?: ""
         val stackTrace = e.stackTraceToString()
 
         return when {

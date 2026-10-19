@@ -4,11 +4,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.chiefinventory.model.CollectionItem
 import com.example.chiefinventory.repo.CollectionRepository
 import com.example.chiefinventory.util.MainDispatcherRule
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -29,47 +28,40 @@ class CategoryAuditViewModelTest {
     @Before
     fun setup() {
         repository = mock()
-        // Injection du testDispatcher de la règle pour remplacer Dispatchers.IO
         viewModel = CategoryAuditViewModel(repository, mainDispatcherRule.testDispatcher)
     }
 
     @Test
     fun `performAudit should find items with missing or ND super-categories`(): Unit = runTest {
-        // GIVEN: 3 items. One correct, one with empty super-cat, one with "N/D"
         val mockItems = listOf(
-            createItem(1, "Affiches", "Image"),           // Correct -> ignore
-            createItem(2, "Affiches", ""),                // Empty -> fix
-            createItem(3, "Travaux pour Spirou", "N/D")   // N/D -> fix
+            createItem(1, "Affiches", "Image"),
+            createItem(2, "Affiches", ""),
+            createItem(3, "Travaux pour Spirou", "N/D")
         )
         whenever(repository.getAllItemsSuspend()).thenReturn(mockItems)
 
-        // WHEN: Lancement de l'audit
         viewModel.performAudit()
-        advanceUntilIdle() 
+        advanceUntilIdle()
 
-        // THEN: Devrait trouver 2 objets à réparer
-        assertEquals(2, viewModel.auditResult.value)
+        assertThat(viewModel.auditResult.value).isEqualTo(2)
     }
 
     @Test
     fun `fixInconsistencies should update items with correct super-category from Mapper`(): Unit = runTest {
-        // GIVEN : Un objet à réparer détecté par l'audit
         val itemToFix = createItem(1, "Affiches", "N/D")
         whenever(repository.getAllItemsSuspend()).thenReturn(listOf(itemToFix))
         
         viewModel.performAudit()
         advanceUntilIdle()
 
-        // WHEN: Réparation
         viewModel.fixInconsistencies()
         advanceUntilIdle()
 
-        // THEN: Le repository doit recevoir un update avec "Image" (règle pour Affiches)
         verify(repository).update(argThat { 
             this.id == 1L && this.superCategorie == "Image" 
         })
-        assertEquals(1, viewModel.updateStatus.value)
-        assertNull(viewModel.auditResult.value)
+        assertThat(viewModel.updateStatus.value).isEqualTo(1)
+        assertThat(viewModel.auditResult.value).isNull()
     }
 
     private fun createItem(id: Long, cat: String, superCat: String?): CollectionItem {

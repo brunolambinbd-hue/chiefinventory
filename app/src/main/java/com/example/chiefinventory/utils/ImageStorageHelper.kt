@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 
 /**
  * A utility object for managing the permanent storage of images within the app's internal' files directory.
@@ -35,8 +34,8 @@ object ImageStorageHelper {
         val destinationFile = File(imageDir, "img_${System.currentTimeMillis()}.jpg")
 
         try {
-            // Open an input stream from the temporary URI.
-            context.contentResolver.openInputStream(tempUri)?.use { inputStream ->
+            // Open an input stream from the temporary URI using safe call on contentResolver.
+            context.contentResolver?.openInputStream(tempUri)?.use { inputStream ->
                 // Open an output stream to the destination file.
                 FileOutputStream(destinationFile).use { outputStream ->
                     // Copy the data from the input stream to the output stream.
@@ -45,7 +44,7 @@ object ImageStorageHelper {
             }
             // Return the content URI for the new permanent file.
             return Uri.fromFile(destinationFile)
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             // Log the error and return null if any part of the process fails.
             e.printStackTrace()
             return null

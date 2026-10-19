@@ -5,6 +5,8 @@ package com.example.chiefinventory.utils
  */
 object IngredientSplitter {
 
+    private val ARTICLES = setOf("le", "la", "les", "un", "une", "des", "du", "de", "d'", "d")
+
     /**
      * Divides a line if it contains multiple ingredients.
      * Example: "2 gousses d'ail sel, poivre" -> ["2 gousses d'ail", "sel", "poivre"]
@@ -24,14 +26,16 @@ object IngredientSplitter {
             do {
                 found = false
                 for (keyword in sortedKeywords) {
-                    // On cherche le mot-clé précédé d'au moins 3 caractères (pour ne pas couper "1 sel")
                     val pattern = Regex("(?<=.{3})${Regex.escape(keyword)}\\b", RegexOption.IGNORE_CASE)
                     val match = pattern.find(currentPart)
                     if (match != null) {
-                        result.add(currentPart.substring(0, match.range.first).trim())
-                        currentPart = currentPart.substring(match.range.first).trim()
-                        found = true
-                        break
+                        val prefix = currentPart.substring(0, match.range.first).trim()
+                        if (prefix.lowercase() !in ARTICLES) {
+                            result.add(prefix)
+                            currentPart = currentPart.substring(match.range.first).trim()
+                            found = true
+                            break
+                        }
                     }
                 }
             } while (found)

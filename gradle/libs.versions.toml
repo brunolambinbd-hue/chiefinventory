@@ -1,7 +1,16 @@
 [versions]
-agp = "8.13.1"
-kotlin = "1.9.24"
-ksp = "1.9.24-1.0.20"
+agp = "8.8.2"
+kotlin = "2.0.21"
+
+# SDK Versions
+sdkMin = "26"
+sdkTarget = "35"
+sdkCompile = "35"
+
+# Java/Kotlin JVM Versions
+javaVersion = "18"
+
+ksp = "2.0.21-1.0.28"
 coreKtx = "1.13.1"
 appcompat = "1.7.1"
 material = "1.13.0"
@@ -54,11 +63,16 @@ mediapipe-tasks-vision = { group = "com.google.mediapipe", name = "tasks-vision"
 # ML Kit Text Recognition
 mlkit-text-recognition = { group = "com.google.android.gms", name = "play-services-mlkit-text-recognition", version.ref = "mlkitTextRecognition" }
 
-# Librairies de Test
+# Libraries de Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitExt" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCoreTesting" }
+
+# Local Libraries
+ocr = { group = "com.example.lib", name = "ocr", version = "1.0.0" }
+traceability = { group = "com.example.devassurance", name = "dev-assurance-core", version = "1.0.0" }
+locationmanagement = { group = "com.example.lib", name = "locationmanagement", version = "1.0.0" }
 
 # Correction de l'artefact de test pour le Lifecycle
 androidx-lifecycle-testing = { group = "androidx.lifecycle", name = "lifecycle-runtime-testing", version.ref = "lifecycleTesting" }

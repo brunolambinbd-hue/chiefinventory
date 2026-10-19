@@ -1,0 +1,60 @@
+package com.example.chiefinventory.utils
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+
+class SourceParserTest {
+
+    private lateinit var vocabulary: OcrVocabulary
+
+    @Before
+    fun setup() {
+        // Charge le VRAI vocabulaire de production depuis les fichiers XML (app/src/main/res/values/*.xml)
+        vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+    }
+
+    @Test
+    fun `isSourceLine should return true for valid phone numbers`() {
+        assertTrue(SourceParser.isSourceLine("02/542.42.42", vocabulary))
+        assertTrue(SourceParser.isSourceLine("+32 2 542 42 42", vocabulary))
+        assertTrue(SourceParser.isSourceLine("Tel: 01 45 67 89 10", vocabulary))
+        assertTrue(SourceParser.isSourceLine("06.12.34.56.78", vocabulary))
+    }
+
+    @Test
+    fun `isSourceLine should return true for lines with source keywords`() {
+        assertTrue(SourceParser.isSourceLine("Restaurant La Bonne Fourchette", vocabulary))
+        assertTrue(SourceParser.isSourceLine("12 rue des Fleurs", vocabulary))
+        assertTrue(SourceParser.isSourceLine("Hôtel de Ville", vocabulary))
+    }
+
+    @Test
+    fun `isSourceLine should return true for short lines with zip codes`() {
+        assertTrue(SourceParser.isSourceLine("75001 Paris", vocabulary))
+        assertTrue(SourceParser.isSourceLine("CP: 1000", vocabulary))
+    }
+
+    @Test
+    fun `isSourceLine should return false for lines without source info`() {
+        assertFalse(SourceParser.isSourceLine("Couper les oignons", vocabulary)) 
+        assertFalse(SourceParser.isSourceLine("Sel et poivre", vocabulary))
+        assertFalse(SourceParser.isSourceLine("Voici une ligne longue de preparation avec un chiffre qui ne devrait pas etre consideree source.", vocabulary))
+    }
+
+    @Test
+    fun `cleanSourceLine should remove phone prefixes`() {
+        assertEquals("01 23 45 67 89", SourceParser.cleanSourceLine("Tel: 01 23 45 67 89", vocabulary))
+        assertEquals("02 54 88 99", SourceParser.cleanSourceLine("Tél. 02 54 88 99", vocabulary))
+        assertEquals("04 55", SourceParser.cleanSourceLine("Fax 04 55", vocabulary))
+        assertEquals("0612345678", SourceParser.cleanSourceLine("GSM: 0612345678", vocabulary))
+    }
+
+    @Test
+    fun `cleanSourceLine should not break words ending with prefix`() {
+        assertEquals("Hôtel 012345", SourceParser.cleanSourceLine("Hôtel 012345", vocabulary))
+        assertEquals("Chantel 012345", SourceParser.cleanSourceLine("Chantel 012345", vocabulary))
+    }
+}

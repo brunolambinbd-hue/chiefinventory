@@ -12,6 +12,18 @@ data class RecipeCategoryInfo(
 )
 
 /**
+ * Version enrichie de l'ingrédient de recette avec sa localisation lisible.
+ */
+data class RecipeIngredientWithLocation(
+    @Embedded val ingredient: RecipeIngredient,
+    @Relation(
+        parentColumn = "locationId",
+        entityColumn = "id"
+    )
+    val location: com.example.chiefinventory.model.Location?
+)
+
+/**
  * Data class to hold a recipe and its ingredients for matching logic.
  */
 data class RecipeWithIngredients(
@@ -49,6 +61,10 @@ interface RecipeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecipeIngredients(ingredients: List<RecipeIngredient>)
+
+    @Transaction
+    @Query("SELECT * FROM recipe_ingredients WHERE recipeId = :recipeId")
+    fun getIngredientsWithLocationForRecipe(recipeId: Long): LiveData<List<RecipeIngredientWithLocation>>
 
     @Query("SELECT * FROM recipe_ingredients WHERE recipeId = :recipeId")
     fun getIngredientsForRecipe(recipeId: Long): LiveData<List<RecipeIngredient>>

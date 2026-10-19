@@ -2,7 +2,6 @@ package com.example.chiefinventory.utils
 
 import android.content.res.Resources
 import android.util.Log
-import com.example.chiefinventory.R
 import com.google.mlkit.vision.text.Text
 
 /**
@@ -13,23 +12,36 @@ object RecipeOcrParser {
     private const val TAG = "RecipeOCR"
 
     /**
-     * Point d'entrée recommandé utilisant l'objet structurel Text de ML Kit.
+     * Point d'entrée recommandé utilisant l'objet structurel Text de ML Kit et [Resources].
      */
     fun parse(visionText: Text, res: Resources): RecipeOcrResult {
+        return parse(visionText, OcrVocabulary.fromResources(res))
+    }
+
+    /**
+     * Point d'entrée recommandé utilisant l'objet structurel Text de ML Kit et [OcrVocabulary].
+     */
+    fun parse(visionText: Text, vocabulary: OcrVocabulary): RecipeOcrResult {
         Log.d(TAG, "=== DÉBUT PIPELINE OCR (Extraction par blocs) ===")
 
-        // Extraction hiérarchique par blocs
         val rawLines = visionText.textBlocks.flatMap { block ->
             block.lines.map { it.text }
         }
 
-        return executePipeline(rawLines, res)
+        return executePipeline(rawLines, vocabulary)
     }
 
     /**
-     * Point d'entrée utilisant du texte brut (support legacy et tests).
+     * Point d'entrée utilisant du texte brut et [Resources] (support legacy et tests).
      */
     fun parse(fullText: String, res: Resources): RecipeOcrResult {
+        return parse(fullText, OcrVocabulary.fromResources(res))
+    }
+
+    /**
+     * Point d'entrée utilisant du texte brut et [OcrVocabulary] (support legacy et tests).
+     */
+    fun parse(fullText: String, vocabulary: OcrVocabulary): RecipeOcrResult {
         Log.d(TAG, "=== DÉBUT PIPELINE OCR (Texte brut) ===")
 
         if (fullText.isBlank()) return RecipeOcrResult()
@@ -38,35 +50,56 @@ object RecipeOcrParser {
             .map { it.trim() }
             .filter { it.isNotBlank() }
 
-        return executePipeline(rawLines, res)
+        return executePipeline(rawLines, vocabulary)
     }
 
     /**
-     * Exécute les 5 étapes du pipeline.
+     * Exécute les 5 étapes du pipeline en utilisant le vocabulaire métier [OcrVocabulary].
      */
-    private fun executePipeline(rawLines: List<String>, res: Resources): RecipeOcrResult {
+    private fun executePipeline(rawLines: List<String>, vocabulary: OcrVocabulary): RecipeOcrResult {
 
+        // LOG [0] : TEXTE BRUT INITIAL
         Log.d(TAG, "[0] AVANT NORMALISATION: texte brut:\n${rawLines.joinToString("\n")}")
 
-        // Chargement des dictionnaires XML
-        val preparationModifiers = res.getStringArray(R.array.ingredient_preparation_modifiers).toList()
-        val commonIngredients = res.getStringArray(R.array.common_ingredients_no_qty).toList()
-        val repairs = res.getStringArray(R.array.ocr_spelling_repairs).toList()
+        val preparationModifiers = vocabulary.ingredientPreparationModifiers
+        val commonIngredients = vocabulary.commonIngredientsNoQty
+        val repairs = vocabulary.ocrSpellingRepairs
 
-        // ÉTAPE 1 : Normalisation (avec dictionnaire de réparations)
+        // ÉTAPE 1 : Normalisation
         val normalizedLines = rawLines.map { Ocr1Normalizer.normalize(it, repairs) }
         Log.d(TAG, "[1] APRÈS NORMALISATION:\n${normalizedLines.joinToString("\n")}")
 
         // ÉTAPE 2 : Nettoyage (Suppression du bruit)
-        val cleanedLines = Ocr2Cleaner.clean(normalizedLines, res)
+        val cleanedLines = Ocr2Cleaner.clean(normalizedLines, vocabulary.excludedOcrKeywords, vocabulary.adExclusions)
         Log.d(TAG, "[2] APRÈS NETTOYAGE:\n${cleanedLines.joinToString("\n")}")
 
+        // ÉTAPE 2.5 : Extraction du titre et réparation des lettrines
+        val titleResult = OcrTitleExtractor.extractTitle(cleanedLines, vocabulary)
+        val linesWithoutTitle = titleResult.cleanedLines
+        Log.d(TAG, "[2.5] TITRE DÉTECTÉ: ${titleResult.title ?: "Aucun"}")
+
         // ÉTAPE 3 : Catégorisation (Tri intelligent)
-        val sections = Ocr3Categorizer.categorize(cleanedLines, res)
+        val sections = Ocr3Categorizer.categorize(linesWithoutTitle, vocabulary)
+        if (sections.detectedTitle == null) {
+            sections.detectedTitle = titleResult.title
+        }
         Log.d(TAG, "[3] CATÉGORISATION TERMINÉE")
 
+        // LOG [3.1] : DÉTAIL DES INGRÉDIENTS APRÈS TRI
+        Log.d(TAG, "[3.1] INVENTAIRE DES MOTS-CLÉS (seenIngredientKeywords): ${sections.ingredientKeywords}")
+        Log.d(TAG, "[3.1] DÉCOMPOSITION DES INGRÉDIENTS BRUTS:")
+        sections.rawIngredientsList.forEachIndexed { i, ing ->
+            val parsed = IngredientParser.parse(ing)
+            Log.d(TAG, "        RAW_ING[$i]: $ing -> Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}'")
+        }
+
         // ÉTAPE 4 : Fusion (Merger)
-        val mergedIngredients = Ocr4Merger.mergeIngredients(sections.rawIngredientsList, preparationModifiers, commonIngredients)
+        val mergedIngredients = Ocr4Merger.mergeIngredients(
+            sections.rawIngredientsList, 
+            preparationModifiers, 
+            commonIngredients, 
+            vocabulary.mandatoryComplementIngredients
+        )
         val mergedInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
 
         // ÉTAPE 5 : Beautification (Présentation finale à l'écran)
@@ -74,11 +107,16 @@ object RecipeOcrParser {
         val finalInstructions = Ocr5Beautifier.beautifyInstructions(mergedInstructions)
 
         Log.d(TAG, "[4-5] RÉSULTATS FINAUX (BEAUTIFIED):")
-        finalIngredients.forEachIndexed { i, ing -> Log.d(TAG, "    ING[$i]: $ing") }
+        Log.d(TAG, "    TITRE FINAL: ${sections.detectedTitle}")
+        finalIngredients.forEachIndexed { i, ing -> 
+            Log.d(TAG, "    ING[$i]: $ing")
+            val parsed = IngredientParser.parse(ing)
+            Log.d(TAG, "    -> SPLIT FINAL: Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}'")
+        }
         finalInstructions.forEachIndexed { i, inst -> Log.d(TAG, "    INSTR[$i]: $inst") }
 
         val result = RecipeOcrResult(
-            title = null,
+            title = sections.detectedTitle,
             ingredients = finalIngredients.joinToString("\n"),
             instructions = finalInstructions.joinToString("\n"),
             wine = if (sections.detectedWineList.isNotEmpty()) sections.detectedWineList.joinToString(" ") else null,

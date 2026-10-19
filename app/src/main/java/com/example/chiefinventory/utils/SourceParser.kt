@@ -31,6 +31,13 @@ object SourceParser {
     }
 
     /**
+     * Checks if a given line likely contains source info using [OcrVocabulary].
+     */
+    fun isSourceLine(line: String, vocabulary: OcrVocabulary): Boolean {
+        return isSourceLine(line, SourceResources(vocabulary.sourceKeywords, vocabulary.phonePrefixes))
+    }
+
+    /**
      * Checks if a given line likely contains source info (address, phone, hotel name).
      */
     fun isSourceLine(line: String, resources: SourceResources): Boolean {
@@ -38,6 +45,13 @@ object SourceParser {
         return phoneRegex.containsMatchIn(line) || 
                resources.sourceKeywords.any { lowerLine.contains(it) } || 
                (zipCodeRegex.containsMatchIn(line) && line.length < 50)
+    }
+
+    /**
+     * Cleans the source line by removing common phone prefixes using [OcrVocabulary].
+     */
+    fun cleanSourceLine(line: String, vocabulary: OcrVocabulary): String {
+        return cleanSourceLine(line, SourceResources(vocabulary.sourceKeywords, vocabulary.phonePrefixes))
     }
 
     /**
@@ -52,6 +66,7 @@ object SourceParser {
             val pattern = "(?i)(?<!\\p{L})$prefix\\b\\s*[:\\-.]?"
             cleaned = cleaned.replace(Regex(pattern, RegexOption.IGNORE_CASE), "").trim()
         }
-        return cleaned
+        // Supprime toute ponctuation résiduelle en début de ligne (ex: ": 02/542.42.42" -> "02/542.42.42")
+        return cleaned.replace(Regex("^[:\\-\\s.,]+"), "").trim()
     }
 }

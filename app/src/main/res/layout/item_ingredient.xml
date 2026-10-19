@@ -33,16 +33,33 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             tools:text="500 g" />
 
-        <TextView
-            android:id="@+id/tv_expiry"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/ll_info"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_name"
-            android:layout_alignParentStart="true"
             android:layout_marginTop="4dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            android:textColor="?attr/colorError"
-            tools:text="Expire le : 12/12/2025" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="italic"
+                android:layout_marginEnd="16dp"
+                tools:text="📍 Placard" />
+
+            <TextView
+                android:id="@+id/tv_expiry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="?attr/colorError"
+                tools:text="Expire le : 12/12/2025" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 

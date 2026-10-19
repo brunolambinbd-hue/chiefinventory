@@ -6,10 +6,10 @@ import com.example.chiefinventory.model.CollectionItem
 import com.example.chiefinventory.repo.CollectionRepository
 import com.example.chiefinventory.repo.LocationRepository
 import com.example.chiefinventory.util.MainDispatcherRule
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,16 +43,15 @@ class BatchPossessionViewModelTest {
         whenever(repository.getAllByTitle(any())).thenReturn(listOf(item))
 
         viewModel.analyzeSeries("Spirou", 1500, 1600)
-        advanceUntilIdle() // Attendre la fin de l'analyse
+        advanceUntilIdle()
 
         val result = viewModel.analysisResult.value
-        assertEquals(101, result?.rangeSize)
-        assertEquals(1, result?.foundCount)
+        assertThat(result?.rangeSize).isEqualTo(101)
+        assertThat(result?.foundCount).isEqualTo(1)
     }
 
     @Test
     fun `applyUpdate should update items with possessed status and selected location`(): Unit = runTest {
-        // GIVEN : Un objet identifié (non possédé par défaut via createMockItem)
         val item = createMockItem(1, "Spirou n°1500")
         whenever(repository.getAllByTitle(any())).thenReturn(listOf(item))
         
@@ -62,18 +61,15 @@ class BatchPossessionViewModelTest {
         val targetLocationId = 100L
         viewModel.selectedLocationId = targetLocationId
 
-        // WHEN : Application de la mise à jour
         viewModel.applyUpdate()
         
-        // Attente pour le changement de contexte vers Dispatchers.IO
         kotlinx.coroutines.delay(100)
         advanceUntilIdle()
 
-        // THEN: Le repository doit avoir été appelé
         verify(repository).update(argThat { 
             this.id == 1L && this.isPossessed && this.locationId == targetLocationId 
         })
-        assertEquals(1, viewModel.updateStatus.value)
+        assertThat(viewModel.updateStatus.value).isEqualTo(1)
     }
 
     private fun createMockItem(id: Long, title: String, possessed: Boolean = false): CollectionItem {

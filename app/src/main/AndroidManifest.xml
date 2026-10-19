@@ -42,7 +42,10 @@
         <activity android:name=".ui.actvity.BackupActivity" />
         <activity android:name=".ui.actvity.BatchPossessionActivity" />
         <activity android:name=".ui.actvity.CategoryAuditActivity" />
-        <activity android:name=".ui.actvity.CrashActivity" />
+        <activity
+            android:name=".ui.actvity.CrashActivity"
+            android:process=":crash"
+            android:exported="false" />
         <activity android:name=".ui.actvity.IngredientListActivity" />
         <activity android:name=".ui.actvity.EditIngredientActivity" />
         <activity android:name=".ui.actvity.EditRecipeActivity" />

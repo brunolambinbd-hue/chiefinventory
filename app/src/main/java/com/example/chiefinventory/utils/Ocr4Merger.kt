@@ -8,7 +8,7 @@ import android.util.Log
  */
 object Ocr4Merger {
     private const val TAG = "Ocr4Merger"
-    private val INGREDIENT_CONNECTORS = listOf("de", "du", "des", "d'", "au", "aux", "à")
+    private val INGREDIENT_CONNECTORS = listOf("de", "du", "des", "d'", "au", "aux", "à", "ou", "ou de", "ou d'")
 
     // Noms qui appellent presque toujours un complément "de ..."
     private val HANGING_NOUNS = listOf("vinaigre", "huile", "jus", "zeste", "pincée", "pincee", "filet", "brin", "brins", "botte", "gousse", "gousses", "cuillère", "cuillere", "verre")
@@ -19,7 +19,12 @@ object Ocr4Merger {
     /**
      * Merges broken lines of ingredients into a clean list.
      */
-    fun mergeIngredients(rawIngredients: List<String>, preparationModifiers: List<String>, commonIngredients: List<String>): List<String> {
+    fun mergeIngredients(
+        rawIngredients: List<String>, 
+        preparationModifiers: List<String>, 
+        commonIngredients: List<String>,
+        mandatoryComplements: List<String> = emptyList()
+    ): List<String> {
         if (rawIngredients.isEmpty()) return emptyList()
         Log.d(TAG, "--- mergeIngredients START ---")
 
@@ -60,7 +65,13 @@ object Ocr4Merger {
                         val base = if (currentClean.endsWith("-")) currentClean.dropLast(1) else currentClean
                         current = base.trim() + normalizedLine.trim()
                     } else {
-                        current = "${current.trim()} ${normalizedLine.trim()}"
+                        // Preservation of hyphen for non-letter cases (e.g. "Zone 5-")
+                        val base = current.trimEnd()
+                        current = if (base.endsWith("-")) {
+                            base + normalizedLine.trimStart()
+                        } else {
+                            "$base ${normalizedLine.trim()}"
+                        }
                     }
                 } else {
                     current = "${current.trim()} ${normalizedLine.trim()}"
@@ -75,7 +86,7 @@ object Ocr4Merger {
 
         val finalSplitList = mutableListOf<String>()
         for (mergedIng in intermediateMerged) {
-            val splits = OcrHelperUtils.splitCombinedIngredients(mergedIng, commonIngredients)
+            val splits = OcrHelperUtils.splitCombinedIngredients(mergedIng, commonIngredients, mandatoryComplements)
             finalSplitList.addAll(splits)
         }
 
@@ -97,7 +108,10 @@ object Ocr4Merger {
             val normalizedLine = Ocr1Normalizer.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
-            if (currentBlock.isNotEmpty() && !isNewStep(line)) {
+            val currentEndsWithPeriod = currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }
+            val isNextStep = isNewStep(line) || isNewStep(normalizedLine) || currentEndsWithPeriod
+
+            if (currentBlock.isNotEmpty() && !isNextStep) {
                 val prevWasHyphenated = prevOriginalLine.trimEnd().endsWith("-")
 
                 if (prevWasHyphenated) {
@@ -111,11 +125,16 @@ object Ocr4Merger {
                     val endsWithLetter = charBeforeDash?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
                     val startsWithLetter = normalizedLine.firstOrNull()?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
                     
-                    currentBlock = if (endsWithLetter && startsWithLetter) {
+                    if (endsWithLetter && startsWithLetter) {
                         val base = if (blockClean.endsWith("-")) blockClean.dropLast(1) else blockClean
-                        base.trim() + normalizedLine.trim()
+                        currentBlock = base.trim() + normalizedLine.trim()
                     } else {
-                        currentBlock.trim() + " " + normalizedLine.trim()
+                        val base = currentBlock.trimEnd()
+                        currentBlock = if (base.endsWith("-")) {
+                            base + normalizedLine.trimStart()
+                        } else {
+                            "$base ${normalizedLine.trim()}"
+                        }
                     }
                 } else {
                     currentBlock = "${currentBlock.trim()} ${normalizedLine.trim()}"
@@ -143,12 +162,16 @@ object Ocr4Merger {
 
     private fun isHanging(text: String): Boolean {
         val lower = text.lowercase().trim()
-        
-        // NOUVEAU : Un article seul sur une ligne est forcément "pendant"
         if (ARTICLES.contains(lower)) return true
-        
+
+        // Si la ligne ne contient qu'une quantité et une unité sans nom d'ingrédient (ex: "2 c. à soupe", "250 g")
+        val parsed = IngredientParser.parse(text)
+        if (parsed.quantity != null && (parsed.name.isBlank() || parsed.name.matches(Regex("(?i)^(?:soupe|café|c\\.?\\s*[àa]\\s*(?:soupe|café)|g|kg|cl|ml|l)$")))) {
+            return true
+        }
+
         val endsWithConnector = INGREDIENT_CONNECTORS.any { lower.endsWith(" $it") || lower.endsWith("$it") }
-        val endsWithHangingNoun = HANGING_NOUNS.any { lower.endsWith(" $it") || lower == it }
+        val endsWithHangingNoun = HANGING_NOUNS.any { lower.endsWith(" $it") || lower == it || lower.endsWith("soupe") || lower.endsWith("café") }
         return endsWithConnector || endsWithHangingNoun
     }
 
@@ -162,15 +185,19 @@ object Ocr4Merger {
         if (lower.startsWith(",") || lower.startsWith("(")) return true
         val wordsCount = lower.split(Regex("\\s+")).size
         if (wordsCount > 5) return false
-        val cleanStart = lower.replace(Regex("^[^\\p{L}]+"), "")
-        return preparationModifiers.any { cleanStart.startsWith(it.lowercase()) }
+        val cleanStart = java.text.Normalizer.normalize(lower.replace(Regex("^[^\\p{L}]+"), ""), java.text.Normalizer.Form.NFC)
+        return preparationModifiers.any { mod ->
+            val cleanMod = java.text.Normalizer.normalize(mod.trim().lowercase(), java.text.Normalizer.Form.NFC)
+            cleanStart == cleanMod || cleanStart.startsWith(cleanMod) || cleanMod.startsWith(cleanStart)
+        }
     }
 
     private fun startsWithQuantity(line: String): Boolean {
-        return Regex("^(?:\\d|un\\b|une\\b|des\\b|du\\b|de la\\b|de l'|le\\b|la\\b|les\\b|l['’]|quelques\\b|plusieurs\\b|un peu\\b|•|\\-|\\*)", RegexOption.IGNORE_CASE).containsMatchIn(line)
+        return Regex("^(?:[\\d¼½¾]|un\\b|une\\b|des\\b|du\\b|de la\\b|de l'|le\\b|la\\b|les\\b|l['’]|quelques\\b|plusieurs\\b|un peu\\b|•|\\-|\\*)", RegexOption.IGNORE_CASE).containsMatchIn(line)
     }
 
     private fun isNewStep(line: String): Boolean {
-        return Regex("^\\s*[•\\-*\\d]").containsMatchIn(line)
+        // Une vraie nouvelle étape commence par une puce, un numéro avec séparateur (1., 2)) ou un verbe/mot de consigne explicite
+        return Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*|Faites\\b|Pendant\\b|Mélangez\\b|Plongez\\b|Egoutez\\b|Égouttez\\b|Servez\\b|Coupez\\b|Préparez\\b|Lavez\\b|Disposez\\b|Ajoutez\\b|Répartissez\\b|Garnissez\\b|Salez\\b|Mettez\\b)", RegexOption.IGNORE_CASE).containsMatchIn(line)
     }
 }

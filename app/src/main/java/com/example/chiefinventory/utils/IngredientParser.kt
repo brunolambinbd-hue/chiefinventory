@@ -4,7 +4,6 @@ import java.util.regex.Pattern
 
 /**
  * Utility to parse ingredient strings.
- * Now simplified: relies on OcrNormalizer for text cleaning.
  */
 object IngredientParser {
 
@@ -22,59 +21,40 @@ object IngredientParser {
         "c. à dessert", "c à dessert", "cuillère à dessert",
         "càs", "càc", "c. à s.", "c. à c.",
         "pincée", "pincées", "botte", "bottes", "paquet", "paquets", "verre", "verres", "tranche", "tranches",
-        "filet", "filets", "trait", "traits", "brins", "brin", "feuilles", "feuille", "branche", "branches"
+        "filet", "filets", "trait", "traits", "brins", "brin", "feuilles", "feuille", "branche", "branches",
+        "gousse", "gousses"
     )
 
     private val rangeRegex = Regex("^\\s*(\\d+)\\s*(?:ou|à|-)\\s*(\\d+[.,]?\\d*)", RegexOption.IGNORE_CASE)
-    private val fractionRegex = Regex("^\\s*(\\d+)/(\\d+)\\s*(.*)$")
+    private val fractionRegex = Regex("(\\d+)/(\\d+)")
     private val parenthesesRegex = Regex("\\s*\\((.*?)\\)")
 
-    // Liste des quantificateurs indéfinis à extraire vers supplementalInfo
-    private val vagueQuantityRegex = Regex("^(quelques|plusieurs|un peu de|une poignée de|des|du|de la|de l'|un|une)\\s+", RegexOption.IGNORE_CASE)
+    // Articles et quantifieurs vagues
+    private val vagueQuantityRegex = Regex("^(quelques|plusieurs|un peu de|une poignée de|des|du|de la|de l'|le|la|les|l['’]|un|une)\\s+", RegexOption.IGNORE_CASE)
+    // Adjectifs courants
+    private val adjectiveRegex = Regex("^(petites?|petits?|grosses?|gros|fines?|fins?|belles?|beau|beaux|beau)\\s+", RegexOption.IGNORE_CASE)
+    // Préfixes de préparation à mettre en info supp (ex: le jus de)
+    private val prepPrefixRegex = Regex("^(?:le\\s+|la\\s+|l['’])?(jus|zeste|zestes|morceau|morceaux|tranche|tranches)\\s+(?:de\\s+|d['’]\\s*)", RegexOption.IGNORE_CASE)
 
-    // Liste des adjectifs qualificatifs à déplacer vers supplementalInfo pour libérer l'unité
-    private val adjectiveRegex = Regex("^(petites?|petits?|grosses?|gros|fines?|fins?|belles?|beau|beaux)\\s+", RegexOption.IGNORE_CASE)
-
-    /**
-     * Parses an ingredient line into structured data.
-     * Assumes the input has already been normalized by OcrNormalizer.
-     */
     fun parse(input: String): ParsedIngredient {
-        // 1. Extraire les infos entre parenthèses
         val parentheticalMatch = parenthesesRegex.find(input)
         var supplementalInfo = parentheticalMatch?.groupValues?.get(1)
         var mainText = input.replace(parenthesesRegex, "").trim()
 
-        // 2. Extraire récursivement tout ce qui n'est pas le NOM de l'ingrédient (ex: "des petites")
-        var continueExtraction = true
-        while (continueExtraction) {
-            val vagueMatch = vagueQuantityRegex.find(mainText)
-            val adjMatch = adjectiveRegex.find(mainText)
+        val (textAfterFirstExtraction, infoAfterFirstExtraction) = extractExtra(mainText, supplementalInfo)
+        mainText = textAfterFirstExtraction
+        supplementalInfo = infoAfterFirstExtraction
 
-            if (vagueMatch != null) {
-                val word = vagueMatch.groupValues[1]
-                supplementalInfo = if (supplementalInfo != null) "$word, $supplementalInfo" else word
-                mainText = mainText.replaceFirst(vagueMatch.value, "").trim()
-            } else if (adjMatch != null) {
-                val word = adjMatch.groupValues[1]
-                supplementalInfo = if (supplementalInfo != null) "$word, $supplementalInfo" else word
-                mainText = mainText.replaceFirst(adjMatch.value, "").trim()
-            } else {
-                continueExtraction = false
-            }
-        }
-
-        // 3. Gestion des fractions (ex: 1/2)
         val fractionMatch = fractionRegex.find(mainText)
         if (fractionMatch != null) {
             val numerator = fractionMatch.groupValues[1].toDoubleOrNull() ?: 0.0
             val denominator = fractionMatch.groupValues[2].toDoubleOrNull() ?: 1.0
-            val rest = fractionMatch.groupValues[3].trim()
+            val rest = mainText.replace(fractionMatch.value, "").trim()
             val unitInfo = findUnit(rest)
-            return ParsedIngredient(unitInfo.remainingText, numerator / denominator, unitInfo.unit, supplementalInfo)
+            val (finalName, finalInfo) = extractExtra(unitInfo.remainingText, supplementalInfo)
+            return ParsedIngredient(finalName, numerator / denominator, unitInfo.unit, finalInfo)
         }
 
-        // 4. Gestion des intervalles (ex: 2 à 3)
         val rangeMatch = rangeRegex.find(mainText)
         if (rangeMatch != null) {
             val secondQty = rangeMatch.groupValues[2].replace(",", ".").toDoubleOrNull()
@@ -83,8 +63,35 @@ object IngredientParser {
             return ParsedIngredient(standard.name, secondQty, standard.unit, standard.supplementalInfo)
         }
 
-        // 5. Parsing standard
         return parseStandard(mainText, supplementalInfo)
+    }
+
+    private fun extractExtra(text: String, currentInfo: String?): Pair<String, String?> {
+        var mainText = text.trim()
+        var supplementalInfo = currentInfo
+        var continueExtraction = true
+        while (continueExtraction) {
+            val prepMatch = prepPrefixRegex.find(mainText)
+            val vagueMatch = vagueQuantityRegex.find(mainText)
+            val adjMatch = adjectiveRegex.find(mainText)
+
+            if (prepMatch != null) {
+                val word = prepMatch.value.trim()
+                supplementalInfo = if (supplementalInfo.isNullOrBlank()) word else "$supplementalInfo $word"
+                mainText = mainText.replaceFirst(prepMatch.value, "").trim()
+            } else if (vagueMatch != null) {
+                val word = vagueMatch.groupValues[1]
+                supplementalInfo = if (supplementalInfo.isNullOrBlank()) word else "$word $supplementalInfo"
+                mainText = mainText.replaceFirst(vagueMatch.value, "").trim()
+            } else if (adjMatch != null) {
+                val word = adjMatch.groupValues[1]
+                supplementalInfo = if (supplementalInfo.isNullOrBlank()) word else "$word $supplementalInfo"
+                mainText = mainText.replaceFirst(adjMatch.value, "").trim()
+            } else {
+                continueExtraction = false
+            }
+        }
+        return mainText to supplementalInfo
     }
 
     private data class UnitInfo(val unit: String?, val remainingText: String)
@@ -116,6 +123,7 @@ object IngredientParser {
         }
 
         val unitInfo = findUnit(rest)
-        return ParsedIngredient(unitInfo.remainingText, qty, unitInfo.unit, supplementalInfo)
+        val (finalName, finalInfo) = extractExtra(unitInfo.remainingText, supplementalInfo)
+        return ParsedIngredient(finalName, qty, unitInfo.unit, finalInfo)
     }
 }

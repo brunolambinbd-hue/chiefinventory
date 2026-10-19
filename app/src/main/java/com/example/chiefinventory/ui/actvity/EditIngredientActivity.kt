@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -33,7 +34,7 @@ class EditIngredientActivity : AppCompatActivity() {
     
     private var currentIngredient: Ingredient? = null
     private var newBitmap: Bitmap? = null
-    private var categories: List<Location> = emptyList()
+    private var locations: List<Location> = emptyList()
     private var selectedLocationId: Long? = null
     private var extractedOcrText: String? = null
 
@@ -56,15 +57,17 @@ class EditIngredientActivity : AppCompatActivity() {
 
         textRecognitionHelper = TextRecognitionHelper(this)
         setupImageCapture()
-        setupCategoryDropdown()
+        setupLocationDropdown()
 
         if (ingredientId != -1L) {
             binding.btnDelete.isVisible = true
             viewModel.loadIngredient(ingredientId)
             viewModel.ingredient.observe(this) { ingredient ->
-                currentIngredient = ingredient
-                selectedLocationId = ingredient.locationId
-                updateUI(ingredient)
+                if (ingredient != null) {
+                    currentIngredient = ingredient
+                    selectedLocationId = ingredient.locationId
+                    updateUI(ingredient)
+                }
             }
         }
 
@@ -73,22 +76,37 @@ class EditIngredientActivity : AppCompatActivity() {
         binding.btnDelete.setOnClickListener { showDeleteConfirmation() }
     }
 
-    private fun setupCategoryDropdown() {
+    private fun setupLocationDropdown() {
         viewModel.ingredientCategories.observe(this) { list ->
-            categories = list
-            val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, list.map { it.name })
+            locations = list
+            // Construction des noms hiérarchiques (ex: Cuisine > Frigo)
+            val displayNames = list.map { buildLocationPath(it, list) }
+            val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, displayNames)
             binding.actvIngredientLocation.setAdapter(adapter)
             
             selectedLocationId?.let { id ->
                 list.find { it.id == id }?.let {
-                    binding.actvIngredientLocation.setText(it.name, false)
+                    binding.actvIngredientLocation.setText(buildLocationPath(it, list), false)
                 }
             }
         }
 
         binding.actvIngredientLocation.setOnItemClickListener { _, _, position, _ ->
-            selectedLocationId = categories[position].id
+            selectedLocationId = locations[position].id
         }
+    }
+
+    /**
+     * Construit récursivement le chemin complet d'une localisation.
+     */
+    private fun buildLocationPath(location: Location, allLocations: List<Location>): String {
+        val path = mutableListOf<String>()
+        var current: Location? = location
+        while (current != null) {
+            path.add(0, current.name)
+            current = allLocations.find { it.id == current?.parentId }
+        }
+        return path.joinToString(" > ")
     }
 
     private fun setupImageCapture() {
@@ -116,8 +134,6 @@ class EditIngredientActivity : AppCompatActivity() {
 
                     if (ingredientLine != null) {
                         val parsedIngredient = IngredientParser.parse(ingredientLine)
-                        Log.d("OCR_DEBUG", "Parsed from OCR: $parsedIngredient") // LOG 1
-
                         if (binding.etName.text.isNullOrBlank()) {
                             binding.etName.setText(parsedIngredient.name)
                         }
@@ -140,7 +156,6 @@ class EditIngredientActivity : AppCompatActivity() {
     }
 
     private fun updateUI(ingredient: Ingredient) {
-        Log.d("OCR_DEBUG", "Updating UI with supplementalInfo: ${ingredient.supplementalInfo}") // LOG 3
         binding.etName.setText(ingredient.name)
         binding.etQuantity.setText(ingredient.quantity?.toString() ?: "")
         binding.etUnit.setText(ingredient.unit ?: "")
@@ -160,15 +175,12 @@ class EditIngredientActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val supplementalInfoFromUi = binding.etSupplementalInfo.text.toString()
-            Log.d("OCR_DEBUG", "Saving supplementalInfo from UI: $supplementalInfoFromUi") // LOG 2
-
             val embedding = newBitmap?.let { viewModel.calculateSignature(it) } ?: currentIngredient?.imageEmbedding
             val ingredient = (currentIngredient ?: Ingredient(name = "")).copy(
                 name = name,
                 quantity = binding.etQuantity.text.toString().toDoubleOrNull(),
                 unit = binding.etUnit.text.toString(),
-                supplementalInfo = supplementalInfoFromUi,
+                supplementalInfo = binding.etSupplementalInfo.text.toString(),
                 description = binding.etDescription.text.toString(),
                 imageUri = viewModel.imageUri.value?.toString() ?: currentIngredient?.imageUri,
                 imageEmbedding = embedding,
@@ -187,11 +199,10 @@ class EditIngredientActivity : AppCompatActivity() {
     private fun showDeleteConfirmation() {
         AlertDialog.Builder(this)
             .setTitle("Supprimer l'ingrédient")
-            .setMessage("Êtes-vous sûr de vouloir supprimer cet ingrédient ? Cette action est irréversible.")
+            .setMessage("Êtes-vous sûr de vouloir supprimer cet ingrédient ?")
             .setPositiveButton("Supprimer") { _, _ ->
                 currentIngredient?.let {
                     viewModel.delete(it)
-                    Toast.makeText(this, "Ingrédient supprimé", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }

@@ -15,6 +15,7 @@
         <item>oeufs|œufs</item>
         <item>her bes|herbes</item>
         <item>1oasts|toasts</item>
+        <item>1 oasts|toasts</item>
         <item>douN|doux</item>
         <item>jusquà|jusqu\'à</item>
         <item>jusqua|jusqu\'à</item>
@@ -41,7 +42,7 @@
         <item>modére|modéré</item>
         <item>unepetite|une petite</item>
         <item>cde|de</item>
-        <item>Dégusez|Dégustez</item>
+        <item>Dégustez|Dégustez</item>
         <item>pouc|pour</item>
         <item>tròs|très</item>
         <item>Alouez|Ajoutez</item>
@@ -67,13 +68,16 @@
         <item>KCAUPOR|KCAL/POR</item>
         <item>I\'eau|l\'eau</item>
         <item>got|goût</item>
+        <item>goit|goût</item>
+        <item>7 i|71</item>
+        <item>7I|71</item>
         <item>le jus de l citron|le jus de 1 citron</item>
         <item>le jus de l orange|le jus de 1 orange</item>
         <item>Ld\'eau|l. d\'eau</item>
         <item>dolive|d\'olive</item>
         <item>ROYAU)ME|ROYAUME</item>
         <item>cresSonnette|cressonnette</item>
-        <item>poOuvez|pouvez</item>
+        <item>poOuvrez|pouvez</item>
         <item>ArrTOsez|Arrosez</item>
     </string-array>
 </resources>

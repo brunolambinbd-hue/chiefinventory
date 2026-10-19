@@ -17,7 +17,7 @@ object Ocr5Beautifier {
             cleaned = cleaned.replace(Regex("^\\d{1,2}[.)\\-]\\s*"), "")
 
             // 2. Supprime un chiffre isolé suivi d'un espace SI le mot suivant commence par une majuscule
-            // (ex: "1 Plongez" -> "Plongez", mais garde "10 minutes")
+            // (ex : "1 Plongez" → "Plongez", mais garde "10 minutes")
             cleaned = cleaned.replace(Regex("^\\d{1,2}\\s+(?=[\\p{Lu}])"), "")
 
             // 3. Supprime les puces résiduelles (•, -, *)
@@ -38,7 +38,7 @@ object Ocr5Beautifier {
     }
 
     /**
-     * Optionnel: Beautification des ingrédients si nécessaire (ex: majuscule initiale)
+     * Optionnel : Beautification des ingrédients si nécessaire (ex : majuscule initiale)
      */
     fun beautifyIngredients(ingredients: List<String>): List<String> {
         return ingredients.map { line ->

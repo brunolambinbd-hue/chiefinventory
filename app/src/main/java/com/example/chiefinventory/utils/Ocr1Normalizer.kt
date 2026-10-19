@@ -1,6 +1,5 @@
 package com.example.chiefinventory.utils
 
-import java.util.regex.Pattern
 
 /**
  * Step 1 of the OCR pipeline: Character and symbol normalization.
@@ -53,7 +52,8 @@ object Ocr1Normalizer {
         Regex("(?i)\\blajout\\b") to "l'ajout",
         Regex("(?i)\\b[1il|!]?ongueur\\b") to "longueur",
         Regex("(?i)\\b[1il|!]\\s*es\\b") to "les",
-        Regex("(?i)\\bgri[b6l]\\b") to "gris"
+        Regex("(?i)\\bgri[b6l]\\b") to "gris",
+        Regex("(?i)\\b1\\s*oasts?\\b") to "toasts"
     )
 
     private val SPOON_NORMALIZATION = listOf(
@@ -77,7 +77,7 @@ object Ocr1Normalizer {
             val suffix = match.groupValues[1]
             if (suffix.lowercase().startsWith("n")) "ingrédients" else "instructions"
         }
-        text = text.replace(Regex("(?i)^t\\s*(?=\\d)"), "")
+        text = text.replace(Regex("(?i)(?<!\\p{L})t\\s*(?=\\d)"), "")
 
         text = text.replace("±", "").replace("+/-", "").replace("+-", "")
             .replace(Regex("(?i)\\benviron\\b"), "")
@@ -99,9 +99,8 @@ object Ocr1Normalizer {
             "${match.groupValues[1]} ${match.groupValues[2].lowercase()}"
         }
 
-        // CORRECTION : On ne supprime plus le tiret final s'il est précédé d'une lettre (césure probable)
-        // On ne retire que la ponctuation classique et les espaces.
-        text = text.replace(Regex("[,:;\\s]+$|(?<!\\p{L})\\-+$"), "")
+        // On ne retire plus les tirets finaux car ils sont essentiels pour Ocr4Merger (détection de césure)
+        text = text.replace(Regex("[,:;\\s]+$"), "")
 
         return text.replace(Regex("\\s+"), " ").trim()
     }
@@ -111,9 +110,9 @@ object Ocr1Normalizer {
         for (repair in repairs) {
             val parts = repair.split("|")
             if (parts.size == 2) {
-                val wrong = parts[0].trim()
-                val correct = parts[1].trim()
-                val pattern = Regex("(?i)\\b${Pattern.quote(wrong)}\\b")
+                val wrong = parts[0].trim().replace("\\'", "'")
+                val correct = parts[1].trim().replace("\\'", "'")
+                val pattern = Regex("(?i)(?<!\\p{L})${Regex.escape(wrong)}(?!\\p{L})")
                 result = result.replace(pattern, correct)
             }
         }

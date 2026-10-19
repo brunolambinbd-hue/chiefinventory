@@ -26,6 +26,8 @@
         <item>frais</item>
         <item>fraîche</item>
         <item>fraîches</item>
+        <item>forte</item>
+        <item>douce</item>
         <item>fondue</item>
         <item>fondu</item>
         <item>fondus</item>
@@ -58,8 +60,6 @@
         <item>en rondelles</item>
         <item>en tranches</item>
         <item>en cubes</item>
-<!--        <item>salade</item>-->
-        <item>princesses</item>
         <item>(moulu ou en morceaux)</item>
         <item>italien</item>
         <item>italienne</item>

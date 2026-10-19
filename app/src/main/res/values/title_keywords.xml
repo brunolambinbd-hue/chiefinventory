@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="title_keywords">
+        <item>artichauts</item>
+        <item>artichaut</item>
+        <item>aubergines</item>
+        <item>aubergine</item>
+        <item>avocat</item>
+        <item>salade</item>
+        <item>soupe</item>
+        <item>crevettes</item>
+        <item>crabe</item>
+        <item>mangue</item>
+        <item>poulet</item>
+        <item>saumon</item>
+        <item>poisson</item>
+        <item>tartare</item>
+        <item>carpaccio</item>
+        <item>quiche</item>
+        <item>velouté</item>
+        <item>tarte</item>
+        <item>gratin</item>
+        <item>terrine</item>
+        <item>mousse</item>
+        <item>moules</item>
+        <item>saint-jacques</item>
+        <item>vinaigrette</item>
+        <item>échalotes</item>
+        <item>echalotes</item>
+        <item>tomates</item>
+        <item>chicon</item>
+        <item>princesses</item>
+        <item>chocolat</item>
+        <item>surimi</item>
+        <item>blé</item>
+        <item>ble</item>
+        <item>pommes</item>
+        <item>poires</item>
+    </string-array>
+</resources>

@@ -132,6 +132,9 @@ class EditRecipeActivity : AppCompatActivity() {
                 val fullText: String = textRecognitionHelper.recognizeText(bitmap) ?: ""
                 val result = RecipeOcrParser.parse(fullText, resources)
                 
+                result.title?.takeIf { it.isNotBlank() }?.let {
+                    binding.etTitle.setText(it)
+                }
                 binding.etIngredients.setText(result.ingredients ?: "")
                 binding.etInstructions.setText(result.instructions ?: "")
                 binding.etWine.setText(result.wine ?: "")

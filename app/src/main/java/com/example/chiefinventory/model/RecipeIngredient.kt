@@ -16,9 +16,18 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["recipeId"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Location::class,
+            parentColumns = ["id"],
+            childColumns = ["locationId"],
+            onDelete = ForeignKey.SET_NULL
         )
     ],
-    indices = [Index(value = ["recipeId"])]
+    indices = [
+        Index(value = ["recipeId"]),
+        Index(value = ["locationId"])
+    ]
 )
 data class RecipeIngredient(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -26,5 +35,6 @@ data class RecipeIngredient(
     val ingredientName: String,
     val quantityRequired: Double? = null,
     val unit: String? = null,
-    val supplementalInfo: String? = null // Nouveau champ pour le poids (ex: 1 kg)
+    val supplementalInfo: String? = null,
+    val locationId: Long? = null // Nouveau champ : Emplacement de l'ingrédient (Frigo, Placard, etc.)
 )

@@ -78,6 +78,7 @@
         <item>conseillé</item>
         <item>suggéré</item>
         <item>recommandé</item>
+        <item>suggestion</item>
     </string-array>
 
     <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage robuste) -->

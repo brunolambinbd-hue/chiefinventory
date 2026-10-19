@@ -1,12 +1,11 @@
 package com.example.chiefinventory.utils
 
 import android.content.res.Resources
-import com.example.chiefinventory.R
 import kotlin.collections.distinct
 import kotlin.collections.plus
 
 /**
- * Step 3 of the OCR pipeline: Line categorization.
+ * Step 3 of the OCR pipeline: Line categorization (v1 legacy).
  * Responsibility: Classify cleaned and normalized lines into specific recipe sections.
  */
 data class RawSectionsv1(
@@ -31,6 +30,13 @@ object Ocr3Categorizerv1 {
      * Classifie les lignes dans les différentes sections de la recette.
      */
     fun categorize(lines: List<String>, res: Resources): RawSections {
+        return categorize(lines, OcrVocabulary.fromResources(res))
+    }
+
+    /**
+     * Classifie les lignes dans les différentes sections de la recette en utilisant [OcrVocabulary].
+     */
+    fun categorize(lines: List<String>, vocabulary: OcrVocabulary): RawSections {
         val results = RawSections()
         var currentSection = SECTION_NONE
 
@@ -41,15 +47,11 @@ object Ocr3Categorizerv1 {
             "égouttez", "egouttez", "disposez", "déposez", "deposez", "garnissez", "nappez", "parsemez",
             "enfournez", "mettez", "posez", "étuvez", "Etuvez", "écrasez", "ecrasez", "écalez", "ecalez", "extrayez",
             "nettoyez", "Placez", "Creusez"
-
         )
 
-        val wineRes = WineParser.loadResources(res)
-        val sourceRes = SourceParser.loadResources(res)
-        val xmlactionVerbs = res.getStringArray(R.array.step_action_keywords).toList()
-        val actionVerbs = (xmlactionVerbs + extraVerbs).distinct()
-        val commonIngredients = res.getStringArray(R.array.common_ingredients_no_qty).toList()
-        val excludedKeywords = res.getStringArray(R.array.excluded_ocr_keywords).toList()
+        val actionVerbs = (vocabulary.stepActionKeywords + extraVerbs).distinct()
+        val commonIngredients = vocabulary.commonIngredientsNoQty
+        val excludedKeywords = vocabulary.excludedOcrKeywords
 
         val ingredientHeaders = listOf("ingrédients", "ingredients", "composition", "ngrédients")
         val instructionHeaders = listOf("préparation", "instructions", "nstructions", "étapes", "réalisation", "méthode", "progression", "cuisson")
@@ -91,7 +93,6 @@ object Ocr3Categorizerv1 {
             }
 
             // 3. CONSOMMATION DES TEMPS
-            // Regex améliorée pour capturer Prép (avec accent) et les durées composées (1h 20)
             val timePattern = Regex("(?i)(préparation|cuisson|repos|prép\\.?|prep\\.?|cuis\\.?|rest\\.?)\\s*:?\\s*(\\d+\\s*[hH](?:\\s*\\d+)?|\\d+\\s*(?:mn|min|minute|u|h|heure))")
             var tMatch = timePattern.find(workingLine)
             while (tMatch != null) {
@@ -113,21 +114,19 @@ object Ocr3Categorizerv1 {
                     workingLine = pattern.replace(workingLine, "").trim()
                 }
             }
-            // Correction double espace après suppression
             workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
             if (workingLine.isEmpty()) continue
 
-            // 5. VIN ET SOURCE (Sécurisé : On n'extrait le vin que si ce n'est PAS un ingrédient probable)
+            // 5. VIN ET SOURCE
             if (!containsAction && !startsWithConnector) {
-                // On ignore la détection du vin si on est dans la section ingrédients et que la ligne commence par un chiffre (ex: 5 cl d'huile)
                 val isStrictIngredient = looksLikeIngredient && (currentSection == SECTION_INGREDIENTS || startsWithBullet)
                 
-                if (!isStrictIngredient && WineParser.isWineLine(workingLine, wineRes)) {
-                    results.detectedWineList.add(WineParser.cleanWineLine(workingLine, wineRes))
+                if (!isStrictIngredient && WineParser.isWineLine(workingLine, vocabulary)) {
+                    results.detectedWineList.add(WineParser.cleanWineLine(workingLine, vocabulary))
                     continue
                 }
-                if (OcrHelperUtils.isLikelyProperNameOrSource(workingLine) || SourceParser.isSourceLine(workingLine, sourceRes)) {
-                    results.detectedSourceList.add(SourceParser.cleanSourceLine(workingLine, sourceRes))
+                if (OcrHelperUtils.isLikelyProperNameOrSource(workingLine) || SourceParser.isSourceLine(workingLine, vocabulary)) {
+                    results.detectedSourceList.add(SourceParser.cleanSourceLine(workingLine, vocabulary))
                     continue
                 }
             }
