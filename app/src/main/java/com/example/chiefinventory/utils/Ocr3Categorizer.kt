@@ -26,9 +26,9 @@ data class RawSections(
 object Ocr3Categorizer {
     private const val TAG = "Ocr3Categorizer"
 
-    private const val SECTION_NONE = 0
-    private const val SECTION_INGREDIENTS = 1
-    private const val SECTION_INSTRUCTIONS = 2
+    internal const val SECTION_NONE = 0
+    internal const val SECTION_INGREDIENTS = 1
+    internal const val SECTION_INSTRUCTIONS = 2
 
     /**
      * Classifie les lignes dans les différentes sections de la recette en utilisant [Resources].
@@ -45,7 +45,7 @@ object Ocr3Categorizer {
         val results = RawSections()
         var currentSection = SECTION_NONE
         var isIngredientListClosed = false
-        var isWineSectionClosed = false
+        val wineState = Ocr3CategorizerWine.WineState()
         val seenIngredientKeywords = mutableSetOf<String>()
 
         Log.d(TAG, "--- DÉBUT CATÉGORISATION ---")
@@ -152,22 +152,15 @@ object Ocr3Categorizer {
                 continue
             }
 
-            // DÉTECTION VIN & SOURCE (Priorité avant nettoyage des mots exclus)
+            // DÉTECTION VIN
+            if (Ocr3CategorizerWine.processWineLine(
+                    workingLine, currentSection, isIngredientListClosed,
+                    containsAction, startsWithConnector, vocabulary, wineState
+                )) {
+                continue
+            }
+
             if (!containsAction && !startsWithConnector) {
-                val allowWineDetection = currentSection != SECTION_INGREDIENTS || isIngredientListClosed || WineParser.hasWineVolume(workingLine)
-                if (allowWineDetection && WineParser.isWineLine(workingLine, vocabulary)) {
-                    if (!isWineSectionClosed) {
-                        val cleanedWine = WineParser.cleanWineLine(workingLine, vocabulary)
-                        if (cleanedWine.isNotBlank() && results.detectedWineList.none { it.equals(cleanedWine, ignoreCase = true) }) {
-                            results.detectedWineList.add(cleanedWine)
-                            if (WineParser.hasWineVolume(workingLine)) {
-                                isWineSectionClosed = true
-                                Log.d(TAG, "  [!] SECTION VIN FERMÉE (Volume/Millésime détecté)")
-                            }
-                        }
-                    }
-                    continue
-                }
                 if (OcrHelperUtils.isLikelyProperNameOrSource(workingLine) || SourceParser.isSourceLine(workingLine, vocabulary)) {
                     results.detectedSourceList.add(SourceParser.cleanSourceLine(workingLine, vocabulary))
                     continue
@@ -239,7 +232,7 @@ object Ocr3Categorizer {
             if (workingLine.isEmpty() || !workingLine.any { it.isLetter() }) continue
 
             // Ignorer le bruit de pied de page / étiquette de bouteille après fermeture de la section vin
-            if (isWineSectionClosed && !containsAction && !startsWithBullet) continue
+            if (wineState.isWineSectionClosed && !containsAction && !startsWithBullet) continue
 
             val isInstructionSignal = hasInstructionTrigger || isReappearance || (containsAction && (workingLine.length > 25 || startsWithBullet))
 
@@ -298,6 +291,7 @@ object Ocr3Categorizer {
                 }
             }
         }
+        results.detectedWineList.addAll(wineState.detectedWineList)
         results.ingredientKeywords = seenIngredientKeywords
         Log.d(TAG, "--- FIN CATÉGORISATION ---")
         return results

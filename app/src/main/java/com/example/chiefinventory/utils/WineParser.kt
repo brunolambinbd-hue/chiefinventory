@@ -126,7 +126,7 @@ object WineParser {
         corrected = corrected.replace(Regex("(?i)\\bI(\\d{3})\\b")) { match -> "1${match.groupValues[1]}" }
         corrected = corrected.replace(Regex("(?i)\\b(\\d{2})\\s*d\\b"), "$1 cl")
         corrected = corrected.replace(Regex("(?i)\\bvìn\\b"), "vin")
-        corrected = corrected.replace(Regex("(?i)\\bM\\.0\\.\\b"), "M.O.")
+        corrected = corrected.replace(Regex("(?i)\\bM[.\\s]*[0O]\\.?\\b"), "M.O.")
         return corrected
     }
 }
