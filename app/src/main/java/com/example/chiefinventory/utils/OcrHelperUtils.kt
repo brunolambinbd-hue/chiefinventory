@@ -119,7 +119,8 @@ object OcrHelperUtils {
     internal fun cleanIngredientSemantics(
         text: String, 
         excludedKeywords: List<String>, 
-        semanticExclusions: List<String> = emptyList()
+        semanticExclusions: List<String> = emptyList(),
+        standaloneArticles: List<String> = emptyList()
     ): String {
         val cleaned = text.trim().replace(Regex("^[•\\-*]\\s*"), "")
         if (!cleaned.any { it.isLetter() } || cleaned.length <= 1) return ""
@@ -127,6 +128,16 @@ object OcrHelperUtils {
         
         if (isExcluded(cleaned, excludedKeywords)) return ""
         if (isExcluded(cleaned, semanticExclusions)) return ""
+
+        val words = cleaned.split(Regex("\\s+"))
+        if (words.size == 1) {
+            val cleanWord = words[0].lowercase().replace(Regex("[^\\p{L}]"), "")
+            val baseArticles = setOf("du", "de", "des", "le", "la", "les", "un", "une", "au", "aux", "en", "par", "pour", "sur", "ce", "cette", "ces", "sa", "son", "ses")
+            val allArticles = baseArticles + standaloneArticles.map { it.lowercase() }
+            if (cleanWord in allArticles) {
+                return ""
+            }
+        }
 
         return cleaned
     }

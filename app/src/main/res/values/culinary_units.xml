@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Unités et abréviations de mesure culinaire -->
+    <string-array name="culinary_measurement_units">
+        <item>c.</item>
+        <item>c</item>
+        <item>cuillère</item>
+        <item>cuillères</item>
+        <item>cuillère à soupe</item>
+        <item>cuillère à café</item>
+        <item>cuillere</item>
+        <item>cuilleres</item>
+        <item>g.</item>
+        <item>g</item>
+        <item>kg</item>
+        <item>cl</item>
+        <item>ml</item>
+        <item>dl</item>
+        <item>l</item>
+        <item>l.</item>
+        <item>pincée</item>
+        <item>pincee</item>
+        <item>gousse</item>
+        <item>gousses</item>
+        <item>botte</item>
+        <item>bocal</item>
+        <item>bocaux</item>
+        <item>sachet</item>
+        <item>sachets</item>
+        <item>tranche</item>
+        <item>tranches</item>
+        <item>branche</item>
+        <item>branches</item>
+    </string-array>
+</resources>

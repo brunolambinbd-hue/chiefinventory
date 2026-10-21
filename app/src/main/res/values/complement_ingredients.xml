@@ -20,5 +20,17 @@
         <item>concentré</item>
         <item>coulis</item>
         <item>vin</item>
+        <item>tranche</item>
+        <item>tranches</item>
+        <item>morceau</item>
+        <item>morceaux</item>
+        <item>bocal</item>
+        <item>bocaux</item>
+        <item>sachet</item>
+        <item>sachets</item>
+        <item>branche</item>
+        <item>branches</item>
+        <item>botte</item>
+        <item>bottes</item>
     </string-array>
 </resources>

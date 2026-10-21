@@ -28,7 +28,11 @@ data class OcrVocabulary(
     val adExclusions: List<String> = emptyList(),
     val titleKeywords: List<String> = emptyList(),
     val mandatoryComplementIngredients: List<String> = emptyList(),
-    val hangingConnectors: List<String> = emptyList()
+    val hangingConnectors: List<String> = emptyList(),
+    val ingredientVarietyQualifiers: List<String> = emptyList(),
+    val baseIngredientsExpectingVariety: List<String> = emptyList(),
+    val standaloneArticles: List<String> = emptyList(),
+    val culinaryMeasurementUnits: List<String> = emptyList()
 ) {
     companion object {
         /**
@@ -56,7 +60,11 @@ data class OcrVocabulary(
                 adExclusions = getStringArraySafely(res, R.array.advertisement_exclusions),
                 titleKeywords = getStringArraySafely(res, R.array.title_keywords),
                 mandatoryComplementIngredients = getStringArraySafely(res, R.array.ingredient_mandatory_complements),
-                hangingConnectors = getStringArraySafely(res, R.array.hanging_connectors)
+                hangingConnectors = getStringArraySafely(res, R.array.hanging_connectors),
+                ingredientVarietyQualifiers = getStringArraySafely(res, R.array.ingredient_variety_qualifiers),
+                baseIngredientsExpectingVariety = getStringArraySafely(res, R.array.base_ingredients_expecting_variety),
+                standaloneArticles = getStringArraySafely(res, R.array.standalone_articles),
+                culinaryMeasurementUnits = getStringArraySafely(res, R.array.culinary_measurement_units)
             )
         }
 

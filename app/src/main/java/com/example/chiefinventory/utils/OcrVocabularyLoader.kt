@@ -47,7 +47,11 @@ object OcrVocabularyLoader {
             adExclusions = stringArrays["advertisement_exclusions"] ?: emptyList(),
             titleKeywords = stringArrays["title_keywords"] ?: emptyList(),
             mandatoryComplementIngredients = stringArrays["ingredient_mandatory_complements"] ?: emptyList(),
-            hangingConnectors = stringArrays["hanging_connectors"] ?: emptyList()
+            hangingConnectors = stringArrays["hanging_connectors"] ?: emptyList(),
+            ingredientVarietyQualifiers = stringArrays["ingredient_variety_qualifiers"] ?: emptyList(),
+            baseIngredientsExpectingVariety = stringArrays["base_ingredients_expecting_variety"] ?: emptyList(),
+            standaloneArticles = stringArrays["standalone_articles"] ?: emptyList(),
+            culinaryMeasurementUnits = stringArrays["culinary_measurement_units"] ?: emptyList()
         )
     }
 

@@ -52,7 +52,7 @@ object OcrTitleExtractor {
                     var potentialTitle = stripRecipeNumber(parts[1].trim())
                     val lowerPotential = potentialTitle.lowercase()
                     var skipCount = 0
-                    if (i + 1 < lines.size && (lowerPotential.endsWith(" et") || lowerPotential.endsWith(" d'") || lowerPotential.endsWith(" de") || lowerPotential.endsWith(" aux"))) {
+                    if (i + 1 < lines.size && (lowerPotential.endsWith(" et") || lowerPotential.endsWith(" d'") || lowerPotential.endsWith(" de") || lowerPotential.endsWith(" aux") || isMultiLineTitleConnector(lines[i + 1]))) {
                         potentialTitle = "$potentialTitle ${lines[i + 1].trim()}"
                         skipCount = 1
                     }
@@ -74,7 +74,6 @@ object OcrTitleExtractor {
                     val baseCand = isBaseCandidate(cleanCombined, vocabulary, containsActionRegex, hasQuantityRegex)
                     if (baseCand) {
                         val (score, details) = evaluateScore(cleanCombined, vocabulary, recipeIngredientWords, firstIngredientWord)
-                        println("STEP 2 CANDIDATE EVALUATED: '$cleanCombined', score=$score, details=$details")
                         candidates.add(ScoredTitleCandidate(cleanCombined, i, 1, score, details))
                     }
                 }
@@ -86,7 +85,7 @@ object OcrTitleExtractor {
                     (parsedRawLine.unit != null || parsedRawLine.quantity!! < 50.0)
 
             if (!isIngredientQuantityLine) {
-                val cleanLine = stripRecipeNumber(workingLine)
+                val cleanLine = postProcessTitle(stripRecipeNumber(workingLine), vocabulary)
                 val repairedCandidate = repairFirstWordLettrine(cleanLine, recipeIngredientWords, vocabulary)
                 if (isBaseCandidate(repairedCandidate, vocabulary, containsActionRegex, hasQuantityRegex)) {
                     val (score, details) = evaluateScore(repairedCandidate, vocabulary, recipeIngredientWords, firstIngredientWord)
@@ -97,7 +96,6 @@ object OcrTitleExtractor {
 
         // Logcat de tous les candidats évalués avec leurs détails
         candidates.forEachIndexed { index, candidate ->
-            println("TITLE CANDIDATE [#$index]: '${candidate.candidateText}' -> SCORE: ${candidate.score} (${candidate.scoreDetails})")
             Log.d(TAG, "TITLE CANDIDATE [#$index]: '${candidate.candidateText}' -> SCORE: ${candidate.score} (${candidate.scoreDetails})")
         }
 
@@ -106,7 +104,7 @@ object OcrTitleExtractor {
         val remainingLines = mutableListOf<String>()
 
         if (bestCandidate != null) {
-            extractedTitle = bestCandidate.candidateText
+            extractedTitle = postProcessTitle(bestCandidate.candidateText, vocabulary)
             Log.d(TAG, ">>> TITRE RETENU FINALEMENT: '$extractedTitle' avec SCORE MAX: ${bestCandidate.score}")
         } else {
             Log.d(TAG, ">>> AUCUN TITRE VALIDE RETENU")
@@ -162,6 +160,23 @@ object OcrTitleExtractor {
             }
         }
         return ingredientNameWords
+    }
+
+    /**
+     * Post-traite et applique les réparations orthographiques du dictionnaire XML [vocabulary.ocrSpellingRepairs] au titre retenu.
+     */
+    fun postProcessTitle(title: String, vocabulary: OcrVocabulary): String {
+        var result = title.trim()
+        for (repair in vocabulary.ocrSpellingRepairs) {
+            val parts = repair.split("|")
+            if (parts.size == 2) {
+                val wrong = parts[0].trim().replace("\\'", "'")
+                val correct = parts[1].trim().replace("\\'", "'")
+                val pattern = Regex("(?i)(?<!\\p{L})${Regex.escape(wrong)}(?!\\p{L})")
+                result = result.replace(pattern, correct)
+            }
+        }
+        return result
     }
 
     /**

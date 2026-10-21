@@ -15,43 +15,6 @@ object Ocr5Beautifier {
         stepActionKeywords: List<String> = emptyList(),
         hangingConnectors: List<String> = emptyList()
     ): List<String> {
-        val baseConnectors = listOf("et", "ou", "à", "a", "de", "du", "des", "d", "d'", "avec", "dans", "pour", "sur", "au", "aux", "en", "par")
-        val allHangingConnectors = (baseConnectors + hangingConnectors.map { it.lowercase() }).distinct()
-
-        // NIVEAU A : Recollage des lignes d'instructions interrompues par un connecteur pendant
-        val joinedInstructions = mutableListOf<String>()
-        var i = 0
-        while (i < instructions.size) {
-            var current = instructions[i].trim()
-            if (current.isBlank()) {
-                i++
-                continue
-            }
-
-            while (i + 1 < instructions.size) {
-                val nextLine = instructions[i + 1].trim()
-                if (nextLine.isBlank()) {
-                    i++
-                    break
-                }
-
-                val currentCleanNoPunct = current.replace(Regex("[.!?]+$"), "").trim()
-                val lastWord = currentCleanNoPunct.split(Regex("\\s+")).lastOrNull()?.lowercase()?.replace(Regex("[^\\p{L}'’]"), "") ?: ""
-
-                val endsWithConnector = lastWord in allHangingConnectors || currentCleanNoPunct.endsWith(",") || currentCleanNoPunct.endsWith("-")
-
-                if (endsWithConnector) {
-                    val uncapitalizedNext = nextLine.replaceFirstChar { if (it.isUpperCase()) it.lowercase() else it.toString() }
-                    current = "$currentCleanNoPunct $uncapitalizedNext"
-                    i++
-                } else {
-                    break
-                }
-            }
-            joinedInstructions.add(current)
-            i++
-        }
-
         val actionVerbsRegex = if (stepActionKeywords.isNotEmpty()) {
             val distinctKeywords = stepActionKeywords
                 .map { it.replace(Regex("\\[[^\\]]+\\]"), "") }
@@ -63,7 +26,7 @@ object Ocr5Beautifier {
 
         val prefixPattern = Regex("^(?:[\\p{L}]{1,3}\\s+)?(?:\\d{1,2}[.)\\-]?\\s+)*(?=(?:$actionVerbsRegex)\\b)", RegexOption.IGNORE_CASE)
 
-        return joinedInstructions.map { line ->
+        return instructions.map { line ->
             var cleaned = line.trim()
 
             // 0. Supprime les préfixes parasites courts et numéros d'étape devant un verbe d'action
@@ -77,10 +40,6 @@ object Ocr5Beautifier {
 
             // 3. Supprime les puces résiduelles (•, -, *)
             cleaned = cleaned.replace(Regex("^[•\\-*]\\s*"), "")
-
-            // NIVEAU B : Sécurité - Nettoyage des connecteurs pendants orphelins en fin de ligne avant ponctuation
-            val connectorPattern = allHangingConnectors.joinToString("|") { Regex.escape(it) }
-            cleaned = cleaned.replace(Regex("(?i)\\s+(?:$connectorPattern)[.!?\\s]*$"), ".")
 
             // 4. Force la majuscule au début de la phrase
             if (cleaned.isNotEmpty()) {
@@ -97,15 +56,23 @@ object Ocr5Beautifier {
     }
 
     /**
-     * Optionnel : Beautification des ingrédients si nécessaire (ex : majuscule initiale)
+     * Beautification des ingrédients (ex : majuscule initiale, regroupement des qualificatifs de variété orphelins)
      */
-    fun beautifyIngredients(ingredients: List<String>): List<String> {
-        return ingredients.map { line ->
+    fun beautifyIngredients(
+        ingredients: List<String>,
+        baseIngredients: List<String> = emptyList(),
+        varietyQualifiers: List<String> = emptyList()
+    ): List<String> {
+        val mergedVarieties = IngredientVarietyMerger.beautifyIngredientVarieties(ingredients, baseIngredients, varietyQualifiers)
+        return mergedVarieties.map { line ->
             var cleaned = line.trim()
             if (cleaned.isNotEmpty()) {
                 cleaned = cleaned.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
             }
             cleaned
-        }.filter { it.isNotBlank() }
+        }.filter { line ->
+            val lower = line.lowercase().trim().removeSuffix(":")
+            line.isNotBlank() && lower != "ingrédients" && lower != "ingredients" && lower != "composition" && lower != "ngrédients"
+        }
     }
 }

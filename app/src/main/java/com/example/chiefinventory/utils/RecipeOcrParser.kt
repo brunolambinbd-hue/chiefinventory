@@ -103,7 +103,11 @@ object RecipeOcrParser {
         val mergedInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
 
         // ÉTAPE 5 : Beautification (Présentation finale à l'écran)
-        val finalIngredients = Ocr5Beautifier.beautifyIngredients(mergedIngredients)
+        val finalIngredients = Ocr5Beautifier.beautifyIngredients(
+            mergedIngredients,
+            vocabulary.baseIngredientsExpectingVariety,
+            vocabulary.ingredientVarietyQualifiers
+        )
         val finalInstructions = Ocr5Beautifier.beautifyInstructions(
             mergedInstructions, 
             vocabulary.stepActionKeywords, 
