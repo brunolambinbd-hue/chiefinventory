@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="hanging_connectors">
+        <item>et</item>
+        <item>ou</item>
+        <item>à</item>
+        <item>de</item>
+        <item>du</item>
+        <item>des</item>
+        <item>d\'</item>
+        <item>avec</item>
+        <item>dans</item>
+        <item>pour</item>
+        <item>sur</item>
+        <item>au</item>
+        <item>aux</item>
+        <item>en</item>
+        <item>par</item>
+    </string-array>
+</resources>
