@@ -65,15 +65,16 @@ object OcrTitleExtractor {
                 }
             }
 
-            // 2. Détection de titre sur 2 lignes
+            // 2. Détection de titre sur 2 lignes (ex: "Büchettes de melon" \n "au jambon italien et au porto")
             if (i + 1 < lines.size) {
                 val nextLine = lines[i + 1].trim()
-                val lowerNext = nextLine.lowercase()
-                if (lowerNext.startsWith("aux ") || lowerNext.startsWith("et ") || lowerNext.startsWith("à la ") || lowerNext.startsWith("au ")) {
+                if (isMultiLineTitleConnector(nextLine)) {
                     val combined = "$workingLine $nextLine"
                     val cleanCombined = repairFirstWordLettrine(stripRecipeNumber(combined), recipeIngredientWords, vocabulary)
-                    if (isBaseCandidate(cleanCombined, vocabulary, containsActionRegex, hasQuantityRegex)) {
+                    val baseCand = isBaseCandidate(cleanCombined, vocabulary, containsActionRegex, hasQuantityRegex)
+                    if (baseCand) {
                         val (score, details) = evaluateScore(cleanCombined, vocabulary, recipeIngredientWords, firstIngredientWord)
+                        println("STEP 2 CANDIDATE EVALUATED: '$cleanCombined', score=$score, details=$details")
                         candidates.add(ScoredTitleCandidate(cleanCombined, i, 1, score, details))
                     }
                 }
@@ -96,6 +97,7 @@ object OcrTitleExtractor {
 
         // Logcat de tous les candidats évalués avec leurs détails
         candidates.forEachIndexed { index, candidate ->
+            println("TITLE CANDIDATE [#$index]: '${candidate.candidateText}' -> SCORE: ${candidate.score} (${candidate.scoreDetails})")
             Log.d(TAG, "TITLE CANDIDATE [#$index]: '${candidate.candidateText}' -> SCORE: ${candidate.score} (${candidate.scoreDetails})")
         }
 
@@ -163,6 +165,18 @@ object OcrTitleExtractor {
     }
 
     /**
+     * Vérifie si une ligne secondaire commence par un connecteur/préposition de suite de titre.
+     * Exemples : "au jambon italien et au porto", "aux échalotes", "et aux crevettes", "à la crème", "de campagne".
+     */
+    fun isMultiLineTitleConnector(line: String): Boolean {
+        val lower = line.lowercase().trim()
+        val connectors = listOf(
+            "au ", "aux ", "et ", "à la ", "a la ", "à ", "de ", "d'", "du ", "des ", "avec ", "sur "
+        )
+        return connectors.any { lower.startsWith(it) }
+    }
+
+    /**
      * Répaire la lettrine / première lettre du premier mot du titre si le suffixe matche un ingrédient de la fiche.
      * Exemple : "Drabe mangue" -> suffixe "rabe" matche "crabe" -> "Crabe mangue".
      */
@@ -172,7 +186,7 @@ object OcrTitleExtractor {
         if (words.isEmpty()) return trimmed
 
         val firstWord = words[0]
-        val cleanFirstWord = firstWord.replace(Regex("^[^\\p{L}]+"), "")
+        val cleanFirstWord = firstWord.replace(Regex("^[^\\p{L}]+"), "").replace(Regex("[/\\\\|]"), "")
         if (cleanFirstWord.length < 3) return trimmed
 
         val lowerFirst = cleanFirstWord.lowercase()
@@ -311,7 +325,9 @@ object OcrTitleExtractor {
         hasQuantityRegex: Regex
     ): Boolean {
         val trimmed = line.trim()
-        if (trimmed.length < 5 || trimmed.length > 60) return false
+        val lower = trimmed.lowercase()
+
+        if (trimmed.length < 5 || trimmed.length > 80) return false
         val wordList = trimmed.split(Regex("\\s+"))
         if (wordList.size < 2 && vocabulary.titleKeywords.none { it.equals(trimmed, ignoreCase = true) }) return false
         if (trimmed.endsWith(".") || trimmed.endsWith("!") || trimmed.endsWith("?")) return false
@@ -333,7 +349,6 @@ object OcrTitleExtractor {
         if (OcrHelperUtils.isLikelyProperNameOrSource(trimmed) || SourceParser.isSourceLine(trimmed, vocabulary)) return false
         if (WineParser.isWineLine(trimmed, vocabulary)) return false
 
-        val lower = trimmed.lowercase()
         if (lower.startsWith("d'") || lower.startsWith("de ") || lower.startsWith("du ") || lower.startsWith("des ") || lower.startsWith("de la ") || lower.startsWith("de l'")) return false
         if (lower.startsWith("ingrédients") || lower.startsWith("ingredients") || lower.startsWith("préparation") || lower.startsWith("pour ") || lower.startsWith("le jus") || lower.startsWith("jus de")) return false
         if (lower.contains("personnes") || lower.contains("portions")) return false

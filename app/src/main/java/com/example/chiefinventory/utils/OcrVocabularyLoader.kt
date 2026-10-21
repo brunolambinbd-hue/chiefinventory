@@ -46,7 +46,8 @@ object OcrVocabularyLoader {
             ocrSpellingRepairs = stringArrays["ocr_spelling_repairs"] ?: emptyList(),
             adExclusions = stringArrays["advertisement_exclusions"] ?: emptyList(),
             titleKeywords = stringArrays["title_keywords"] ?: emptyList(),
-            mandatoryComplementIngredients = stringArrays["ingredient_mandatory_complements"] ?: emptyList()
+            mandatoryComplementIngredients = stringArrays["ingredient_mandatory_complements"] ?: emptyList(),
+            hangingConnectors = stringArrays["hanging_connectors"] ?: emptyList()
         )
     }
 

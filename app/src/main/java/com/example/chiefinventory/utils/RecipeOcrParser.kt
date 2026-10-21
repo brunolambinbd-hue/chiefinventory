@@ -104,7 +104,11 @@ object RecipeOcrParser {
 
         // ÉTAPE 5 : Beautification (Présentation finale à l'écran)
         val finalIngredients = Ocr5Beautifier.beautifyIngredients(mergedIngredients)
-        val finalInstructions = Ocr5Beautifier.beautifyInstructions(mergedInstructions)
+        val finalInstructions = Ocr5Beautifier.beautifyInstructions(
+            mergedInstructions, 
+            vocabulary.stepActionKeywords, 
+            vocabulary.hangingConnectors
+        )
 
         Log.d(TAG, "[4-5] RÉSULTATS FINAUX (BEAUTIFIED):")
         Log.d(TAG, "    TITRE FINAL: ${sections.detectedTitle}")

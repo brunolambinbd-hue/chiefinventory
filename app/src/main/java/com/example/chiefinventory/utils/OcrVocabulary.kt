@@ -27,7 +27,8 @@ data class OcrVocabulary(
     val ocrSpellingRepairs: List<String> = emptyList(),
     val adExclusions: List<String> = emptyList(),
     val titleKeywords: List<String> = emptyList(),
-    val mandatoryComplementIngredients: List<String> = emptyList()
+    val mandatoryComplementIngredients: List<String> = emptyList(),
+    val hangingConnectors: List<String> = emptyList()
 ) {
     companion object {
         /**
@@ -54,7 +55,8 @@ data class OcrVocabulary(
                 ocrSpellingRepairs = getStringArraySafely(res, R.array.ocr_spelling_repairs),
                 adExclusions = getStringArraySafely(res, R.array.advertisement_exclusions),
                 titleKeywords = getStringArraySafely(res, R.array.title_keywords),
-                mandatoryComplementIngredients = getStringArraySafely(res, R.array.ingredient_mandatory_complements)
+                mandatoryComplementIngredients = getStringArraySafely(res, R.array.ingredient_mandatory_complements),
+                hangingConnectors = getStringArraySafely(res, R.array.hanging_connectors)
             )
         }
 
