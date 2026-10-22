@@ -139,16 +139,30 @@ object Ocr3Categorizer {
             var startsWithBullet = workingLine.startsWith("•") || workingLine.startsWith("-") || workingLine.startsWith("*")
             val startsWithConnector = ingredientConnectors.any { lowerLine.startsWith("$it ") || (it.endsWith("'") && lowerLine.startsWith(it)) }
 
-            // 8.5 RATTRAPAGE IMMÉDIAT DE CONTINUATION D'INGRÉDIENT
-            val connectorsEnding = listOf(" de", " d'", " du", " des", " ou", " au", " aux")
-            val lastRawIng = results.rawIngredientsList.lastOrNull()?.lowercase()?.trim() ?: ""
-            val isContinuationOfHangingIng = currentSection == SECTION_INGREDIENTS && connectorsEnding.any { lastRawIng.endsWith(it) }
-            if (isContinuationOfHangingIng && !containsAction && !startsWithBullet) {
-                val lastIdx = results.rawIngredientsList.lastIndex
-                results.rawIngredientsList[lastIdx] = "${results.rawIngredientsList[lastIdx].trim()} $workingLine"
-                val keywords = extractKeywordsFromText(workingLine, null)
-                seenIngredientKeywords.addAll(keywords)
-                Log.d(TAG, "  [FUSION CONTINUATION INGR] Appended: '$workingLine' -> New line: '${results.rawIngredientsList[lastIdx]}'")
+            // 8.5 RATTRAPAGE IMMÉDIAT DE CONTINUATION DE PHRASE SUSPENDUE (Ingrédients ou Instructions)
+            val baseConnectors = listOf(" de", " d'", " du", " des", " ou", " au", " aux", " avec", " dans", " pour", " sur", " en", " par", " la", " le", " les")
+            val allConnectorsEnding = (baseConnectors + vocabulary.hangingConnectors.map { " ${it.trim().lowercase()}" }).distinct()
+
+            val targetListForContinuation = if (currentSection == SECTION_INGREDIENTS) results.rawIngredientsList else results.rawInstructionsList
+            val lastRawLine = targetListForContinuation.lastOrNull()?.lowercase()?.trim() ?: ""
+            val isContinuationOfHangingLine = targetListForContinuation.isNotEmpty() && allConnectorsEnding.any { lastRawLine.endsWith(it) }
+
+            if (isContinuationOfHangingLine && !containsAction && !startsWithBullet) {
+                val lastIdx = targetListForContinuation.lastIndex
+                targetListForContinuation[lastIdx] = "${targetListForContinuation[lastIdx].trim()} $workingLine"
+                if (currentSection == SECTION_INGREDIENTS) {
+                    val keywords = extractKeywordsFromText(workingLine, null)
+                    seenIngredientKeywords.addAll(keywords)
+                }
+                Log.d(TAG, "  [FUSION CONTINUATION] Appended: '$workingLine' -> New line: '${targetListForContinuation[lastIdx]}'")
+                continue
+            }
+
+            // 8.6 RATTRAPAGE IMMÉDIAT D'UNITÉ D'INGRÉDIENT INCOMPLÈTE (ex: "1 cuillère à soupe" + "de moutarde")
+            if (Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
+                    workingLine, currentSection, containsAction, startsWithBullet, vocabulary,
+                    results.rawIngredientsList, seenIngredientKeywords
+                )) {
                 continue
             }
 
@@ -261,10 +275,11 @@ object Ocr3Categorizer {
                 SECTION_INSTRUCTIONS -> {
                     val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !Ocr2Cleaner.isTechnicalDimension(workingLine) && !hasInstructionTrigger
                     val isEndMarkerLine = (lowerLine.contains("sel") && lowerLine.contains("poivre")) || lowerLine == "sel, poivre" || lowerLine == "sel et poivre" || lowerLine == "sel" || lowerLine == "poivre"
+                    val isCommonIngredient = commonIngredients.any { lowerLine.contains(it.lowercase()) }
                     val shouldPullBack = when {
                         isReappearance -> false
                         isEndMarkerLine && !containsAction -> true
-                        isIngredientListClosed -> isStrictIngredient && hasWeight
+                        isIngredientListClosed -> (isStrictIngredient && hasWeight) || (isCommonIngredient && !containsAction && !startsWithBullet)
                         else -> isStrictIngredient && (hasHardQuantity || hasWeight)
                     }
 

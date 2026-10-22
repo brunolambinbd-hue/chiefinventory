@@ -111,7 +111,8 @@ object RecipeOcrParser {
         val finalInstructions = Ocr5Beautifier.beautifyInstructions(
             mergedInstructions, 
             vocabulary.stepActionKeywords, 
-            vocabulary.hangingConnectors
+            vocabulary.hangingConnectors,
+            vocabulary.culinaryMeasurementUnits
         )
 
         Log.d(TAG, "[4-5] RÉSULTATS FINAUX (BEAUTIFIED):")

@@ -63,7 +63,7 @@ object OcrHelperUtils {
         }
         val hacheRegex = hacheVariants.joinToString("|") { Regex.escape(it) }
 
-        val baseConnectors = listOf("et", "ou", "à", "-", "de", "du", "des", "d", "au", "aux", "sur", "le", "la", "les", "un", "une", "soupe", "café", "gousse", "gousses", "pincée", "filet", "botte", "branche", "salade")
+        val baseConnectors = listOf("et", "ou", "à", "-", "de", "du", "des", "d", "au", "aux", "sur", "le", "la", "les", "un", "une", "soupe", "café", "gousse", "gousses", "pincée", "filet", "botte", "branche", "salade", "beau", "beaux", "belle", "belles")
         val allConnectors = (baseConnectors + mandatoryComplements.map { it.lowercase() }).distinct()
         val connectors = allConnectors.joinToString("|") { Regex.escape(it) }
         val modifierWords = "haché|hachée|hachés|hachées|émincé|émincée|émincés|émincées|ciselé|ciselée|ciselés|ciselées|râpé|râpée|râpés|râpées|fondu|fondue|fondus|fondues|forte|douce|moulu|moulée|concassé|concassée|décortiquées|fumé|fumée"

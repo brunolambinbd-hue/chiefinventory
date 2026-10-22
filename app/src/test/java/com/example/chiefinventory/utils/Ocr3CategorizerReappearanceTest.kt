@@ -181,9 +181,9 @@ class Ocr3CategorizerReappearanceTest {
         val result = Ocr3Categorizer.categorize(lines, vocabulary)
 
         assertThat(result.rawIngredientsList).hasSize(9)
-        assertThat(result.rawInstructionsList).hasSize(11)
+        assertThat(result.rawInstructionsList).hasSize(7)
 
-        assertThat(result.rawInstructionsList).contains("Hachez finement le surimi ou")
+        assertThat(result.rawInstructionsList.any { it.startsWith("Hachez finement le surimi") }).isTrue()
         assertThat(result.rawInstructionsList).contains("Disposez un peu de salade de blé en forme de cercle sur une assiette et déposez-y la salade de surimi.")
         assertThat(result.rawInstructionsList).contains("Servez avec les toasts.")
         assertThat(result.rawIngredientsList).doesNotContain("Hachez finement le surimi ou")

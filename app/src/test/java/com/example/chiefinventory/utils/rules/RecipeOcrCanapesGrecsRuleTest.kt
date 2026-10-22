@@ -45,9 +45,10 @@ class RecipeOcrCanapesGrecsRuleTest {
         // 1. Validation du nombre de personnes
         assertThat(result.servings).isEqualTo("4")
 
-        // 2. Validation des ingrédients (du thym et du romarin frais doit figurer dans les ingrédients)
+        // 2. Validation des ingrédients
         assertThat(ing).ignoringCase().contains("180 g de feta")
         assertThat(ing).ignoringCase().contains("du thym et du romarin frais")
+        assertThat(ing).ignoringCase().contains("sel et poivre du moulin")
 
         // 3. Validation des instructions (les consignes du haut doivent être dans les instructions)
         assertThat(inst).ignoringCase().contains("Mélangez l'huile d'olive")
