@@ -4,6 +4,10 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 
+/**
+ * Suite de tests unitaires de Type B vérifiant l'extraction et la gestion de la section Vin
+ * par le sous-composant [Ocr3CategorizerWine].
+ */
 class Ocr3CategorizerWineTest {
 
     private lateinit var vocabulary: OcrVocabulary

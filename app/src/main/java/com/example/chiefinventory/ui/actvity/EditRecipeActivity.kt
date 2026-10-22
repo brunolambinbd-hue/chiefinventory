@@ -146,6 +146,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.etRestingTime.setText(result.restingTime ?: "")
                 binding.etKcal.setText(result.kcalPerServing ?: "")
                 binding.actvDifficulty.setText(result.difficulty ?: "", false) // false pour ne pas filtrer la liste
+                binding.etNutritionInfo.setText(result.nutritionInfo ?: "")
 
                 Toast.makeText(this@EditRecipeActivity, "Scan terminé", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
@@ -166,6 +167,7 @@ class EditRecipeActivity : AppCompatActivity() {
         binding.etSource.setText(recipe.source ?: "")
         binding.etKcal.setText(recipe.kcalPerServing?.toString() ?: "")
         binding.actvDifficulty.setText(recipe.difficulty ?: "", false)
+        binding.etNutritionInfo.setText(recipe.nutritionInfo ?: "")
         
         recipe.imageUri?.let {
             val uri = Uri.parse(it)
@@ -207,6 +209,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 difficulty = binding.actvDifficulty.text.toString().takeIf { it.isNotBlank() },
                 wineRecommendation = binding.etWine.text.toString(),
                 source = binding.etSource.text.toString(),
+                nutritionInfo = binding.etNutritionInfo.text.toString().takeIf { it.isNotBlank() },
                 locationId = selectedLocationId,
                 imageUri = lastImageUri?.toString() ?: currentRecipe?.imageUri,
                 updatedAt = System.currentTimeMillis()

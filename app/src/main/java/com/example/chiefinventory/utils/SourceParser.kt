@@ -4,16 +4,20 @@ import android.content.res.Resources
 import com.example.chiefinventory.R
 
 /**
- * Utility to parse and identify source-related information (hotels, addresses, phones) from OCR text.
+ * Analyseur et extracteur des informations de provenance et de sources de recettes (hôtels, restaurants, téléphones, adresses, codes postaux).
+ *
+ * Responsabilités :
+ * - Détecter si une ligne contient des coordonnées ou références de provenance (`isSourceLine`).
+ * - Nettoyer les lignes de sources en supprimant les préfixes téléphoniques ("Tel:", "Fax:") et ponctuations parasites (`cleanSourceLine`).
+ * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Sources] et le cache memoized de préfixes [OcrRegexes.getPhonePrefixPattern].
  */
 object SourceParser {
-    private val zipCodeRegex = Regex("\\b\\d{4,5}\\b")
-    
-    // Regex améliorée pour capturer les formats comme 02/542.42.42 ou +32 2 542 42 42
-    private val phoneRegex = Regex("(?:(?:\\+|00)\\d{1,3}[\\s./-]?)?(?:\\(0\\)[\\s./-]?)?\\d(?:[\\s./-]*\\d{2,3}){2,5}")
 
     /**
-     * Data class to hold source resources loaded from XML.
+     * Conteneur des listes de ressources de sources (mots-clés et préfixes de téléphone).
+     *
+     * @property sourceKeywords Liste des mots-clés d'adresses et d'établissements (ex: "restaurant", "hôtel", "rue").
+     * @property phonePrefixes Liste des préfixes de téléphone à nettoyer (ex: "Tel", "Fax", "GSM").
      */
     data class SourceResources(
         val sourceKeywords: List<String>,
@@ -21,7 +25,10 @@ object SourceParser {
     )
 
     /**
-     * Loads source-related strings from application resources.
+     * Charge les ressources de sources à partir des [Resources] Android (`source_keywords` et `phone_prefixes`).
+     *
+     * @param res Les ressources de l'application Android.
+     * @return L'objet [SourceResources] alimenté depuis XML.
      */
     fun loadResources(res: Resources): SourceResources {
         return SourceResources(
@@ -31,42 +38,55 @@ object SourceParser {
     }
 
     /**
-     * Checks if a given line likely contains source info using [OcrVocabulary].
+     * Détermine si la ligne [line] constitue une source d'information de recette en utilisant [vocabulary].
+     *
+     * @param line La ligne de texte à analyser.
+     * @param vocabulary Le vocabulaire métier OCR.
+     * @return `true` si la ligne contient une information de source/adresse/téléphone, `false` sinon.
      */
     fun isSourceLine(line: String, vocabulary: OcrVocabulary): Boolean {
         return isSourceLine(line, SourceResources(vocabulary.sourceKeywords, vocabulary.phonePrefixes))
     }
 
     /**
-     * Checks if a given line likely contains source info (address, phone, hotel name).
+     * Détermine si la ligne [line] constitue une source d'information de recette en utilisant [resources].
+     *
+     * @param line La ligne de texte à analyser.
+     * @param resources Les ressources de sources contenant mots-clés et préfixes.
+     * @return `true` si la ligne contient un téléphone, un mot-clé de source ou un code postal, `false` sinon.
      */
     fun isSourceLine(line: String, resources: SourceResources): Boolean {
         val lowerLine = line.lowercase()
-        return phoneRegex.containsMatchIn(line) || 
+        return OcrRegexes.Sources.PHONE_NUMBER.containsMatchIn(line) || 
                resources.sourceKeywords.any { lowerLine.contains(it) } || 
-               (zipCodeRegex.containsMatchIn(line) && line.length < 50)
+               (OcrRegexes.Sources.ZIP_CODE.containsMatchIn(line) && line.length < 50)
     }
 
     /**
-     * Cleans the source line by removing common phone prefixes using [OcrVocabulary].
+     * Nettoie une ligne de source en supprimant les préfixes téléphoniques parasites en utilisant [vocabulary].
+     *
+     * @param line La ligne de source brute.
+     * @param vocabulary Le vocabulaire métier OCR.
+     * @return La ligne de source nettoyée.
      */
     fun cleanSourceLine(line: String, vocabulary: OcrVocabulary): String {
         return cleanSourceLine(line, SourceResources(vocabulary.sourceKeywords, vocabulary.phonePrefixes))
     }
 
     /**
-     * Cleans the source line by removing common phone prefixes.
-     * Uses a negative lookbehind for letters to avoid damaging words like "Hôtel".
+     * Nettoie une ligne de source en supprimant les préfixes téléphoniques parasites en utilisant [resources].
+     *
+     * @param line La ligne de source brute (ex: "Tel: 01 23 45 67 89").
+     * @param resources Les ressources de sources contenant les préfixes.
+     * @return La ligne nettoyée (ex: "01 23 45 67 89").
      */
     fun cleanSourceLine(line: String, resources: SourceResources): String {
         var cleaned = line
         resources.phonePrefixes.forEach { prefix ->
-            // (?<!\p{L}) : Ne pas avoir de lettre avant (gère les accents comme le ô de Hôtel)
-            // \b : Frontière de mot après le préfixe
-            val pattern = "(?i)(?<!\\p{L})$prefix\\b\\s*[:\\-.]?"
-            cleaned = cleaned.replace(Regex(pattern, RegexOption.IGNORE_CASE), "").trim()
+            val prefixRegex = OcrRegexes.getPhonePrefixPattern(prefix)
+            cleaned = cleaned.replace(prefixRegex, "").trim()
         }
         // Supprime toute ponctuation résiduelle en début de ligne (ex: ": 02/542.42.42" -> "02/542.42.42")
-        return cleaned.replace(Regex("^[:\\-\\s.,]+"), "").trim()
+        return cleaned.replace(OcrRegexes.Sources.LEADING_PUNCTUATION, "").trim()
     }
 }

@@ -29,8 +29,18 @@ class RecipeAdapter(private val onRecipeClick: (Recipe) -> Unit) :
             
             val prep = recipe.preparationTimeMinutes ?: 0
             val cook = recipe.cookingTimeMinutes ?: 0
-            binding.tvRecipeInfo.text = "Prép: ${prep}min | Cuisson: ${cook}min"
-            binding.tvRecipeCategory.text = recipe.category ?: ""
+            val kcalStr = recipe.kcalPerServing?.let { " | $it kcal" } ?: ""
+            binding.tvRecipeInfo.text = "Prép: ${prep}min | Cuisson: ${cook}min$kcalStr"
+
+            val categoryStr = recipe.category?.takeIf { it.isNotBlank() } ?: ""
+            val nutritionStr = recipe.nutritionInfo?.takeIf { it.isNotBlank() } ?: ""
+            
+            val displayCategory = when {
+                categoryStr.isNotBlank() && nutritionStr.isNotBlank() -> "$categoryStr | $nutritionStr"
+                categoryStr.isNotBlank() -> categoryStr
+                else -> nutritionStr
+            }
+            binding.tvRecipeCategory.text = displayCategory
             
             recipe.imageUri?.let {
                 binding.ivRecipeThumbnail.load(it)

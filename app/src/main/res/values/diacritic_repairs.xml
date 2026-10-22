@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Table de conversion des caractères diacritiques parasites Unicode (vietnamiens, baltes, européens) -->
+    <string-array name="ocr_diacritic_repairs">
+        <item>ế|é</item>
+        <item>Ế|É</item>
+        <item>ề|è</item>
+        <item>Ề|È</item>
+        <item>ệ|è</item>
+        <item>Ệ|È</item>
+        <item>ấ|â</item>
+        <item>Ấ|Â</item>
+        <item>ầ|à</item>
+        <item>À|À</item>
+        <item>ả|a</item>
+        <item>Ả|A</item>
+        <item>ặ|a</item>
+        <item>Ặ|A</item>
+        <item>ậ|â</item>
+        <item>Ậ|Â</item>
+        <item>ắ|a</item>
+        <item>Ắ|A</item>
+        <item>ạ|a</item>
+        <item>Ạ|A</item>
+        <item>ě|e</item>
+        <item>Ě|E</item>
+        <item>š|s</item>
+        <item>Š|S</item>
+        <item>č|c</item>
+        <item>Č|C</item>
+        <item>ž|z</item>
+        <item>Ž|Z</item>
+        <item>ł|l</item>
+        <item>Ł|L</item>
+    </string-array>
+</resources>

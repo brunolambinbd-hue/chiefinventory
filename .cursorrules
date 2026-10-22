@@ -1,0 +1,6 @@
+# Android Project Rules & Coding Guidelines
+
+## KDoc Documentation Guidelines
+- **MANDATORY KDOC ON ALL FUNCTIONS**: Every function in Kotlin source files (including `private`, `internal`, `protected`, and `public` functions) MUST have full KDoc documentation.
+- **EXPLICIT PARAMETERS & RETURN VALUES**: Every function parameter MUST be explicitly documented with a `@param <paramName>` tag describing its purpose. Every non-Unit function MUST have a `@return` tag describing the returned value.
+- **EXPLICIT PROPERTY DOCS**: All properties in data classes and objects MUST have `@property` tags or field-level KDoc comments explaining their domain meaning.

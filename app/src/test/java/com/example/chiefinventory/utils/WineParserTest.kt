@@ -6,6 +6,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
+/**
+ * Suite de tests unitaires de Type B vérifiant le comportement, le nettoyage et la détection d'accords mets-vins de [WineParser].
+ */
 class WineParserTest {
 
     private lateinit var vocabulary: OcrVocabulary
@@ -16,6 +19,9 @@ class WineParserTest {
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
+    /**
+     * Vérifie l'exclusion des ingrédients culinaires ("vinaigre", "huile") qui contiennent le mot "vin".
+     */
     @Test
     fun `isWineLine vinaigre exclusion`() {
         val line1 = "Un bon vinaigre de vin 2018"
@@ -31,6 +37,9 @@ class WineParserTest {
         )
     }
 
+    /**
+     * Vérifie la détection d'une ligne de vin par la combinaison d'une année millésimée et d'un volume ("2015, 75cl").
+     */
     @Test
     fun `isWineLine year and volume match`() {
         val line1 = "Une bouteille de 2015, 75cl"
@@ -46,9 +55,11 @@ class WineParserTest {
         )
     }
 
+    /**
+     * Vérifie le rejet des années hors limites (1900-2099).
+     */
     @Test
     fun `isWineLine year format boundaries`() {
-        // Utilisation d'une chaîne neutre "Produit" sans aucun mot-clé de dictionnaire ("vin", "boisson", etc.)
         val line1 = "Produit de 1899, 500ml"
         assertFalse(
             "Année trop ancienne (hors plage 1900-2099) : '$line1' ne devrait pas être du vin",
@@ -62,6 +73,9 @@ class WineParserTest {
         )
     }
 
+    /**
+     * Vérifie la détection des déclinaisons de formats de volumes ("75 cl", "750ml", "1.5 l", "13.5 vol").
+     */
     @Test
     fun `isWineLine volume format variations`() {
         val testLines = listOf(
@@ -78,6 +92,9 @@ class WineParserTest {
         }
     }
 
+    /**
+     * Vérifie la détection par la liste des appellations de vins du dictionnaire XML `wine_arrays.xml`.
+     */
     @Test
     fun `isWineLine appellation list match`() {
         val line = "Un excellent Saumur Champigny"
@@ -87,6 +104,9 @@ class WineParserTest {
         )
     }
 
+    /**
+     * Vérifie la détection des vins et appellations internationales (*Chianti*, *Rioja*, *Barolo*, *Prosecco*, *Riesling*).
+     */
     @Test
     fun `isWineLine international appellations match`() {
         val internationalWines = listOf(
@@ -107,6 +127,9 @@ class WineParserTest {
         }
     }
 
+    /**
+     * Vérifie la détection par la liste des producteurs et domaines du dictionnaire XML `wine_arrays.xml`.
+     */
     @Test
     fun `isWineLine producer list match`() {
         val line = "Produit par Alban de Saint-Pé"
@@ -116,6 +139,9 @@ class WineParserTest {
         )
     }
 
+    /**
+     * Vérifie la détection par les cépages et mots-clés d'œnologie ("Merlot", "Chardonnay").
+     */
     @Test
     fun `isWineLine keyword list match`() {
         val line = "Cépage 100% Merlot"
@@ -125,6 +151,9 @@ class WineParserTest {
         )
     }
 
+    /**
+     * Vérifie la détection des en-têtes de recommandations de vins ("Notre vin conseillé est...", "Suggestion").
+     */
     @Test
     fun `isWineLine title keyword list match`() {
         val line1 = "Notre vin conseillé est..."
@@ -140,6 +169,9 @@ class WineParserTest {
         )
     }
 
+    /**
+     * Vérifie l'insensibilité à la casse lors du matching contre les dictionnaires XML.
+     */
     @Test
     fun `isWineLine case insensitivity for lists`() {
         val line1 = "Accord avec un CHARDONNAY"
@@ -149,6 +181,9 @@ class WineParserTest {
         assertTrue("Insensibilité à la casse échouée pour : '$line2'", WineParser.isWineLine(line2, vocabulary))
     }
 
+    /**
+     * Vérifie le rejet des chaînes vides, blanches ou sans caractères alphabétiques significatifs.
+     */
     @Test
     fun `isWineLine empty or blank string`() {
         val invalidLines = mapOf(
@@ -168,6 +203,9 @@ class WineParserTest {
         }
     }
 
+    /**
+     * Vérifie l'effacement du motif d'en-tête de section vin issu de `wine_remove_pattern` ("Notre vin conseillé: Un bon Merlot" -> "Un bon Merlot").
+     */
     @Test
     fun `cleanWineLine removePattern application`() {
         val input = "Notre vin conseillé: Un bon Merlot"
@@ -176,6 +214,9 @@ class WineParserTest {
         assertEquals("Nettoyage du motif d'en-tête vin échoué pour '$input'", expected, actual)
     }
 
+    /**
+     * Vérifie la suppression des préfixes d'en-têtes ("Accord : Un vin blanc sec" -> "Un vin blanc sec").
+     */
     @Test
     fun `cleanWineLine extraWineCleanRegex removal`() {
         val input = "Accord : Un vin blanc sec"
@@ -184,6 +225,9 @@ class WineParserTest {
         assertEquals("Suppression du préfixe 'Accord :' échouée pour '$input'", expected, actual)
     }
 
+    /**
+     * Vérifie le nettoyage de la ponctuation initiale parasite (" : - . Un vin fruité" -> "Un vin fruité").
+     */
     @Test
     fun `cleanWineLine leading punctuation cleanup`() {
         val input = " : - . Un vin fruité"
@@ -192,6 +236,9 @@ class WineParserTest {
         assertEquals("Nettoyage de la ponctuation initiale échoué pour '$input'", expected, actual)
     }
 
+    /**
+     * Vérifie la correction orthographique de "Bordeau" -> "Bordeaux".
+     */
     @Test
     fun `cleanWineLine spelling correction Bordeau`() {
         val input = "Un grand Bordeau"
@@ -200,6 +247,9 @@ class WineParserTest {
         assertEquals("Correction orthographique de 'Bordeau' -> 'Bordeaux' échouée", expected, actual)
     }
 
+    /**
+     * Vérifie la correction orthographique de "Atinum" -> "Atinium".
+     */
     @Test
     fun `cleanWineLine spelling correction Atinum`() {
         val input = "Atinum, un vin spécial"
@@ -208,6 +258,9 @@ class WineParserTest {
         assertEquals("Correction orthographique de 'Atinum' -> 'Atinium' échouée", expected, actual)
     }
 
+    /**
+     * Vérifie que les corrections orthographiques ne déforment pas les mots composés contenant ces suffixes.
+     */
     @Test
     fun `cleanWineLine spelling word boundary check`() {
         val input = "BordeauSuffix"
@@ -216,6 +269,9 @@ class WineParserTest {
         assertEquals("La correction ne doit pas altérer les mots composés contenant 'Bordeau'", expected, actual)
     }
 
+    /**
+     * Vérifie l'enchaînement multi-étapes complet de nettoyage et de correction d'une ligne de vin.
+     */
     @Test
     fun `cleanWineLine exhaustive multi step cleaning`() {
         val complexLine = "Suggestion: - Un Bordeau Atinum exceptionnel "
@@ -224,6 +280,9 @@ class WineParserTest {
         assertEquals("Nettoyage multi-étapes combiné échoué pour '$complexLine'", expected, actual)
     }
 
+    /**
+     * Vérifie la suppression des espaces inutiles en début et fin de chaîne.
+     */
     @Test
     fun `cleanWineLine result trimming`() {
         val input = "  Un vin avec des espaces  "

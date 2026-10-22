@@ -4,6 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 
+/**
+ * Suite de tests unitaires de Type B vérifiant le scoring, la détection multi-lignes et la réparation de lettrines de [OcrTitleExtractor].
+ */
 class OcrTitleExtractorTest {
 
     private lateinit var vocabulary: OcrVocabulary
@@ -13,6 +16,9 @@ class OcrTitleExtractorTest {
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
+    /**
+     * Vérifie l'identification des connecteurs et prépositions de suite de titre multi-lignes.
+     */
     @Test
     fun `isMultiLineTitleConnector should return true for title connector prepositions`() {
         assertThat(OcrTitleExtractor.isMultiLineTitleConnector("au jambon italien et au porto")).isTrue()
@@ -25,6 +31,9 @@ class OcrTitleExtractorTest {
         assertThat(OcrTitleExtractor.isMultiLineTitleConnector("INGRÉDIENTS")).isFalse()
     }
 
+    /**
+     * Vérifie le post-traitement et la réparation des lettrines et fautes de débuts de titres via `title_repairs.xml`.
+     */
     @Test
     fun `postProcessTitle should repair title OCR typos like Toocktail to Cocktail and Buchettes to Buchettes`() {
         assertThat(OcrTitleExtractor.postProcessTitle("Toocktail de crevettes aux concombres", vocabulary))
@@ -37,6 +46,9 @@ class OcrTitleExtractorTest {
             .isEqualTo("Salade de Crabe")
     }
 
+    /**
+     * Vérifie l'extraction complète d'un titre multi-lignes relié par une préposition et réparé orthographiquement.
+     */
     @Test
     fun `extractTitle should extract two line title connected by au and post process spelling repairs`() {
         val lines = listOf(

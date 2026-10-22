@@ -46,7 +46,25 @@
         <item>tiedir|tiédir</item>
         <item>ellminer|éliminer</item>
         <item>tròs|très</item>
-
+        <item>faltes|faites</item>
+        <item>olve|olive</item>
+        <item>maxinmum|maximum</item>
+        <item>deplnards|d\épinards</item>
+        <item>dolgnons|d\'oignons</item>
+        <item>(eullles|feuilles</item>
+        <item>quil|qu\'il</item>
+        <item>mardhé|marché</item>
+        <item>.1 bouquet|1 bouquet</item>
+        <item>1. bouquet|1 bouquet</item>
+        <item>multiUsages|multi usages</item>
+        <item>taillezles|taillez-les</item>
+        <item>dégusez|dégustez</item>
+        <item>parseme|parsemé</item>
+        <item>tros|très</item>
+        <item>toides|froides</item>
+        <item>les % du|les ¾ du</item>
+        <item>cullerées|cuillerées</item>
+|
         <!-- ======================================================= -->
         <!-- 3. ESPACES PARASITES (CRÉNAGE BRISÉ DANS LES MOTS)     -->
         <!-- ======================================================= -->
@@ -78,6 +96,7 @@
         <item>casde|c. à soupe de</item>
         <item>càcde|c. à café de</item>
         <item>cacde|c. à café de</item>
+        <item>cdsdhuile|c. à soupe d\'huile</item>
 
         <!-- ======================================================= -->
         <!-- 5. CONFUSIONS DE LETTRES & MAJUSCULES (C/D/T, q/g, etc) -->
@@ -102,6 +121,9 @@
         <item>assortinment|assortiment</item>
         <item>douN|doux</item>
         <item>pouc|pour</item>
+        <item>hulle|huile</item>
+        <item>pettes|petites</item>
+        <item>deausinécessaire|d\'eau si nécessaire</item>
 
         <!-- ======================================================= -->
         <!-- 6. QUANTITÉS, CHIFFRES ET UNITÉS                        -->
@@ -115,5 +137,11 @@
         <item>Kcal|kcal</item>
         <item>grm|g</item>
         <item>min.|min</item>
+        <item>cdsdhuile|c. à soupe d\'huile</item>
+        <item>lcaàs|1 c. à soupe</item>
+        <item>1caàs|1 c. à soupe</item>
+        <item>lc. À soupe|1 c. à soupe</item>
+        <item>lc. à soupe|1 c. à soupe</item>
+        <item>lc.|1 c.</item>
     </string-array>
 </resources>

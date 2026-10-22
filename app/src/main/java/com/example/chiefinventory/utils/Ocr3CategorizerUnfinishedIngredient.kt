@@ -16,6 +16,13 @@ object Ocr3CategorizerUnfinishedIngredient {
      * Tente de fusionner la ligne courante [workingLine] avec la dernière ligne enregistrée dans [rawIngredientsList]
      * si celle-ci ne comporte qu'une quantité + unité sans nom d'ingrédient fini (ex: "1 cuillère à soupe", "250 g").
      *
+     * @param workingLine La ligne de texte courante analysée.
+     * @param currentSection La section actuelle du catégoriseur principal (doit être [Ocr3Categorizer.SECTION_INGREDIENTS]).
+     * @param containsAction `true` si la ligne contient un verbe d'action de cuisine.
+     * @param startsWithBullet `true` si la ligne commence par une puce d'instruction.
+     * @param vocabulary Le vocabulaire métier OCR contenant les unités culinaires.
+     * @param rawIngredientsList La liste mutable des lignes d'ingrédients bruts.
+     * @param seenIngredientKeywords L'ensemble mutable des mots-clés d'ingrédients vus.
      * @return `true` si la ligne a été fusionnée et doit être sautée dans le catégoriseur principal, `false` sinon.
      */
     fun tryMergeUnfinishedQuantityLine(
@@ -37,11 +44,13 @@ object Ocr3CategorizerUnfinishedIngredient {
         // 1. Analyse du nom de la dernière ligne
         val parsedLast = IngredientParser.parse(lastRawIng, vocabulary.culinaryMeasurementUnits)
 
-        // S'il existe déjà un véritable nom d'ingrédient (ex: "persil" dans "2 c. à soupe de persil haché"), la ligne est complète !
+        // S'il existe déjà un véritable nom d'ingrédient (ex: "persil" dans "2 c. à soupe de persil haché", "pain" dans "1 baguette de pain gris"), la ligne est complète !
+        val stopUnits = listOf("soupe", "café", "cafe", "verre", "pincée", "pincee", "gousse", "gousses", "botte", "sachet", "sachets", "bocal", "bocaux", "tranche", "tranches", "branche", "branches")
         val hasIngredientNoun = parsedLast.name.isNotBlank() &&
             parsedLast.name.split(Regex("[\\s,.'’()\\-*•/0-9]+")).any { word ->
                 val cleanWord = word.lowercase().replace(Regex("[^\\p{L}]"), "")
                 cleanWord.length >= 3 &&
+                cleanWord !in stopUnits &&
                 vocabulary.ingredientPreparationModifiers.none { mod -> mod.equals(cleanWord, ignoreCase = true) } &&
                 vocabulary.culinaryMeasurementUnits.none { unit -> unit.equals(cleanWord, ignoreCase = true) }
             }

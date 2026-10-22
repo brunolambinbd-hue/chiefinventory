@@ -3,13 +3,25 @@ package com.example.chiefinventory.utils
 import android.util.Log
 
 /**
- * Data class representing the result of title extraction.
+ * Conteneur du résultat d'extraction du titre d'une recette.
+ *
+ * @property title Le titre extrait et nettoyé de la recette, ou null si aucun titre valide n'est trouvé.
+ * @property cleanedLines Les lignes de texte restantes après extraction du titre.
  */
 data class TitleExtractionResult(
     val title: String?,
     val cleanedLines: List<String>
 )
 
+/**
+ * Conteneur interne représentant un candidat titre évalué avec son score et le détail du calcul.
+ *
+ * @property candidateText Le texte nettoyé du candidat titre.
+ * @property originalLineIndex L'index de ligne d'origine.
+ * @property originalLinesToSkip Le nombre de lignes adjacentes fusionnées à ignorer (ex: 1 pour un titre sur 2 lignes).
+ * @property score Le score numérique attribué au candidat.
+ * @property scoreDetails Le détail explicatif du calcul du score.
+ */
 private data class ScoredTitleCandidate(
     val candidateText: String,
     val originalLineIndex: Int,
@@ -19,19 +31,30 @@ private data class ScoredTitleCandidate(
 )
 
 /**
- * Dedicated step for Title Extraction with Logcat Candidate Scoring and Ingredient Matching.
+ * Étape 2.5 du pipeline OCR : Extraction et Scoring du Titre de la Recette.
+ *
+ * Responsabilités :
+ * - Évaluer et scorer tous les candidats titres possibles d'une fiche de recette.
+ * - Supprimer les numéros de recette en début de titre (ex: "12 Salade grecque" -> "Salade grecque").
+ * - Détecter les titres multi-lignes reliés par des connecteurs ("Büchettes de melon" \n "au jambon italien").
+ * - Réparer les lettrines et majuscules déformées par l'OCR (`title_repairs.xml` & corrélation avec les ingrédients de la fiche).
+ * - Sélectionner le candidat ayant le score le plus élevé et retourner la liste des lignes restantes.
+ * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Titles].
  */
 object OcrTitleExtractor {
     private const val TAG = "RecipeOCR"
 
     /**
-     * Extracts the recipe title from lines by scoring all candidates and logging details in Logcat.
+     * Extrait le titre principal de la recette d'après la liste des lignes nettoyées [lines] et le vocabulaire [vocabulary].
+     *
+     * @param lines La liste des lignes de texte nettoyées issues de [Ocr2Cleaner].
+     * @param vocabulary Le vocabulaire métier data-driven contenant les dictionnaires XML du projet.
+     * @return L'objet [TitleExtractionResult] contenant le titre retenu et la liste des lignes restantes.
      */
     fun extractTitle(lines: List<String>, vocabulary: OcrVocabulary): TitleExtractionResult {
         val candidates = mutableListOf<ScoredTitleCandidate>()
         val actionVerbs = vocabulary.stepActionKeywords.distinct()
-        val containsActionRegex = if (actionVerbs.isEmpty()) null else Regex("(?i)\\b(?:${actionVerbs.joinToString("|")})\\b")
-        val hasQuantityRegex = Regex("(?i)^\\d+\\s*(?:g|kg|cl|ml|l|c\\.|cuillè|pincée)")
+        val containsActionRegex = if (actionVerbs.isEmpty()) null else Regex("(?i)\\b(?:${actionVerbs.joinToString("|") { Regex.escape(it) }})\\b")
 
         val recipeIngredientWords = extractRecipeIngredientWords(lines)
         val firstIngredientWord = findFirstIngredientWord(lines)
@@ -47,7 +70,7 @@ object OcrTitleExtractor {
 
             // 1. Détection de titre collé après "sel et poivre" (ex: "sel et poivre alade d'avocat et princesses")
             if (workingLine.lowercase().contains("sel et poivre") && workingLine.length > 12) {
-                val parts = workingLine.split(Regex("(?i)sel et poivre\\s*"), 2)
+                val parts = workingLine.split(OcrRegexes.Titles.SPLIT_SEL_POIVRE, 2)
                 if (parts.size == 2 && parts[1].isNotBlank()) {
                     var potentialTitle = stripRecipeNumber(parts[1].trim())
                     val lowerPotential = potentialTitle.lowercase()
@@ -57,7 +80,7 @@ object OcrTitleExtractor {
                         skipCount = 1
                     }
                     potentialTitle = repairFirstWordLettrine(potentialTitle, recipeIngredientWords, vocabulary)
-                    if (isBaseCandidate(potentialTitle, vocabulary, containsActionRegex, hasQuantityRegex)) {
+                    if (isBaseCandidate(potentialTitle, vocabulary, containsActionRegex)) {
                         val (score, details) = evaluateScore(potentialTitle, vocabulary, recipeIngredientWords, firstIngredientWord)
                         candidates.add(ScoredTitleCandidate(potentialTitle, i, skipCount, score, details))
                         continue
@@ -71,7 +94,7 @@ object OcrTitleExtractor {
                 if (isMultiLineTitleConnector(nextLine)) {
                     val combined = "$workingLine $nextLine"
                     val cleanCombined = repairFirstWordLettrine(stripRecipeNumber(combined), recipeIngredientWords, vocabulary)
-                    val baseCand = isBaseCandidate(cleanCombined, vocabulary, containsActionRegex, hasQuantityRegex)
+                    val baseCand = isBaseCandidate(cleanCombined, vocabulary, containsActionRegex)
                     if (baseCand) {
                         val (score, details) = evaluateScore(cleanCombined, vocabulary, recipeIngredientWords, firstIngredientWord)
                         candidates.add(ScoredTitleCandidate(cleanCombined, i, 1, score, details))
@@ -87,7 +110,7 @@ object OcrTitleExtractor {
             if (!isIngredientQuantityLine) {
                 val cleanLine = postProcessTitle(stripRecipeNumber(workingLine), vocabulary)
                 val repairedCandidate = repairFirstWordLettrine(cleanLine, recipeIngredientWords, vocabulary)
-                if (isBaseCandidate(repairedCandidate, vocabulary, containsActionRegex, hasQuantityRegex)) {
+                if (isBaseCandidate(repairedCandidate, vocabulary, containsActionRegex)) {
                     val (score, details) = evaluateScore(repairedCandidate, vocabulary, recipeIngredientWords, firstIngredientWord)
                     candidates.add(ScoredTitleCandidate(repairedCandidate, i, 0, score, details))
                 }
@@ -122,7 +145,7 @@ object OcrTitleExtractor {
 
             if (bestCandidate != null && i == bestCandidate.originalLineIndex) {
                 if (line.lowercase().contains("sel et poivre")) {
-                    val parts = line.split(Regex("(?i)sel et poivre\\s*"), 2)
+                    val parts = line.split(OcrRegexes.Titles.SPLIT_SEL_POIVRE, 2)
                     remainingLines.add(parts[0].trim() + " sel et poivre")
                 }
                 skipCounter = bestCandidate.originalLinesToSkip
@@ -136,7 +159,10 @@ object OcrTitleExtractor {
     }
 
     /**
-     * Extraie les mots des NOMS d'ingrédients (parsed.name) présents sur la fiche scannée de la recette.
+     * Extraie les mots des noms d'ingrédients présents sur la fiche scannée de la recette.
+     *
+     * @param lines La liste des lignes brutes de la recette.
+     * @return L'ensemble des mots significatifs d'ingrédients de longueur >= 3.
      */
     private fun extractRecipeIngredientWords(lines: List<String>): Set<String> {
         val ingredientNameWords = mutableSetOf<String>()
@@ -144,7 +170,7 @@ object OcrTitleExtractor {
         for (line in lines) {
             val trimmed = line.trim()
             if (trimmed.isEmpty()) continue
-            if (Regex("^\\d").containsMatchIn(trimmed) || Regex("(?i)\\b(?:g|kg|cl|ml|l|c\\.|cuillè|pincée|gousses?)\\b").containsMatchIn(trimmed)) {
+            if (Regex("^\\d").containsMatchIn(trimmed) || OcrRegexes.Titles.INGREDIENT_UNIT_WORD.containsMatchIn(trimmed)) {
                 val parsed = IngredientParser.parse(trimmed)
                 if (parsed.name.isNotBlank()) {
                     val words = parsed.name.split(Regex("[\\s,;.:'’\\-()]"))
@@ -164,6 +190,10 @@ object OcrTitleExtractor {
 
     /**
      * Post-traite et applique les réparations orthographiques du dictionnaire XML [vocabulary.titleSpellingRepairs] au titre retenu.
+     *
+     * @param title Le titre à réparer.
+     * @param vocabulary Le vocabulaire métier contenant les réparations de titres (`title_repairs.xml`).
+     * @return Le titre réparé.
      */
     fun postProcessTitle(title: String, vocabulary: OcrVocabulary): String {
         var result = title.trim()
@@ -180,8 +210,10 @@ object OcrTitleExtractor {
     }
 
     /**
-     * Vérifie si une ligne secondaire commence par un connecteur/préposition de suite de titre.
-     * Exemples : "au jambon italien et au porto", "aux échalotes", "et aux crevettes", "à la crème", "de campagne".
+     * Vérifie si une ligne secondaire commence par un connecteur ou une préposition de suite de titre multi-lignes.
+     *
+     * @param line La ligne secondaire à analyser.
+     * @return `true` si la ligne commence par un connecteur de titre (ex: "au jambon", "aux crevettes"), `false` sinon.
      */
     fun isMultiLineTitleConnector(line: String): Boolean {
         val lower = line.lowercase().trim()
@@ -192,8 +224,12 @@ object OcrTitleExtractor {
     }
 
     /**
-     * Répaire la lettrine / première lettre du premier mot du titre si le suffixe matche un ingrédient de la fiche.
-     * Exemple : "Drabe mangue" -> suffixe "rabe" matche "crabe" -> "Crabe mangue".
+     * Répare la lettrine / première lettre du premier mot du titre si le suffixe matche un ingrédient de la fiche scannée.
+     *
+     * @param titleCandidate Le candidat titre à réparer (ex: "Drabe mangue").
+     * @param candidateIngredients Les mots d'ingrédients inventoriés sur la fiche (ex: "crabe").
+     * @param vocabulary Le vocabulaire métier OCR.
+     * @return Le titre réparé (ex: "Crabe mangue").
      */
     fun repairFirstWordLettrine(titleCandidate: String, candidateIngredients: Set<String>, vocabulary: OcrVocabulary): String {
         val trimmed = titleCandidate.trim()
@@ -233,13 +269,16 @@ object OcrTitleExtractor {
     }
 
     /**
-     * Recherche le nom du premier ingrédient de la recette pour le départage.
+     * Recherche le nom du premier ingrédient de la recette pour le départage des scores.
+     *
+     * @param lines La liste des lignes brutes de la recette.
+     * @return Le premier mot d'ingrédient significatif trouvé, ou null.
      */
     private fun findFirstIngredientWord(lines: List<String>): String? {
         for (line in lines) {
             val trimmed = line.trim()
             if (trimmed.isEmpty()) continue
-            if (Regex("^\\d").containsMatchIn(trimmed) || Regex("(?i)\\b(?:g|kg|cl|ml|l|c\\.|cuillè|pincée)\\b").containsMatchIn(trimmed)) {
+            if (Regex("^\\d").containsMatchIn(trimmed) || OcrRegexes.Titles.INGREDIENT_UNIT_WORD.containsMatchIn(trimmed)) {
                 val parsed = IngredientParser.parse(trimmed)
                 if (parsed.name.isNotBlank()) {
                     val words = parsed.name.split(Regex("[\\s,;.:'’\\-()]"))
@@ -255,7 +294,29 @@ object OcrTitleExtractor {
     }
 
     /**
-     * Évalue et calcule le score d'une ébauche de titre d'après les critères XML et linguistiques.
+     * Évalue et calcule le score numérique d'un candidat titre d'après un barème de 7 critères pondérés.
+     *
+     * **Barème de Scoring des Titres :**
+     * - **Critère 1 : Ponctuation de fin (+10 pts / -20 pts)**  
+     *   Un titre légitime ne se termine presque jamais par un point. (+10 si sans point final, -20 si point/exclamation/interrogation).
+     * - **Critère 2 : Mots-clés du dictionnaire `title_keywords.xml` (+30 pts par mot-clé)**  
+     *   Présence de mots récurrents dans les titres de recettes (ex: *"Salade"*, *"Rôti"*, *"Gratin"*, *"Tarte"*, *"Potage"*, *"Gâteau"*).
+     * - **Critère 3 : Connecteurs de titre (+10 pts par connecteur)**  
+     *   Présence de prépositions de liaison culinaire (*" et "*, *" aux "*, *" à la "*, *" au "*, *" d'"*, *" de "*).
+     * - **Critère 4 : Longueur minimale en mots (+10 pts)**  
+     *   Bonus si le candidat comporte au moins 2 mots (évite les mots isolés).
+     * - **Critère 5 : Pénalité de préposition d'ingrédient initiale (-25 pts)**  
+     *   Pénalise un titre commençant par *"d'"*, *"de "*, *"du "* ou *"des "* (caractéristique d'une ligne d'ingrédient tronquée).
+     * - **Critère 6 : Mots d'ingrédients de la fiche scannée (+15 pts par ingrédient)**  
+     *   Bonus si le titre contient des mots d'ingrédients inventoriés dans la recette (ex: *"mangue"*, *"crabe"*, *"aubergines"*).
+     * - **Critère 7 : Départage par le premier ingrédient (+30 pts)**  
+     *   Bonus si le titre contient le nom du tout premier ingrédient de la liste.
+     *
+     * @param candidate Le texte du candidat titre à évaluer.
+     * @param vocabulary Le vocabulaire métier data-driven (`title_keywords.xml`).
+     * @param recipeIngredientWords Les mots d'ingrédients inventoriés sur la fiche scannée.
+     * @param firstIngredientWord Le nom du premier ingrédient de la recette pour le départage.
+     * @return Une paire `(scoreTotal, detailReglesCalculees)` permettant d'expliquer le score dans les logs Logcat.
      */
     private fun evaluateScore(
         candidate: String, 
@@ -333,11 +394,18 @@ object OcrTitleExtractor {
         return Pair(score, details.joinToString(", "))
     }
 
+    /**
+     * Détermine si la ligne constitue une ébauche de candidat titre valide d'après les critères fondamentaux.
+     *
+     * @param line La ligne de texte à évaluer.
+     * @param vocabulary Le vocabulaire métier OCR.
+     * @param containsActionRegex Expression régulière pré-compilée des verbes d'action culinaires.
+     * @return `true` si la ligne est un candidat titre valide, `false` si elle est disqualifiée.
+     */
     private fun isBaseCandidate(
         line: String,
         vocabulary: OcrVocabulary,
-        containsActionRegex: Regex?,
-        hasQuantityRegex: Regex
+        containsActionRegex: Regex?
     ): Boolean {
         val trimmed = line.trim()
         val lower = trimmed.lowercase()
@@ -346,11 +414,11 @@ object OcrTitleExtractor {
         val wordList = trimmed.split(Regex("\\s+"))
         if (wordList.size < 2 && vocabulary.titleKeywords.none { it.equals(trimmed, ignoreCase = true) }) return false
         if (trimmed.endsWith(".") || trimmed.endsWith("!") || trimmed.endsWith("?")) return false
-        if (Regex("(?i)^(?:[1-9]|1[0-9]|20)\\s+[a-zA-Z]").containsMatchIn(line.trim())) return false
+        if (OcrRegexes.Titles.DISQUALIFYING_NUMBER_START.containsMatchIn(line.trim())) return false
         if (trimmed.contains("(") || trimmed.contains(")") || trimmed.contains("[")) return false
-        if (hasQuantityRegex.containsMatchIn(trimmed)) return false
-        if (Regex("(?i)\\b\\d/\\d\\b").containsMatchIn(trimmed)) return false
-        if (Regex("(?i)\\bc\\.?\\s*[àa]\\s*(?:soupe|café|dessert)").containsMatchIn(trimmed)) return false
+        if (OcrRegexes.Titles.HAS_QUANTITY.containsMatchIn(trimmed)) return false
+        if (OcrRegexes.Titles.DISQUALIFYING_FRACTION.containsMatchIn(trimmed)) return false
+        if (OcrRegexes.Titles.DISQUALIFYING_SPOON.containsMatchIn(trimmed)) return false
         if (containsActionRegex?.containsMatchIn(trimmed) == true) return false
         if (trimmed.startsWith("•") || trimmed.startsWith("-") || trimmed.startsWith("*")) return false
 
@@ -361,7 +429,7 @@ object OcrTitleExtractor {
 
         if (vocabulary.ingredientPreparationModifiers.any { Regex("(?i)(?<!\\p{L})${Regex.escape(it)}(?!\\p{L})").containsMatchIn(trimmed) }) return false
 
-        if (OcrHelperUtils.isLikelyProperNameOrSource(trimmed) || SourceParser.isSourceLine(trimmed, vocabulary)) return false
+        if (OcrHelperUtils.isLikelyProperNameOrSource(trimmed, vocabulary) || SourceParser.isSourceLine(trimmed, vocabulary)) return false
         if (WineParser.isWineLine(trimmed, vocabulary)) return false
 
         if (lower.startsWith("d'") || lower.startsWith("de ") || lower.startsWith("du ") || lower.startsWith("des ") || lower.startsWith("de la ") || lower.startsWith("de l'")) return false
@@ -376,9 +444,15 @@ object OcrTitleExtractor {
         return letterCount >= 4 && digitCount <= 2
     }
 
+    /**
+     * Supprime le numéro de fiche ou de recette en début de titre (ex: "12 Salade grecque" -> "Salade grecque").
+     *
+     * @param text Le texte brut du candidat titre.
+     * @return Le titre sans son numéro de fiche initial.
+     */
     private fun stripRecipeNumber(text: String): String {
         var cleaned = text.trim()
-        cleaned = cleaned.replace(Regex("(?i)^\\d{1,3}\\s+(?!(?:g|kg|cl|ml|l|c\\.|cuillè|pincée|soupe|café|gousse|gousses|botte|bocal|tranche|tranches)\\b)"), "")
+        cleaned = cleaned.replace(OcrRegexes.Titles.RECIPE_NUMBER_PREFIX, "")
         if (cleaned.isNotEmpty()) {
             cleaned = cleaned.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         }

@@ -3,6 +3,9 @@ package com.example.chiefinventory.utils
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
+/**
+ * Suite de tests unitaires de Type B vérifiant le comportement et l'exhaustivité de [Ocr1Normalizer].
+ */
 class Ocr1NormalizerTest {
 
     @Test
@@ -166,13 +169,35 @@ class Ocr1NormalizerTest {
 
     @Test
     fun `Misread digit 1 should NOT touch protected headers`() {
-        val result = Ocr1Normalizer.normalize("INGRÉDIENTS")
-        assertThat(result).ignoringCase().contains("ingrédients")
-        assertThat(result.startsWith("1")).isFalse()
+        val result1 = Ocr1Normalizer.normalize("INGRÉDIENTS")
+        assertThat(result1).ignoringCase().contains("ingrédients")
+        assertThat(result1.startsWith("1")).isFalse()
+
+        val result2 = Ocr1Normalizer.normalize("INSTRUCTIONS")
+        assertThat(result2).ignoringCase().contains("instructions")
+        assertThat(result2.startsWith("1")).isFalse()
     }
 
     @Test
     fun `Historical noise removal`() {
         assertThat(Ocr1Normalizer.normalize("Michel Laroche, 14/12/94: 209 F")).isEqualTo("Michel Laroche")
+        assertThat(Ocr1Normalizer.normalize("Prix: 15.50 EUR")).isEqualTo("Prix")
+        assertThat(Ocr1Normalizer.normalize("Menu 20 €")).isEqualTo("Menu")
+    }
+
+    @Test
+    fun `Trailing punctuation and whitespace cleanup`() {
+        assertThat(Ocr1Normalizer.normalize("200 g de sucre, : ;")).isEqualTo("200 g de sucre")
+    }
+
+    @Test
+    fun `Fused spoon OCR typos should be repaired via vocabulary`() {
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+        assertThat(Ocr1Normalizer.normalize("lcaàs de sucre", vocabulary.ocrSpellingRepairs))
+            .isEqualTo("1 c. à soupe de sucre")
+        assertThat(Ocr1Normalizer.normalize("cdsdhuile", vocabulary.ocrSpellingRepairs))
+            .isEqualTo("c. à soupe d'huile")
+        assertThat(Ocr1Normalizer.normalize("lc. À soupe d'hulle d'olive", vocabulary.ocrSpellingRepairs))
+            .isEqualTo("1 c. à soupe d'huile d'olive")
     }
 }

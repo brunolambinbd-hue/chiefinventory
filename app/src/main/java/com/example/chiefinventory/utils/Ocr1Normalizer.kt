@@ -1,110 +1,139 @@
 package com.example.chiefinventory.utils
 
-
 /**
- * Step 1 of the OCR pipeline: Character and symbol normalization.
+ * Étape 1 du pipeline OCR : Normalisation des caractères, chiffres, fractions et symboles.
+ *
+ * Responsabilités :
+ * - Appliquer le dictionnaire de réparations orthographiques `ocr_repairs.xml` au démarrage du pipeline.
+ * - Corriger les confusions de chiffres et lettres générées par l'OCR (`I12` -> `1/2`, `I` -> `1`, `I'eau` -> `l'eau`).
+ * - Normaliser les abréviations de cuillères (`c. à s.` -> `c. à soupe`, `cac` -> `c. à café`).
+ * - Nettoyer les bruits de dates, devises et caractères diacritiques parasites (`diacritic_repairs.xml`).
+ * - Séparer les nombres collés aux unités (`200g` -> `200 g`).
+ * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Normalizer] et [OcrRegexes.Quantities].
  */
 object Ocr1Normalizer {
 
-    private val FRACTION_RULES = listOf(
-        Regex("(?i)(?<![\\p{L}\\p{N}])[1il!|]{2}2(?![\\p{L}\\p{N}])") to "1/2",
-        Regex("(?i)(?<![\\p{L}\\p{N}])[1il!|]{2}4(?![\\p{L}\\p{N}])") to "1/4",
-        Regex("^1\\s*12\\b") to "1/2",
-        Regex("^1\\s*14\\b") to "1/4",
-        Regex("(?i)\\b[uw]2\\b") to "1/2",
-        Regex("(?i)\\b11?2\\s+([\\p{L}]+)\\b(?!s)") to "1/2 $1"
-    )
+    /** Diacritiques et accents parasites par défaut chargés dynamiquement depuis [R.array.ocr_diacritic_repairs] (`diacritic_repairs.xml`). */
+    internal val defaultDiacriticRepairs: List<String> by lazy {
+        try {
+            OcrVocabularyLoader.loadFromProjectResources().ocrDiacriticRepairs
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
-    private val NUMBER_CORRECTIONS = listOf(
-        Regex("(?i)^[|il!]c(?=[\\s.àa])") to "1 c",
-        Regex("(?i)(?<=\\d)\\s*l\\s*d['’\\s]*eau\\b") to " l d'eau",
-        Regex("(?i)(?<![\\p{L}\\d])l\\s*d['’\\s]*eau\\b") to "1 l d'eau",
-        
-        Regex("(?i)\\b1 ajout\\b") to "l'ajout",
-        Regex("(?i)^[|il!]\\s*(?=\\d)") to "1",
-        Regex("(?i)(?<!\\p{L})[|il!](?=/)") to "1",
-        Regex("\\s+\\|\\s+") to " 1 ",
-        Regex("(?i)\\bdel\\b") to "de 1"
-    )
-
-    private val NOISE_REMOVAL = listOf(
-        Regex("\\b\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{2,4}\\b") to "",
-        Regex("(?i)\\b\\d+(?:[.,]\\d+)?\\s*(?:f|francs?)\\b") to "",
-        Regex("(?i)\\b\\d+(?:[.,]\\d+)?\\s*(?:€|eur|euros?)\\b") to ""
-    )
-
-    private val ARTICLE_CORRECTIONS = listOf(
-        Regex("(?i)^1\\s+e\\s+") to "le ",
-        Regex("(?i)^[t1]['’]") to "l'",
-        Regex("(?i)\\s+[t1]['’]") to " l'"
-    )
-
-    private val VIETNAMESE_ACCENT_MAP = mapOf(
-        'ế' to 'é', 'Ế' to 'É', 'ề' to 'è', 'Ề' to 'È', 'ệ' to 'é', 'Ệ' to 'É',
-        'ấ' to 'â', 'Ấ' to 'Â', 'ầ' to 'à', 'À' to 'À', 'ả' to 'a', 'Ả' to 'A',
-        'ặ' to 'a', 'Ặ' to 'A', 'ậ' to 'â', 'Ậ' to 'Â', 'ắ' to 'a', 'Ắ' to 'A', 'ạ' to 'a', 'Ạ' to 'A'
-    )
-
-    private val LINGUISTIC_CORRECTIONS = listOf(
-        Regex("(?i)([a-z])d['’]") to "$1 d'",
-        Regex("(?i)d['’]\\s+") to "d'",
-        Regex("(?i)\\beuf(s?)\\b") to "oeuf$1",
-        Regex("(?i)\\blajout\\b") to "l'ajout",
-        Regex("(?i)\\b[1il|!]?ongueur\\b") to "longueur",
-        Regex("(?i)\\b[1il|!]\\s*es\\b") to "les",
-        Regex("(?i)\\bgri[b6l]\\b") to "gris",
-        Regex("(?i)\\b1\\s*oasts?\\b") to "toasts"
-    )
-
-    private val SPOON_NORMALIZATION = listOf(
-        Regex("(?i)\\bc\\s+[àa]\\s+f[eé](?![a-z])") to "c. à café",
-        Regex("(?i)\\b(supe|sope)(s?)\\b") to "soupe$2",
-        Regex("(?i)c\\.?\\s*[àa]\\s*(s|soupe)\\b") to "c. à soupe",
-        Regex("(?i)c\\.?\\s*[àa]\\s*(?:c|caf[eé]|f[eé])\\b") to "c. à café",
-        Regex("(?i)\\bc[àa]s\\b") to "c. à soupe",
-        Regex("(?i)\\bc[àa]c\\b") to "c. à café"
-    )
-
-    private val PROTECTED_KEYWORDS = Regex("(?i)^(?:i|l)\\s*(ngrédients|nstructions)\\b")
-    private val OCR_ONE_CORRECTION = Regex("(?i)(^|•\\s*|[\\-*]\\s*|\\()([|!|](?=[\\s\\p{L}])|[il](?=\\s+\\p{L}))")
-
-    fun normalize(input: String, repairs: List<String> = emptyList()): String {
+    /**
+     * Effectue la normalisation complète d'une chaîne de texte brute issue de l'OCR.
+     *
+     * Détail ligne par ligne des 15 sous-traitements de normalisation :
+     * 1. **Garde-fou d'entrée :** Vérifie que la ligne n'est ni vide ni constituée uniquement d'espaces.
+     * 2. **Sélection des diacritiques :** Reçoit ou charge les paires de réparations de diacritiques depuis `diacritic_repairs.xml`.
+     * 3. **Réparations orthographiques XML (`ocr_repairs.xml`) :** Applique les paires fautif|correct (`lajout` -> `l'ajout`, `càsde` -> `c. à soupe de`).
+     * 4. **Protection des mots-clés de section :** Empêche la confusion du 'I' majuscule avec '1' dans `"INGRÉDIENTS"` et `"INSTRUCTIONS"`.
+     * 5. **Nettoyage du préfixe 't' parasite :** Supprime le caractère 't' ou 't ' accidentellement inséré devant un chiffre (ex: `t10 min` -> `10 min`).
+     * 6. **Suppression des symboles de tolérance & puces :** Retire `±`, `+/-`, `+-`, `environ` et les puces devant un chiffre (ex: `! 100 g` -> `100 g`).
+     * 7. **Suppression du bruit publicitaire & devises :** Élimine les dates (`14/12/94`), prix (`209 F`, `15.50 EUR`, `20 €`).
+     * 8. **Correction OCR du chiffre '1' :** Restaure le chiffre `1` lorsqu'il est lu comme `|`, `!`, `i` ou `l` devant une lettre.
+     * 9. **Fractions & Erreurs de nombres (Garde-fou `isDigit()`) :** Si la ligne contient un chiffre, convertit `I12` -> `1/2`, `112` -> `1/2`, `del` -> `de 1`.
+     * 10. **Conversion des diacritiques parasites (`diacritic_repairs.xml`) :** Remplace les accents Unicode étrangers/vietnamiens (`ế` -> `é`, `ệ` -> `è`, `š` -> `s`).
+     * 11. **Corrections d'articles & liaisons d'apostrophes :** Normalise `1 e` -> `le`, `T'oignon` -> `l'oignon`, `jauned'oeuf` -> `jaune d'oeuf`.
+     * 12. **Normalisation des unités de cuillères (Garde-fou `contains('c')`) :** Si la ligne contient 'c', convertit `cas` -> `c. à soupe`, `cac` -> `c. à café`.
+     * 13. **Séparation Chiffre / Unité :** Sépare `500g` -> `500 g`, `1l` -> `1 l`.
+     * 14. **Nettoyage de la ponctuation finale :** Nettoie les virgules, deux-points et points-virgules finaux parasites.
+     * 15. **Normalisation des espaces :** Effondre les espaces multiples consécutifs en un espace unique.
+     *
+     * @param input La chaîne de texte brute.
+     * @param repairs Liste facultative de paires de réparations orthographiques (ex: de [OcrVocabulary.ocrSpellingRepairs]).
+     * @param diacriticRepairs Liste facultative de réparations diacritiques (ex: de [OcrVocabulary.ocrDiacriticRepairs]).
+     * @return La chaîne nettoyée et normalisée.
+     */
+    fun normalize(input: String, repairs: List<String> = emptyList(), diacriticRepairs: List<String> = emptyList()): String {
+        // 1. Garde-fou d'entrée : chaîne vide ou blanche
         if (input.isBlank()) return ""
         var text = input.trim()
+
+        // 2. Sélection de la table de diacritiques (reçue ou par défaut depuis diacritic_repairs.xml)
+        val activeDiacritics = if (diacriticRepairs.isNotEmpty()) diacriticRepairs else defaultDiacriticRepairs
+
+        // 3. Application des réparations orthographiques issues de ocr_repairs.xml
         text = applySpellingRepairs(text, repairs)
 
-        text = text.replace(PROTECTED_KEYWORDS) { match ->
+        // 4. Protection des mots-clés d'en-tête de section ("INGRÉDIENTS", "INSTRUCTIONS") contre la confusion 'I' -> '1'
+        text = text.replace(OcrRegexes.Normalizer.PROTECTED_KEYWORDS) { match ->
             val suffix = match.groupValues[1]
-            if (suffix.lowercase().startsWith("n")) "ingrédients" else "instructions"
+            if (suffix.lowercase().startsWith("ng")) "ingrédients" else "instructions"
         }
-        text = text.replace(Regex("(?i)(?<!\\p{L})t\\s*(?=\\d)"), "")
 
+        // 5. Suppression du préfixe 't' parasite devant un chiffre (ex: "t 10 min" -> "10 min")
+        text = text.replace(OcrRegexes.Normalizer.PREFIX_T_BEFORE_DIGIT, "")
+
+        // 6. Suppression des symboles de tolérance (±, +/-) et des puces parasites devant un chiffre (ex: "! 100 g" -> "100 g")
         text = text.replace("±", "").replace("+/-", "").replace("+-", "")
-            .replace(Regex("(?i)\\benviron\\b"), "")
-            .replace(Regex("(?i)^[!|il!|•\\-*]\\s+(?=\\d)"), "")
+            .replace(OcrRegexes.Normalizer.ENVIRON_WORD, "")
+            .replace(OcrRegexes.Normalizer.SYMBOL_BEFORE_DIGIT, "")
 
-        NOISE_REMOVAL.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
-        text = text.replace(OCR_ONE_CORRECTION) { match -> match.groupValues[1] + "1 " }
+        // 7. Suppression du bruit de dates, devises et prix (ex: "14/12/94", "15.50 EUR", "20 €")
+        OcrRegexes.Normalizer.NOISE_REMOVAL.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
-        FRACTION_RULES.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
-        NUMBER_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
+        // 8. Correction de la confusion du chiffre '1' lu comme '|', '!', 'i' ou 'l' devant un mot
+        text = text.replace(OcrRegexes.Normalizer.OCR_ONE_CORRECTION) { match -> match.groupValues[1] + "1 " }
 
-        text = text.map { VIETNAMESE_ACCENT_MAP[it] ?: it }.joinToString("")
+        // 9. Garde-fou de performance Chiffres : ne déclencher FRACTION_RULES et NUMBER_CORRECTIONS que si la ligne contient au moins un chiffre
+        if (text.any { it.isDigit() }) {
+            OcrRegexes.Quantities.FRACTION_RULES.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
+        }
+        OcrRegexes.Quantities.NUMBER_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
+
+        // 10. Conversion des diacritiques et accents parasites Unicode (diacritic_repairs.xml)
+        text = applyDiacriticRepairs(text, activeDiacritics)
         
-        ARTICLE_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
-        LINGUISTIC_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
-        SPOON_NORMALIZATION.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
+        // 11. Corrections des articles ("1 e" -> "le") et liaisons linguistiques ("d' orange" -> "d'orange")
+        OcrRegexes.Normalizer.ARTICLE_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
+        OcrRegexes.Normalizer.LINGUISTIC_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
+        // 12. Garde-fou de performance Cuillères : ne déclencher SPOON_NORMALIZATION que si la ligne contient la lettre 'c'
+        if (text.contains('c', ignoreCase = true)) {
+            OcrRegexes.Normalizer.SPOON_NORMALIZATION.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
+        }
+
+        // 13. Séparation d'un nombre collé à son unité (ex: "500g" -> "500 g", "1l" -> "1 l")
         text = text.replace(Regex("(?i)(?<!\\p{L})(\\d+)([a-z]+)")) { match ->
             "${match.groupValues[1]} ${match.groupValues[2].lowercase()}"
         }
 
-        // On ne retire plus les tirets finaux car ils sont essentiels pour Ocr4Merger (détection de césure)
+        // 14. Nettoyage de la ponctuation finale parasite (virgules, deux-points, points-virgules) tout en préservant le tiret de césure
         text = text.replace(Regex("[,:;\\s]+$"), "")
 
+        // 15. Effondrement des espaces multiples consécutifs en un espace unique et retrait des espaces de bordure
         return text.replace(Regex("\\s+"), " ").trim()
     }
 
+    /**
+     * Applique la table de conversion des diacritiques et accents parasites issue de [diacriticRepairs].
+     *
+     * @param text Le texte sur lequel corriger les diacritiques.
+     * @param diacriticRepairs La liste des paires "fautif|correct" (ex: "ế|é").
+     * @return Le texte nettoyé de ses diacritiques parasites.
+     */
+    private fun applyDiacriticRepairs(text: String, diacriticRepairs: List<String>): String {
+        if (diacriticRepairs.isEmpty()) return text
+        var result = text
+        for (repair in diacriticRepairs) {
+            val parts = repair.split("|")
+            if (parts.size == 2) {
+                result = result.replace(parts[0], parts[1])
+            }
+        }
+        return result
+    }
+
+    /**
+     * Applique les réparations orthographiques du dictionnaire XML [repairs] sur la chaîne [text].
+     *
+     * @param text Le texte sur lequel appliquer les réparations.
+     * @param repairs La liste des réparations au format "fautif|correct".
+     * @return Le texte réparé.
+     */
     private fun applySpellingRepairs(text: String, repairs: List<String>): String {
         var result = text
         for (repair in repairs) {

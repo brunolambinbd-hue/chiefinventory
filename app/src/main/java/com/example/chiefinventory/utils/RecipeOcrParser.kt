@@ -5,21 +5,40 @@ import android.util.Log
 import com.google.mlkit.vision.text.Text
 
 /**
- * Orchestrateur principal du pipeline OCR.
- * Connecte le Normalizer, Cleaner, Categorizer, Merger et Beautifier.
+ * Façade orchestratrice principale du pipeline OCR de recettes culinaires.
+ *
+ * Responsabilités :
+ * - Offrir les points d'entrée officiels de l'application pour traiter soit un objet vision [Text] de ML Kit,
+ *   soit du texte brut scanné (tests unitaires et support legacy).
+ * - Enchaîner séquentiellement les 5 étapes du pipeline OCR :
+ *   1. Normalisation des caractères, symboles et diacritiques ([Ocr1Normalizer]).
+ *   2. Nettoyage du bruit publicitaire ([Ocr2Cleaner]).
+ *   2.5. Extraction et scoring du titre ([OcrTitleExtractor]).
+ *   3. Catégorisation intelligente et machine à états ([Ocr3Categorizer]).
+ *   4. Fusion structurelle des césures et continuations ([Ocr4Merger]).
+ *   5. Beautification et présentation finale ([Ocr5Beautifier]).
+ * - Reconstituer et retourner l'objet structuré final [RecipeOcrResult].
  */
 object RecipeOcrParser {
     private const val TAG = "RecipeOCR"
 
     /**
-     * Point d'entrée recommandé utilisant l'objet structurel Text de ML Kit et [Resources].
+     * Point d'entrée recommandé utilisant l'objet [Text] de ML Kit et les ressources Android [Resources].
+     *
+     * @param visionText L'objet de résultat de reconnaissance textuelle fourni par Google ML Kit.
+     * @param res Les ressources de l'application Android permettant de charger [OcrVocabulary].
+     * @return Le résultat d'analyse structuré [RecipeOcrResult].
      */
     fun parse(visionText: Text, res: Resources): RecipeOcrResult {
         return parse(visionText, OcrVocabulary.fromResources(res))
     }
 
     /**
-     * Point d'entrée recommandé utilisant l'objet structurel Text de ML Kit et [OcrVocabulary].
+     * Point d'entrée recommandé utilisant l'objet [Text] de ML Kit et le vocabulaire métier [OcrVocabulary].
+     *
+     * @param visionText L'objet de résultat de reconnaissance textuelle fourni par Google ML Kit.
+     * @param vocabulary Le vocabulaire métier data-driven contenant les dictionnaires XML du projet.
+     * @return Le résultat d'analyse structuré [RecipeOcrResult].
      */
     fun parse(visionText: Text, vocabulary: OcrVocabulary): RecipeOcrResult {
         Log.d(TAG, "=== DÉBUT PIPELINE OCR (Extraction par blocs) ===")
@@ -32,14 +51,22 @@ object RecipeOcrParser {
     }
 
     /**
-     * Point d'entrée utilisant du texte brut et [Resources] (support legacy et tests).
+     * Point d'entrée de secours utilisant une chaîne de texte brut et les ressources Android [Resources].
+     *
+     * @param fullText Le texte brut complet de la recette scannée.
+     * @param res Les ressources de l'application Android permettant de charger [OcrVocabulary].
+     * @return Le résultat d'analyse structuré [RecipeOcrResult].
      */
     fun parse(fullText: String, res: Resources): RecipeOcrResult {
         return parse(fullText, OcrVocabulary.fromResources(res))
     }
 
     /**
-     * Point d'entrée utilisant du texte brut et [OcrVocabulary] (support legacy et tests).
+     * Point d'entrée de secours utilisant une chaîne de texte brut et le vocabulaire métier [OcrVocabulary] (utilisé par les tests unitaires TDD).
+     *
+     * @param fullText Le texte brut complet de la recette scannée.
+     * @param vocabulary Le vocabulaire métier data-driven contenant les dictionnaires XML du projet.
+     * @return Le résultat d'analyse structuré [RecipeOcrResult].
      */
     fun parse(fullText: String, vocabulary: OcrVocabulary): RecipeOcrResult {
         Log.d(TAG, "=== DÉBUT PIPELINE OCR (Texte brut) ===")
@@ -54,7 +81,11 @@ object RecipeOcrParser {
     }
 
     /**
-     * Exécute les 5 étapes du pipeline en utilisant le vocabulaire métier [OcrVocabulary].
+     * Exécute les 5 étapes séquentielles du pipeline OCR en utilisant la liste de lignes brutes [rawLines] et [vocabulary].
+     *
+     * @param rawLines La liste initiale des lignes de texte brutes extraites par l'OCR.
+     * @param vocabulary Le vocabulaire métier data-driven contenant tous les dictionnaires XML.
+     * @return L'objet [RecipeOcrResult] alimenté avec les données extraites et nettoyées.
      */
     private fun executePipeline(rawLines: List<String>, vocabulary: OcrVocabulary): RecipeOcrResult {
 
@@ -135,7 +166,8 @@ object RecipeOcrParser {
             cookTime = sections.detectedCookTime,
             restingTime = sections.detectedRestingTime,
             kcalPerServing = sections.detectedKcal,
-            difficulty = sections.detectedDifficulty
+            difficulty = sections.detectedDifficulty,
+            nutritionInfo = sections.detectedNutritionInfo
         )
 
         // LOG FINAL DES MÉTA-DONNÉES EXTRAITES

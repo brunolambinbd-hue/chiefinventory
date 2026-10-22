@@ -52,7 +52,8 @@ object OcrVocabularyLoader {
             baseIngredientsExpectingVariety = stringArrays["base_ingredients_expecting_variety"] ?: emptyList(),
             standaloneArticles = stringArrays["standalone_articles"] ?: emptyList(),
             culinaryMeasurementUnits = stringArrays["culinary_measurement_units"] ?: emptyList(),
-            titleSpellingRepairs = stringArrays["title_spelling_repairs"] ?: emptyList()
+            titleSpellingRepairs = stringArrays["title_spelling_repairs"] ?: emptyList(),
+            ocrDiacriticRepairs = stringArrays["ocr_diacritic_repairs"] ?: emptyList()
         )
     }
 

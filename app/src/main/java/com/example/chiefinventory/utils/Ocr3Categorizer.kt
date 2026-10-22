@@ -5,8 +5,20 @@ import android.util.Log
 import java.util.regex.Pattern
 
 /**
- * Step 3 of the OCR pipeline: Line categorization.
- * Responsibility: Classify cleaned and normalized lines into specific recipe sections.
+ * Conteneur de données regroupant les sections brutes catégorisées et méta-données extraites lors de l'Étape 3.
+ *
+ * @property rawIngredientsList Liste mutable des lignes catégorisées comme ingrédients bruts.
+ * @property rawInstructionsList Liste mutable des lignes catégorisées comme consignes d'instructions brutes.
+ * @property detectedWineList Liste mutable des recommandations de vins extraites.
+ * @property detectedSourceList Liste mutable des provenances/sources extraites.
+ * @property detectedTitle Le titre de la recette s'il est détecté à cette étape, ou null.
+ * @property detectedServings Le nombre de personnes/portions extrait (ex: "4").
+ * @property detectedPrepTime Le temps de préparation extrait en minutes (ex: "15").
+ * @property detectedCookTime Le temps de cuisson extrait en minutes (ex: "45").
+ * @property detectedRestingTime Le temps de repos extrait en minutes (ex: "30").
+ * @property detectedKcal Les kilocalories par portion extraites (ex: "250").
+ * @property detectedDifficulty La difficulté extraite (ex: "Facile").
+ * @property ingredientKeywords L'ensemble des mots-clés d'ingrédients inventoriés pour le suivi des réapparitions.
  */
 data class RawSections(
     val rawIngredientsList: MutableList<String> = mutableListOf(),
@@ -18,11 +30,23 @@ data class RawSections(
     var detectedPrepTime: String? = null,
     var detectedCookTime: String? = null,
     var detectedRestingTime: String? = null,
-    var detectedKcal: String? = null,    // Kcal par portion
-    var detectedDifficulty: String? = null, // Difficulté
+    var detectedKcal: String? = null,
+    var detectedDifficulty: String? = null,
+    var detectedNutritionInfo: String? = null,
     var ingredientKeywords: Set<String> = emptySet()
 )
 
+/**
+ * Étape 3 du pipeline OCR : Catégorisation intelligente et Machine à États.
+ *
+ * Responsabilités :
+ * - Répartir les lignes de texte nettoyées dans leurs sections respectives (Ingrédients, Instructions, Vin, Méta-données).
+ * - Basculer dynamiquement l'état de section via [Ocr3CategorizerHeader].
+ * - Extraire automatiquement les méta-données (Portions, Temps, Kcal, Difficulté).
+ * - Détecter et isoler la section vin via [Ocr3CategorizerWine].
+ * - Fusionner à la volée les quantités/unités inachevées via [Ocr3CategorizerUnfinishedIngredient].
+ * - Verrouiller la section ingrédients lors de la rencontre du marqueur fin (ex: "sel et poivre").
+ */
 object Ocr3Categorizer {
     private const val TAG = "Ocr3Categorizer"
 
@@ -31,15 +55,22 @@ object Ocr3Categorizer {
     internal const val SECTION_INSTRUCTIONS = 2
 
     /**
-     * Classifie les lignes dans les différentes sections de la recette en utilisant [Resources].
+     * Classifie les lignes dans les différentes sections de la recette en utilisant les ressources [Resources] Android.
+     *
+     * @param lines La liste des lignes de texte nettoyées issues de [Ocr2Cleaner].
+     * @param res Les ressources de l'application Android permettant de charger [OcrVocabulary].
+     * @return L'objet [RawSections] contenant les listes brutes catégorisées et méta-données.
      */
     fun categorize(lines: List<String>, res: Resources): RawSections {
         return categorize(lines, OcrVocabulary.fromResources(res))
     }
 
     /**
-     * Classifie les lignes dans les différentes sections de la recette en utilisant [OcrVocabulary].
-     * Cette version permet un test unitaire direct sans dépendance au framework Android.
+     * Classifie les lignes dans les différentes sections de la recette en utilisant le vocabulaire métier [OcrVocabulary] (TDD/Tests).
+     *
+     * @param lines La liste des lignes de texte nettoyées issues de [Ocr2Cleaner].
+     * @param vocabulary Le vocabulaire métier data-driven contenant les dictionnaires XML du projet.
+     * @return L'objet [RawSections] contenant les listes brutes catégorisées et méta-données.
      */
     fun categorize(lines: List<String>, vocabulary: OcrVocabulary): RawSections {
         val results = RawSections()
@@ -60,17 +91,7 @@ object Ocr3Categorizer {
         val subHeaders = vocabulary.ingredientSubHeaders
 
         val ingredientHeaders = listOf("ingrédients", "ingredients", "composition", "ngrédients")
-        val instructionHeaders = listOf("préparation", "instructions", "nstructions", "étapes", "réalisation", "méthode", "progression", "cuisson")
-
-        val servingsRegex = Regex("(?i)(?:pour\\s+)?(\\d+)\\s*(?:personnes?|portions?|pers\\.?|servings?)|(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)(?:\\s*(?:personnes?|portions?|pers\\.?|servings?))?|\\bPOUR\\s+(\\d+)\\b")
-        val kcalRegex = Regex("(?i)(\\d+)\\s*(?:kcal|kilo\\s*calories?)(?:/por\\.?)?")
-        val difficultyRegex = Regex("(?i)\\b(facile|moyen|difficile|diffcile)\\b")
-
-        val durationPatternStr = "(\\d+\\s*[hH](?:\\s*\\d+)?|\\d+\\s*(?:mn|min|minute|u|h|heure))"
-        val timeTypePatternStr = "(préparation|cuisson|repos|prép\\.?|prep\\.?|cuis\\.?|rest\\.?)"
-        val timePatternCombined = Regex("(?i)$durationPatternStr\\s*\\+\\s*$durationPatternStr\\s+(?:de\\s+)?cuisson")
-        val timePatternPrefix = Regex("(?i)$timeTypePatternStr\\s*:?\\s*(?:de\\s+)?$durationPatternStr")
-        val timePatternSuffix = Regex("(?i)$durationPatternStr\\s+(?:de\\s+)?$timeTypePatternStr")
+        val instructionHeaders = listOf("préparation", "preparation", "instructions", "nstructions", "étapes", "réalisation", "méthode", "progression", "cuisson")
 
         val hardQtyRegex = Regex("^[\\d¼½¾]|[|Il!](?=[\\s\\d])|\\d+/\\d+", RegexOption.IGNORE_CASE)
         val qtyRegex = Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|des\\b|du\\b|de la\\b|de l'|le\\b|la\\b|les\\b|l['’]|quelques\\b|plusieurs\\b|un\\s+peu\\b)", RegexOption.IGNORE_CASE)
@@ -87,52 +108,10 @@ object Ocr3Categorizer {
                 continue
             }
 
-            // EXTRACTION MÉTADONNÉES
-            val kcalMatch = kcalRegex.find(workingLine)
-            if (kcalMatch != null) {
-                if (results.detectedKcal == null) results.detectedKcal = kcalMatch.groupValues[1]
-                workingLine = workingLine.replace(kcalMatch.value, "").trim()
-            }
-            val diffMatch = difficultyRegex.find(workingLine)
-            if (diffMatch != null) {
-                if (results.detectedDifficulty == null) results.detectedDifficulty = diffMatch.groupValues[1].lowercase().replace("diffcile", "difficile")
-                workingLine = workingLine.replace(diffMatch.value, "").trim()
-            }
-            val sMatch = servingsRegex.find(workingLine)
-            if (sMatch != null) {
-                if (results.detectedServings == null) {
-                    results.detectedServings = when {
-                        sMatch.groupValues[1].isNotEmpty() -> sMatch.groupValues[1]
-                        sMatch.groupValues[2].isNotEmpty() -> sMatch.groupValues[2]
-                        else -> sMatch.groupValues[3]
-                    }
-                }
-                workingLine = workingLine.replace(sMatch.value, "").trim()
-            }
-            var foundTime = true
-            while (foundTime) {
-                val matchComb = timePatternCombined.find(workingLine)
-                val matchPre = timePatternPrefix.find(workingLine)
-                val matchSuf = timePatternSuffix.find(workingLine)
-                when {
-                    matchComb != null -> {
-                        results.detectedPrepTime = extractMinutes(matchComb.groupValues[1])
-                        results.detectedCookTime = extractMinutes(matchComb.groupValues[2])
-                        workingLine = workingLine.replace(matchComb.value, "").trim()
-                    }
-                    matchPre != null -> {
-                        val mins = extractMinutes(matchPre.groupValues[2])
-                        updateTimeResult(results, matchPre.groupValues[1].lowercase(), mins)
-                        workingLine = workingLine.replace(matchPre.value, "").trim()
-                    }
-                    matchSuf != null -> {
-                        val mins = extractMinutes(matchSuf.groupValues[1])
-                        updateTimeResult(results, matchSuf.groupValues[2].lowercase(), mins)
-                        workingLine = workingLine.replace(matchSuf.value, "").trim()
-                    }
-                    else -> foundTime = false
-                }
-            }
+            // 1. DÉTECTION ET EXTRACTION DES MÉTA-DONNÉES (RecipeMetadataParser)
+            val metaResult = RecipeMetadataParser.extractMetadata(workingLine, results)
+            workingLine = metaResult.remainingLine
+            if (metaResult.isPureMetadata) continue
 
             var lowerLine = workingLine.lowercase()
             var containsAction = containsActionRegex?.containsMatchIn(workingLine) ?: false
@@ -175,7 +154,7 @@ object Ocr3Categorizer {
             }
 
             if (!containsAction && !startsWithConnector) {
-                if (OcrHelperUtils.isLikelyProperNameOrSource(workingLine) || SourceParser.isSourceLine(workingLine, vocabulary)) {
+                if (OcrHelperUtils.isLikelyProperNameOrSource(workingLine, vocabulary) || SourceParser.isSourceLine(workingLine, vocabulary)) {
                     results.detectedSourceList.add(SourceParser.cleanSourceLine(workingLine, vocabulary))
                     continue
                 }
@@ -226,8 +205,6 @@ object Ocr3Categorizer {
 
             val looksLikeIngredient = (hasQuantity || hasWeight || isIsolatedModifier ||
                     commonIngredients.any { lowerLine.startsWith(it.lowercase()) }) && !hasInstructionTrigger && !isReappearance
-
-
 
             val isInstrHeader = (instructionHeaders.any { lowerLine.contains(it) } || instructionTriggers.any { lowerLine == it.lowercase() }) && workingLine.length < 35 && !containsAction
             val isIngrHeader = (lowerLine.contains("ingrédients") || lowerLine.contains("composition")) && workingLine.length < 35 && !containsAction
@@ -312,9 +289,15 @@ object Ocr3Categorizer {
         return results
     }
 
+    /**
+     * Extrait les mots-clés d'ingrédients pertinents à partir du nom nettoyé et de l'information supplémentaire.
+     *
+     * @param name Le nom principal de l'ingrédient.
+     * @param supplementalInfo L'information supplémentaire associée.
+     * @return La liste des mots-clés significatifs de longueur >= 3.
+     */
     private fun extractKeywordsFromText(name: String, supplementalInfo: String?): List<String> {
         val stopWords = setOf("dans", "avec", "pour", "plus", "moins", "vers", "sous", "sur", "chez", "entre", "faire", "faites", "votre", "quelques", "plusieurs")
-        // "jus" et "zeste" sont maintenant gérés par supplementalInfo dans IngredientParser et sont des mots-clés utiles pour la détection de réapparition
         val fillers = setOf("morceau", "morceaux", "tranche", "tranches", "de", "le", "la", "les", "des", "du", "un", "une")
         val units = setOf("grammes", "kilos", "litres", "centilitres", "millilitres", "cuillere", "soupe", "cafe", "pincee", "gousse", "boite", "boites", "pot", "pots", "cl", "ml", "kg")
         
@@ -322,23 +305,4 @@ object Ocr3Categorizer {
         return combinedText.lowercase().split(Regex("[\\s,.'’()\\-*•/0-9]+")).filter { it.length >= 3 && it !in stopWords && it !in units && it !in fillers }
     }
 
-    private fun updateTimeResult(results: RawSections, type: String, mins: String?) {
-        when {
-            type.startsWith("prép") || type.startsWith("prep") -> results.detectedPrepTime = mins
-            type.startsWith("cuis") || type.startsWith("cuisson") -> results.detectedCookTime = mins
-            type.startsWith("re") -> results.detectedRestingTime = mins
-        }
-    }
-
-    private fun extractMinutes(timeStr: String): String? {
-        val hPattern = Regex("(\\d+)\\s*[hH]\\s*(\\d*)")
-        val mPattern = Regex("(\\d+)\\s*(?:mn|min|minute|u)")
-        hPattern.find(timeStr)?.let {
-            val h = it.groupValues[1].toIntOrNull() ?: 0
-            val m = it.groupValues[2].toIntOrNull() ?: 0
-            return (h * 60 + m).toString()
-        }
-        mPattern.find(timeStr)?.let { return it.groupValues[1] }
-        return Regex("(\\d+)").find(timeStr)?.groupValues?.get(1)
-    }
 }

@@ -33,7 +33,8 @@ data class OcrVocabulary(
     val baseIngredientsExpectingVariety: List<String> = emptyList(),
     val standaloneArticles: List<String> = emptyList(),
     val culinaryMeasurementUnits: List<String> = emptyList(),
-    val titleSpellingRepairs: List<String> = emptyList()
+    val titleSpellingRepairs: List<String> = emptyList(),
+    val ocrDiacriticRepairs: List<String> = emptyList()
 ) {
     companion object {
         /**
@@ -66,7 +67,8 @@ data class OcrVocabulary(
                 baseIngredientsExpectingVariety = getStringArraySafely(res, R.array.base_ingredients_expecting_variety),
                 standaloneArticles = getStringArraySafely(res, R.array.standalone_articles),
                 culinaryMeasurementUnits = getStringArraySafely(res, R.array.culinary_measurement_units),
-                titleSpellingRepairs = getStringArraySafely(res, R.array.title_spelling_repairs)
+                titleSpellingRepairs = getStringArraySafely(res, R.array.title_spelling_repairs),
+                ocrDiacriticRepairs = getStringArraySafely(res, R.array.ocr_diacritic_repairs)
             )
         }
 

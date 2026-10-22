@@ -18,12 +18,13 @@ data class Recipe(
     val cookingTimeMinutes: Int? = null,
     val restingTimeMinutes: Int? = null,
     val servings: Int? = null,
-    val kcalPerServing: Int? = null, // Nouveau champ : Kilo calories par portion
-    val difficulty: String? = null, // Nouveau champ : facile, moyen, difficile
+    val kcalPerServing: Int? = null,
+    val difficulty: String? = null,
     val category: String? = null,
     val imageUri: String? = null,
     val locationId: Long? = null,
     val wineRecommendation: String? = null,
     val source: String? = null,
+    val nutritionInfo: String? = null,
     val updatedAt: Long = System.currentTimeMillis()
 ) : Parcelable

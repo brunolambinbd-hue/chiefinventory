@@ -54,12 +54,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="3"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/tv_recipe_title"
             app:layout_constraintTop_toBottomOf="@id/tv_recipe_info"
-            tools:text="Dessert" />
+            tools:text="Dessert | Valeurs/100g : 156 kcal, Lipides: 9.7g" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

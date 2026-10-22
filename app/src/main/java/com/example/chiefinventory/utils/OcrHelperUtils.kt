@@ -6,6 +6,14 @@ package com.example.chiefinventory.utils
 object OcrHelperUtils {
 
     /**
+     * Détermine si une ligne contient un poids ou volume d'ingrédient explicite (ex: 200 g, 1 kg, 5 cl, 250 ml).
+     */
+    internal fun hasExplicitWeight(line: String): Boolean {
+        if (WineParser.hasWineVolume(line)) return false
+        return Regex("(?i)\\b\\d+(?:[.,]\\d+)?\\s*(?:g|kg|mg|cl|ml|dl|l|g\\.|kg\\.|cl\\.|ml\\.|dl\\.|l\\.)\\b").containsMatchIn(line)
+    }
+
+    /**
      * Compte le nombre de séquences d'ingrédients sur une ligne.
      */
     internal fun countIngredientSequences(line: String): Int {
@@ -102,11 +110,26 @@ object OcrHelperUtils {
         return openCount > 0
     }
 
-    internal fun isLikelyProperNameOrSource(line: String): Boolean {
+    internal fun isLikelyProperNameOrSource(line: String, vocabulary: OcrVocabulary? = null): Boolean {
         val trimmed = line.trim()
+        val lower = trimmed.lowercase()
         val words = trimmed.split(Regex("\\s+"))
         if (words.size !in 2..4) return false
         if (trimmed.any { it.isDigit() }) return false
+
+        // Un titre de plat ou de section culinaire (ex: "RICOTTA ET ÉPINARDS") ne doit PAS être pris pour une source
+        if (vocabulary != null) {
+            val foodConnectors = listOf(" et ", " ou ", " au ", " aux ", " avec ", " de ", " d'", " à ")
+            val containsConnector = foodConnectors.any { lower.contains(it) }
+
+            val containsFoodWord = containsConnector ||
+                    vocabulary.commonIngredientsNoQty.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) } ||
+                    vocabulary.titleKeywords.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) } ||
+                    vocabulary.baseIngredientsExpectingVariety.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) }
+
+            if (containsFoodWord) return false
+        }
+
         return words.all { word -> word.isNotEmpty() && (word[0].isUpperCase() || word.all { it.isUpperCase() }) }
     }
 

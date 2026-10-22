@@ -4,6 +4,10 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 
+/**
+ * Suite de tests unitaires de Type B vérifiant la détection et la fusion des variétés d'ingrédients
+ * scindées sur deux lignes adjacentes par [IngredientVarietyMerger].
+ */
 class IngredientVarietyMergerTest {
 
     private lateinit var vocabulary: OcrVocabulary
