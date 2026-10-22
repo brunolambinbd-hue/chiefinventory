@@ -2,9 +2,17 @@ package com.example.chiefinventory.utils
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Before
 import org.junit.Test
 
 class IngredientParserTest {
+
+    private lateinit var vocabulary: OcrVocabulary
+
+    @Before
+    fun setUp() {
+        vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+    }
 
     private fun assertIngredient(
         input: String,
@@ -43,13 +51,11 @@ class IngredientParserTest {
     }
 
     @Test
-    fun `getUnits coverage verification`() {
-        val units = IngredientParser.units
-        assertThat(units).containsAtLeast(
-            "g", "kg", "cl", "ml", "litre", "cuillère", "c. à soupe",
-            "pincée", "botte", "paquet", "verre", "tranche", "filet",
-            "brin", "feuilles", "branche", "gousse"
-        )
+    fun `defaultUnits should dynamically load essential culinary units from XML resources`() {
+        val xmlUnits = vocabulary.culinaryMeasurementUnits
+        val defaultUnits = IngredientParser.defaultUnits
+
+        assertThat(defaultUnits).containsExactlyElementsIn(xmlUnits)
     }
 
     @Test

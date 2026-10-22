@@ -14,16 +14,13 @@ object IngredientParser {
         val supplementalInfo: String? = null
     )
 
-    internal val units = listOf(
-        "g", "kg", "ml", "l", "cl", "dl", "litre", "litres",
-        "cuillère", "cuillères", "c. à soupe", "c à soupe", "c.à soupe", "c. a soupe", "c a soupe",
-        "c. à café", "c à café", "c.à café", "c. a café", "c a café",
-        "c. à dessert", "c à dessert", "cuillère à dessert",
-        "càs", "càc", "c. à s.", "c. à c.",
-        "pincée", "pincées", "botte", "bottes", "paquet", "paquets", "verre", "verres", "tranche", "tranches",
-        "filet", "filets", "trait", "traits", "brins", "brin", "feuilles", "feuille", "branche", "branches",
-        "gousse", "gousses"
-    )
+    internal val defaultUnits: List<String> by lazy {
+        try {
+            OcrVocabularyLoader.loadFromProjectResources().culinaryMeasurementUnits
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
     private val rangeRegex = Regex("^\\s*(\\d+)\\s*(?:ou|à|-)\\s*(\\d+[.,]?\\d*)", RegexOption.IGNORE_CASE)
     private val fractionRegex = Regex("(\\d+)/(\\d+)")
@@ -36,7 +33,13 @@ object IngredientParser {
     // Préfixes de préparation à mettre en info supp (ex: le jus de)
     private val prepPrefixRegex = Regex("^(?:le\\s+|la\\s+|l['’])?(jus|zeste|zestes|morceau|morceaux|tranche|tranches)\\s+(?:de\\s+|d['’]\\s*)", RegexOption.IGNORE_CASE)
 
-    fun parse(input: String): ParsedIngredient {
+    fun parse(input: String, customUnits: List<String> = emptyList()): ParsedIngredient {
+        val activeUnits = if (customUnits.isNotEmpty()) {
+            (customUnits + defaultUnits).distinct().sortedByDescending { it.length }
+        } else {
+            defaultUnits.sortedByDescending { it.length }
+        }
+
         val parentheticalMatch = parenthesesRegex.find(input)
         var supplementalInfo = parentheticalMatch?.groupValues?.get(1)
         var mainText = input.replace(parenthesesRegex, "").trim()
@@ -50,7 +53,7 @@ object IngredientParser {
             val numerator = fractionMatch.groupValues[1].toDoubleOrNull() ?: 0.0
             val denominator = fractionMatch.groupValues[2].toDoubleOrNull() ?: 1.0
             val rest = mainText.replace(fractionMatch.value, "").trim()
-            val unitInfo = findUnit(rest)
+            val unitInfo = findUnit(rest, activeUnits)
             val (finalName, finalInfo) = extractExtra(unitInfo.remainingText, supplementalInfo)
             return ParsedIngredient(finalName, numerator / denominator, unitInfo.unit, finalInfo)
         }
@@ -59,11 +62,11 @@ object IngredientParser {
         if (rangeMatch != null) {
             val secondQty = rangeMatch.groupValues[2].replace(",", ".").toDoubleOrNull()
             val rest = mainText.substring(rangeMatch.range.last + 1).trim()
-            val standard = parseStandard(rest, supplementalInfo)
+            val standard = parseStandard(rest, supplementalInfo, activeUnits)
             return ParsedIngredient(standard.name, secondQty, standard.unit, standard.supplementalInfo)
         }
 
-        return parseStandard(mainText, supplementalInfo)
+        return parseStandard(mainText, supplementalInfo, activeUnits)
     }
 
     private fun extractExtra(text: String, currentInfo: String?): Pair<String, String?> {
@@ -96,8 +99,8 @@ object IngredientParser {
 
     private data class UnitInfo(val unit: String?, val remainingText: String)
 
-    private fun findUnit(text: String): UnitInfo {
-        for (unit in units.sortedByDescending { it.length }) {
+    private fun findUnit(text: String, activeUnits: List<String> = defaultUnits): UnitInfo {
+        for (unit in activeUnits) {
             val unitPattern = Regex("^${Pattern.quote(unit)}(?:\\s+|de\\s+|d['’]\\s*|\\.|\\b)", RegexOption.IGNORE_CASE)
             val match = unitPattern.find(text)
             if (match != null) {
@@ -109,7 +112,7 @@ object IngredientParser {
         return UnitInfo(null, text)
     }
 
-    private fun parseStandard(input: String, supplementalInfo: String?): ParsedIngredient {
+    private fun parseStandard(input: String, supplementalInfo: String?, activeUnits: List<String>): ParsedIngredient {
         val matcher = Pattern.compile("^\\s*(\\d+[.,]?\\d*)\\s*(.*)$").matcher(input)
         var qty: Double? = null
         var rest = input.trim()
@@ -122,7 +125,7 @@ object IngredientParser {
             }
         }
 
-        val unitInfo = findUnit(rest)
+        val unitInfo = findUnit(rest, activeUnits)
         val (finalName, finalInfo) = extractExtra(unitInfo.remainingText, supplementalInfo)
         return ParsedIngredient(finalName, qty, unitInfo.unit, finalInfo)
     }

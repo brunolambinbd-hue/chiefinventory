@@ -163,11 +163,11 @@ object OcrTitleExtractor {
     }
 
     /**
-     * Post-traite et applique les réparations orthographiques du dictionnaire XML [vocabulary.ocrSpellingRepairs] au titre retenu.
+     * Post-traite et applique les réparations orthographiques du dictionnaire XML [vocabulary.titleSpellingRepairs] au titre retenu.
      */
     fun postProcessTitle(title: String, vocabulary: OcrVocabulary): String {
         var result = title.trim()
-        for (repair in vocabulary.ocrSpellingRepairs) {
+        for (repair in vocabulary.titleSpellingRepairs) {
             val parts = repair.split("|")
             if (parts.size == 2) {
                 val wrong = parts[0].trim().replace("\\'", "'")

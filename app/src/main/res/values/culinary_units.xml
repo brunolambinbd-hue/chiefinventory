@@ -9,6 +9,14 @@
         <item>cuillère à soupe</item>
         <item>cuillère à café</item>
         <item>cuillère à dessert</item>
+        <item>c. à soupe</item>
+        <item>c. à café</item>
+        <item>c. à s.</item>
+        <item>c. à s</item>
+        <item>c. à c.</item>
+        <item>c. à c</item>
+        <item>c. à d.</item>
+        <item>c. à d</item>
         <item>c. à dessert</item>
         <item>soupe</item>
         <item>café</item>
@@ -23,6 +31,10 @@
         <item>dl</item>
         <item>l</item>
         <item>l.</item>
+        <item>litre</item>
+        <item>litres</item>
+        <item>feuille</item>
+        <item>feuilles</item>
         <item>pincée</item>
         <item>pincee</item>
         <item>gousse</item>
@@ -36,5 +48,24 @@
         <item>tranches</item>
         <item>branche</item>
         <item>branches</item>
+        <item>cuillères à soupe</item>
+        <item>cuillères à café</item>
+        <item>cuillères à dessert</item>
+        <item>càs</item>
+        <item>càc</item>
+        <item>filet</item>
+        <item>filets</item>
+        <item>trait</item>
+        <item>traits</item>
+        <item>brin</item>
+        <item>brins</item>
+        <item>paquet</item>
+        <item>paquets</item>
+        <item>verre</item>
+        <item>verres</item>
+        <item>poignée</item>
+        <item>poignées</item>
+        <item>pincées</item>
+        <item>bottes</item>
     </string-array>
 </resources>

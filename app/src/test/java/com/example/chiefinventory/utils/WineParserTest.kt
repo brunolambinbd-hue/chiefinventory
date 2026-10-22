@@ -88,6 +88,26 @@ class WineParserTest {
     }
 
     @Test
+    fun `isWineLine international appellations match`() {
+        val internationalWines = listOf(
+            "Chianti Classico 2018, 75 cl",
+            "Rioja Reserva, 750ml",
+            "Barolo DOCG, 2016",
+            "Prosecco Superiore",
+            "Napa Valley Cabernet Sauvignon",
+            "Malbec de Mendoza",
+            "Riesling Kabinett, 75 cl",
+            "Vinho Verde, 75 cl"
+        )
+        internationalWines.forEach { line ->
+            assertTrue(
+                "Appellation internationale non reconnue pour : '$line'",
+                WineParser.isWineLine(line, vocabulary)
+            )
+        }
+    }
+
+    @Test
     fun `isWineLine producer list match`() {
         val line = "Produit par Alban de Saint-Pé"
         assertTrue(

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="wine_appellations">
+        <!-- France -->
         <item>muscat</item>
         <item>saumur</item>
         <item>saumir</item>
@@ -26,6 +27,48 @@
         <item>bordeaux</item>
         <item>bordeau</item>
         <item>graves</item>
+        <!-- Italie -->
+        <item>chianti</item>
+        <item>barolo</item>
+        <item>barbaresco</item>
+        <item>prosecco</item>
+        <item>valpolicella</item>
+        <item>amarone</item>
+        <item>brunello</item>
+        <item>lambrusco</item>
+        <item>soave</item>
+        <item>sangiovese</item>
+        <item>pinot grigio</item>
+        <item>nebbiolo</item>
+        <!-- Espagne & Portugal -->
+        <item>rioja</item>
+        <item>ribera del duero</item>
+        <item>priorat</item>
+        <item>cava</item>
+        <item>jerez</item>
+        <item>sherry</item>
+        <item>albariño</item>
+        <item>albarino</item>
+        <item>tempranillo</item>
+        <item>madeira</item>
+        <item>vinho verde</item>
+        <item>douro</item>
+        <!-- Nouveau Monde (USA, Chili, Argentine, Australie, N.Z., Afrique du Sud) -->
+        <item>napa valley</item>
+        <item>sonoma</item>
+        <item>malbec</item>
+        <item>carmenere</item>
+        <item>shiraz</item>
+        <item>syrah</item>
+        <item>zinfandel</item>
+        <item>pinotage</item>
+        <item>marlborough</item>
+        <item>barossa</item>
+        <item>cabernet sauvignon</item>
+        <!-- Allemagne & Autriche -->
+        <item>riesling</item>
+        <item>spätburgunder</item>
+        <item>grüner veltliner</item>
     </string-array>
 
     <string-array name="wine_producers">
@@ -37,6 +80,13 @@
         <item>atinium</item>
         <item>atinum</item>
         <item>VERDIGNAN</item>
+        <item>torres</item>
+        <item>antinori</item>
+        <item>frescobaldi</item>
+        <item>penfolds</item>
+        <item>mondavi</item>
+        <item>catena zapata</item>
+        <item>concha y toro</item>
     </string-array>
 
     <string-array name="wine_keywords">
@@ -49,11 +99,22 @@
         <item>bulgarie</item>
         <item>italie</item>
         <item>espagne</item>
+        <item>portugal</item>
+        <item>chili</item>
+        <item>argentine</item>
+        <item>australie</item>
+        <item>californie</item>
         <item>cépage</item>
         <item>region</item>
         <item>chardonnay</item>
         <item>sauvignon</item>
         <item>touraine</item>
+        <item>chianti</item>
+        <item>rioja</item>
+        <item>riesling</item>
+        <item>malbec</item>
+        <item>shiraz</item>
+        <item>prosecco</item>
         <item>cl</item>
         <item>vol</item>
         <item>75cl</item>
@@ -66,6 +127,11 @@
         <item>Marqués</item>
         <item>Domaine</item>
         <item>Caves</item>
+        <item>Bodega</item>
+        <item>Bodegas</item>
+        <item>Tenuta</item>
+        <item>Castello</item>
+        <item>Weingut</item>
     </string-array>
 
     <string-array name="wine_title_keywords">
@@ -88,4 +154,4 @@
     <string name="wine_remove_pattern">
             ^(?:notre\\s+)?vin\\s+(?:conseill[éėeè]|sugg[éėeè]r[éėeè]|recommand[éėeè])?\\s*:?|^conseil\\s+vin\\s*:?
     </string>
-    </resources>
+</resources>

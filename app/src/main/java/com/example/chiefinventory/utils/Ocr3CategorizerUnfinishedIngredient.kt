@@ -35,7 +35,7 @@ object Ocr3CategorizerUnfinishedIngredient {
         val lastLower = lastRawIng.lowercase()
 
         // 1. Analyse du nom de la dernière ligne
-        val parsedLast = IngredientParser.parse(lastRawIng)
+        val parsedLast = IngredientParser.parse(lastRawIng, vocabulary.culinaryMeasurementUnits)
 
         // S'il existe déjà un véritable nom d'ingrédient (ex: "persil" dans "2 c. à soupe de persil haché"), la ligne est complète !
         val hasIngredientNoun = parsedLast.name.isNotBlank() &&

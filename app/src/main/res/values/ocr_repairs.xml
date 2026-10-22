@@ -1,95 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="ocr_spelling_repairs">
-        <item>dépinards|d\'épinards</item>
-        <item>depinards|d\'épinards</item>
+        <!-- ======================================================= -->
+        <!-- 1. ÉLISIONS & APOSTROPHES MANQUANTES                    -->
+        <!-- ======================================================= -->
         <item>lajout|l\'ajout</item>
         <item>lail|l\'ail</item>
         <item>loignon|l\'oignon</item>
         <item>lhuile|l\'huile</item>
+        <item>leau|l\'eau</item>
+        <item>I\'eau|l\'eau</item>
+        <item>Ld\'eau|l. d\'eau</item>
+        <item>11 d\'eau|1 l d\'eau</item>
         <item>loeuf|l\'œuf</item>
         <item>deuf|d\'œuf</item>
+        <item>dalgue|d\'algue</item>
+        <item>dolive|d\'olive</item>
+        <item>dolve|d\'olive</item>
+        <item>ollve|olive</item>
+        <item>destragon|d\'estragon</item>
+        <item>depinards|d\'épinards</item>
+        <item>dépinards|d\'épinards</item>
+        <item>lassalsonnement|l\'assaisonnement</item>
+        <item>(\'harmonie|l\'harmonie</item>
+        <item>jusqua|jusqu\'à</item>
+        <item>jusquà|jusqu\'à</item>
+
+        <!-- ======================================================= -->
+        <!-- 2. LIGATURES Œ ET DIACRITIQUES MANQUANTS                -->
+        <!-- ======================================================= -->
+        <item>oeuf|œuf</item>
+        <item>oeufs|œufs</item>
+        <item>eufs|œufs</item>
         <item>eifs|œufs</item>
         <item>euts|œufs</item>
-        <item>eufs|œufs</item>
-        <item>oeufs|œufs</item>
-        <item>her bes|herbes</item>
-        <item>1oasts|toasts</item>
-        <item>1 oasts|toasts</item>
-        <item>douN|doux</item>
-        <item>jusquà|jusqu\'à</item>
-        <item>jusqua|jusqu\'à</item>
-        <item>leau|l\'eau</item>
-        <item>troides|froides</item>
-        <item>ollve|olive</item>
-        <item>dolve|olive</item>
-        <item>unpeu|un peu</item>
-        <item>Metez|Mettez</item>
-        <item>ellminer|éliminer</item>
-        <item>lqulde|liquide</item>
-        <item>lassalsonnement|l\'assaisonnement</item>
-        <item>saladler|saladier</item>
-        <item>chaufler|chauffer</item>
-        <item>cullerces|cuillières</item>
-        <item>modére|modéré</item>
-        <item>culre|cuire</item>
-        <item>encorelmin|encore 1 min</item>
-        <item>culre|cuire</item>
-        <item>lqulde|liquide</item>
-        <item>tiedir|tiédir</item>
-        <item>reciflez|rectifiez</item>
+        <item>got|goût</item>
+        <item>goit|goût</item>
         <item>potle|poêle</item>
-        <item>modére|modéré</item>
-        <item>unepetite|une petite</item>
-        <item>cde|de</item>
-        <item>Dégustez|Dégustez</item>
-        <item>pouc|pour</item>
-        <item>tròs|très</item>
-        <item>Alouez|Ajoutez</item>
+        <item>poele|poêle</item>
+        <item>Büchettes|Bûchettes</item>
+        <item>Buchettes|Bûchettes</item>
+        <item>buchettes|bûchettes</item>
         <item>epinards|épinards</item>
+        <item>modére|modéré</item>
+        <item>tiedir|tiédir</item>
+        <item>ellminer|éliminer</item>
+        <item>tròs|très</item>
+
+        <!-- ======================================================= -->
+        <!-- 3. ESPACES PARASITES (CRÉNAGE BRISÉ DANS LES MOTS)     -->
+        <!-- ======================================================= -->
         <item>pin cée|pincée</item>
-        <item>pin cée|pincée</item>
+        <item>pin cee|pincée</item>
         <item>lais sez|laissez</item>
         <item>ajou tez|ajoutez</item>
-        <item>destragon|d\'estragon</item>
-        <item>mijo ter|mijoter</item>
         <item>cou vercle|couvercle</item>
-        <item>rizà|riz à</item>
+        <item>mijo ter|mijoter</item>
         <item>endui sez|enduisez</item>
+        <item>her bes|herbes</item>
+        <item>cuil lere|cuillère</item>
+        <item>cuil lère|cuillère</item>
+        <item>casser ole|casserole</item>
+        <item>mor ceaux|morceaux</item>
+
+        <!-- ======================================================= -->
+        <!-- 4. MOTS COLLÉS SANS ESPACE                              -->
+        <!-- ======================================================= -->
+        <item>unpeu|un peu</item>
+        <item>unepetite|une petite</item>
+        <item>rizà|riz à</item>
         <item>sur5|sur 5</item>
         <item>persilet|persil et</item>
         <item>reposerl|reposer 1</item>
         <item>cuminà|cumin à</item>
-        <item>assortinment|assortiment</item>
-        <item>dalgue|d\'algue</item>
-        <item>(\'harmonie|l\'harmonie</item>
+        <item>encorelmin|encore 1 min</item>
+        <item>càsde|c. à soupe de</item>
+        <item>casde|c. à soupe de</item>
+        <item>càcde|c. à café de</item>
+        <item>cacde|c. à café de</item>
+
+        <!-- ======================================================= -->
+        <!-- 5. CONFUSIONS DE LETTRES & MAJUSCULES (C/D/T, q/g, etc) -->
+        <!-- ======================================================= -->
+        <item>1oasts|toasts</item>
+        <item>1 oasts|toasts</item>
+        <item>troides|froides</item>
+        <item>chaufler|chauffer</item>
+        <item>culre|cuire</item>
+        <item>lqulde|liquide</item>
+        <item>saladler|saladier</item>
+        <item>reciflez|rectifiez</item>
+        <item>cullerces|cuillères</item>
+        <item>Metez|Mettez</item>
+        <item>Alouez|Ajoutez</item>
+        <item>poOuvrez|pouvez</item>
+        <item>poOuvez|pouvez</item>
+        <item>ArrTOsez|Arrosez</item>
+        <item>cresSonnette|cressonnette</item>
         <item>cerneauX|cerneaux</item>
-        <item>KCA1|KCAL</item>
-        <item>KCAUPOR|KCAL/POR</item>
-        <item>I\'eau|l\'eau</item>
-        <item>got|goût</item>
-        <item>goit|goût</item>
-        <item>7 i|71</item>
-        <item>7I|71</item>
+        <item>ROYAU)ME|ROYAUME</item>
+        <item>assortinment|assortiment</item>
+        <item>douN|doux</item>
+        <item>pouc|pour</item>
+
+        <!-- ======================================================= -->
+        <!-- 6. QUANTITÉS, CHIFFRES ET UNITÉS                        -->
+        <!-- ======================================================= -->
         <item>le jus de l citron|le jus de 1 citron</item>
         <item>le jus de l orange|le jus de 1 orange</item>
-        <item>Ld\'eau|l. d\'eau</item>
-        <item>dolive|d\'olive</item>
-        <item>ROYAU)ME|ROYAUME</item>
-        <item>cresSonnette|cressonnette</item>
-        <item>poOuvrez|pouvez</item>
-        <item>ArrTOsez|Arrosez</item>
-        <item>Toocktail|Cocktail</item>
-        <item>Tocktail|Cocktail</item>
-        <item>Toctail|Cocktail</item>
-        <item>Büchettes|Bûchettes</item>
-        <item>Buchettes|Bûchettes</item>
-        <item>Drabe|Crabe</item>
-        <item>drabe|crabe</item>
-        <item>Danapés|Canapés</item>
-        <item>danapés|canapés</item>
-        <item>càsde|c.à.s. de</item>
-        <item>11 d\'eau|1 l d\'eau</item>
-        <item>poOuvez|pouvez</item>
+        <item>7 i|71</item>
+        <item>7I|71</item>
+        <item>KCA1|KCAL</item>
+        <item>KCAUPOR|KCAL/POR</item>
+        <item>Kcal|kcal</item>
+        <item>grm|g</item>
+        <item>min.|min</item>
     </string-array>
 </resources>

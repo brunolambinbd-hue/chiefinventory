@@ -51,7 +51,8 @@ object OcrVocabularyLoader {
             ingredientVarietyQualifiers = stringArrays["ingredient_variety_qualifiers"] ?: emptyList(),
             baseIngredientsExpectingVariety = stringArrays["base_ingredients_expecting_variety"] ?: emptyList(),
             standaloneArticles = stringArrays["standalone_articles"] ?: emptyList(),
-            culinaryMeasurementUnits = stringArrays["culinary_measurement_units"] ?: emptyList()
+            culinaryMeasurementUnits = stringArrays["culinary_measurement_units"] ?: emptyList(),
+            titleSpellingRepairs = stringArrays["title_spelling_repairs"] ?: emptyList()
         )
     }
 
