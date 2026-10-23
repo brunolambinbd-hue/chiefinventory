@@ -26,4 +26,17 @@ class OcrIngredientUtilsTest {
         assertThat(OcrIngredientUtils.cleanIngredientSemantics("• Tomate", emptyList())).isEqualTo("Tomate")
         assertThat(OcrIngredientUtils.cleanIngredientSemantics("!!!", emptyList())).isEmpty()
     }
+
+    @Test
+    fun `splitCombinedIngredients should use data driven modifiers and not split size adjectives`() {
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+        val result = OcrIngredientUtils.splitCombinedIngredients(
+            "1 petite salade frisée",
+            vocabulary.commonIngredientsNoQty,
+            vocabulary.mandatoryComplementIngredients,
+            vocabulary.ingredientPreparationModifiers,
+            vocabulary.ingredientSplitterConnectors
+        )
+        assertThat(result).containsExactly("1 petite salade frisée")
+    }
 }

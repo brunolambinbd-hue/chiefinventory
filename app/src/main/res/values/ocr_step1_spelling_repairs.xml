@@ -5,6 +5,22 @@
         <!-- 1. ÉLISIONS & APOSTROPHES MANQUANTES                    -->
         <!-- ======================================================= -->
         <item>lajout|l\'ajout</item>
+        <item>Donmes|Pommes</item>
+        <item>donmes|pommes</item>
+        <item>Dommes|Pommes</item>
+        <item>dommes|pommes</item>
+        <item>berbes|herbes</item>
+        <item>au:|aux</item>
+        <item>eus|œufs</item>
+        <item>eus de|œufs de</item>
+        <item>lassaisonnement|l\'assaisonnement</item>
+        <item>Lassaisonnement|L\'assaisonnement</item>
+        <item>Creusezles|Creusez-les</item>
+        <item>creusezles|creusez-les</item>
+        <item>ÀLA|À LA</item>
+        <item>àla|à la</item>
+        <item>Ala|À la</item>
+        <item>ALA|À LA</item>
         <item>lail|l\'ail</item>
         <item>loignon|l\'oignon</item>
         <item>lhuile|l\'huile</item>
@@ -54,6 +70,7 @@
         <item>(eullles|feuilles</item>
         <item>quil|qu\'il</item>
         <item>mardhé|marché</item>
+        <item>mardhế|marché</item>
         <item>.1 bouquet|1 bouquet</item>
         <item>1. bouquet|1 bouquet</item>
         <item>multiUsages|multi usages</item>
@@ -82,6 +99,7 @@
         <item>cuil lère|cuillère</item>
         <item>casser ole|casserole</item>
         <item>mor ceaux|morceaux</item>
+        <item>rec ette|recette></item>
 
         <!-- ======================================================= -->
         <!-- 4. MOTS COLLÉS SANS ESPACE                              -->

@@ -30,9 +30,11 @@ object OcrHelperUtils {
     internal fun splitCombinedIngredients(
         line: String, 
         commonItems: List<String>, 
-        mandatoryComplements: List<String> = emptyList()
+        mandatoryComplements: List<String> = emptyList(),
+        preparationModifiers: List<String> = emptyList(),
+        splitterConnectors: List<String> = emptyList()
     ): List<String> {
-        return OcrIngredientUtils.splitCombinedIngredients(line, commonItems, mandatoryComplements)
+        return OcrIngredientUtils.splitCombinedIngredients(line, commonItems, mandatoryComplements, preparationModifiers, splitterConnectors)
     }
 
     /**

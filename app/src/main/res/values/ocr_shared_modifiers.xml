@@ -9,6 +9,18 @@
         <item>beaux</item>
         <item>belle</item>
         <item>belles</item>
+        <item>petit</item>
+        <item>petite</item>
+        <item>petits</item>
+        <item>petites</item>
+        <item>grand</item>
+        <item>grande</item>
+        <item>grands</item>
+        <item>grandes</item>
+        <item>moyen</item>
+        <item>moyenne</item>
+        <item>moyens</item>
+        <item>moyennes</item>
         <item>frais hachés</item>
         <item>frais haché</item>
         <item>émincé</item>
@@ -23,6 +35,10 @@
         <item>coupée</item>
         <item>coupés</item>
         <item>coupées</item>
+        <item>découpé</item>
+        <item>découpée</item>
+        <item>découpés</item>
+        <item>découpées</item>
         <item>râpé</item>
         <item>râpée</item>
         <item>râpés</item>
@@ -39,17 +55,24 @@
         <item>concassé</item>
         <item>concassée</item>
         <item>concassés</item>
+        <item>concassées</item>
         <item>pressé</item>
         <item>pressée</item>
         <item>pressés</item>
         <item>pressées</item>
-        <item>découpé</item>
-        <item>découpée</item>
         <item>égoutté</item>
+        <item>égouttée</item>
+        <item>égouttés</item>
+        <item>égouttées</item>
         <item>egoutté</item>
         <item>nettoyé</item>
+        <item>nettoyée</item>
+        <item>nettoyés</item>
+        <item>nettoyées</item>
         <item>moulu</item>
-        <item>moulé</item>
+        <item>moulue</item>
+        <item>moulus</item>
+        <item>moulues</item>
         <item>fumé</item>
         <item>fumée</item>
         <item>fumés</item>
@@ -58,30 +81,33 @@
         <item>fouettée</item>
         <item>fouettés</item>
         <item>fouettées</item>
-        <item>grises décortiquées</item>
+        <item>pelé</item>
+        <item>pelée</item>
+        <item>pelés</item>
+        <item>pelées</item>
+        <item>dénoyauté</item>
+        <item>dénoyautée</item>
+        <item>dénoyautés</item>
+        <item>dénoyautées</item>
+        <item>effeuillé</item>
+        <item>effeuillée</item>
+        <item>effeuillés</item>
+        <item>effeuillées</item>
+        <item>décortiqué</item>
+        <item>décortiquée</item>
+        <item>décortiqués</item>
         <item>décortiquées</item>
+        <item>surgelé</item>
+        <item>surgelée</item>
+        <item>surgelés</item>
+        <item>surgelées</item>
         <item>en dés</item>
         <item>en rondelles</item>
         <item>en tranches</item>
         <item>en cubes</item>
-        <item>(moulu ou en morceaux)</item>
-        <item>destragon haché</item>
-        <item>d\'estragon haché</item>
-        <item>surgelé</item>
-        <item>1/2 la décoration)</item>
-        <item>en fines tranches</item>
-        <item>poids égoutté)</item>
+        <item>en morceaux</item>
         <item>en branches</item>
         <item>en fines branches</item>
         <item>en feuilles</item>
-        <item>en morceaux</item>
-        <item>en dés</item>
-        <item>en rondelles</item>
-        <item>en tranches</item>
-        <item>en cubes</item>
-        <item>en morceaux</item>
-        <item>usages</item>
-        <item>demi-écrémé sucré</item>
-        <item>melon au sirop</item>
     </string-array>
 </resources>

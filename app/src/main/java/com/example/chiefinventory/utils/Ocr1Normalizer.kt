@@ -143,7 +143,7 @@ object Ocr1Normalizer {
      * @param repairs La liste des réparations au format "fautif|correct".
      * @return Le texte réparé.
      */
-    private fun applySpellingRepairs(text: String, repairs: List<String>): String {
+    internal fun applySpellingRepairs(text: String, repairs: List<String>): String {
         if (!text.any { it.isLetter() }) return text
         var result = text
         for (repair in repairs) {

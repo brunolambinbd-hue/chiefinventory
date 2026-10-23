@@ -37,6 +37,7 @@ data class OcrVocabulary(
     val culinaryMeasurementUnits: List<String> = emptyList(),
     val titleSpellingRepairs: List<String> = emptyList(),
     val titleMultilineConnectors: List<String> = emptyList(),
+    val ingredientSplitterConnectors: List<String> = emptyList(),
     val ocrDiacriticRepairs: List<String> = emptyList()
 ) {
     companion object {
@@ -74,6 +75,7 @@ data class OcrVocabulary(
                 culinaryMeasurementUnits = getStringArraySafely(res, R.array.culinary_measurement_units),
                 titleSpellingRepairs = getStringArraySafely(res, R.array.title_spelling_repairs),
                 titleMultilineConnectors = getStringArraySafely(res, R.array.title_multiline_connectors),
+                ingredientSplitterConnectors = getStringArraySafely(res, R.array.ingredient_splitter_connectors),
                 ocrDiacriticRepairs = getStringArraySafely(res, R.array.ocr_diacritic_repairs)
             )
         }

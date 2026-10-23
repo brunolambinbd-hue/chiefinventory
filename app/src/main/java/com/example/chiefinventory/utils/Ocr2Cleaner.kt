@@ -156,7 +156,10 @@ object Ocr2Cleaner {
      * @return `true` si la ligne représente une dimension technique, `false` sinon.
      */
     fun isTechnicalDimension(line: String): Boolean {
-        return OcrRegexes.Cleaner.TECHNICAL_DIMENSION.containsMatchIn(line) && 
-               (line.contains("sur", ignoreCase = true) || line.contains("x", ignoreCase = true))
+        val lower = line.lowercase()
+        val isDimensionMatch = OcrRegexes.Cleaner.TECHNICAL_DIMENSION.containsMatchIn(line)
+        val hasTechnicalContext = lower.contains("sur") || lower.contains("x") || lower.contains("de haut") || lower.contains("de large") || lower.contains("d'épaisseur") || lower.contains("tronçon") || lower.contains("troncon")
+
+        return isDimensionMatch && hasTechnicalContext
     }
 }

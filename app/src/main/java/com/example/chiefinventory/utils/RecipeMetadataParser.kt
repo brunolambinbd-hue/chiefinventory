@@ -158,15 +158,36 @@ object RecipeMetadataParser {
                     updateTimeResult(results, matchSuf.groupValues[2].lowercase(), mins)
                     workingLine = workingLine.replace(matchSuf.value, "").trim()
                 }
-                else -> foundTime = false
+                else -> {
+                    val standaloneTimeMatch = Regex("(?i)^(\\d+\\s*(?:mn|min|minute|h|heure|heures))\\b").find(workingLine)
+                    if (standaloneTimeMatch != null && workingLine.length < 12) {
+                        val mins = extractMinutes(standaloneTimeMatch.groupValues[1])
+                        if (results.detectedPrepTime == null) {
+                            results.detectedPrepTime = mins
+                        } else if (results.detectedCookTime == null) {
+                            results.detectedCookTime = mins
+                        }
+                        workingLine = workingLine.replace(standaloneTimeMatch.value, "").trim()
+                    } else {
+                        foundTime = false
+                    }
+                }
             }
         }
 
-        val isMetadataHeader = lower.startsWith("préparation :") || lower.startsWith("cuisson :") || lower.startsWith("repos :") || lower == "pour"
-        val isSectionHeader = workingLine.lowercase() in listOf("ingrédients", "ingredients", "préparation", "instructions", "consignes")
-        val isPure = (isMetadataHeader || workingLine.isBlank()) && !isSectionHeader
+        val isOrphanTimeHeader = OcrRegexes.Metadata.ORPHAN_TIME_HEADER.containsMatchIn(workingLine) || lower == "temps de" || lower == "durée de" || lower == "temps" || lower == "durée"
+        if (isOrphanTimeHeader) {
+            workingLine = workingLine.replace(OcrRegexes.Metadata.ORPHAN_TIME_HEADER, "").trim()
+        }
 
-        return MetadataResult(isPure, workingLine)
+        val isMetadataHeader = isOrphanTimeHeader || lower.startsWith("préparation :") || lower.startsWith("cuisson :") || lower.startsWith("repos :") || lower == "pour" || lower == "cuisson" || lower == "repos"
+        val isSectionHeader = workingLine.lowercase() in listOf("ingrédients", "ingredients", "préparation", "preparation", "instructions", "consignes", "réalisation")
+        val isPure = (isMetadataHeader || workingLine.isBlank()) && !isSectionHeader
+        val finalRemainingLine = if (isPure) "" else workingLine
+
+        return MetadataResult(isPure, finalRemainingLine)
+
+        return MetadataResult(isPure, finalRemainingLine)
     }
 
     /**

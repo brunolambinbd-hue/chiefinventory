@@ -62,7 +62,10 @@ object Ocr4Merger {
             val prevEndsWithPunctuation = current.trim().lastOrNull()?.let { it == ',' || it == '.' } ?: false
             val prevWasHyphenated = prevOriginalLine.trimEnd().endsWith("-")
 
-            if (!isNewStart && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier)) {
+            val hasUnclosedParen = current.count { it == '(' } > current.count { it == ')' }
+            val allowMerge = (!isNewStart || hasUnclosedParen) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier)
+
+            if (allowMerge) {
                 if (prevWasHyphenated) {
                     val currentClean = current.trimEnd()
                     val charBeforeDash = if (currentClean.endsWith("-")) {
@@ -79,7 +82,9 @@ object Ocr4Merger {
                         current = base.trim() + normalizedLine.trim()
                     } else {
                         val base = current.trimEnd()
-                        current = if (base.endsWith("-")) {
+                        current = if (base.endsWith(" -") || base.endsWith("- ")) {
+                            "$base ${normalizedLine.trim()}"
+                        } else if (base.endsWith("-")) {
                             base + normalizedLine.trimStart()
                         } else {
                             "$base ${normalizedLine.trim()}"
@@ -98,7 +103,12 @@ object Ocr4Merger {
 
         val finalSplitList = mutableListOf<String>()
         for (mergedIng in intermediateMerged) {
-            val splits = OcrHelperUtils.splitCombinedIngredients(mergedIng, commonIngredients, mandatoryComplements)
+            val splits = OcrHelperUtils.splitCombinedIngredients(
+                mergedIng, 
+                commonIngredients, 
+                mandatoryComplements, 
+                preparationModifiers
+            )
             finalSplitList.addAll(splits)
         }
 
@@ -124,7 +134,11 @@ object Ocr4Merger {
             if (normalizedLine.isEmpty()) continue
 
             val currentEndsWithPeriod = currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }
-            val isNextStep = isNewStep(line) || isNewStep(normalizedLine) || currentEndsWithPeriod
+            val currentEndsWithConjunction = currentBlock.trimEnd().let { 
+                it.endsWith(" et") || it.endsWith(" et-") || it.endsWith(" ou") || it.endsWith(" ou-") || it.endsWith(",") 
+            }
+            val hasExplicitStepMarker = Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(line) || Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(normalizedLine)
+            val isNextStep = hasExplicitStepMarker || currentEndsWithPeriod || (!currentEndsWithConjunction && (isNewStep(line) || isNewStep(normalizedLine)))
 
             if (currentBlock.isNotEmpty() && !isNextStep) {
                 val prevWasHyphenated = prevOriginalLine.trimEnd().endsWith("-")
@@ -139,17 +153,17 @@ object Ocr4Merger {
 
                     val endsWithLetter = charBeforeDash?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
                     val startsWithLetter = normalizedLine.firstOrNull()?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
-                    
-                    if (endsWithLetter && startsWithLetter) {
+
+                    val baseWord = blockClean.dropLast(1).trim().split(Regex("\\s+")).lastOrNull()?.lowercase() ?: ""
+                    val standaloneWords = setOf("et", "ou", "de", "du", "des", "d", "au", "aux", "en", "par", "pour", "sur", "à", "a")
+                    val isStandaloneWordHyphenated = baseWord in standaloneWords
+
+                    if (endsWithLetter && startsWithLetter && !isStandaloneWordHyphenated) {
                         val base = if (blockClean.endsWith("-")) blockClean.dropLast(1) else blockClean
                         currentBlock = base.trim() + normalizedLine.trim()
                     } else {
-                        val base = currentBlock.trimEnd()
-                        currentBlock = if (base.endsWith("-")) {
-                            base + normalizedLine.trimStart()
-                        } else {
-                            "$base ${normalizedLine.trim()}"
-                        }
+                        val base = if (blockClean.endsWith("-")) blockClean.dropLast(1) else blockClean
+                        currentBlock = "${base.trim()} ${normalizedLine.trim()}"
                     }
                 } else {
                     currentBlock = "${currentBlock.trim()} ${normalizedLine.trim()}"
@@ -190,6 +204,11 @@ object Ocr4Merger {
     private fun isHanging(text: String): Boolean {
         val lower = text.lowercase().trim()
         if (ARTICLES.contains(lower)) return true
+
+        // Détection de parenthèse ouverte non refermée ou tiret terminal (ex: "1 citron (1/2 pour le jus -")
+        val hasUnclosedParenthesis = text.count { it == '(' } > text.count { it == ')' }
+        val endsWithHyphen = text.trimEnd().endsWith("-")
+        if (hasUnclosedParenthesis || endsWithHyphen) return true
 
         val parsed = IngredientParser.parse(text)
         if (parsed.quantity != null && (parsed.name.isBlank() || parsed.name.matches(Regex("(?i)^(?:soupe|café|c\\.?\\s*[àa]\\s*(?:soupe|café)|g|kg|cl|ml|l)$")))) {

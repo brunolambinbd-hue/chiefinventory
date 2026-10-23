@@ -6,6 +6,7 @@ package com.example.chiefinventory.utils
 object IngredientSplitter {
 
     private val ARTICLES = setOf("le", "la", "les", "un", "une", "des", "du", "de", "d'", "d")
+    private val SIZE_PREFIX_REGEX = Regex("^(?:\\d+|1/2|1/4|un|une)\\s+(?:petit|petite|petits|petites|grand|grande|grands|grandes|moyen|moyenne|moyens|moyennes|beau|beaux|belle|belles)$", RegexOption.IGNORE_CASE)
 
     /**
      * Divides a line if it contains multiple ingredients.
@@ -30,7 +31,8 @@ object IngredientSplitter {
                     val match = pattern.find(currentPart)
                     if (match != null) {
                         val prefix = currentPart.substring(0, match.range.first).trim()
-                        if (prefix.lowercase() !in ARTICLES) {
+                        val lowerPrefix = prefix.lowercase()
+                        if (lowerPrefix !in ARTICLES && !SIZE_PREFIX_REGEX.matches(lowerPrefix)) {
                             result.add(prefix)
                             currentPart = currentPart.substring(match.range.first).trim()
                             found = true

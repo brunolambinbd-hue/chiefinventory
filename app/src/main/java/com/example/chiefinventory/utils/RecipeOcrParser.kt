@@ -147,7 +147,8 @@ object RecipeOcrParser {
             mergedInstructions, 
             vocabulary.stepActionKeywords, 
             vocabulary.hangingConnectors,
-            vocabulary.culinaryMeasurementUnits
+            vocabulary.culinaryMeasurementUnits,
+            vocabulary.ocrSpellingRepairs
         )
 
         Log.d(TAG, "[4-5] RÉSULTATS FINAUX (BEAUTIFIED):")

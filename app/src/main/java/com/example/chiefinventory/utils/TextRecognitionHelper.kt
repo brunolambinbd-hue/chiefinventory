@@ -12,14 +12,14 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * A helper class for performing OCR (Optical Character Recognition) using ML Kit.
+ * Assistant dédié à la reconnaissance de texte (OCR) via Google ML Kit.
  */
 class TextRecognitionHelper(private val context: Context) {
 
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
     /**
-     * Recognizes text from a [Bitmap] and returns the raw text string.
+     * Effectue la reconnaissance OCR sur une image [Bitmap] et retourne le texte brut structuré par blocs de ML Kit.
      */
     suspend fun recognizeText(bitmap: Bitmap): String? = suspendCancellableCoroutine { continuation ->
         val image = InputImage.fromBitmap(bitmap, 0)
@@ -34,8 +34,7 @@ class TextRecognitionHelper(private val context: Context) {
     }
 
     /**
-     * Recognizes text from a [Bitmap] and returns the full structural [Text] object.
-     * Use this for hierarchical parsing (Blocks -> Lines).
+     * Effectue la reconnaissance OCR sur un [Bitmap] et retourne l'objet hiérarchique [Text] complet.
      */
     suspend fun recognizeVisionText(bitmap: Bitmap): Text? = suspendCancellableCoroutine { continuation ->
         val image = InputImage.fromBitmap(bitmap, 0)

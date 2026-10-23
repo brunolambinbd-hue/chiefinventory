@@ -73,6 +73,13 @@ object Ocr3Categorizer {
      * @return L'objet [RawSections] contenant les listes brutes catégorisées et méta-données.
      */
     fun categorize(lines: List<String>, vocabulary: OcrVocabulary): RawSections {
+        val isNarrative = Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(lines, vocabulary)
+        Log.d(TAG, "DÉTECTION TYPE RECETTE: isNarrativeInstructionOnlyRecipe = $isNarrative")
+        if (isNarrative) {
+            Log.d(TAG, "  => ACTIVER DÉLÉGATION NARRATIVE TYPE 2 (Ocr3NarrativeCategorizer)")
+            return Ocr3NarrativeCategorizer.categorizeNarrativeRecipe(lines, vocabulary)
+        }
+
         val results = RawSections()
         var currentSection = SECTION_NONE
         var isIngredientListClosed = false
@@ -172,7 +179,7 @@ object Ocr3Categorizer {
             startsWithBullet = workingLine.startsWith("•") || workingLine.startsWith("-") || workingLine.startsWith("*")
 
             val weightRegex = Regex("(?i)\\(\\d+\\s*(?:g|kg|ml|cl|l|oz|lb|pcs|pce|un|une)\\)")
-            val hasWeight = weightRegex.containsMatchIn(workingLine)
+            val hasWeight = OcrIngredientUtils.hasExplicitWeight(workingLine) || weightRegex.containsMatchIn(workingLine)
             val hasHardQuantity = hardQtyRegex.containsMatchIn(workingLine) || OcrHelperUtils.countIngredientSequences(workingLine) > 0
             val hasQuantity = qtyRegex.containsMatchIn(workingLine) || hasHardQuantity
 
@@ -189,6 +196,9 @@ object Ocr3Categorizer {
                 }
                 val allowWithQty = isIngredientListClosed
                 match && (allowWithQty || (!hasHardQuantity && !hasWeight))
+            }
+            if (workingLine.contains("sucre") || workingLine.contains("beurre")) {
+                System.err.println("DEBUG LINE: '$workingLine' | seen=$seenIngredientKeywords | isReappearance=$isReappearance | hasWeight=$hasWeight | hasHardQty=$hasHardQuantity")
             }
 
             val isIsolatedModifier = preparationModifiers.any { mod ->
@@ -225,7 +235,11 @@ object Ocr3Categorizer {
             // Ignorer le bruit de pied de page / étiquette de bouteille après fermeture de la section vin
             if (wineState.isWineSectionClosed && !containsAction && !startsWithBullet) continue
 
-            val isInstructionSignal = hasInstructionTrigger || isReappearance || (containsAction && (workingLine.length > 25 || startsWithBullet))
+            val lastRawIng = results.rawIngredientsList.lastOrNull() ?: ""
+            val hasUnclosedParenthesis = currentSection == SECTION_INGREDIENTS && (lastRawIng.count { it == '(' } > lastRawIng.count { it == ')' })
+
+            val isStepNumber = Regex("^\\d{1,2}[.)\\-]\\s*").containsMatchIn(workingLine)
+            val isInstructionSignal = !hasUnclosedParenthesis && (hasInstructionTrigger || isReappearance || isStepNumber || (containsAction && (workingLine.length > 25 || startsWithBullet)))
 
             Log.d(TAG, "  => BILAN: reappear=$isReappearance | instrSignal=$isInstructionSignal | currentSec=$currentSection")
 
@@ -239,6 +253,7 @@ object Ocr3Categorizer {
 
             when (currentSection) {
                 SECTION_INGREDIENTS -> {
+                    if (Ocr2Cleaner.isTechnicalDimension(workingLine)) continue
                     if (!containsAction && ((lowerLine.contains("sel") && lowerLine.contains("poivre")) || lowerLine.contains("sel, poivre") || lowerLine.contains("sel et poivre"))) {
                         isIngredientListClosed = true
                         Log.d(TAG, "  [!] VERROU ACTIVÉ (Marqueur de fin sel/poivre détecté)")
@@ -257,7 +272,7 @@ object Ocr3Categorizer {
                         isReappearance -> false
                         isEndMarkerLine && !containsAction -> true
                         isIngredientListClosed -> (isStrictIngredient && hasWeight) || (isCommonIngredient && !containsAction && !startsWithBullet)
-                        else -> isStrictIngredient && (hasHardQuantity || hasWeight)
+                        else -> isStrictIngredient && hasWeight
                     }
 
                     if (shouldPullBack) {
@@ -269,7 +284,7 @@ object Ocr3Categorizer {
                         seenIngredientKeywords.addAll(extractKeywordsFromText(parsed.name, parsed.supplementalInfo))
                         Log.d(TAG, "  [RATTRAPAGE] Split: Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}', Info='${parsed.supplementalInfo}'")
                     } else {
-                        results.rawInstructionsList.add(workingLine)
+                        results.rawInstructionsList.add(workingLine.replace(OcrRegexes.Beautifier.BULLET_PREFIX, "").trim())
                     }
                 }
                 else -> {
@@ -278,7 +293,7 @@ object Ocr3Categorizer {
                         seenIngredientKeywords.addAll(extractKeywordsFromText(parsed.name, parsed.supplementalInfo))
                         Log.d(TAG, "  [DEFAUT] Split: Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}', Info='${parsed.supplementalInfo}'")
                     } else {
-                        results.rawInstructionsList.add(workingLine)
+                        results.rawInstructionsList.add(workingLine.replace(OcrRegexes.Beautifier.BULLET_PREFIX, "").trim())
                     }
                 }
             }

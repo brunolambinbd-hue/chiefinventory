@@ -33,10 +33,10 @@ object OcrInstructionUtils {
     fun hasActionVerb(line: String, stepActionKeywords: List<String>): Boolean {
         if (line.isBlank() || stepActionKeywords.isEmpty()) return false
         val distinctKeywords = stepActionKeywords
-            .map { it.replace(OcrRegexes.Beautifier.BRACKET_COMMENT, "") }
-            .filter { it.length >= 3 && it.lowercase() !in listOf("minutes", "heures", "secondes", "environ") }
+            .map { it.replace(OcrRegexes.Beautifier.BRACKET_COMMENT, "").trim().lowercase() }
+            .filter { it.length >= 3 && it !in listOf("minutes", "heures", "secondes", "environ") }
         if (distinctKeywords.isEmpty()) return false
-        val pattern = Regex("(?i)\\b(?:${distinctKeywords.joinToString("|") { Regex.escape(it) }})\\b")
-        return pattern.containsMatchIn(line)
+        val pattern = Pattern.compile("(?<!\\p{L})(?:" + distinctKeywords.joinToString("|") { Pattern.quote(it) } + ")(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+        return pattern.matcher(line).find()
     }
 }

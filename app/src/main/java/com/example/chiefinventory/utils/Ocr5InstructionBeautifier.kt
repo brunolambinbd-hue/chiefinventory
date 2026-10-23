@@ -29,7 +29,8 @@ object Ocr5InstructionBeautifier {
         instructions: List<String>,
         stepActionKeywords: List<String> = emptyList(),
         hangingConnectors: List<String> = emptyList(),
-        culinaryUnits: List<String> = emptyList()
+        culinaryUnits: List<String> = emptyList(),
+        spellingRepairs: List<String> = emptyList()
     ): List<String> {
         if (instructions.isEmpty()) return emptyList()
 
@@ -43,6 +44,9 @@ object Ocr5InstructionBeautifier {
         // 1. Nettoyage initial de chaque ligne
         val cleanedLines = instructions.map { line ->
             var cleaned = line.trim()
+            if (spellingRepairs.isNotEmpty()) {
+                cleaned = Ocr1Normalizer.applySpellingRepairs(cleaned, spellingRepairs)
+            }
             cleaned = cleaned.replace(prefixPattern, "")
             cleaned = cleaned.replace(OcrRegexes.Beautifier.STEP_DIGIT_PREFIX, "")
             cleaned = cleaned.replace(OcrRegexes.Beautifier.STEP_NUMBER_BEFORE_CAPITAL, "")

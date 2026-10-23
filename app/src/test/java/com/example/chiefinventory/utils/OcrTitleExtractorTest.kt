@@ -65,4 +65,20 @@ class OcrTitleExtractorTest {
 
         assertThat(result.title).isEqualTo("Bûchettes de melon au jambon italien et au porto")
     }
+
+    /**
+     * Vérifie que les lignes de consignes d'instructions contenant des verbes d'action ou se terminant par des connecteurs suspendus (ex: "Maintenez... puis") sont disqualifiées.
+     */
+    @Test
+    fun `extractTitle should disqualify lines containing action verbs or ending with hanging connectors like puis`() {
+        val lines = listOf(
+            "Maintenez une petite ébullition pendant 3 mn puis",
+            "Fondue à la bière",
+            "1. Verser la bière et mélanger."
+        )
+
+        val result = OcrTitleExtractor.extractTitle(lines, vocabulary)
+
+        assertThat(result.title).isEqualTo("Fondue à la bière")
+    }
 }

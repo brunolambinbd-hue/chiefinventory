@@ -22,13 +22,15 @@ object Ocr5Beautifier {
         instructions: List<String>, 
         stepActionKeywords: List<String> = emptyList(),
         hangingConnectors: List<String> = emptyList(),
-        culinaryUnits: List<String> = emptyList()
+        culinaryUnits: List<String> = emptyList(),
+        spellingRepairs: List<String> = emptyList()
     ): List<String> {
         return Ocr5InstructionBeautifier.beautifyInstructions(
             instructions,
             stepActionKeywords,
             hangingConnectors,
-            culinaryUnits
+            culinaryUnits,
+            spellingRepairs
         )
     }
 

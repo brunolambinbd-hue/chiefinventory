@@ -167,4 +167,13 @@ class OcrRegexesTest {
         assertThat(pattern1).isSameInstanceAs(pattern2)
         assertThat(pattern1.containsMatchIn("Un vin de Bordeaux")).isTrue()
     }
+
+    @Test
+    fun `DIFFICULTY regex should match recipe difficulty but ignore feu moyen and chaleur moyenne`() {
+        assertThat(OcrRegexes.Metadata.DIFFICULTY.containsMatchIn("Difficulté : Moyen")).isTrue()
+        assertThat(OcrRegexes.Metadata.DIFFICULTY.containsMatchIn("Facile")).isTrue()
+
+        assertThat(OcrRegexes.Metadata.DIFFICULTY.containsMatchIn("à feu moyen")).isFalse()
+        assertThat(OcrRegexes.Metadata.DIFFICULTY.containsMatchIn("a feu moyen")).isFalse()
+    }
 }

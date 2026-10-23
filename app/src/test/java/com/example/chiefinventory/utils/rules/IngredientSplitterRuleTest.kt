@@ -43,4 +43,13 @@ class IngredientSplitterRuleTest {
         val resultHelper = OcrHelperUtils.splitCombinedIngredients("le jus de 1/2 citron", baseVocabulary.commonIngredientsNoQty)
         assertThat(resultHelper).containsExactly("le jus de 1/2 citron")
     }
+
+    @Test
+    fun `splitCombinedIngredients should not split size adjective petite before salade frisee`() {
+        val resultSplitter = IngredientSplitter.splitCombinedIngredients("1 petite salade frisée", baseVocabulary.commonIngredientsNoQty)
+        assertThat(resultSplitter).containsExactly("1 petite salade frisée")
+
+        val resultHelper = OcrHelperUtils.splitCombinedIngredients("1 petite salade frisée", baseVocabulary.commonIngredientsNoQty)
+        assertThat(resultHelper).containsExactly("1 petite salade frisée")
+    }
 }

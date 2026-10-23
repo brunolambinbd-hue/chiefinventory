@@ -21,4 +21,14 @@ class OcrInstructionUtilsTest {
         assertThat(OcrInstructionUtils.hasActionVerb("Coupez les légumes en dés", keywords)).isTrue()
         assertThat(OcrInstructionUtils.hasActionVerb("200 g de farine", keywords)).isFalse()
     }
+
+    @Test
+    fun `hasActionVerb should detect newly integrated action verbs like maintenez poursuivez obteniez`() {
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+        
+        assertThat(OcrInstructionUtils.hasActionVerb("Maintenez une petite ébullition", vocabulary.stepActionKeywords)).isTrue()
+        assertThat(OcrInstructionUtils.hasActionVerb("Poursuivez la cuisson 15 min", vocabulary.stepActionKeywords)).isTrue()
+        assertThat(OcrInstructionUtils.hasActionVerb("jusqu'à ce que vous obteniez une belle salade", vocabulary.stepActionKeywords)).isTrue()
+        assertThat(OcrInstructionUtils.hasActionVerb("Conservez au frais", vocabulary.stepActionKeywords)).isTrue()
+    }
 }

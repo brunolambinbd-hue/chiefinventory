@@ -16,10 +16,13 @@ class Ocr1NormalizerTest {
     }
 
     @Test
-    fun `spelling repairs from vocabulary should fix goit to goût`() {
+    fun `spelling repairs from vocabulary should fix goit to goût and ALA to A LA`() {
         val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
-        val result = Ocr1Normalizer.normalize("poisson au goit de crabe", vocabulary.ocrSpellingRepairs)
-        assertThat(result).isEqualTo("poisson au goût de crabe")
+        val result1 = Ocr1Normalizer.normalize("poisson au goit de crabe", vocabulary.ocrSpellingRepairs)
+        assertThat(result1).isEqualTo("poisson au goût de crabe")
+
+        val result2 = Ocr1Normalizer.normalize("FONDUE ÀLA BIERE", vocabulary.ocrSpellingRepairs)
+        assertThat(result2).isEqualTo("FONDUE À LA BIERE")
     }
 
     @Test

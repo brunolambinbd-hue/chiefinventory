@@ -283,6 +283,8 @@ class Ocr3CategorizerTest {
     fun `Instruction recovery lever 2 - mid-block ingredient`() {
         val input = listOf("Réalisation", "Faites fondre le chocolat", "200 g de sucre", "Mélangez")
         val result = Ocr3Categorizer.categorize(input, vocabulary)
+        System.err.println("DEBUG RECOVERY LEVER 2 RAW INGR = " + result.rawIngredientsList)
+        System.err.println("DEBUG RECOVERY LEVER 2 RAW INSTR = " + result.rawInstructionsList)
 
         assertWithMessage("Le sucre doit être récupéré").that(result.rawIngredientsList).contains("200 g de sucre")
         assertThat(result.rawInstructionsList).containsExactly("Réalisation", "Faites fondre le chocolat", "Mélangez").inOrder()

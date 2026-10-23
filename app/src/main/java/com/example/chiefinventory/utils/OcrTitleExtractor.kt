@@ -435,13 +435,14 @@ object OcrTitleExtractor {
         val cleanIngName = trimmed.replace(OcrRegexes.Titles.DE_PREFIX_FULL, "").trim()
         if (vocabulary.commonIngredientsNoQty.any { it.equals(trimmed, ignoreCase = true) || it.equals(cleanIngName, ignoreCase = true) }) return false
 
-        if (vocabulary.ingredientPreparationModifiers.any { OcrRegexes.getSpellingRepairPattern(it).matcher(trimmed).find() }) return false
+        val hasTitleKeyword = vocabulary.titleKeywords.any { OcrRegexes.getSpellingRepairPattern(it).matcher(trimmed).find() }
+        if (!hasTitleKeyword && vocabulary.ingredientPreparationModifiers.any { OcrRegexes.getSpellingRepairPattern(it).matcher(trimmed).find() }) return false
 
         if (OcrHelperUtils.isLikelyProperNameOrSource(trimmed, vocabulary) || SourceParser.isSourceLine(trimmed, vocabulary)) return false
         if (WineParser.isWineLine(trimmed, vocabulary)) return false
 
         if (lower.startsWith("d'") || lower.startsWith("l'") || lower.startsWith("de ") || lower.startsWith("du ") || lower.startsWith("des ") || lower.startsWith("de la ") || lower.startsWith("de l'")) return false
-        if (lower.startsWith("ingrédients") || lower.startsWith("ingredients") || lower.startsWith("préparation") || lower.startsWith("pour ") || lower.startsWith("le jus") || lower.startsWith("jus de")) return false
+        if (lower.startsWith("quelques ") || lower.startsWith("plusieurs ") || lower.startsWith("ingrédients") || lower.startsWith("ingredients") || lower.startsWith("préparation") || lower.startsWith("cuisson") || lower.startsWith("repos") || lower.startsWith("pour ") || lower.startsWith("le jus") || lower.startsWith("jus de")) return false
         if (lower.contains("personnes") || lower.contains("portions")) return false
 
         val lastWord = lower.split(Regex("\\s+")).lastOrNull() ?: ""

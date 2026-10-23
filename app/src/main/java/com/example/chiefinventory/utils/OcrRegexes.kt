@@ -341,8 +341,8 @@ object OcrRegexes {
         /** Détecte l'apport calorique par portion (ex: "250 kcal", "450 kilo calories"). */
         val KCAL: Regex = Regex("(?i)(\\d{2,4})\\s*(?:kcal|kilo\\s*calories?)(?:/por\\.?)?")
 
-        /** Détecte le niveau de difficulté de la recette (ex: "difficulté : facile", "difficile"). */
-        val DIFFICULTY: Regex = Regex("(?i)\\b(facile|moyen|difficile|diffcile)\\b")
+        /** Détecte le niveau de difficulté de la recette (ex: "difficulté : facile", "difficile") en offrant un garde-fou contre les termes de cuisson ("feu moyen", "chaleur moyenne"). */
+        val DIFFICULTY: Regex = Regex("(?i)(?<!feu\\s)(?<!chaleur\\s)(?<!à\\sfeu\\s)(?<!a\\sfeu\\s)\\b(facile|moyen|difficile|diffcile)\\b")
 
         /** Détecte le temps combiné préparation + cuisson (ex: "15 min + 45 min de cuisson"). */
         val TIME_COMBINED: Regex = Regex("(?i)$DURATION_STR\\s*\\+\\s*$DURATION_STR\\s+(?:de\\s+)?cuisson")
@@ -352,6 +352,9 @@ object OcrRegexes {
 
         /** Détecte le temps avec type en suffixe (ex: "15 min de préparation"). */
         val TIME_SUFFIX: Regex = Regex("(?i)$DURATION_STR\\s+(?:de\\s+)?$TIME_TYPE_STR")
+
+        /** Détecte un en-tête de temps orphelin ou suspendu sans chiffre (ex: "Temps de", "Temps de préparation :", "Temps de cuisson"). */
+        val ORPHAN_TIME_HEADER: Regex = Regex("(?i)^(?:temps|dur[eé]e)(?:\\s+de)?$|^(?:temps|dur[eé]e)\\s+(?:de\\s+)?(?:pr[eé]paration|cuisson|repos|r[eé]alisation)\\s*:?|^(?:pr[eé]paration|cuisson|repos|r[eé]alisation)\\s*:")
 
         /** Extrait les heures et minutes pour conversion en minutes (ex: "1 h 30 min"). */
         val HOURS_PATTERN: Regex = Regex("(\\d+)\\s*[hH]\\s*(\\d*)")
@@ -457,7 +460,7 @@ object OcrRegexes {
      */
     fun getWholeWordPattern(keyword: String): Regex {
         return wholeWordCache.getOrPut(keyword) {
-            Regex("(?<![\\p{L}\\p{N}])${Regex.escape(keyword)}(?![\\p{L}\\p{N}])", RegexOption.IGNORE_CASE)
+            Regex("(?iu)(?<![\\p{L}\\p{N}])${Regex.escape(keyword)}(?![\\p{L}\\p{N}])")
         }
     }
 

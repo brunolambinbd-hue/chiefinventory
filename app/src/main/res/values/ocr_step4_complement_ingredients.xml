@@ -33,4 +33,50 @@
         <item>botte</item>
         <item>bottes</item>
     </string-array>
+
+    <!-- Connecteurs, prépositions et unités de liaison pour le découpage des ingrédients combinés -->
+    <string-array name="ingredient_splitter_connectors">
+        <item>et</item>
+        <item>ou</item>
+        <item>à</item>
+        <item>-</item>
+        <item>de</item>
+        <item>du</item>
+        <item>des</item>
+        <item>d\'</item>
+        <item>d</item>
+        <item>au</item>
+        <item>aux</item>
+        <item>sur</item>
+        <item>le</item>
+        <item>la</item>
+        <item>les</item>
+        <item>un</item>
+        <item>une</item>
+        <item>soupe</item>
+        <item>café</item>
+        <item>gousse</item>
+        <item>gousses</item>
+        <item>pincée</item>
+        <item>filet</item>
+        <item>botte</item>
+        <item>branche</item>
+        <item>salade</item>
+        <item>beau</item>
+        <item>beaux</item>
+        <item>belle</item>
+        <item>belles</item>
+        <item>petit</item>
+        <item>petite</item>
+        <item>petits</item>
+        <item>petites</item>
+        <item>grand</item>
+        <item>grande</item>
+        <item>grands</item>
+        <item>grandes</item>
+        <item>moyen</item>
+        <item>moyenne</item>
+        <item>moyens</item>
+        <item>moyennes</item>
+    </string-array>
 </resources>
