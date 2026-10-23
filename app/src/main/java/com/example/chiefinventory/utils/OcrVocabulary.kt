@@ -18,6 +18,7 @@ data class OcrVocabulary(
     val ingredientEndMarkers: List<String> = emptyList(),
     val ingredientSubHeaders: List<String> = emptyList(),
     val sourceKeywords: List<String> = emptyList(),
+    val knownSourceBrands: List<String> = emptyList(),
     val phonePrefixes: List<String> = emptyList(),
     val wineAppellations: List<String> = emptyList(),
     val wineProducers: List<String> = emptyList(),
@@ -26,6 +27,7 @@ data class OcrVocabulary(
     val wineRemovePattern: String = "",
     val ocrSpellingRepairs: List<String> = emptyList(),
     val adExclusions: List<String> = emptyList(),
+    val ocrNoiseExclusions: List<String> = emptyList(),
     val titleKeywords: List<String> = emptyList(),
     val mandatoryComplementIngredients: List<String> = emptyList(),
     val hangingConnectors: List<String> = emptyList(),
@@ -34,6 +36,7 @@ data class OcrVocabulary(
     val standaloneArticles: List<String> = emptyList(),
     val culinaryMeasurementUnits: List<String> = emptyList(),
     val titleSpellingRepairs: List<String> = emptyList(),
+    val titleMultilineConnectors: List<String> = emptyList(),
     val ocrDiacriticRepairs: List<String> = emptyList()
 ) {
     companion object {
@@ -52,6 +55,7 @@ data class OcrVocabulary(
                 ingredientEndMarkers = getStringArraySafely(res, R.array.ingredient_end_markers),
                 ingredientSubHeaders = getStringArraySafely(res, R.array.ingredient_sub_headers),
                 sourceKeywords = getStringArraySafely(res, R.array.source_keywords),
+                knownSourceBrands = getStringArraySafely(res, R.array.known_source_brands),
                 phonePrefixes = getStringArraySafely(res, R.array.phone_prefixes),
                 wineAppellations = getStringArraySafely(res, R.array.wine_appellations),
                 wineProducers = getStringArraySafely(res, R.array.wine_producers),
@@ -60,6 +64,7 @@ data class OcrVocabulary(
                 wineRemovePattern = getStringSafely(res, R.string.wine_remove_pattern),
                 ocrSpellingRepairs = getStringArraySafely(res, R.array.ocr_spelling_repairs),
                 adExclusions = getStringArraySafely(res, R.array.advertisement_exclusions),
+                ocrNoiseExclusions = getStringArraySafely(res, R.array.ocr_noise_exclusions),
                 titleKeywords = getStringArraySafely(res, R.array.title_keywords),
                 mandatoryComplementIngredients = getStringArraySafely(res, R.array.ingredient_mandatory_complements),
                 hangingConnectors = getStringArraySafely(res, R.array.hanging_connectors),
@@ -68,6 +73,7 @@ data class OcrVocabulary(
                 standaloneArticles = getStringArraySafely(res, R.array.standalone_articles),
                 culinaryMeasurementUnits = getStringArraySafely(res, R.array.culinary_measurement_units),
                 titleSpellingRepairs = getStringArraySafely(res, R.array.title_spelling_repairs),
+                titleMultilineConnectors = getStringArraySafely(res, R.array.title_multiline_connectors),
                 ocrDiacriticRepairs = getStringArraySafely(res, R.array.ocr_diacritic_repairs)
             )
         }

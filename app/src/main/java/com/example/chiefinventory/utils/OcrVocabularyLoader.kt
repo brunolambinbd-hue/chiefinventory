@@ -37,6 +37,7 @@ object OcrVocabularyLoader {
             ingredientEndMarkers = stringArrays["ingredient_end_markers"] ?: emptyList(),
             ingredientSubHeaders = stringArrays["ingredient_sub_headers"] ?: emptyList(),
             sourceKeywords = stringArrays["source_keywords"] ?: emptyList(),
+            knownSourceBrands = stringArrays["known_source_brands"] ?: emptyList(),
             phonePrefixes = stringArrays["phone_prefixes"] ?: emptyList(),
             wineAppellations = stringArrays["wine_appellations"] ?: emptyList(),
             wineProducers = stringArrays["wine_producers"] ?: emptyList(),
@@ -45,6 +46,7 @@ object OcrVocabularyLoader {
             wineRemovePattern = strings["wine_remove_pattern"] ?: "",
             ocrSpellingRepairs = stringArrays["ocr_spelling_repairs"] ?: emptyList(),
             adExclusions = stringArrays["advertisement_exclusions"] ?: emptyList(),
+            ocrNoiseExclusions = stringArrays["ocr_noise_exclusions"] ?: emptyList(),
             titleKeywords = stringArrays["title_keywords"] ?: emptyList(),
             mandatoryComplementIngredients = stringArrays["ingredient_mandatory_complements"] ?: emptyList(),
             hangingConnectors = stringArrays["hanging_connectors"] ?: emptyList(),
@@ -53,6 +55,7 @@ object OcrVocabularyLoader {
             standaloneArticles = stringArrays["standalone_articles"] ?: emptyList(),
             culinaryMeasurementUnits = stringArrays["culinary_measurement_units"] ?: emptyList(),
             titleSpellingRepairs = stringArrays["title_spelling_repairs"] ?: emptyList(),
+            titleMultilineConnectors = stringArrays["title_multiline_connectors"] ?: emptyList(),
             ocrDiacriticRepairs = stringArrays["ocr_diacritic_repairs"] ?: emptyList()
         )
     }

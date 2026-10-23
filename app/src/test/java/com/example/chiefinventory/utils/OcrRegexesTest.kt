@@ -140,4 +140,31 @@ class OcrRegexesTest {
         assertThat(pattern1).isSameInstanceAs(pattern2)
         assertThat(pattern1.containsMatchIn("1. Coupez les tomates")).isTrue()
     }
+
+    @Test
+    fun `getSpellingRepairPattern should return memoized pattern for spelling repairs`() {
+        val pattern1 = OcrRegexes.getSpellingRepairPattern("lhuile")
+        val pattern2 = OcrRegexes.getSpellingRepairPattern("lhuile")
+
+        assertThat(pattern1).isSameInstanceAs(pattern2)
+        assertThat(pattern1.matcher("lhuile").find()).isTrue()
+    }
+
+    @Test
+    fun `getStemWordPattern should return memoized regex pattern for ingredient stem`() {
+        val pattern1 = OcrRegexes.getStemWordPattern("mangue")
+        val pattern2 = OcrRegexes.getStemWordPattern("mangue")
+
+        assertThat(pattern1).isSameInstanceAs(pattern2)
+        assertThat(pattern1.containsMatchIn("Salade de mangues")).isTrue()
+    }
+
+    @Test
+    fun `getWholeWordPattern should return memoized regex pattern for whole words`() {
+        val pattern1 = OcrRegexes.getWholeWordPattern("Bordeaux")
+        val pattern2 = OcrRegexes.getWholeWordPattern("Bordeaux")
+
+        assertThat(pattern1).isSameInstanceAs(pattern2)
+        assertThat(pattern1.containsMatchIn("Un vin de Bordeaux")).isTrue()
+    }
 }

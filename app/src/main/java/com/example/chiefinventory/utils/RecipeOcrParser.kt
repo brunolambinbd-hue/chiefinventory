@@ -100,8 +100,9 @@ object RecipeOcrParser {
         val normalizedLines = rawLines.map { Ocr1Normalizer.normalize(it, repairs) }
         Log.d(TAG, "[1] APRÈS NORMALISATION:\n${normalizedLines.joinToString("\n")}")
 
-        // ÉTAPE 2 : Nettoyage (Suppression du bruit)
-        val cleanedLines = Ocr2Cleaner.clean(normalizedLines, vocabulary.excludedOcrKeywords, vocabulary.adExclusions)
+        // ÉTAPE 2 : Nettoyage (Suppression du bruit de scan, pubs et mots exclus + capture précoce des sources)
+        val cleaningResult = Ocr2Cleaner.cleanWithVocabulary(normalizedLines, vocabulary)
+        val cleanedLines = cleaningResult.cleanedLines
         Log.d(TAG, "[2] APRÈS NETTOYAGE:\n${cleanedLines.joinToString("\n")}")
 
         // ÉTAPE 2.5 : Extraction du titre et réparation des lettrines
@@ -113,6 +114,9 @@ object RecipeOcrParser {
         val sections = Ocr3Categorizer.categorize(linesWithoutTitle, vocabulary)
         if (sections.detectedTitle == null) {
             sections.detectedTitle = titleResult.title
+        }
+        if (sections.detectedSourceList.isEmpty() && cleaningResult.earlyDetectedSources.isNotEmpty()) {
+            sections.detectedSourceList.addAll(cleaningResult.earlyDetectedSources)
         }
         Log.d(TAG, "[3] CATÉGORISATION TERMINÉE")
 

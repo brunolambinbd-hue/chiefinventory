@@ -47,4 +47,22 @@ class SourceParserRuleTest {
         assertThat(SourceParser.cleanSourceLine("Hôtel 012345", baseVocabulary)).isEqualTo("Hôtel 012345")
         assertThat(SourceParser.cleanSourceLine("Tél. : 02/542.42.42", baseVocabulary)).isEqualTo("02/542.42.42")
     }
+
+    @Test
+    fun `pipeline should preserve early source Maxi GB from stripped ad line`() {
+        val ocrScanWithAd = """
+            INGRÉDIENTS
+            200 g de farine
+            100 g de beurre
+            INSTRUCTIONS
+            Mélangez la farine et le beurre.
+            Assiette de présentation disponible dans les Maxi GB
+        """.trimIndent()
+
+        val result = com.example.chiefinventory.utils.RecipeOcrParser.parse(ocrScanWithAd, baseVocabulary)
+
+        assertThat(result.source).isEqualTo("Maxi GB")
+        assertThat(result.instructions).contains("Mélangez la farine et le beurre.")
+        assertThat(result.instructions).doesNotContain("Assiette de présentation")
+    }
 }

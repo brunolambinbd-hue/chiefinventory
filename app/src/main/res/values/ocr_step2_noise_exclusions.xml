@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bruit de scan OCR, codes-barres, artefacts visuels et étiquettes corrompues -->
+    <string-array name="ocr_noise_exclusions">
+        <item>DUITe TOugp MO 100s</item>
+        <item>EprrtEANS</item>
+        <item>ExprrtEANS</item>
+        <item>IRAINE</item>
+        <item>BOURGUIL</item>
+        <item>AtN</item>
+        <item>AUVICNoN</item>
+        <item>FOTIC</item>
+        <item>CONRAD|</item>
+        <item>saveur de</item>
+    </string-array>
+</resources>

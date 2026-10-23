@@ -89,4 +89,18 @@ object SourceParser {
         // Supprime toute ponctuation résiduelle en début de ligne (ex: ": 02/542.42.42" -> "02/542.42.42")
         return cleaned.replace(OcrRegexes.Sources.LEADING_PUNCTUATION, "").trim()
     }
+
+    /**
+     * Inspecte une ligne publicitaire ou marketing et en extrait la marque ou l'enseigne culinaire connue ([OcrVocabulary.knownSourceBrands]).
+     *
+     * @param line La ligne publicitaire à analyser (ex: "Assiette de présentation disponible dans les Maxi GB").
+     * @param vocabulary Le vocabulaire métier OCR contenant la liste blanche des enseignes.
+     * @return Le nom exact de l'enseigne/marque trouvée (ex: "Maxi GB"), ou `null` si aucune marque de la liste n'est présente.
+     */
+    fun extractSourceFromAdLine(line: String, vocabulary: OcrVocabulary): String? {
+        if (line.isBlank() || vocabulary.knownSourceBrands.isEmpty()) return null
+        return vocabulary.knownSourceBrands.firstOrNull { brand ->
+            brand.isNotBlank() && Regex("(?i)(?<![\\p{L}\\p{N}])${Regex.escape(brand)}(?![\\p{L}\\p{N}])").containsMatchIn(line)
+        }
+    }
 }

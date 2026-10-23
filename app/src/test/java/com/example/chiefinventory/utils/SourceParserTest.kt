@@ -90,4 +90,23 @@ class SourceParserTest {
         assertEquals("Hôtel 012345", SourceParser.cleanSourceLine("Hôtel 012345", vocabulary))
         assertEquals("Chantel 012345", SourceParser.cleanSourceLine("Chantel 012345", vocabulary))
     }
+
+    /**
+     * Vérifie l'extraction précoce des marques/enseignes connues dans les bannières publicitaires.
+     */
+    @Test
+    fun `extractSourceFromAdLine should extract known brand Maxi GB from ad line`() {
+        assertEquals("Maxi GB", SourceParser.extractSourceFromAdLine("Assiette de présentation disponible dans les Maxi GB", vocabulary))
+        assertEquals("Delhaize", SourceParser.extractSourceFromAdLine("Recette proposée par les magasins Delhaize", vocabulary))
+        assertEquals("Cuisine Actuelle", SourceParser.extractSourceFromAdLine("Extrait du magazine Cuisine Actuelle n°45", vocabulary))
+    }
+
+    /**
+     * Vérifie le retour null (0 faux positif) pour les bannières sans marque de la liste blanche.
+     */
+    @Test
+    fun `extractSourceFromAdLine should return null for ad lines without known brand`() {
+        assertEquals(null, SourceParser.extractSourceFromAdLine("Assiette de présentation disponible dans les supermarchés", vocabulary))
+        assertEquals(null, SourceParser.extractSourceFromAdLine("Splat disponible immédiatement", vocabulary))
+    }
 }

@@ -17,6 +17,30 @@ class Ocr2CleanerTest {
     }
 
     /**
+     * Vérifie la suppression du bruit de scan OCR et artefacts d'images issus de [OcrVocabulary.ocrNoiseExclusions] (`ocr_noise_exclusions.xml`).
+     */
+    @Test
+    fun `clean should remove scan noise lines from ocr_noise_exclusions`() {
+        val input = listOf(
+            "DUITe TOugp MO 100s",
+            "100 g de beurre",
+            "EprrtEANS",
+            "FOTIC"
+        )
+
+        val result = Ocr2Cleaner.clean(
+            input,
+            vocabulary.excludedOcrKeywords,
+            vocabulary.adExclusions,
+            vocabulary.ocrNoiseExclusions
+        )
+
+        assertThat(result).containsExactly(
+            "100 g de beurre"
+        )
+    }
+
+    /**
      * Vérifie la suppression des lignes de bruits publicitaires complets issues de [OcrVocabulary.adExclusions] (`ads_exclusions.xml`).
      */
     @Test
@@ -27,7 +51,7 @@ class Ocr2CleanerTest {
             "Assiette de présentation disponible dans les Maxi GB"
         )
 
-        val result = Ocr2Cleaner.clean(input, vocabulary.excludedOcrKeywords, vocabulary.adExclusions)
+        val result = Ocr2Cleaner.clean(input, vocabulary.excludedOcrKeywords, vocabulary.adExclusions, vocabulary.ocrNoiseExclusions)
 
         assertThat(result).containsExactly(
             "1 avocat",
@@ -46,7 +70,7 @@ class Ocr2CleanerTest {
             "PAGE"
         )
 
-        val result = Ocr2Cleaner.clean(input, vocabulary.excludedOcrKeywords, vocabulary.adExclusions)
+        val result = Ocr2Cleaner.clean(input, vocabulary.excludedOcrKeywords, vocabulary.adExclusions, vocabulary.ocrNoiseExclusions)
 
         assertThat(result).containsExactly(
             "100 g de beurre"
@@ -54,14 +78,66 @@ class Ocr2CleanerTest {
     }
 
     /**
-     * Vérifie l'identification des dimensions techniques ("5 mm sur 5 mm") et leur distinction par rapport aux quantités d'ingrédients.
+     * Vérifie le filtrage systématique d'un échantillon représentatif de mots exclus du fichier XML de production `ocr_step2_excluded_keywords.xml`.
      */
     @Test
-    fun `isTechnicalDimension should identify dimension lines vs ingredients`() {
-        assertThat(Ocr2Cleaner.isTechnicalDimension("5 mm sur 5 mm")).isTrue()
-        assertThat(Ocr2Cleaner.isTechnicalDimension("1 cm x 2 cm")).isTrue()
+    fun `clean should remove production strict excluded keywords sample`() {
+        val input = listOf(
+            "ASTUCE",
+            "NOTES",
+            "PRIX INDICATIF",
+            "100 g de beurre",
+            "EEE",
+            "€€€"
+        )
 
-        assertThat(Ocr2Cleaner.isTechnicalDimension("200 g de farine")).isFalse()
-        assertThat(Ocr2Cleaner.isTechnicalDimension("5 cl d'huile")).isFalse()
+        val result = Ocr2Cleaner.clean(
+            input,
+            vocabulary.excludedOcrKeywords,
+            vocabulary.adExclusions,
+            vocabulary.ocrNoiseExclusions
+        )
+
+        assertThat(result).containsExactly(
+            "100 g de beurre"
+        )
+    }
+
+    /**
+     * Vérifie l'identification exhaustive des dimensions techniques (mm/cm avec connecteurs 'sur' ou 'x')
+     * et leur rejet strict pour les ingrédients ou phrases de consignes.
+     */
+    @Test
+    fun `isTechnicalDimension should exhaustively match dimensions and reject non-dimensions`() {
+        val validDimensions = listOf(
+            "5 mm sur 5 mm",
+            "1 cm x 2 cm",
+            "10x10cm",
+            "100 cm2 x 50 cm2",
+            "2,5 mm X 3 mm",
+            "10 MM SUR 20 MM",
+            "Moule de 20 cm x 30 cm"
+        )
+        validDimensions.forEach { line ->
+            com.google.common.truth.Truth.assertWithMessage("Doit être reconnu comme dimension technique : '$line'")
+                .that(Ocr2Cleaner.isTechnicalDimension(line))
+                .isTrue()
+        }
+
+        val invalidLines = listOf(
+            "200 g de farine",
+            "5 cl d'huile",
+            "Disposer sur une plaque",
+            "Cuire x minutes",
+            "5 mm",
+            "1 cm",
+            "10 cm2",
+            "Mettre au four sur 200°C"
+        )
+        invalidLines.forEach { line ->
+            com.google.common.truth.Truth.assertWithMessage("Ne doit PAS être reconnu comme dimension technique : '$line'")
+                .that(Ocr2Cleaner.isTechnicalDimension(line))
+                .isFalse()
+        }
     }
 }

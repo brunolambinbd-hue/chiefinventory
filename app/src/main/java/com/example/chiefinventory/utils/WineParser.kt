@@ -164,8 +164,7 @@ object WineParser {
      * @return `true` si le mot-clé entier est trouvé, `false` sinon.
      */
     private fun containsWholeWord(text: String, keyword: String): Boolean {
-        val pattern = Regex("(?<![\\p{L}\\p{N}])${Regex.escape(keyword)}(?![\\p{L}\\p{N}])", RegexOption.IGNORE_CASE)
-        return pattern.containsMatchIn(text)
+        return OcrRegexes.getWholeWordPattern(keyword).containsMatchIn(text)
     }
 
     /**

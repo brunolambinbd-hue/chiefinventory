@@ -213,6 +213,15 @@ object OcrRegexes {
             Regex("(?i)\\bc[àa]s\\b") to "c. à soupe",
             Regex("(?i)\\bc[àa]c\\b") to "c. à café"
         )
+
+        /** Séparation d'un nombre collé à son unité (ex: "500g" -> "500 g"). */
+        val NUMBER_UNIT_SEPARATION: Regex = Regex("(?i)(?<!\\p{L})(\\d+)([a-z]+)")
+
+        /** Nettoyage de la ponctuation finale parasite (virgules, deux-points, points-virgules). */
+        val TRAILING_PUNCTUATION: Regex = Regex("[,:;\\s]+$")
+
+        /** Effondrement des espaces multiples consécutifs en un espace unique. */
+        val MULTIPLE_SPACES: Regex = Regex("\\s+")
     }
 
     /**
@@ -247,6 +256,21 @@ object OcrRegexes {
 
         /** Disqualifie un candidat titre contenant une abréviation de cuillère. */
         val DISQUALIFYING_SPOON: Regex = Regex("(?i)\\bc\\.?\\s*[àa]\\s*(?:soupe|café|dessert)")
+
+        /** Détecte si une ligne commence par un chiffre. */
+        val STARTS_WITH_DIGIT: Regex = Regex("^\\d")
+
+        /** Nettoie les caractères non alphabétiques en début de mot pour les lettrines. */
+        val NON_LETTER_PREFIX: Regex = Regex("^[^\\p{L}]+")
+
+        /** Supprime les symboles de séparateurs de lettrines. */
+        val SLASH_PIPE_SYMBOLS: Regex = Regex("[/\\\\|]")
+
+        /** Découpe un nom d'ingrédient en mots individuels. */
+        val PUNCTUATION_SPLIT: Regex = Regex("[\\s,;.:'’\\-()]")
+
+        /** Efface la préposition de liaison d'ingrédients en début de candidat titre (ex: "d'huile", "de farine"). */
+        val DE_PREFIX_FULL: Regex = Regex("(?i)^(?:d'|de\\s+|du\\s+|des\\s+|de\\s+la\\s+|de\\s+l')")
     }
 
     /**
@@ -391,6 +415,51 @@ object OcrRegexes {
 
     /** Cache memoized pour les Regexes de préfixes d'instructions pour ne jamais re-compiler le même motif dynamique. */
     private val instructionPrefixCache = mutableMapOf<String, Regex>()
+
+    /** Cache memoized pour les Patterns de réparations orthographiques d'Étape 1 pour ne jamais re-compiler le même motif. */
+    private val spellingRepairCache = mutableMapOf<String, Pattern>()
+
+    /** Cache memoized pour les Regexes de racines de mots d'ingrédients de titres pour ne jamais re-compiler le même motif. */
+    private val stemWordCache = mutableMapOf<String, Regex>()
+
+    /** Cache memoized pour les Regexes de mots entiers pour ne jamais re-compiler le même motif. */
+    private val wholeWordCache = mutableMapOf<String, Regex>()
+
+    /**
+     * Retourne le motif Pattern pré-compilé et mis en cache pour les réparations orthographiques d'Étape 1 ([Ocr1Normalizer]).
+     *
+     * @param wrong Le terme fautif à rechercher.
+     * @return L'expression régulière Pattern compilée correspondante.
+     */
+    fun getSpellingRepairPattern(wrong: String): Pattern {
+        return spellingRepairCache.getOrPut(wrong) {
+            Pattern.compile("(?<!\\p{L})" + Pattern.quote(wrong) + "(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+        }
+    }
+
+    /**
+     * Retourne le motif Regex pré-compilé et mis en cache pour la recherche de racine de mots d'ingrédients ([OcrTitleExtractor]).
+     *
+     * @param stem La racine du mot d'ingrédient (ex: "mangue", "crabe").
+     * @return L'expression régulière compilée correspondante.
+     */
+    fun getStemWordPattern(stem: String): Regex {
+        return stemWordCache.getOrPut(stem) {
+            Regex("(?i)\\b${Regex.escape(stem)}(?:s|x)?\\b")
+        }
+    }
+
+    /**
+     * Retourne le motif Regex pré-compilé et mis en cache pour la vérification de mots entiers ([WineParser]).
+     *
+     * @param keyword Le mot-clé à rechercher.
+     * @return L'expression régulière compilée correspondante.
+     */
+    fun getWholeWordPattern(keyword: String): Regex {
+        return wholeWordCache.getOrPut(keyword) {
+            Regex("(?<![\\p{L}\\p{N}])${Regex.escape(keyword)}(?![\\p{L}\\p{N}])", RegexOption.IGNORE_CASE)
+        }
+    }
 
     /**
      * Retourne le motif Regex pré-compilé et mis en cache pour les préfixes de consignes basés sur les verbes d'action.

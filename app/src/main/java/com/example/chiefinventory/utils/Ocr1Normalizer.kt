@@ -6,17 +6,23 @@ import java.util.regex.Pattern
 /**
  * Étape 1 du pipeline OCR : Normalisation des caractères, chiffres, fractions et symboles.
  *
- * Responsabilités :
- * - Appliquer le dictionnaire de réparations orthographiques `ocr_repairs.xml` au démarrage du pipeline.
- * - Corriger les confusions de chiffres et lettres générées par l'OCR (`I12` -> `1/2`, `I` -> `1`, `I'eau` -> `l'eau`).
- * - Normaliser les abréviations de cuillères (`c. à s.` -> `c. à soupe`, `cac` -> `c. à café`).
- * - Nettoyer les bruits de dates, devises et caractères diacritiques parasites (`diacritic_repairs.xml`).
- * - Séparer les nombres collés aux unités (`200g` -> `200 g`).
- * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Normalizer] et [OcrRegexes.Quantities].
+ * Ordre d'Exécution des Traitements :
+ * 1. Garde-fou d'entrée et Early-Exit si la ligne est vide.
+ * 2. Réparations orthographiques de mots entiers et élisions (`ocr_step1_spelling_repairs.xml`, `getSpellingRepairPattern`).
+ * 3. Protection des mots-clés d'en-tête contre la confusion 'I'->'1' ([OcrRegexes.Normalizer.PROTECTED_KEYWORDS]).
+ * 4. Nettoyage des préfixes parasites et puces devant un chiffre ([OcrRegexes.Normalizer.PREFIX_T_BEFORE_DIGIT]).
+ * 5. Suppression des bruits de dates, devises et prix ([OcrRegexes.Normalizer.NOISE_REMOVAL]).
+ * 6. Correction du chiffre '1' mal lu ([OcrRegexes.Normalizer.OCR_ONE_CORRECTION]).
+ * 7. Conversions de fractions et nombres si présence de chiffre ([OcrRegexes.Quantities.FRACTION_RULES], `isDigit()`).
+ * 8. Conversion des diacritiques et accents parasites Unicode (`ocr_step1_diacritic_repairs.xml`).
+ * 9. Normalisation des cuillères si la ligne contient 'c' ([OcrRegexes.Normalizer.SPOON_NORMALIZATION], `contains('c')`).
+ * 10. Séparation Chiffre / Unité ([OcrRegexes.Normalizer.NUMBER_UNIT_SEPARATION]).
+ * 11. Nettoyage de la ponctuation finale parasite ([OcrRegexes.Normalizer.TRAILING_PUNCTUATION]).
+ * 12. Effondrement des espaces multiples et retrait des espaces de bordure ([OcrRegexes.Normalizer.MULTIPLE_SPACES]).
  */
 object Ocr1Normalizer {
 
-    /** Diacritiques et accents parasites par défaut chargés dynamiquement depuis [R.array.ocr_diacritic_repairs] (`diacritic_repairs.xml`). */
+    /** Diacritiques et accents parasites par défaut chargés dynamiquement depuis [R.array.ocr_diacritic_repairs] (`ocr_step1_diacritic_repairs.xml`). */
     internal val defaultDiacriticRepairs: List<String> by lazy {
         try {
             OcrVocabularyLoader.loadFromProjectResources().ocrDiacriticRepairs
@@ -30,15 +36,15 @@ object Ocr1Normalizer {
      *
      * Détail ligne par ligne des 15 sous-traitements de normalisation :
      * 1. **Garde-fou d'entrée :** Vérifie que la ligne n'est ni vide ni constituée uniquement d'espaces.
-     * 2. **Sélection des diacritiques :** Reçoit ou charge les paires de réparations de diacritiques depuis `diacritic_repairs.xml`.
-     * 3. **Réparations orthographiques XML (`ocr_repairs.xml`) :** Applique les paires fautif|correct (`lajout` -> `l'ajout`, `càsde` -> `c. à soupe de`).
+     * 2. **Sélection des diacritiques :** Reçoit ou charge les paires de réparations de diacritiques depuis `ocr_step1_diacritic_repairs.xml`.
+     * 3. **Réparations orthographiques XML (`ocr_step1_spelling_repairs.xml`) :** Applique les paires fautif|correct (`lajout` -> `l'ajout`, `càsde` -> `c. à soupe de`).
      * 4. **Protection des mots-clés de section :** Empêche la confusion du 'I' majuscule avec '1' dans `"INGRÉDIENTS"` et `"INSTRUCTIONS"`.
      * 5. **Nettoyage du préfixe 't' parasite :** Supprime le caractère 't' ou 't ' accidentellement inséré devant un chiffre (ex: `t10 min` -> `10 min`).
      * 6. **Suppression des symboles de tolérance & puces :** Retire `±`, `+/-`, `+-`, `environ` et les puces devant un chiffre (ex: `! 100 g` -> `100 g`).
      * 7. **Suppression du bruit publicitaire & devises :** Élimine les dates (`14/12/94`), prix (`209 F`, `15.50 EUR`, `20 €`).
      * 8. **Correction OCR du chiffre '1' :** Restaure le chiffre `1` lorsqu'il est lu comme `|`, `!`, `i` ou `l` devant une lettre.
      * 9. **Fractions & Erreurs de nombres (Garde-fou `isDigit()`) :** Si la ligne contient un chiffre, convertit `I12` -> `1/2`, `112` -> `1/2`, `del` -> `de 1`.
-     * 10. **Conversion des diacritiques parasites (`diacritic_repairs.xml`) :** Remplace les accents Unicode étrangers/vietnamiens (`ế` -> `é`, `ệ` -> `è`, `š` -> `s`).
+     * 10. **Conversion des diacritiques parasites (`ocr_step1_diacritic_repairs.xml`) :** Remplace les accents Unicode étrangers/vietnamiens (`ế` -> `é`, `ệ` -> `è`, `š` -> `s`).
      * 11. **Corrections d'articles & liaisons d'apostrophes :** Normalise `1 e` -> `le`, `T'oignon` -> `l'oignon`, `jauned'oeuf` -> `jaune d'oeuf`.
      * 12. **Normalisation des unités de cuillères (Garde-fou `contains('c')`) :** Si la ligne contient 'c', convertit `cas` -> `c. à soupe`, `cac` -> `c. à café`.
      * 13. **Séparation Chiffre / Unité :** Sépare `500g` -> `500 g`, `1l` -> `1 l`.
@@ -100,15 +106,15 @@ object Ocr1Normalizer {
         }
 
         // 13. Séparation d'un nombre collé à son unité (ex: "500g" -> "500 g", "1l" -> "1 l")
-        text = text.replace(Regex("(?i)(?<!\\p{L})(\\d+)([a-z]+)")) { match ->
+        text = text.replace(OcrRegexes.Normalizer.NUMBER_UNIT_SEPARATION) { match ->
             "${match.groupValues[1]} ${match.groupValues[2].lowercase()}"
         }
 
         // 14. Nettoyage de la ponctuation finale parasite (virgules, deux-points, points-virgules) tout en préservant le tiret de césure
-        text = text.replace(Regex("[,:;\\s]+$"), "")
+        text = text.replace(OcrRegexes.Normalizer.TRAILING_PUNCTUATION, "")
 
         // 15. Effondrement des espaces multiples consécutifs en un espace unique et retrait des espaces de bordure
-        return text.replace(Regex("\\s+"), " ").trim()
+        return text.replace(OcrRegexes.Normalizer.MULTIPLE_SPACES, " ").trim()
     }
 
     /**
@@ -145,7 +151,7 @@ object Ocr1Normalizer {
             if (parts.size == 2) {
                 val wrong = parts[0].trim().replace("\\'", "'")
                 val correct = parts[1].trim().replace("\\'", "'")
-                val pattern = Pattern.compile("(?<!\\p{L})" + Pattern.quote(wrong) + "(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+                val pattern = OcrRegexes.getSpellingRepairPattern(wrong)
                 result = pattern.matcher(result).replaceAll(Matcher.quoteReplacement(correct))
             }
         }

@@ -12,4 +12,23 @@
         <item>Büchettes|Bûchettes</item>
         <item>Buchettes|Bûchettes</item>
     </string-array>
+
+    <!-- Connecteurs et prépositions de liaison pour titres multi-lignes -->
+    <string-array name="title_multiline_connectors">
+        <item>au</item>
+        <item>aux</item>
+        <item>et</item>
+        <item>à la</item>
+        <item>a la</item>
+        <item>à</item>
+        <item>de</item>
+        <item>d\'</item>
+        <item>du</item>
+        <item>des</item>
+        <item>avec</item>
+        <item>sur</item>
+        <item>en</item>
+        <item>pour</item>
+        <item>façon</item>
+    </string-array>
 </resources>

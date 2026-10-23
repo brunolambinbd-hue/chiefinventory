@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Liste des enseignes, supermarchés, magazines et éditeurs culinaires connus -->
+    <string-array name="known_source_brands">
+        <!-- Supermarchés & Enseignes -->
+        <item>Maxi GB</item>
+        <item>GB</item>
+        <item>Delhaize</item>
+        <item>Carrefour</item>
+        <item>Colruyt</item>
+        <item>Aldi</item>
+        <item>Lidl</item>
+        <item>Intermarché</item>
+        <item>Cora</item>
+        <item>E.Leclerc</item>
+
+        <!-- Magazines & Médias Culinaires -->
+        <item>Cuisine Actuelle</item>
+        <item>Femme Actuelle</item>
+        <item>Marmiton</item>
+        <item>Régal</item>
+        <item>Elle à Table</item>
+        <item>Gault &amp; Millau</item>
+        <item>Guide Michelin</item>
+
+        <!-- Marques Culinaires -->
+        <item>Nestlé</item>
+        <item>Tupperware</item>
+        <item>Maggi</item>
+        <item>Knorr</item>
+    </string-array>
+</resources>
