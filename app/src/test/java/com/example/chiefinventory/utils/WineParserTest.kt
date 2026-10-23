@@ -204,7 +204,7 @@ class WineParserTest {
     }
 
     /**
-     * Vérifie l'effacement du motif d'en-tête de section vin issu de `wine_remove_pattern` ("Notre vin conseillé: Un bon Merlot" -> "Un bon Merlot").
+     * Vérifie l'effacement du motif d'en-tête de section vin ("Notre vin conseillé: Un bon Merlot" -> "Un bon Merlot").
      */
     @Test
     fun `cleanWineLine removePattern application`() {
@@ -212,6 +212,25 @@ class WineParserTest {
         val expected = "Un bon Merlot"
         val actual = WineParser.cleanWineLine(input, vocabulary).trim()
         assertEquals("Nettoyage du motif d'en-tête vin échoué pour '$input'", expected, actual)
+    }
+
+    /**
+     * Vérifie l'effacement de tous les motifs d'en-tête de section vin via OcrRegexes.Wines.REMOVE_HEADER_PATTERN.
+     */
+    @Test
+    fun `cleanWineLine should remove wine section header patterns`() {
+        val testCases = mapOf(
+            "Notre vin conseillé : Un Merlot" to "Un Merlot",
+            "Vin suggéré : Châteauneuf-du-Pape" to "Châteauneuf-du-Pape",
+            "Conseil vin : Pinot Noir" to "Pinot Noir",
+            "Vin recommandé : Riesling" to "Riesling",
+            "vin conseillé: Bordeaux" to "Bordeaux"
+        )
+
+        testCases.forEach { (input, expected) ->
+            val actual = WineParser.cleanWineLine(input, vocabulary)
+            assertEquals("Nettoyage d'en-tête vin échoué pour '$input'", expected, actual)
+        }
     }
 
     /**

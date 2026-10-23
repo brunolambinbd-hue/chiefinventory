@@ -3,21 +3,34 @@ package com.example.chiefinventory.utils
 import android.util.Log
 
 /**
- * Step 4 of the OCR pipeline: Final semantic reconstruction.
- * Responsibility: Merge broken lines, handle hyphenation, and format paragraphs.
+ * Étape 4 du pipeline OCR : Fusion et Reconstruction Sémantique des Lignes Intermédiaires.
+ *
+ * Responsabilités :
+ * - Fusionner les lignes d'ingrédients ou de consignes tronquées par un saut de ligne ou une césure par tiret (`-`).
+ * - Détecter les noms et connecteurs suspendus en fin de ligne (*"de"*, *"du"*, *"vinaigre"*, *"huile"*).
+ * - Recoller les qualificatifs de préparation orphelins (*"haché"*, *"émincé"*).
+ * - Découper les blocs d'instructions narratives en phrases individuelles ordonnées (une phrase par ligne).
  */
 object Ocr4Merger {
     private const val TAG = "Ocr4Merger"
-    private val INGREDIENT_CONNECTORS = listOf("de", "du", "des", "d'", "au", "aux", "à", "ou", "ou de", "ou d'")
 
-    // Noms qui appellent presque toujours un complément "de ..."
+    /** Connecteurs d'ingrédients de liaison provoquant la fusion de la ligne suivante. */
+    private val INGREDIENTS_CONNECTORS = listOf("de", "du", "des", "d'", "au", "aux", "à", "ou", "ou de", "ou d'")
+
+    /** Noms d'ingrédients appelant presque toujours un complément ("de ..."). */
     private val HANGING_NOUNS = listOf("vinaigre", "huile", "jus", "zeste", "pincée", "pincee", "filet", "brin", "brins", "botte", "gousse", "gousses", "cuillère", "cuillere", "verre")
 
-    // Articles qui, s'ils sont seuls sur une ligne, indiquent une fusion obligatoire
+    /** Articles isolés en fin de ligne indiquant une fusion obligatoire. */
     private val ARTICLES = listOf("le", "la", "les", "l'", "un", "une", "des", "du")
 
     /**
-     * Merges broken lines of ingredients into a clean list.
+     * Fusionne les lignes d'ingrédients tronquées et scinde ensuite les lignes combinées.
+     *
+     * @param rawIngredients La liste des lignes d'ingrédients brutes issues de [Ocr3Categorizer].
+     * @param preparationModifiers La liste des adjectifs/modificateurs de préparation (`modifiers.xml`).
+     * @param commonIngredients La liste des ingrédients connus sans quantité (`ingredients.xml`).
+     * @param mandatoryComplements La liste des compléments d'ingrédients obligatoires (`complement_ingredients.xml`).
+     * @return La liste finale des ingrédients reconstitués et séparés.
      */
     fun mergeIngredients(
         rawIngredients: List<String>, 
@@ -65,7 +78,6 @@ object Ocr4Merger {
                         val base = if (currentClean.endsWith("-")) currentClean.dropLast(1) else currentClean
                         current = base.trim() + normalizedLine.trim()
                     } else {
-                        // Preservation of hyphen for non-letter cases (e.g. "Zone 5-")
                         val base = current.trimEnd()
                         current = if (base.endsWith("-")) {
                             base + normalizedLine.trimStart()
@@ -94,7 +106,10 @@ object Ocr4Merger {
     }
 
     /**
-     * Merges narrative instructions and splits them into one sentence per line.
+     * Fusionne les blocs d'instructions narratives tronqués et les découpe en une phrase unique par ligne.
+     *
+     * @param rawInstructions La liste des lignes d'instructions brutes issues de [Ocr3Categorizer].
+     * @return La liste des consignes de préparation reconstruites et séparées phrase par phrase.
      */
     fun mergeInstructions(rawInstructions: List<String>): List<String> {
         if (rawInstructions.isEmpty()) return emptyList()
@@ -155,31 +170,55 @@ object Ocr4Merger {
         return resultSentences
     }
 
+    /**
+     * Découpe un bloc de texte narratif en phrases individuelles d'après les ponctuations fortes (`.`, `!`, `?`).
+     *
+     * @param text Le bloc de texte narratif.
+     * @return La liste des phrases isolées.
+     */
     private fun splitIntoSentences(text: String): List<String> {
         val pattern = Regex("(?<=[.!?])\\s+")
         return text.split(pattern).map { it.trim() }.filter { it.isNotEmpty() }
     }
 
+    /**
+     * Détermine si une ligne d'ingrédient se termine par un mot suspendu ou une quantité incomplète sans nom d'ingrédient.
+     *
+     * @param text La ligne d'ingrédient à analyser.
+     * @return `true` si la ligne est suspendue et doit être fusionnée avec la suivante, `false` sinon.
+     */
     private fun isHanging(text: String): Boolean {
         val lower = text.lowercase().trim()
         if (ARTICLES.contains(lower)) return true
 
-        // Si la ligne ne contient qu'une quantité et une unité sans nom d'ingrédient (ex: "2 c. à soupe", "250 g")
         val parsed = IngredientParser.parse(text)
         if (parsed.quantity != null && (parsed.name.isBlank() || parsed.name.matches(Regex("(?i)^(?:soupe|café|c\\.?\\s*[àa]\\s*(?:soupe|café)|g|kg|cl|ml|l)$")))) {
             return true
         }
 
-        val endsWithConnector = INGREDIENT_CONNECTORS.any { lower.endsWith(" $it") || lower.endsWith("$it") }
+        val endsWithConnector = INGREDIENTS_CONNECTORS.any { lower.endsWith(" $it") || lower.endsWith("$it") }
         val endsWithHangingNoun = HANGING_NOUNS.any { lower.endsWith(" $it") || lower == it || lower.endsWith("soupe") || lower.endsWith("café") }
         return endsWithConnector || endsWithHangingNoun
     }
 
+    /**
+     * Détermine si le texte commence par un connecteur de liaison d'ingrédients (ex: *"de"*, *"du"*, *"d'"*, *"au"*).
+     *
+     * @param text La ligne à analyser.
+     * @return `true` si la ligne commence par un connecteur, `false` sinon.
+     */
     private fun startsWithConnector(text: String): Boolean {
         val lower = text.lowercase().trim()
-        return INGREDIENT_CONNECTORS.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
+        return INGREDIENTS_CONNECTORS.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
     }
 
+    /**
+     * Détermine si une ligne contient uniquement un adjectif de préparation orphelin (ex: *"haché"*, *"émincé"*).
+     *
+     * @param text La ligne à évaluer.
+     * @param preparationModifiers La liste des modificateurs de préparation (`modifiers.xml`).
+     * @return `true` s'il s'agit d'un adjectif orphelin devant être rattaché, `false` sinon.
+     */
     private fun isOrphanModifier(text: String, preparationModifiers: List<String>): Boolean {
         val lower = text.lowercase().trim()
         if (lower.startsWith(",") || lower.startsWith("(")) return true
@@ -192,12 +231,23 @@ object Ocr4Merger {
         }
     }
 
+    /**
+     * Détermine si une ligne commence par une quantité, un article ou une puce typographique.
+     *
+     * @param line La ligne à analyser.
+     * @return `true` si la ligne commence par une quantité ou un article, `false` sinon.
+     */
     private fun startsWithQuantity(line: String): Boolean {
         return Regex("^(?:[\\d¼½¾]|un\\b|une\\b|des\\b|du\\b|de la\\b|de l'|le\\b|la\\b|les\\b|l['’]|quelques\\b|plusieurs\\b|un peu\\b|•|\\-|\\*)", RegexOption.IGNORE_CASE).containsMatchIn(line)
     }
 
+    /**
+     * Détermine si la ligne marque le début d'une nouvelle étape de consigne d'instructions.
+     *
+     * @param line La ligne d'instruction à évaluer.
+     * @return `true` s'il s'agit du début d'une nouvelle étape, `false` sinon.
+     */
     private fun isNewStep(line: String): Boolean {
-        // Une vraie nouvelle étape commence par une puce, un numéro avec séparateur (1., 2)) ou un verbe/mot de consigne explicite
         return Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*|Faites\\b|Pendant\\b|Mélangez\\b|Plongez\\b|Egoutez\\b|Égouttez\\b|Servez\\b|Coupez\\b|Préparez\\b|Lavez\\b|Disposez\\b|Ajoutez\\b|Répartissez\\b|Garnissez\\b|Salez\\b|Mettez\\b)", RegexOption.IGNORE_CASE).containsMatchIn(line)
     }
 }

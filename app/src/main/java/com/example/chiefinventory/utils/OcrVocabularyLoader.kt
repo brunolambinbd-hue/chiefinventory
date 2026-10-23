@@ -88,7 +88,7 @@ object OcrVocabularyLoader {
                     val items = mutableListOf<String>()
                     val itemNodes = elem.getElementsByTagName("item")
                     for (j in 0 until itemNodes.length) {
-                        items.add(itemNodes.item(j).textContent.trim())
+                        items.add(itemNodes.item(j).textContent.trim().replace("\\'", "'"))
                     }
                     stringArrays[arrayName] = items
                 }

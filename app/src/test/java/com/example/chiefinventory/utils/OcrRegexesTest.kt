@@ -123,4 +123,21 @@ class OcrRegexesTest {
         assertThat(pattern1).isSameInstanceAs(pattern2)
         assertThat(pattern1.containsMatchIn("c. à soupe de farine")).isTrue()
     }
+
+    @Test
+    fun `Beautifier regexes should match step numbers and bullets`() {
+        assertThat(OcrRegexes.Beautifier.STEP_DIGIT_PREFIX.containsMatchIn("1. Couper")).isTrue()
+        assertThat(OcrRegexes.Beautifier.STEP_NUMBER_BEFORE_CAPITAL.containsMatchIn("1 Plongez")).isTrue()
+        assertThat(OcrRegexes.Beautifier.BULLET_PREFIX.containsMatchIn("• Faire cuire")).isTrue()
+    }
+
+    @Test
+    fun `getInstructionPrefixPattern should return memoized regex pattern for instruction prefixes`() {
+        val keywords = listOf("Coupez", "Plongez", "Mélangez")
+        val pattern1 = OcrRegexes.getInstructionPrefixPattern(keywords)
+        val pattern2 = OcrRegexes.getInstructionPrefixPattern(keywords)
+
+        assertThat(pattern1).isSameInstanceAs(pattern2)
+        assertThat(pattern1.containsMatchIn("1. Coupez les tomates")).isTrue()
+    }
 }

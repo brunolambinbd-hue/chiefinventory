@@ -64,6 +64,8 @@
         <item>toides|froides</item>
         <item>les % du|les ¾ du</item>
         <item>cullerées|cuillerées</item>
+        <item>lxembourgeoise|luxembourgeoise</item>
+        <item>Parnme|Parme</item>
 |
         <!-- ======================================================= -->
         <!-- 3. ESPACES PARASITES (CRÉNAGE BRISÉ DANS LES MOTS)     -->
@@ -124,6 +126,7 @@
         <item>hulle|huile</item>
         <item>pettes|petites</item>
         <item>deausinécessaire|d\'eau si nécessaire</item>
+        <item>berbes|herbes</item>
 
         <!-- ======================================================= -->
         <!-- 6. QUANTITÉS, CHIFFRES ET UNITÉS                        -->

@@ -1,5 +1,8 @@
 package com.example.chiefinventory.utils
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 /**
  * Étape 1 du pipeline OCR : Normalisation des caractères, chiffres, fractions et symboles.
  *
@@ -135,14 +138,15 @@ object Ocr1Normalizer {
      * @return Le texte réparé.
      */
     private fun applySpellingRepairs(text: String, repairs: List<String>): String {
+        if (!text.any { it.isLetter() }) return text
         var result = text
         for (repair in repairs) {
             val parts = repair.split("|")
             if (parts.size == 2) {
                 val wrong = parts[0].trim().replace("\\'", "'")
                 val correct = parts[1].trim().replace("\\'", "'")
-                val pattern = Regex("(?i)(?<!\\p{L})${Regex.escape(wrong)}(?!\\p{L})")
-                result = result.replace(pattern, correct)
+                val pattern = Pattern.compile("(?<!\\p{L})" + Pattern.quote(wrong) + "(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+                result = pattern.matcher(result).replaceAll(Matcher.quoteReplacement(correct))
             }
         }
         return result

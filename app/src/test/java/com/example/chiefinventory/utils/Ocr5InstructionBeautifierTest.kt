@@ -4,6 +4,10 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 
+/**
+ * Suite de tests unitaires de Type B vérifiant la beautification, la ponctuation et le recollage de consignes
+ * suspendues par [Ocr5InstructionBeautifier].
+ */
 class Ocr5InstructionBeautifierTest {
 
     private lateinit var vocabulary: OcrVocabulary
@@ -13,6 +17,9 @@ class Ocr5InstructionBeautifierTest {
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
+    /**
+     * Vérifie le recollage de phrases d'instructions rompues après une conjonction "et." ("et. Garnissez" -> "et garnissez").
+     */
     @Test
     fun `beautifyInstructions should merge instruction sentence broken after conjunction et dot`() {
         val input = listOf(
@@ -31,6 +38,9 @@ class Ocr5InstructionBeautifierTest {
         )
     }
 
+    /**
+     * Vérifie le recollage de consignes coupées après une abréviation d'unité ("aux 4 c." + "À soupe" -> "aux 4 c. à soupe").
+     */
     @Test
     fun `beautifyInstructions should merge instruction sentence broken after unit abbreviation c dot`() {
         val input = listOf(
@@ -50,6 +60,9 @@ class Ocr5InstructionBeautifierTest {
         )
     }
 
+    /**
+     * Vérifie le recollage de phrases rompues par une virgule finale (",. Le thym" -> ", le thym").
+     */
     @Test
     fun `beautifyInstructions should merge instruction sentence broken after comma`() {
         val input = listOf(
@@ -68,6 +81,9 @@ class Ocr5InstructionBeautifierTest {
         )
     }
 
+    /**
+     * Vérifie que les consignes déjà complètes se terminant par un point restent séparées.
+     */
     @Test
     fun `beautifyInstructions should leave complete sentences ending with a period separate`() {
         val input = listOf(

@@ -141,12 +141,15 @@ object WineParser {
      * @return La ligne nettoyée (ex: "Un Bordeaux 1996 75 cl").
      */
     fun cleanWineLine(line: String, resources: WineResources): String {
-        val wineRemoveRegex = if (resources.removePattern.isNotBlank()) {
-            Regex(resources.removePattern, RegexOption.IGNORE_CASE)
-        } else null
-
         var cleaned = line
-        wineRemoveRegex?.let { cleaned = cleaned.replace(it, "") }
+        cleaned = cleaned.replace(OcrRegexes.Wines.REMOVE_HEADER_PATTERN, "").trim()
+
+        if (resources.removePattern.isNotBlank()) {
+            try {
+                cleaned = cleaned.replace(Regex(resources.removePattern, RegexOption.IGNORE_CASE), "").trim()
+            } catch (_: Exception) {}
+        }
+
         cleaned = cleaned.replace(OcrRegexes.Wines.HEADER_PREFIX, "").trim()
         cleaned = cleaned.replace(OcrRegexes.Wines.LEADING_PUNCTUATION, "").trim()
 

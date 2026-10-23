@@ -11,12 +11,19 @@ import android.util.Log
  *   et fusionner les deux consignes en une seule phrase fluide.
  * - Nettoyer les préfixes parasites d'en-tête devant les verbes d'action.
  * - Filtrer les mots d'en-tête de section isolés ("Préparation.", "Instructions.").
+ * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Beautifier].
  */
 object Ocr5InstructionBeautifier {
     private const val TAG = "RecipeOCR"
 
     /**
-     * Effectue la beautification et le recollage final des consignes d'instructions.
+     * Effectue la beautification et le recollage sémantique final des consignes d'instructions.
+     *
+     * @param instructions La liste des instructions de la recette.
+     * @param stepActionKeywords Liste des verbes d'action culinaires (`step_keywords.xml`).
+     * @param hangingConnectors Liste des prépositions et connecteurs suspendus (`hanging_connectors.xml`).
+     * @param culinaryUnits Liste des unités de mesure culinaires (`culinary_units.xml`).
+     * @return La liste nettoyée des consignes d'instructions.
      */
     fun beautifyInstructions(
         instructions: List<String>,
@@ -26,34 +33,27 @@ object Ocr5InstructionBeautifier {
     ): List<String> {
         if (instructions.isEmpty()) return emptyList()
 
-        val baseUnits = listOf(" c.", " c", " cuillère", " cuillères", " cuillere", " cuilleres", " g.", " g", " kg", " cl", " ml", " dl", " l.", " l", " pincée", " gousse")
-        val allUnits = (baseUnits + culinaryUnits.map { " ${it.trim().lowercase()}" } + culinaryUnits.map { " ${it.trim().lowercase()}." }).distinct()
+        val defaultUnits = listOf("c.", "c", "cuillère", "cuillères", "cuillere", "cuilleres", "g.", "g", "kg", "cl", "ml", "dl", "l.", "l", "pincée", "gousse")
+        val activeUnits = (if (culinaryUnits.isNotEmpty()) culinaryUnits else defaultUnits)
+            .map { it.lowercase().trim() }
+            .distinct()
 
-        val actionVerbsRegex = if (stepActionKeywords.isNotEmpty()) {
-            val distinctKeywords = stepActionKeywords
-                .map { it.replace(Regex("\\[[^\\]]+\\]"), "") }
-                .filter { it.length >= 3 && it.lowercase() !in listOf("minutes", "heures", "secondes", "environ") }
-            distinctKeywords.joinToString("|") { Regex.escape(it) }
-        } else {
-            "(?!minutes\\b|heures\\b)[\\p{Lu}][\\p{Ll}]+"
-        }
-
-        val prefixPattern = Regex("^(?:[\\p{L}]{1,3}\\s+)?(?:\\d{1,2}[.)\\-]?\\s+)*(?=(?:$actionVerbsRegex)\\b)", RegexOption.IGNORE_CASE)
+        val prefixPattern = OcrRegexes.getInstructionPrefixPattern(stepActionKeywords)
 
         // 1. Nettoyage initial de chaque ligne
         val cleanedLines = instructions.map { line ->
             var cleaned = line.trim()
             cleaned = cleaned.replace(prefixPattern, "")
-            cleaned = cleaned.replace(Regex("^\\d{1,2}[.)\\-]\\s*"), "")
-            cleaned = cleaned.replace(Regex("^\\d{1,2}\\s+(?=[\\p{Lu}])"), "")
-            cleaned = cleaned.replace(Regex("^[•\\-*]\\s*"), "")
+            cleaned = cleaned.replace(OcrRegexes.Beautifier.STEP_DIGIT_PREFIX, "")
+            cleaned = cleaned.replace(OcrRegexes.Beautifier.STEP_NUMBER_BEFORE_CAPITAL, "")
+            cleaned = cleaned.replace(OcrRegexes.Beautifier.BULLET_PREFIX, "")
             cleaned
         }.filter { line ->
             val lower = line.lowercase().trim().removeSuffix(".")
             line.isNotBlank() && lower != "préparation" && lower != "preparation" && lower != "instructions" && lower != "consignes"
         }
 
-        // 2. Fusion des phrases se terminant par une conjonction (" et.", " ou.", ",.")
+        // 2. Fusion des phrases se terminant par une conjonction (" et.", " ou.", ",.") ou une unité isolée
         val mergedInstructions = mutableListOf<String>()
         var i = 0
         while (i < cleanedLines.size) {
@@ -71,16 +71,22 @@ object Ocr5InstructionBeautifier {
                 }
 
                 val currentClean = current.trim()
+                val currentLower = currentClean.lowercase()
+
                 val endsWithConjunction = currentClean.endsWith(" et.") || currentClean.endsWith(" et") ||
                         currentClean.endsWith(" ou.") || currentClean.endsWith(" ou") ||
                         currentClean.endsWith(",.") || currentClean.endsWith(",")
 
-                val endsWithUnit = allUnits.any { currentClean.lowercase().endsWith(it) }
+                val endsWithUnit = activeUnits.any { unit ->
+                    currentLower.endsWith(" $unit") || currentLower.endsWith(" $unit.")
+                }
 
                 if (endsWithConjunction || endsWithUnit) {
-                    val isAbbrevDot = listOf(" c.", " g.", " cl.", " ml.", " dl.", " l.", " kg.").any { currentClean.lowercase().endsWith(it) }
+                    val isAbbrevDot = currentClean.endsWith(".") && activeUnits.any { unit ->
+                        unit.endsWith(".") && currentLower.endsWith(" $unit")
+                    }
                     val currentNoDot = if (isAbbrevDot) currentClean else currentClean.removeSuffix(".").trim()
-                    val uncapitalizedNext = nextLine.replaceFirstChar { if (it.isUpperCase()) it.lowercase() else it.toString() }
+                    val uncapitalizedNext = nextLine.replaceFirstChar { it.lowercase() }
                     current = "$currentNoDot $uncapitalizedNext"
                     Log.d(TAG, "INSTRUCTION BEAUTIFIER: Merged '$currentNoDot' with '$nextLine'")
                     i++

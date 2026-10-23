@@ -279,6 +279,9 @@ object OcrRegexes {
         /** Efface le préfixe d'en-tête de recommandation de vin (ex: "Accord : Un vin blanc" -> "Un vin blanc"). */
         val HEADER_PREFIX: Regex = Regex("(?i)^(?:accord|boisson|boire|servir avec|suggestion)\\s*:?")
 
+        /** Supprime les titres et en-têtes de section Vin (ex: "Notre vin conseillé :", "Vin suggéré :", "Conseil vin :"). */
+        val REMOVE_HEADER_PATTERN: Regex = Regex("(?iu)^(?:notre\\s+)?vin\\s+(?:conseill[éÉėeèÈ]|sugg[éÉėeèÈ]r[éÉėeèÈ]|recommand[éÉėeèÈ])?\\s*:?|^conseil\\s+vin\\s*:?")
+
         /** Disqualifie une ligne de vin si elle contient des aliments liquides/culinaires. */
         val CULINARY_EXCLUSIONS: Regex = Regex("(?i)\\b(huile|vinaigre|beurre|crème|creme|lait|bouillon|eau|jus|sirop)\\b")
 
@@ -360,6 +363,23 @@ object OcrRegexes {
         val NUTRITION_FIBER: Regex = Regex("(?i)(?:fibres?|tores|tires)\\s*:?\\s*(\\d+(?:[.,]\\d+)?|[lI1][0oO]\\d*)")
     }
 
+    /**
+     * Motifs d'expressions régulières liés à l'Embellisseur de Présentation ([Ocr5InstructionBeautifier]).
+     */
+    object Beautifier {
+        /** Supprime les numéros d'étapes en début de ligne (ex: "1. ", "2) ", "3- "). */
+        val STEP_DIGIT_PREFIX: Regex = Regex("^\\d{1,2}[.)\\-]\\s*")
+
+        /** Supprime un numéro d'étape isolé suivi d'un mot à majuscule initiale (ex: "1 Plongez" -> "Plongez"). */
+        val STEP_NUMBER_BEFORE_CAPITAL: Regex = Regex("^\\d{1,2}\\s+(?=[\\p{Lu}])")
+
+        /** Supprime les puces typographiques en début de ligne (ex: "• ", "- ", "* "). */
+        val BULLET_PREFIX: Regex = Regex("^[•\\-*]\\s*")
+
+        /** Nettoie les commentaires entre crochets dans les listes de mots-clés. */
+        val BRACKET_COMMENT: Regex = Regex("\\[[^\\]]+\\]")
+    }
+
     /** Cache memoized pour les Regexes d'unités culinaires pour ne jamais compiler deux fois le même motif. */
     private val unitRegexCache = mutableMapOf<String, Regex>()
 
@@ -368,6 +388,30 @@ object OcrRegexes {
 
     /** Cache memoized pour les Regexes de préfixes téléphoniques pour ne jamais re-compiler le même motif. */
     private val phonePrefixCache = mutableMapOf<String, Regex>()
+
+    /** Cache memoized pour les Regexes de préfixes d'instructions pour ne jamais re-compiler le même motif dynamique. */
+    private val instructionPrefixCache = mutableMapOf<String, Regex>()
+
+    /**
+     * Retourne le motif Regex pré-compilé et mis en cache pour les préfixes de consignes basés sur les verbes d'action.
+     *
+     * @param stepActionKeywords La liste des verbes d'action culinaires issue de `step_keywords.xml`.
+     * @return L'expression régulière compilée correspondante.
+     */
+    fun getInstructionPrefixPattern(stepActionKeywords: List<String>): Regex {
+        val cacheKey = stepActionKeywords.joinToString(",")
+        return instructionPrefixCache.getOrPut(cacheKey) {
+            val actionVerbsRegex = if (stepActionKeywords.isNotEmpty()) {
+                val distinctKeywords = stepActionKeywords
+                    .map { it.replace(Beautifier.BRACKET_COMMENT, "") }
+                    .filter { it.length >= 3 && it.lowercase() !in listOf("minutes", "heures", "secondes", "environ") }
+                distinctKeywords.joinToString("|") { Regex.escape(it) }
+            } else {
+                "(?!minutes\\b|heures\\b)[\\p{Lu}][\\p{Ll}]+"
+            }
+            Regex("^(?:[\\p{L}]{1,3}\\s+)?(?:\\d{1,2}[.)\\-]?\\s+)*(?=(?:$actionVerbsRegex)\\b)", RegexOption.IGNORE_CASE)
+        }
+    }
 
     /**
      * Retourne le motif Regex pré-compilé et mis en cache pour un préfixe téléphonique donné.

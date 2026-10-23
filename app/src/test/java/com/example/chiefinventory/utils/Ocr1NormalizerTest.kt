@@ -200,4 +200,14 @@ class Ocr1NormalizerTest {
         assertThat(Ocr1Normalizer.normalize("lc. À soupe d'hulle d'olive", vocabulary.ocrSpellingRepairs))
             .isEqualTo("1 c. à soupe d'huile d'olive")
     }
+
+    @Test
+    fun `applySpellingRepairs should return unchanged text for lines without letters`() {
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+        val pureNumbers = "12 34 56"
+        val symbols = "--- : ; ! ?"
+
+        assertThat(Ocr1Normalizer.normalize(pureNumbers, vocabulary.ocrSpellingRepairs)).isEqualTo(pureNumbers)
+        assertThat(Ocr1Normalizer.normalize(symbols, vocabulary.ocrSpellingRepairs)).isEqualTo(symbols)
+    }
 }
