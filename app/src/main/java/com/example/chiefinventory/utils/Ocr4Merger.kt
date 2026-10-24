@@ -15,7 +15,7 @@ object Ocr4Merger {
     private const val TAG = "Ocr4Merger"
 
     /** Connecteurs d'ingrédients de liaison provoquant la fusion de la ligne suivante. */
-    private val INGREDIENTS_CONNECTORS = listOf("de", "du", "des", "d'", "au", "aux", "à", "ou", "ou de", "ou d'")
+    private val DEFAULT_INGREDIENTS_CONNECTORS = listOf("de", "du", "des", "d'", "au", "aux", "à", "ou", "ou de", "ou d'", "pour", "pour la", "pour le", "pour les")
 
     /** Noms d'ingrédients appelant presque toujours un complément ("de ..."). */
     private val HANGING_NOUNS = listOf("vinaigre", "huile", "jus", "zeste", "pincée", "pincee", "filet", "brin", "brins", "botte", "gousse", "gousses", "cuillère", "cuillere", "verre")
@@ -36,7 +36,8 @@ object Ocr4Merger {
         rawIngredients: List<String>, 
         preparationModifiers: List<String>, 
         commonIngredients: List<String>,
-        mandatoryComplements: List<String> = emptyList()
+        mandatoryComplements: List<String> = emptyList(),
+        customConnectors: List<String> = emptyList()
     ): List<String> {
         if (rawIngredients.isEmpty()) return emptyList()
         Log.d(TAG, "--- mergeIngredients START ---")
@@ -56,14 +57,15 @@ object Ocr4Merger {
             }
 
             val isNewStart = startsWithQuantity(normalizedLine)
-            val prevIsHanging = isHanging(current)
-            val nextStartsWithConnector = startsWithConnector(normalizedLine)
+            val prevIsHanging = isHanging(current, customConnectors)
+            val nextStartsWithConnector = startsWithConnector(normalizedLine, customConnectors)
             val nextIsModifier = isOrphanModifier(normalizedLine, preparationModifiers)
             val prevEndsWithPunctuation = current.trim().lastOrNull()?.let { it == ',' || it == '.' } ?: false
             val prevWasHyphenated = prevOriginalLine.trimEnd().endsWith("-")
 
             val hasUnclosedParen = current.count { it == '(' } > current.count { it == ')' }
-            val allowMerge = (!isNewStart || hasUnclosedParen) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier)
+            val prevEndsWithRangeConnector = current.lowercase().trimEnd().let { it.endsWith(" ou") || it.endsWith(" à") || it.endsWith(" a") || it.endsWith(" -") || it.endsWith("-") }
+            val allowMerge = (!isNewStart || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || prevEndsWithRangeConnector)
 
             if (allowMerge) {
                 if (prevWasHyphenated) {
@@ -91,7 +93,8 @@ object Ocr4Merger {
                         }
                     }
                 } else {
-                    current = "${current.trim()} ${normalizedLine.trim()}"
+                    val lineToAdd = if (nextStartsWithConnector) normalizedLine.replaceFirstChar { it.lowercase() } else normalizedLine
+                    current = "${current.trim()} ${lineToAdd.trim()}"
                 }
             } else {
                 intermediateMerged.add(current)
@@ -107,7 +110,9 @@ object Ocr4Merger {
                 mergedIng, 
                 commonIngredients, 
                 mandatoryComplements, 
-                preparationModifiers
+                preparationModifiers,
+                emptyList(),
+                emptyList()
             )
             finalSplitList.addAll(splits)
         }
@@ -201,7 +206,7 @@ object Ocr4Merger {
      * @param text La ligne d'ingrédient à analyser.
      * @return `true` si la ligne est suspendue et doit être fusionnée avec la suivante, `false` sinon.
      */
-    private fun isHanging(text: String): Boolean {
+    private fun isHanging(text: String, customConnectors: List<String> = emptyList()): Boolean {
         val lower = text.lowercase().trim()
         if (ARTICLES.contains(lower)) return true
 
@@ -215,7 +220,8 @@ object Ocr4Merger {
             return true
         }
 
-        val endsWithConnector = INGREDIENTS_CONNECTORS.any { lower.endsWith(" $it") || lower.endsWith("$it") }
+        val connectors = if (customConnectors.isNotEmpty()) customConnectors else DEFAULT_INGREDIENTS_CONNECTORS
+        val endsWithConnector = connectors.any { lower.endsWith(" $it") || lower.endsWith("$it") }
         val endsWithHangingNoun = HANGING_NOUNS.any { lower.endsWith(" $it") || lower == it || lower.endsWith("soupe") || lower.endsWith("café") }
         return endsWithConnector || endsWithHangingNoun
     }
@@ -226,9 +232,10 @@ object Ocr4Merger {
      * @param text La ligne à analyser.
      * @return `true` si la ligne commence par un connecteur, `false` sinon.
      */
-    private fun startsWithConnector(text: String): Boolean {
+    private fun startsWithConnector(text: String, customConnectors: List<String> = emptyList()): Boolean {
+        val connectors = if (customConnectors.isNotEmpty()) customConnectors else DEFAULT_INGREDIENTS_CONNECTORS
         val lower = text.lowercase().trim()
-        return INGREDIENTS_CONNECTORS.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
+        return connectors.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
     }
 
     /**

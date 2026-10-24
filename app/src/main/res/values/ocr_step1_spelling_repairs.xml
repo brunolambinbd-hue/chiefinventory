@@ -5,6 +5,11 @@
         <!-- 1. ÉLISIONS & APOSTROPHES MANQUANTES                    -->
         <!-- ======================================================= -->
         <item>lajout|l\'ajout</item>
+        <item>Koulade|Roulade</item>
+        <item>koulade|roulade</item>
+        <item>Parnme|Parme</item>
+        <item>parnme|parme</item>
+        <item>el sa|et sa</item>
         <item>Donmes|Pommes</item>
         <item>donmes|pommes</item>
         <item>Dommes|Pommes</item>
@@ -145,6 +150,10 @@
         <item>pettes|petites</item>
         <item>deausinécessaire|d\'eau si nécessaire</item>
         <item>berbes|herbes</item>
+        <item>auX|aux</item>
+        <item>(?i)\bfa-\s*voriser\b|favoriser</item>
+        <item> \'harmonie| l\'harmonie</item>
+        <item>cing|cinq</item>
 
         <!-- ======================================================= -->
         <!-- 6. QUANTITÉS, CHIFFRES ET UNITÉS                        -->

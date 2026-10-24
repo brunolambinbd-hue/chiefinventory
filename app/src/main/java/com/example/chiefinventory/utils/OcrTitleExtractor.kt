@@ -92,7 +92,7 @@ object OcrTitleExtractor {
             // 2. Détection de titre sur 2 lignes (ex: "Büchettes de melon" \n "au jambon italien et au porto")
             if (i + 1 < lines.size) {
                 val nextLine = lines[i + 1].trim()
-                if (isMultiLineTitleConnector(nextLine, vocabulary)) {
+                if (isMultiLineTitleConnector(nextLine, vocabulary) && !OcrInstructionUtils.hasActionVerb(nextLine, vocabulary.stepActionKeywords)) {
                     val combined = "$workingLine $nextLine"
                     val cleanCombined = repairFirstWordLettrine(stripRecipeNumber(combined), recipeIngredientWords, vocabulary)
                     val baseCand = isBaseCandidate(cleanCombined, vocabulary, containsActionRegex)
@@ -109,7 +109,7 @@ object OcrTitleExtractor {
                     (parsedRawLine.unit != null || parsedRawLine.quantity!! < 50.0)
 
             if (!isIngredientQuantityLine) {
-                val cleanLine = postProcessTitle(stripRecipeNumber(workingLine), vocabulary)
+                val cleanLine = postProcessTitle(stripRecipeNumber(workingLine), vocabulary).replace(Regex("\\s+[a-zA-Z]$"), "").trim()
                 val repairedCandidate = repairFirstWordLettrine(cleanLine, recipeIngredientWords, vocabulary)
                 if (isBaseCandidate(repairedCandidate, vocabulary, containsActionRegex)) {
                     val (score, details) = evaluateScore(repairedCandidate, vocabulary, recipeIngredientWords, firstIngredientWord)
@@ -120,6 +120,7 @@ object OcrTitleExtractor {
 
         // Logcat de tous les candidats évalués avec leurs détails
         candidates.forEachIndexed { index, candidate ->
+            System.err.println("TITLE CANDIDATE [#$index]: '${candidate.candidateText}' -> SCORE: ${candidate.score} (${candidate.scoreDetails})")
             Log.d(TAG, "TITLE CANDIDATE [#$index]: '${candidate.candidateText}' -> SCORE: ${candidate.score} (${candidate.scoreDetails})")
         }
 
@@ -129,7 +130,7 @@ object OcrTitleExtractor {
 
         if (bestCandidate != null) {
             extractedTitle = postProcessTitle(bestCandidate.candidateText, vocabulary)
-            Log.d(TAG, ">>> TITRE RETENU FINALEMENT: '$extractedTitle' avec SCORE MAX: ${bestCandidate.score}")
+            Log.d(TAG, ">>> TITRE RETENU INITIALEMENT: '$extractedTitle' avec SCORE MAX: ${bestCandidate.score}")
         } else {
             Log.d(TAG, ">>> AUCUN TITRE VALIDE RETENU")
         }
@@ -153,6 +154,30 @@ object OcrTitleExtractor {
                 continue
             }
             remainingLines.add(line)
+        }
+
+        // Complétion grammaticale du titre si le titre se termine par un adjectif/déterminant suspendu
+        if (extractedTitle != null) {
+            val lowerTitle = extractedTitle.lowercase().trim()
+            val trailingAdjRegex = Regex("(?i)\\b(?:petite|petites|grand|grande|grands|grandes|beau|beaux|belle|belles|façon|facon|fa\u00e7ons|facons|sa|son|ses|aux|au|avec)\\s*[a-z]?$")
+            if (trailingAdjRegex.containsMatchIn(lowerTitle)) {
+                val isFeminineAdj = lowerTitle.endsWith("petite") || lowerTitle.endsWith("petite s") || lowerTitle.endsWith("grande") || lowerTitle.endsWith("belle")
+                val numberWords = setOf("un", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix")
+                val orphanNounIdx = remainingLines.indexOfFirst { l ->
+                    val cleanL = l.lowercase().trim().removeSuffix(".")
+                    val matchesGender = if (isFeminineAdj) (cleanL.endsWith("e") || cleanL == "salade") else true
+                    cleanL.length in 3..20 && !cleanL.contains(" ") && matchesGender && cleanL !in numberWords &&
+                    !OcrInstructionUtils.hasActionVerb(cleanL, vocabulary.stepActionKeywords) &&
+                    cleanL !in listOf("les", "des", "pour", "dans", "sur", "avec", "par", "tout", "melon")
+                }
+                if (orphanNounIdx != -1) {
+                    val orphanNoun = remainingLines[orphanNounIdx].trim().removeSuffix(".")
+                    val baseTitle = extractedTitle.replace(Regex("\\s+[a-zA-Z]$"), "").trim()
+                    extractedTitle = "$baseTitle $orphanNoun"
+                    remainingLines.removeAt(orphanNounIdx)
+                    Log.d(TAG, "TITLE EXTRACTOR: Title completed with orphan noun -> '$extractedTitle' (consumed line: '$orphanNoun')")
+                }
+            }
         }
 
         Log.d(TAG, "=== FIN EXTRACTION DU TITRE PAR SCORING ===")
@@ -427,7 +452,7 @@ object OcrTitleExtractor {
         if (OcrRegexes.Titles.HAS_QUANTITY.containsMatchIn(trimmed)) return false
         if (OcrRegexes.Titles.DISQUALIFYING_FRACTION.containsMatchIn(trimmed)) return false
         if (OcrRegexes.Titles.DISQUALIFYING_SPOON.containsMatchIn(trimmed)) return false
-        if (containsActionRegex?.containsMatchIn(trimmed) == true) return false
+        if (OcrInstructionUtils.hasActionVerb(trimmed, vocabulary.stepActionKeywords)) return false
         if (trimmed.startsWith("•") || trimmed.startsWith("-") || trimmed.startsWith("*")) return false
 
         if (vocabulary.excludedOcrKeywords.any { it.equals(trimmed, ignoreCase = true) }) return false
@@ -441,7 +466,7 @@ object OcrTitleExtractor {
         if (OcrHelperUtils.isLikelyProperNameOrSource(trimmed, vocabulary) || SourceParser.isSourceLine(trimmed, vocabulary)) return false
         if (WineParser.isWineLine(trimmed, vocabulary)) return false
 
-        if (lower.startsWith("d'") || lower.startsWith("l'") || lower.startsWith("de ") || lower.startsWith("du ") || lower.startsWith("des ") || lower.startsWith("de la ") || lower.startsWith("de l'")) return false
+        if (lower.startsWith("d'") || lower.startsWith("l'") || lower.startsWith("de ") || lower.startsWith("du ") || lower.startsWith("des ") || lower.startsWith("de la ") || lower.startsWith("de l'") || lower.startsWith("ou ") || lower.startsWith("à ") || lower.startsWith("a ") || lower.startsWith("tranches de ") || lower.startsWith("tranche de ")) return false
         if (lower.startsWith("quelques ") || lower.startsWith("plusieurs ") || lower.startsWith("ingrédients") || lower.startsWith("ingredients") || lower.startsWith("préparation") || lower.startsWith("cuisson") || lower.startsWith("repos") || lower.startsWith("pour ") || lower.startsWith("le jus") || lower.startsWith("jus de")) return false
         if (lower.contains("personnes") || lower.contains("portions")) return false
 

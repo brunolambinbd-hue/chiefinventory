@@ -44,6 +44,15 @@ object Ocr3NarrativeCategorizer {
         }
         if (hasInstructionHeader && hasIngredientWithQuantity) return false
 
+        // 1.6 Si la fiche contient un bloc d'ingrédients du bas ("POUR X PERSONNES") -> Type 3 Inversé !
+        val hasBottomIngredientList = lines.indices.drop(2).any { i ->
+            val lower = lines[i].lowercase().trim()
+            val nextLower = if (i + 1 < lines.size) lines[i + 1].lowercase().trim() else ""
+            (lower.contains("pour") && lower.contains("personnes")) ||
+            (lower == "pour" && nextLower.contains("personnes"))
+        }
+        if (hasBottomIngredientList) return false
+
         // 2. Si la fiche contient au moins une ligne d'ingrédient autonome AVANT le début des instructions
         var hasInstructionStarted = false
         val hasStandaloneIngredientLine = lines.any { line ->
@@ -104,7 +113,7 @@ object Ocr3NarrativeCategorizer {
             if (wineState.isWineSectionClosed) continue
 
             // 1. Extraction des méta-données (Portions, Temps, Kcal)
-            val metaResult = RecipeMetadataParser.extractMetadata(workingLine, results)
+            val metaResult = RecipeMetadataParser.extractMetadata(workingLine, results, vocabulary)
             workingLine = metaResult.remainingLine.trim()
             if (metaResult.isPureMetadata || workingLine.isBlank()) continue
 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mots-clés d'en-tête de section prix / coût / budget -->
+    <string-array name="price_title_keywords">
+        <item>prix :</item>
+        <item>prix</item>
+        <item>coût :</item>
+        <item>cout :</item>
+        <item>coût</item>
+        <item>cout</item>
+        <item>budget :</item>
+        <item>budget</item>
+    </string-array>
+
+    <!-- 1. NIVEAU BAS (Normalisé en : "Bon marché") -->
+    <string-array name="price_categories_low">
+        <item>très bon marché</item>
+        <item>tres bon marche</item>
+        <item>bon marché</item>
+        <item>bon marche</item>
+        <item>économique</item>
+        <item>economique</item>
+        <item>petit prix</item>
+        <item>pas cher</item>
+    </string-array>
+
+    <!-- 2. NIVEAU MOYEN (Normalisé en : "Coût moyen") -->
+    <string-array name="price_categories_medium">
+        <item>coût moyen</item>
+        <item>cout moyen</item>
+        <item>prix moyen</item>
+        <item>budget moyen</item>
+        <item>moyen</item>
+        <item>moyennement cher</item>
+    </string-array>
+
+    <!-- 3. NIVEAU HAUT (Normalisé en : "Assez cher") -->
+    <string-array name="price_categories_high">
+        <item>très cher</item>
+        <item>tres cher</item>
+        <item>assez cher</item>
+        <item>cher</item>
+        <item>élevé</item>
+        <item>eleve</item>
+        <item>gastronomique</item>
+        <item>coûteux</item>
+        <item>couteux</item>
+    </string-array>
+</resources>

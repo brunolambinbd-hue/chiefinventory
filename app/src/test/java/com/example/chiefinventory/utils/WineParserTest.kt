@@ -55,6 +55,15 @@ class WineParserTest {
         )
     }
 
+    @Test
+    fun `isWineLine should detect Spanish producer Marques de Riscal and DO rueda`() {
+        val line = "Marqués de Riscal, DO rueda 2010"
+        assertTrue(
+            "Détection producteur/appellation espagnole échouée pour '$line'",
+            WineParser.isWineLine(line, vocabulary)
+        )
+    }
+
     /**
      * Vérifie le rejet des années hors limites (1900-2099).
      */
@@ -308,5 +317,13 @@ class WineParserTest {
         val expected = "Un vin avec des espaces"
         val actual = WineParser.cleanWineLine(input, vocabulary)
         assertEquals("Suppression des espaces inutiles en début/fin échouée pour '$input'", expected, actual)
+    }
+
+    @Test
+    fun `cleanWineLine should preserve hyphen in Haut-Médoc`() {
+        val input = "Haut-Médoc 1995"
+        val actual = WineParser.cleanWineLine(input, vocabulary)
+        System.err.println("CLEANED WINE = '$actual'")
+        assertEquals("Haut-Médoc 1995", actual)
     }
 }

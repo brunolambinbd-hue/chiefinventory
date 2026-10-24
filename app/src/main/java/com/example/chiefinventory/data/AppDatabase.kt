@@ -25,7 +25,7 @@ import com.example.chiefinventory.model.RecipeIngredient
         Recipe::class,
         RecipeIngredient::class
     ],
-    version = 27,
+    version = 28,
     exportSchema = false
 )
 @TypeConverters(com.example.chiefinventory.data.TypeConverters::class)
@@ -36,7 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
 
     companion object {
-        const val DATABASE_VERSION: Int = 27
+        const val DATABASE_VERSION: Int = 28
         const val DATABASE_NAME: String = "chiefinventory_database"
 
         private val MIGRATION_18_19 = object : Migration(18, 19) {
@@ -141,6 +141,15 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration 27 -> 28: Ajout de priceRating à la table recipes.
+         */
+        private val MIGRATION_27_28 = object : Migration(27, 28) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE recipes ADD COLUMN priceRating TEXT")
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -154,7 +163,8 @@ abstract class AppDatabase : RoomDatabase() {
                 .addMigrations(
                     MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, 
                     MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24, 
-                    MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27
+                    MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27,
+                    MIGRATION_27_28
                 )
                 .fallbackToDestructiveMigration()
                 .build()

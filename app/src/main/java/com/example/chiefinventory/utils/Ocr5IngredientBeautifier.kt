@@ -23,6 +23,10 @@ object Ocr5IngredientBeautifier {
         baseIngredients: List<String> = emptyList(),
         varietyQualifiers: List<String> = emptyList()
     ): List<String> {
+        val standaloneTrashWords = setOf(
+            "les", "le", "la", "des", "du", "de", "d'", "un", "une", "et", "ou", "pour", "sur", "avec", "dans", "par", "ce", "ces", "cette", "notre", "conseil", "prix"
+        )
+
         val mergedVarieties = IngredientVarietyMerger.beautifyIngredientVarieties(ingredients, baseIngredients, varietyQualifiers)
         return mergedVarieties.map { line ->
             var cleaned = line.trim()
@@ -31,8 +35,8 @@ object Ocr5IngredientBeautifier {
             }
             cleaned
         }.filter { line ->
-            val lower = line.lowercase().trim().removeSuffix(":")
-            line.isNotBlank() && lower != "ingrédients" && lower != "ingredients" && lower != "composition" && lower != "ngrédients"
+            val lower = line.lowercase().trim().removeSuffix(":").removeSuffix(".")
+            line.isNotBlank() && lower != "ingrédients" && lower != "ingredients" && lower != "composition" && lower != "ngrédients" && lower !in standaloneTrashWords
         }
     }
 }

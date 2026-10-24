@@ -23,7 +23,10 @@
         <item>chardonnay</item>
         <item>sauvignon</item>
         <item>touraine</item>
+        <item>Haut-Médoc</item>
         <item>Haut-Medoc</item>
+        <item>Haut Médoc</item>
+        <item>Haut Medoc</item>
         <item>bordeaux</item>
         <item>bordeau</item>
         <item>graves</item>
@@ -44,6 +47,7 @@
         <item>rioja</item>
         <item>ribera del duero</item>
         <item>priorat</item>
+        <item>rueda</item>
         <item>cava</item>
         <item>jerez</item>
         <item>sherry</item>
@@ -80,6 +84,8 @@
         <item>atinium</item>
         <item>atinum</item>
         <item>VERDIGNAN</item>
+        <item>marqués de riscal</item>
+        <item>marques de riscal</item>
         <item>torres</item>
         <item>antinori</item>
         <item>frescobaldi</item>

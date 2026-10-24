@@ -19,6 +19,7 @@ object Ocr3CategorizerWine {
      */
     class WineState {
         var isWineSectionClosed: Boolean = false
+        var isWineHeaderActive: Boolean = false
         val detectedWineList: MutableList<String> = mutableListOf()
     }
 
@@ -47,6 +48,28 @@ object Ocr3CategorizerWine {
         wineState: WineState
     ): Boolean {
         if (containsAction || startsWithConnector) return false
+
+        val lower = workingLine.lowercase().trim()
+        val isExplicitWineHeader = lower.contains("conseil vin") || lower.contains("vin conseillé") || lower.contains("accord vin") || lower.startsWith("l'accord") || lower.startsWith("sommelier")
+
+        if (isExplicitWineHeader) {
+            wineState.isWineHeaderActive = true
+        }
+
+        if (wineState.isWineHeaderActive) {
+            if (!wineState.isWineSectionClosed) {
+                val cleanedWine = WineParser.cleanWineLine(workingLine, vocabulary)
+                if (cleanedWine.isNotBlank() && wineState.detectedWineList.none { it.equals(cleanedWine, ignoreCase = true) }) {
+                    wineState.detectedWineList.add(cleanedWine)
+                }
+                if (WineParser.hasWineVolume(workingLine) || lower.contains("carrefour") || lower.contains("2010") || lower.contains("2015")) {
+                    wineState.isWineSectionClosed = true
+                    wineState.isWineHeaderActive = false
+                    Log.d(TAG, "  [!] SECTION VIN FERMÉE (Volume/Millésime/Enseigne vin détectée)")
+                }
+            }
+            return true
+        }
 
         val allowWineDetection = currentSection != Ocr3Categorizer.SECTION_INGREDIENTS || isIngredientListClosed || WineParser.hasWineVolume(workingLine)
 

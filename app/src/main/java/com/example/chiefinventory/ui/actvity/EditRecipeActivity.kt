@@ -183,8 +183,9 @@ class EditRecipeActivity : AppCompatActivity() {
         viewModel.getIngredientsForRecipe(recipe.id).observe(this) { ingredients ->
             val text = ingredients.joinToString("\n") { 
                 val qty = it.quantityRequired?.let { q -> if (q % 1.0 == 0.0) q.toInt().toString() else q.toString() } ?: ""
-                val info = it.supplementalInfo?.let { i -> " ($i)" } ?: ""
-                "$qty ${it.unit ?: ""} ${it.ingredientName}$info".trim()
+                val unitStr = if (!it.unit.isNullOrBlank()) "${it.unit} " else ""
+                val info = it.supplementalInfo?.takeIf { i -> i.isNotBlank() }?.let { i -> " ($i)" } ?: ""
+                "$qty $unitStr${it.ingredientName}$info".replace(Regex("\\s+"), " ").trim()
             }
             binding.etIngredients.setText(text)
         }

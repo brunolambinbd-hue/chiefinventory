@@ -72,15 +72,21 @@ class RecipeRepository(
                     Log.d("RecipeRepository", "Création automatique de l'ingrédient global: ${ri.ingredientName} " +
                             "[Qty: ${ri.quantityRequired}, Unit: ${ri.unit}, Info: ${ri.supplementalInfo}]")
 
+                    val infoToStore = ri.supplementalInfo ?: parsed.supplementalInfo
                     ingredientDao.insert(Ingredient(
                         name = ri.ingredientName,
                         quantity = ri.quantityRequired,
                         unit = ri.unit,
-                        supplementalInfo = ri.supplementalInfo
+                        supplementalInfo = infoToStore
                     ))
 
             } else {
                 Log.d("RecipeRepository", "L'ingrédient existe déjà: $nameToStore")
+                val infoToStore = ri.supplementalInfo ?: parsed.supplementalInfo
+                if (existing.supplementalInfo.isNullOrBlank() && !infoToStore.isNullOrBlank()) {
+                    ingredientDao.update(existing.copy(supplementalInfo = infoToStore))
+                    Log.d("RecipeRepository", "Mise à jour des infos sup pour l'ingrédient existant -> $infoToStore")
+                }
             }
         }
     }

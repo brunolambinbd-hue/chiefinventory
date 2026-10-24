@@ -59,7 +59,8 @@ object OcrIngredientUtils {
         commonItems: List<String>, 
         mandatoryComplements: List<String> = emptyList(),
         preparationModifiers: List<String> = emptyList(),
-        splitterConnectors: List<String> = emptyList()
+        splitterConnectors: List<String> = emptyList(),
+        culinaryUnits: List<String> = emptyList()
     ): List<String> {
         var cleanedLine = line.trim()
         if (cleanedLine.isBlank()) return emptyList()
@@ -86,9 +87,11 @@ object OcrIngredientUtils {
         }
         val hacheRegex = hacheVariants.joinToString("|") { Regex.escape(it) }
 
-        val defaultConnectors = listOf("et", "ou", "à", "-", "de", "du", "des", "d'", "d", "au", "aux", "sur", "le", "la", "les", "un", "une", "soupe", "café", "gousse", "gousses", "pincée", "filet", "botte", "branche", "salade", "beau", "beaux", "belle", "belles", "petit", "petite", "petits", "petites", "grand", "grande", "grands", "grandes", "moyen", "moyenne", "moyens", "moyennes")
+        val defaultConnectors = listOf("et", "ou", "à", "-", "de", "du", "des", "d'", "d", "au", "aux", "sur", "le", "la", "les", "un", "une", "soupe", "café", "gousse", "gousses", "pincée", "filet", "botte", "branche", "salade", "beau", "beaux", "belle", "belles", "petit", "petite", "petits", "petites", "grand", "grande", "grands", "grandes", "moyen", "moyenne", "moyens", "moyennes", "fine", "fines", "gros", "grosse", "grosses")
         val baseConnectors = if (splitterConnectors.isNotEmpty()) splitterConnectors else defaultConnectors
-        val allConnectors = (baseConnectors + mandatoryComplements.map { it.lowercase() }).distinct()
+        val defaultUnits = listOf("paquet", "paquets", "sachet", "sachets", "ravier", "raviers", "boîte", "boite", "boîtes", "boites", "bocal", "bocaux")
+        val activeUnits = if (culinaryUnits.isNotEmpty()) culinaryUnits else defaultUnits
+        val allConnectors = (baseConnectors + mandatoryComplements.map { it.lowercase() } + activeUnits.map { it.lowercase() }).distinct()
         val connectors = allConnectors.joinToString("|") { Regex.escape(it) }
         
         val modifierWords = if (preparationModifiers.isNotEmpty()) {
@@ -98,16 +101,19 @@ object OcrIngredientUtils {
         }
         val qtyPattern = "(?:\\d+(?:/\\d+)?|(?<=\\s|^)[1Il!|](?!\\p{L})(?:/\\d+)?)"
 
+        val seasoningRegex = "sel\\s+et\\s+poivre|sel,\\s*poivre"
         val potentialSplits = Regex(
-            "(?<=[\\p{L}).,])(?<!\\b(?:$connectors))\\s+(?!(?:$connectors|$modifierWords)\\b)(?=$qtyPattern\\s+[\\p{L}])|" +
+            "(?<=[\\p{L}).,])(?<!\\b(?:$connectors))\\s+(?!(?:$connectors|$modifierWords)\\b)(?<!\\()(?=$qtyPattern\\s+[\\p{L}])|" +
             "(?<=[\\p{L},])(?<!\\b(?:$connectors))\\s+(?!(?:$modifierWords)\\b)(?=$otherKeywordsRegex)|" +
-            "(?<=[\\p{L},])(?<!\\b(?:$connectors))\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))",
+            "(?<=[\\p{L},])(?<!\\b(?:$connectors))\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))|" +
+            "(?<=[\\p{L}])\\s+(?=$seasoningRegex\\b)",
             RegexOption.IGNORE_CASE
         )
 
         val sb = StringBuilder(cleanedLine)
         var offset = 0
         potentialSplits.findAll(cleanedLine).forEach { match ->
+            System.err.println("DEBUG SPLIT MATCH = '" + match.value + "' at " + match.range + " in '" + cleanedLine + "'")
             val matchEndText = cleanedLine.substring(match.range.last + 1).trimStart()
             val isParenthesisQuantity = matchEndText.startsWith("(") || OcrTextUtils.isInsideParentheses(cleanedLine, match.range.first)
             if (!isParenthesisQuantity) {

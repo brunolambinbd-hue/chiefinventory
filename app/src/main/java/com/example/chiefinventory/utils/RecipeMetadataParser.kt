@@ -32,7 +32,7 @@ object RecipeMetadataParser {
      * @param results L'objet mutable [RawSections] alimenté si des méta-données sont trouvées.
      * @return L'objet [MetadataResult] indiquant si la ligne est purement de la métadonnée et la ligne restante.
      */
-    fun extractMetadata(line: String, results: RawSections): MetadataResult {
+    fun extractMetadata(line: String, results: RawSections, vocabulary: OcrVocabulary? = null): MetadataResult {
         var workingLine = line.trim()
         val lower = workingLine.lowercase()
 
@@ -136,7 +136,56 @@ object RecipeMetadataParser {
             if (hasInstrHeader && workingLine.isBlank()) workingLine = "préparation"
         }
 
+        // 2.5 EXTRACTION DU PRIX / BUDGET (ex: "Prix : bon marché", "Bon marché", "Coût moyen")
+        val priceCategoriesLow = vocabulary?.priceCategoriesLow?.takeIf { it.isNotEmpty() }
+            ?: listOf("très bon marché", "tres bon marche", "bon marché", "bon marche", "économique", "economique", "petit prix", "pas cher")
+        val priceCategoriesMedium = vocabulary?.priceCategoriesMedium?.takeIf { it.isNotEmpty() }
+            ?: listOf("coût moyen", "cout moyen", "prix moyen", "budget moyen", "moyen", "moyennement cher")
+        val priceCategoriesHigh = vocabulary?.priceCategoriesHigh?.takeIf { it.isNotEmpty() }
+            ?: listOf("très cher", "tres cher", "assez cher", "cher", "élevé", "eleve", "gastronomique", "coûteux", "couteux")
+
+        val priceTitles = vocabulary?.priceTitleKeywords?.takeIf { it.isNotEmpty() }
+            ?: listOf("prix :", "prix", "coût :", "cout :", "coût", "cout", "budget :", "budget")
+
+        val normLine = java.text.Normalizer.normalize(workingLine.lowercase(), java.text.Normalizer.Form.NFC)
+
+        val matchedLow = priceCategoriesLow.firstOrNull { cat ->
+            val normCat = java.text.Normalizer.normalize(cat.lowercase(), java.text.Normalizer.Form.NFC)
+            OcrRegexes.getSpellingRepairPattern(normCat).matcher(normLine).find() || normLine.contains(normCat)
+        }
+        val matchedMedium = if (matchedLow == null) priceCategoriesMedium.firstOrNull { cat ->
+            val normCat = java.text.Normalizer.normalize(cat.lowercase(), java.text.Normalizer.Form.NFC)
+            OcrRegexes.getSpellingRepairPattern(normCat).matcher(normLine).find() || normLine.contains(normCat)
+        } else null
+
+        val matchedHigh = if (matchedLow == null && matchedMedium == null) priceCategoriesHigh.firstOrNull { cat ->
+            val normCat = java.text.Normalizer.normalize(cat.lowercase(), java.text.Normalizer.Form.NFC)
+            OcrRegexes.getSpellingRepairPattern(normCat).matcher(normLine).find() || normLine.contains(normCat)
+        } else null
+
+        val matchedCategory = matchedLow ?: matchedMedium ?: matchedHigh
+
+        if (matchedCategory != null) {
+            if (results.detectedPriceRating == null) {
+                val formattedPrice = when {
+                    matchedLow != null -> "Bon marché"
+                    matchedMedium != null -> "Coût moyen"
+                    else -> "Assez cher"
+                }
+                results.detectedPriceRating = formattedPrice
+            }
+            workingLine = OcrRegexes.getSpellingRepairPattern(matchedCategory).matcher(workingLine).replaceAll("").trim()
+            priceTitles.forEach { pTitle ->
+                workingLine = OcrRegexes.getSpellingRepairPattern(pTitle).matcher(workingLine).replaceAll("").trim()
+            }
+        }
+
         // 3. EXTRACTION DES TEMPS (PRÉPARATION, CUISSON, REPOS)
+        val actionKeywords = vocabulary?.stepActionKeywords ?: emptyList()
+        val isInstructionSentence = OcrInstructionUtils.hasActionVerb(line, actionKeywords) || 
+                line.trim().startsWith("•") || 
+                Regex("^\\s*\\d{1,2}\\s*[.)\\-]").containsMatchIn(line)
+
         var foundTime = true
         while (foundTime) {
             val matchComb = OcrRegexes.Metadata.TIME_COMBINED.find(workingLine)
@@ -146,17 +195,20 @@ object RecipeMetadataParser {
                 matchComb != null -> {
                     results.detectedPrepTime = extractMinutes(matchComb.groupValues[1])
                     results.detectedCookTime = extractMinutes(matchComb.groupValues[2])
-                    workingLine = workingLine.replace(matchComb.value, "").trim()
+                    if (!isInstructionSentence) workingLine = workingLine.replace(matchComb.value, "").trim()
+                    else foundTime = false
                 }
                 matchPre != null -> {
                     val mins = extractMinutes(matchPre.groupValues[2])
                     updateTimeResult(results, matchPre.groupValues[1].lowercase(), mins)
-                    workingLine = workingLine.replace(matchPre.value, "").trim()
+                    if (!isInstructionSentence) workingLine = workingLine.replace(matchPre.value, "").trim()
+                    else foundTime = false
                 }
                 matchSuf != null -> {
                     val mins = extractMinutes(matchSuf.groupValues[1])
                     updateTimeResult(results, matchSuf.groupValues[2].lowercase(), mins)
-                    workingLine = workingLine.replace(matchSuf.value, "").trim()
+                    if (!isInstructionSentence) workingLine = workingLine.replace(matchSuf.value, "").trim()
+                    else foundTime = false
                 }
                 else -> {
                     val standaloneTimeMatch = Regex("(?i)^(\\d+\\s*(?:mn|min|minute|h|heure|heures))\\b").find(workingLine)
@@ -167,21 +219,20 @@ object RecipeMetadataParser {
                         } else if (results.detectedCookTime == null) {
                             results.detectedCookTime = mins
                         }
-                        workingLine = workingLine.replace(standaloneTimeMatch.value, "").trim()
-                    } else {
-                        foundTime = false
+                        if (!isInstructionSentence) workingLine = workingLine.replace(standaloneTimeMatch.value, "").trim()
                     }
+                    foundTime = false
                 }
             }
         }
 
-        val isOrphanTimeHeader = OcrRegexes.Metadata.ORPHAN_TIME_HEADER.containsMatchIn(workingLine) || lower == "temps de" || lower == "durée de" || lower == "temps" || lower == "durée"
+        val isOrphanTimeHeader = OcrRegexes.Metadata.ORPHAN_TIME_HEADER.containsMatchIn(workingLine) || lower == "temps de" || lower == "durée de" || lower == "temps" || lower == "durée" || lower == "temps de préparation" || lower == "préparation" || lower == "preparation" || lower == "préparation :" || lower == "preparation :"
         if (isOrphanTimeHeader) {
             workingLine = workingLine.replace(OcrRegexes.Metadata.ORPHAN_TIME_HEADER, "").trim()
         }
 
-        val isMetadataHeader = isOrphanTimeHeader || lower.startsWith("préparation :") || lower.startsWith("cuisson :") || lower.startsWith("repos :") || lower == "pour" || lower == "cuisson" || lower == "repos"
-        val isSectionHeader = workingLine.lowercase() in listOf("ingrédients", "ingredients", "préparation", "preparation", "instructions", "consignes", "réalisation")
+        val isMetadataHeader = isOrphanTimeHeader || lower.startsWith("préparation :") || lower.startsWith("cuisson :") || lower.startsWith("repos :") || lower == "pour"
+        val isSectionHeader = workingLine.lowercase() in listOf("ingrédients", "ingredients", "préparation", "preparation", "instructions", "consignes", "réalisation", "realisation")
         val isPure = (isMetadataHeader || workingLine.isBlank()) && !isSectionHeader
         val finalRemainingLine = if (isPure) "" else workingLine
 

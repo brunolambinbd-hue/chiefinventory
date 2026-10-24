@@ -63,4 +63,44 @@ class OcrBeautifierInstructionPrefixRuleTest {
         assertThat(inst).doesNotContain("Le 10 Disposez")
         assertThat(inst).doesNotContain("e 1 Servez")
     }
+
+    @Test
+    fun `beautifyInstructions should filter out standalone trash words like Les at the end of instructions`() {
+        val ocrText = """
+            Cocktail de crevettes
+            INGRÉDIENTS
+            200 g de crevettes
+            sel et poivre
+            Décorez éventuellement de quelques brins de ciboulette.
+            Les
+        """.trimIndent()
+
+        val result = RecipeOcrParser.parse(ocrText, vocabulary)
+
+        val inst = result.instructions ?: ""
+
+        assertThat(inst).contains("Décorez éventuellement de quelques brins de ciboulette.")
+        assertThat(inst).doesNotContain("Les.")
+        assertThat(inst).doesNotContain("Les")
+    }
+
+    @Test
+    fun `beautifyInstructions should filter out corrupted recipe header noise lines like Ego1928 eu RECETTES`() {
+        val ocrText = """
+            Cocktail de crevettes
+            INGRÉDIENTS
+            200 g de crevettes
+            sel et poivre
+            Əgo1928 eu) RECETTES
+            Décorez éventuellement de quelques brins de ciboulette.
+        """.trimIndent()
+
+        val result = RecipeOcrParser.parse(ocrText, vocabulary)
+
+        val inst = result.instructions ?: ""
+
+        assertThat(inst).contains("Décorez éventuellement de quelques brins de ciboulette.")
+        assertThat(inst).doesNotContain("Əgo1928")
+        assertThat(inst).doesNotContain("RECETTES")
+    }
 }

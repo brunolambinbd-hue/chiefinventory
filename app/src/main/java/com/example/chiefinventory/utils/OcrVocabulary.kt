@@ -38,7 +38,12 @@ data class OcrVocabulary(
     val titleSpellingRepairs: List<String> = emptyList(),
     val titleMultilineConnectors: List<String> = emptyList(),
     val ingredientSplitterConnectors: List<String> = emptyList(),
-    val ocrDiacriticRepairs: List<String> = emptyList()
+    val ocrDiacriticRepairs: List<String> = emptyList(),
+    val priceTitleKeywords: List<String> = emptyList(),
+    val priceCategoriesLow: List<String> = emptyList(),
+    val priceCategoriesMedium: List<String> = emptyList(),
+    val priceCategoriesHigh: List<String> = emptyList(),
+    val ingredientConnectors: List<String> = emptyList()
 ) {
     companion object {
         /**
@@ -76,7 +81,12 @@ data class OcrVocabulary(
                 titleSpellingRepairs = getStringArraySafely(res, R.array.title_spelling_repairs),
                 titleMultilineConnectors = getStringArraySafely(res, R.array.title_multiline_connectors),
                 ingredientSplitterConnectors = getStringArraySafely(res, R.array.ingredient_splitter_connectors),
-                ocrDiacriticRepairs = getStringArraySafely(res, R.array.ocr_diacritic_repairs)
+                ocrDiacriticRepairs = getStringArraySafely(res, R.array.ocr_diacritic_repairs),
+                priceTitleKeywords = getStringArraySafely(res, R.array.price_title_keywords),
+                priceCategoriesLow = getStringArraySafely(res, R.array.price_categories_low),
+                priceCategoriesMedium = getStringArraySafely(res, R.array.price_categories_medium),
+                priceCategoriesHigh = getStringArraySafely(res, R.array.price_categories_high),
+                ingredientConnectors = getStringArraySafely(res, R.array.ingredient_connectors)
             )
         }
 

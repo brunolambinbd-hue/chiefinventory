@@ -57,7 +57,12 @@ object OcrVocabularyLoader {
             titleSpellingRepairs = stringArrays["title_spelling_repairs"] ?: emptyList(),
             titleMultilineConnectors = stringArrays["title_multiline_connectors"] ?: emptyList(),
             ingredientSplitterConnectors = stringArrays["ingredient_splitter_connectors"] ?: emptyList(),
-            ocrDiacriticRepairs = stringArrays["ocr_diacritic_repairs"] ?: emptyList()
+            ocrDiacriticRepairs = stringArrays["ocr_diacritic_repairs"] ?: emptyList(),
+            priceTitleKeywords = stringArrays["price_title_keywords"] ?: emptyList(),
+            priceCategoriesLow = stringArrays["price_categories_low"] ?: emptyList(),
+            priceCategoriesMedium = stringArrays["price_categories_medium"] ?: emptyList(),
+            priceCategoriesHigh = stringArrays["price_categories_high"] ?: emptyList(),
+            ingredientConnectors = stringArrays["ingredient_connectors"] ?: emptyList()
         )
     }
 

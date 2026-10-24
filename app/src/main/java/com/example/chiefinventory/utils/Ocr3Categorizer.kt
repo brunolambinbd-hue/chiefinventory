@@ -32,6 +32,7 @@ data class RawSections(
     var detectedRestingTime: String? = null,
     var detectedKcal: String? = null,
     var detectedDifficulty: String? = null,
+    var detectedPriceRating: String? = null,
     var detectedNutritionInfo: String? = null,
     var ingredientKeywords: Set<String> = emptySet()
 )
@@ -116,7 +117,7 @@ object Ocr3Categorizer {
             }
 
             // 1. DÉTECTION ET EXTRACTION DES MÉTA-DONNÉES (RecipeMetadataParser)
-            val metaResult = RecipeMetadataParser.extractMetadata(workingLine, results)
+            val metaResult = RecipeMetadataParser.extractMetadata(workingLine, results, vocabulary)
             workingLine = metaResult.remainingLine
             if (metaResult.isPureMetadata) continue
 
@@ -223,8 +224,14 @@ object Ocr3Categorizer {
                 isInstrHeader -> currentSection = SECTION_INSTRUCTIONS
                 isIngrHeader || isSubHeader -> {
                     currentSection = SECTION_INGREDIENTS
-                    if (isIngrHeader) seenIngredientKeywords.clear()
-                    if (isSubHeader) isIngredientListClosed = false
+                    isIngredientListClosed = false
+                    if (isIngrHeader) {
+                        seenIngredientKeywords.clear()
+                        val hasRealInstructionStep = results.rawInstructionsList.any { OcrInstructionUtils.hasActionVerb(it, vocabulary.stepActionKeywords) }
+                        if (!hasRealInstructionStep) {
+                            results.rawInstructionsList.clear()
+                        }
+                    }
                 }
             }
             workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
@@ -268,11 +275,13 @@ object Ocr3Categorizer {
                     val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !Ocr2Cleaner.isTechnicalDimension(workingLine) && !hasInstructionTrigger
                     val isEndMarkerLine = (lowerLine.contains("sel") && lowerLine.contains("poivre")) || lowerLine == "sel, poivre" || lowerLine == "sel et poivre" || lowerLine == "sel" || lowerLine == "poivre"
                     val isCommonIngredient = commonIngredients.any { lowerLine.contains(it.lowercase()) }
+                    val isHyphenatedInstruction = workingLine.trimEnd().endsWith("-") || lowerLine.trimEnd().endsWith(" et") || lowerLine.trimEnd().endsWith(" ou")
                     val shouldPullBack = when {
                         isReappearance -> false
+                        isHyphenatedInstruction -> false
                         isEndMarkerLine && !containsAction -> true
-                        isIngredientListClosed -> (isStrictIngredient && hasWeight) || (isCommonIngredient && !containsAction && !startsWithBullet)
-                        else -> isStrictIngredient && hasWeight
+                        isIngredientListClosed -> (isStrictIngredient && (hasHardQuantity || hasWeight)) || (isCommonIngredient && !containsAction && !startsWithBullet)
+                        else -> isStrictIngredient && (hasHardQuantity || hasWeight)
                     }
 
                     if (shouldPullBack) {

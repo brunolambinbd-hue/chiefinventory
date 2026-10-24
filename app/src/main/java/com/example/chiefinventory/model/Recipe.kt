@@ -26,5 +26,6 @@ data class Recipe(
     val wineRecommendation: String? = null,
     val source: String? = null,
     val nutritionInfo: String? = null,
+    val priceRating: String? = null,
     val updatedAt: Long = System.currentTimeMillis()
 ) : Parcelable

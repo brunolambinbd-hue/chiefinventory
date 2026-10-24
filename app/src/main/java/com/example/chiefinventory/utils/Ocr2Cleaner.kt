@@ -76,7 +76,24 @@ object Ocr2Cleaner {
         val cleanedLines = mutableListOf<String>()
         val earlySources = mutableListOf<String>()
 
-        for (line in lines) {
+        val mergedLines = mutableListOf<String>()
+        var idx = 0
+        while (idx < lines.size) {
+            val line = lines[idx].trim()
+            val lower = line.lowercase()
+            if ((lower == "temps de" || lower == "durée de" || lower == "temps" || lower == "durée") && idx + 1 < lines.size) {
+                val nextLower = lines[idx + 1].lowercase().trim()
+                if (nextLower.startsWith("préparation") || nextLower.startsWith("preparation") || nextLower.startsWith("cuisson") || nextLower.startsWith("repos")) {
+                    mergedLines.add("$line ${lines[idx + 1].trim()}")
+                    idx += 2
+                    continue
+                }
+            }
+            mergedLines.add(line)
+            idx++
+        }
+
+        for (line in mergedLines) {
             var trimmed = line.trim()
             if (trimmed.isEmpty()) continue
 

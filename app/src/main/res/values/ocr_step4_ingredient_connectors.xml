@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Connecteurs et prépositions de liaison d'ingrédients (Étape 4 Merger) -->
+    <string-array name="ingredient_connectors">
+        <item>de</item>
+        <item>du</item>
+        <item>des</item>
+        <item>d\'</item>
+        <item>d</item>
+        <item>au</item>
+        <item>aux</item>
+        <item>à</item>
+        <item>ou</item>
+        <item>ou de</item>
+        <item>ou d\'</item>
+        <item>pour</item>
+        <item>pour la</item>
+        <item>pour le</item>
+        <item>pour les</item>
+        <item>en</item>
+        <item>selon</item>
+    </string-array>
+</resources>

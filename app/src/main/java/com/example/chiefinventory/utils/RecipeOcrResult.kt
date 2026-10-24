@@ -28,5 +28,6 @@ data class RecipeOcrResult(
     val restingTime: String? = null,
     val kcalPerServing: String? = null,
     val difficulty: String? = null,
+    val priceRating: String? = null,
     val nutritionInfo: String? = null
 )

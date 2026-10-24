@@ -188,4 +188,20 @@ class Ocr3CategorizerReappearanceTest {
         assertThat(result.rawInstructionsList).contains("Servez avec les toasts.")
         assertThat(result.rawIngredientsList).doesNotContain("Hachez finement le surimi ou")
     }
+
+    @Test
+    fun `categorize should pull back spoon unit ingredient located in instruction section`() {
+        val input = listOf(
+            "INGRÉDIENTS",
+            "200 g de crevettes",
+            "sel et poivre",
+            "Mélanger les crevettes avec la sauce.",
+            "1 c. à soupe de coriandre fraîche hachée"
+        )
+
+        val result = Ocr3Categorizer.categorize(input, vocabulary)
+
+        assertThat(result.rawIngredientsList).contains("1 c. à soupe de coriandre fraîche hachée")
+        assertThat(result.rawInstructionsList).doesNotContain("1 c. à soupe de coriandre fraîche hachée")
+    }
 }

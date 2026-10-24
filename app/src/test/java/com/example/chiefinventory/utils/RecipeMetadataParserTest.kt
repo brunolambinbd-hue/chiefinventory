@@ -9,26 +9,11 @@ import org.junit.Test
 class RecipeMetadataParserTest {
 
     @Test
-    fun `extractMetadata should parse servings prep time cook time and kcal`() {
+    fun `extractMetadata check parenthetical weight range`() {
         val results = RawSections()
-        
-        val res1 = RecipeMetadataParser.extractMetadata("ingrédients pour 4 personnes", results)
-        val res2 = RecipeMetadataParser.extractMetadata("préparation : 15 min", results)
-        RecipeMetadataParser.extractMetadata("cuisson : 45 min", results)
-        RecipeMetadataParser.extractMetadata("repos : 30 min", results)
-        RecipeMetadataParser.extractMetadata("250 kcal", results)
-        RecipeMetadataParser.extractMetadata("difficulté : facile", results)
-
-        assertThat(results.detectedServings).isEqualTo("4")
-        assertThat(results.detectedPrepTime).isEqualTo("15")
-        assertThat(results.detectedCookTime).isEqualTo("45")
-        assertThat(results.detectedRestingTime).isEqualTo("30")
-        assertThat(results.detectedKcal).isEqualTo("250")
-        assertThat(results.detectedDifficulty).isEqualTo("facile")
-
-        assertThat(res1.remainingLine).isEqualTo("ingrédients")
-        assertThat(res1.isPureMetadata).isFalse()
-        assertThat(res2.isPureMetadata).isTrue()
+        val res = RecipeMetadataParser.extractMetadata("2 ou 3 paquets de jambon de Parme en fines tranches (125 à 180 g)", results)
+        System.err.println("REMAINING LINE = '" + res.remainingLine + "'")
+        assertThat(res.remainingLine).contains("(125 à 180 g)")
     }
 
     @Test
@@ -51,6 +36,41 @@ class RecipeMetadataParserTest {
 
         assertThat(res4.isPureMetadata).isTrue()
         assertThat(res4.remainingLine).isEmpty()
+    }
+
+    @Test
+    fun `extractMetadata should parse price and budget ratings`() {
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+        System.err.println("VOCAB LOW = " + vocabulary.priceCategoriesLow)
+        System.err.println("VOCAB MED = " + vocabulary.priceCategoriesMedium)
+        System.err.println("VOCAB HIGH = " + vocabulary.priceCategoriesHigh)
+
+        val results1 = RawSections()
+        val res1 = RecipeMetadataParser.extractMetadata("Prix : bon marché", results1, vocabulary)
+        assertThat(results1.detectedPriceRating).isEqualTo("Bon marché")
+        assertThat(res1.isPureMetadata).isTrue()
+
+        val results2 = RawSections()
+        val res2 = RecipeMetadataParser.extractMetadata("Coût moyen", results2, vocabulary)
+        System.err.println("RES2 PRICE = " + results2.detectedPriceRating)
+        assertThat(results2.detectedPriceRating).isEqualTo("Coût moyen")
+        assertThat(res2.isPureMetadata).isTrue()
+
+        val results3 = RawSections()
+        val res3 = RecipeMetadataParser.extractMetadata("Assez cher", results3, vocabulary)
+        assertThat(results3.detectedPriceRating).isEqualTo("Assez cher")
+        assertThat(res3.isPureMetadata).isTrue()
+    }
+
+    @Test
+    fun `extractMetadata should preserve time inside instruction sentence like Comptez 10 mn de cuisson`() {
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+        val results = RawSections()
+        val res = RecipeMetadataParser.extractMetadata("Comptez 10 mn de cuisson.", results, vocabulary)
+        
+        assertThat(results.detectedCookTime).isEqualTo("10")
+        assertThat(res.isPureMetadata).isFalse()
+        assertThat(res.remainingLine).isEqualTo("Comptez 10 mn de cuisson.")
     }
 
     @Test

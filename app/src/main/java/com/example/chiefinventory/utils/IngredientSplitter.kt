@@ -14,6 +14,11 @@ object IngredientSplitter {
      * Example: "1 piment rouge persil haché" -> ["1 piment rouge", "persil haché"]
      */
     fun splitCombinedIngredients(line: String, commonItems: List<String>): List<String> {
+        val lower = line.lowercase().trim()
+        if (commonItems.any { it.trim().lowercase() == lower }) {
+            return listOf(line.trim())
+        }
+
         // 1. D'abord on split par les séparateurs classiques (virgule, et)
         val initialParts = line.split(Regex("[,;]|\\bet\\b|\\band\\b"), 0).map { it.trim() }.filter { it.isNotBlank() }
         
@@ -32,7 +37,10 @@ object IngredientSplitter {
                     if (match != null) {
                         val prefix = currentPart.substring(0, match.range.first).trim()
                         val lowerPrefix = prefix.lowercase()
-                        if (lowerPrefix !in ARTICLES && !SIZE_PREFIX_REGEX.matches(lowerPrefix)) {
+                        val endsWithConnector = lowerPrefix.endsWith(" de") || lowerPrefix.endsWith(" d'") || lowerPrefix.endsWith(" du") || lowerPrefix.endsWith(" des") || lowerPrefix.endsWith(" au") || lowerPrefix.endsWith(" aux")
+                        val lastPrefixWord = lowerPrefix.split(Regex("\\s+")).lastOrNull() ?: ""
+                        val endsWithModifier = lastPrefixWord in listOf("fine", "fines", "grand", "grande", "grands", "grandes", "petit", "petite", "petits", "petites", "beau", "beaux", "belle", "belles")
+                        if (lowerPrefix !in ARTICLES && !SIZE_PREFIX_REGEX.matches(lowerPrefix) && !endsWithConnector && !endsWithModifier) {
                             result.add(prefix)
                             currentPart = currentPart.substring(match.range.first).trim()
                             found = true

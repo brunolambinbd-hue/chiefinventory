@@ -52,4 +52,23 @@ class IngredientSplitterRuleTest {
         val resultHelper = OcrHelperUtils.splitCombinedIngredients("1 petite salade frisée", baseVocabulary.commonIngredientsNoQty)
         assertThat(resultHelper).containsExactly("1 petite salade frisée")
     }
+
+    @Test
+    fun `splitCombinedIngredients should split sel et poivre when following vinaigre`() {
+        val result = OcrHelperUtils.splitCombinedIngredients(
+            "1 c. à soupe de vinaigre sel et poivre",
+            baseVocabulary.commonIngredientsNoQty,
+            baseVocabulary.mandatoryComplementIngredients,
+            baseVocabulary.ingredientPreparationModifiers,
+            baseVocabulary.ingredientSplitterConnectors
+        )
+        assertThat(result).containsExactly("1 c. à soupe de vinaigre", "sel et poivre").inOrder()
+    }
+
+    @Test
+    fun `beautifyIngredients should filter out standalone trash words like Les and Notre in ingredients`() {
+        val input = listOf("100 g de beurre", "Les", "Notre", "Aneth")
+        val result = com.example.chiefinventory.utils.Ocr5Beautifier.beautifyIngredients(input)
+        assertThat(result).containsExactly("100 g de beurre", "Aneth").inOrder()
+    }
 }

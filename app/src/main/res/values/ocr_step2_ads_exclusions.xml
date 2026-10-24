@@ -13,5 +13,6 @@
         <item>nutri-score</item>
         <item>nutr-score</item>
         <item>Prix à titre indicatif au</item>
+        <item>.*Əgo.*</item>
     </string-array>
 </resources>

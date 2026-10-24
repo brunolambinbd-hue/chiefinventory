@@ -100,4 +100,14 @@ class Ocr2CleanerRuleTest {
         assertThat(Ocr2Cleaner.isTechnicalDimension("5 mm")).isFalse()
         assertThat(Ocr2Cleaner.isTechnicalDimension("250 g")).isFalse()
     }
+
+    /**
+     * Vérifie la fusion automatique des préfixes de temps suspendus ("Temps de" + "préparation" -> "Temps de préparation").
+     */
+    @Test
+    fun `cleanWithVocabulary should merge multi-line time header Temps de and preparation into single line`() {
+        val input = listOf("Temps de", "préparation", "100 g de beurre")
+        val result = Ocr2Cleaner.cleanWithVocabulary(input, baseVocabulary)
+        assertThat(result.cleanedLines).containsExactly("Temps de préparation", "100 g de beurre").inOrder()
+    }
 }

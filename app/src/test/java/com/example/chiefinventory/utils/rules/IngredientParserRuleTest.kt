@@ -30,4 +30,13 @@ class IngredientParserRuleTest {
         assertThat(result.unit).isEqualTo("litre")
         assertThat(result.name).isEqualTo("lait")
     }
+
+    @Test
+    fun `parse should preserve parenthetical weight range as supplementalInfo`() {
+        val result = IngredientParser.parse("2 ou 3 paquets de jambon de Parme en fines tranches (125 à 180 g)")
+        assertThat(result.quantity).isEqualTo(3.0)
+        assertThat(result.unit).isEqualTo("paquets")
+        assertThat(result.name).contains("jambon de Parme")
+        assertThat(result.supplementalInfo).isEqualTo("125 à 180 g")
+    }
 }

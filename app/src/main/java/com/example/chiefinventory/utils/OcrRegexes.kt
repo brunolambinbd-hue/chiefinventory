@@ -176,7 +176,7 @@ object OcrRegexes {
         val SYMBOL_BEFORE_DIGIT: Regex = Regex("(?i)^[!|il!|•\\-*]\\s+(?=\\d)")
 
         /** Correction de la confusion du chiffre '1' au début des puces. */
-        val OCR_ONE_CORRECTION: Regex = Regex("(?i)(^|•\\s*|[\\-*]\\s*|\\()([|!|](?=[\\s\\p{L}])|[il](?=\\s+\\p{L}))")
+        val OCR_ONE_CORRECTION: Regex = Regex("(?i)(^|•\\s*|[\\-*]\\s*|\\()([|!|](?=[\\s\\p{L}])|[Iil](?=\\s+\\p{L}))")
 
         /** Suppression du bruit de dates, devises et prix. */
         val NOISE_REMOVAL: List<Pair<Regex, String>> = listOf(
@@ -342,7 +342,7 @@ object OcrRegexes {
         val KCAL: Regex = Regex("(?i)(\\d{2,4})\\s*(?:kcal|kilo\\s*calories?)(?:/por\\.?)?")
 
         /** Détecte le niveau de difficulté de la recette (ex: "difficulté : facile", "difficile") en offrant un garde-fou contre les termes de cuisson ("feu moyen", "chaleur moyenne"). */
-        val DIFFICULTY: Regex = Regex("(?i)(?<!feu\\s)(?<!chaleur\\s)(?<!à\\sfeu\\s)(?<!a\\sfeu\\s)\\b(facile|moyen|difficile|diffcile)\\b")
+        val DIFFICULTY: Regex = Regex("(?i)(?<!feu\\s)(?<!chaleur\\s)(?<!à\\sfeu\\s)(?<!a\\sfeu\\s)(?<!coût\\s)(?<!cout\\s)(?<!prix\\s)(?<!budget\\s)\\b(facile|moyen|difficile|diffcile)\\b")
 
         /** Détecte le temps combiné préparation + cuisson (ex: "15 min + 45 min de cuisson"). */
         val TIME_COMBINED: Regex = Regex("(?i)$DURATION_STR\\s*\\+\\s*$DURATION_STR\\s+(?:de\\s+)?cuisson")

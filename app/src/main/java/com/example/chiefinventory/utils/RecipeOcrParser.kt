@@ -110,8 +110,26 @@ object RecipeOcrParser {
         val linesWithoutTitle = titleResult.cleanedLines
         Log.d(TAG, "[2.5] TITRE DÉTECTÉ: ${titleResult.title ?: "Aucun"}")
 
-        // ÉTAPE 3 : Catégorisation (Tri intelligent)
-        val sections = Ocr3Categorizer.categorize(linesWithoutTitle, vocabulary)
+        // ÉTAPE 3 : Catégorisation (Tri intelligent selon la famille de layout de recette)
+        val isNarrative = Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithoutTitle, vocabulary)
+        val isInverted = Ocr3InvertedCategorizer.isInvertedRecipe(linesWithoutTitle, vocabulary)
+
+        val detectedTypeStr = when {
+            isNarrative -> "TYPE 2 (NARRATIVE / SANS SECTION INGRÉDIENTS)"
+            isInverted -> "TYPE 3 (INVERSÉE / INSTRUCTIONS EN PREMIER)"
+            else -> "TYPE 1 (CLASSIQUE / INGRÉDIENTS EN PREMIER)"
+        }
+        Log.d(TAG, "[3] TYPE DE RECETTE DÉTECTÉ: $detectedTypeStr")
+
+        val sections = when {
+            isNarrative ->
+                Ocr3NarrativeCategorizer.categorizeNarrativeRecipe(linesWithoutTitle, vocabulary)
+
+            isInverted ->
+                Ocr3InvertedCategorizer.categorizeInvertedRecipe(linesWithoutTitle, vocabulary, cleanedLines)
+
+            else -> Ocr3Categorizer.categorize(linesWithoutTitle, vocabulary)
+        }
         if (sections.detectedTitle == null) {
             sections.detectedTitle = titleResult.title
         }
@@ -133,7 +151,8 @@ object RecipeOcrParser {
             sections.rawIngredientsList, 
             preparationModifiers, 
             commonIngredients, 
-            vocabulary.mandatoryComplementIngredients
+            vocabulary.mandatoryComplementIngredients,
+            vocabulary.ingredientConnectors
         )
         val mergedInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
 
@@ -172,6 +191,7 @@ object RecipeOcrParser {
             restingTime = sections.detectedRestingTime,
             kcalPerServing = sections.detectedKcal,
             difficulty = sections.detectedDifficulty,
+            priceRating = sections.detectedPriceRating,
             nutritionInfo = sections.detectedNutritionInfo
         )
 
@@ -180,6 +200,7 @@ object RecipeOcrParser {
         Log.d(TAG, "    - Portions: ${result.servings ?: "N/A"}")
         Log.d(TAG, "    - Kcal/por: ${result.kcalPerServing ?: "N/A"}")
         Log.d(TAG, "    - Difficulté: ${result.difficulty ?: "N/A"}")
+        Log.d(TAG, "    - Prix/Coût: ${result.priceRating ?: "N/A"}")
         Log.d(TAG, "    - Prép (min): ${result.prepTime ?: "N/A"}")
         Log.d(TAG, "    - Cuisson (min): ${result.cookTime ?: "N/A"}")
         Log.d(TAG, "    - Repos (min): ${result.restingTime ?: "N/A"}")

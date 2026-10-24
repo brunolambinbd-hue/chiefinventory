@@ -19,6 +19,13 @@
         <item>melangez</item>
         <item>couper</item>
         <item>coupez</item>
+        <item>découpez</item>
+        <item>decoupez</item>
+        <item>découper</item>
+        <item>salez</item>
+        <item>saler</item>
+        <item>creusez</item>
+        <item>creuser</item>
         <item>étuvez</item>
         <item>éplucher</item>
         <item>eplucher</item>
@@ -170,5 +177,6 @@
         <item>Découpez</item>
         <item>obtenez</item>
         <item>permet</item>
+        <item>rectifiez</item>
     </string-array>
 </resources>

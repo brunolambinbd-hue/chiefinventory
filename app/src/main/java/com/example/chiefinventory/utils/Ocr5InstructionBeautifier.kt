@@ -41,6 +41,10 @@ object Ocr5InstructionBeautifier {
 
         val prefixPattern = OcrRegexes.getInstructionPrefixPattern(stepActionKeywords)
 
+        val standaloneTrashWords = setOf(
+            "les", "le", "la", "des", "du", "de", "d'", "un", "une", "et", "ou", "pour", "sur", "avec", "dans", "par", "ce", "ces", "cette", "salade"
+        )
+
         // 1. Nettoyage initial de chaque ligne
         val cleanedLines = instructions.map { line ->
             var cleaned = line.trim()
@@ -54,7 +58,9 @@ object Ocr5InstructionBeautifier {
             cleaned
         }.filter { line ->
             val lower = line.lowercase().trim().removeSuffix(".")
-            line.isNotBlank() && lower != "préparation" && lower != "preparation" && lower != "instructions" && lower != "consignes"
+            val hasAction = OcrInstructionUtils.hasActionVerb(line, stepActionKeywords)
+            val isRecipeHeaderTrash = !hasAction && (lower.contains("recette") || lower.contains("recettes") || line.contains("Ə"))
+            line.isNotBlank() && lower != "préparation" && lower != "preparation" && lower != "instructions" && lower != "consignes" && lower !in standaloneTrashWords && !isRecipeHeaderTrash
         }
 
         // 2. Fusion des phrases se terminant par une conjonction (" et.", " ou.", ",.") ou une unité isolée
@@ -111,6 +117,9 @@ object Ocr5InstructionBeautifier {
             i++
         }
 
-        return mergedInstructions.filter { it.isNotBlank() }
+        return mergedInstructions.filter { line ->
+            val lower = line.lowercase().trim().removeSuffix(".")
+            line.isNotBlank() && lower !in standaloneTrashWords
+        }
     }
 }
