@@ -4,20 +4,32 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.Editable
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.*
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
-import androidx.recyclerview.widget.*
-import com.example.chiefinventory.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.chiefinventory.CollectionApplication
+import com.example.chiefinventory.R
 import com.example.chiefinventory.databinding.ActivitySearchBinding
 import com.example.chiefinventory.model.SearchCriteria
 import com.example.chiefinventory.ui.adapter.CollectionAdapter
-import com.example.chiefinventory.ui.viewmodel.*
-import com.example.chiefinventory.utils.*
+import com.example.chiefinventory.ui.viewmodel.SearchResultState
+import com.example.chiefinventory.ui.viewmodel.SearchViewModel
+import com.example.chiefinventory.ui.viewmodel.ViewModelFactory
+import com.example.chiefinventory.utils.BitmapUtils
+import com.example.chiefinventory.utils.CategoryMapper
+import com.example.chiefinventory.utils.ImageCaptureUtil
 
 class SearchActivity : AppCompatActivity() {
     private lateinit var b: ActivitySearchBinding; private lateinit var ad: CollectionAdapter; private lateinit var img: ImageCaptureUtil

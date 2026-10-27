@@ -6,6 +6,11 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     id("kotlin-parcelize")
+    id("jacoco")
+}
+
+configure<JacocoPluginExtension> {
+    toolVersion = "0.8.11"
 }
 
 val gitCommitHash: String = try {
@@ -79,6 +84,7 @@ android {
         debug {
             buildConfigField("String", "API_URL", "\"https://dev.api.com\"")
             buildConfigField("boolean", "ENABLE_LOGS", "true")
+            enableUnitTestCoverage = true
         }
         release {
             buildConfigField("String", "API_URL", "\"https://prod.api.com\"")
@@ -128,18 +134,70 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.mediapipe.tasks.vision)
     implementation(libs.image.cropper)
+    implementation(libs.jsoup)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.androidx.arch.core.testing)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation("org.json:json:20231013")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.lifecycle.testing)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.truth)
+}
+
+tasks.withType<Test> {
+    configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+}
+
+tasks.register<JacocoReport>("fullCoverageReport") {
+    group = "Reporting"
+    description = "Génère le rapport de couverture JaCoCo XML et HTML pour les tests unitaires Debug."
+
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        xml.outputLocation.set(file("${layout.buildDirectory.get()}/reports/jacoco/fullCoverageReport/report.xml"))
+        html.outputLocation.set(file("${layout.buildDirectory.get()}/reports/jacoco/fullCoverageReport/html"))
+    }
+
+    val fileFilter = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "android/**/*.*",
+        "**/*Binding.*",
+        "**/*_Impl*.*",
+        "**/*_Factory*.*",
+        "**/*_MembersInjector*.*"
+    )
+
+    val debugTree = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+        exclude(fileFilter)
+    }
+
+    val mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(fileTree(layout.buildDirectory.get()) {
+        include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec", "jacoco/testDebugUnitTest.exec")
+    })
+}
+
+tasks.register("jacocoTestReport") {
+    dependsOn("fullCoverageReport")
 }
 
 afterEvaluate {

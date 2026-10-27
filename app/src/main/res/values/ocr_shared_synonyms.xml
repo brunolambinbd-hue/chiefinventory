@@ -45,6 +45,6 @@
     </string-array>
 
     <!-- Patterns de détection pour la source -->
-    <string name="zip_code_pattern">\\b\\d{4,5}\\b</string>
-    <string name="phone_pattern">(?:(?:\\+|00)32|0)[\\s./-]*[1-9](?:[\\s./-]*\\d{2}){3,4}</string>
+    <string name="zip_code_pattern" translatable="false">\\b\\d{4,5}\\b</string>
+    <string name="phone_pattern" translatable="false">(?:(?:\\+|00)32|0)[\\s./-]*[1-9](?:[\\s./-]*\\d{2}){3,4}</string>
 </resources>

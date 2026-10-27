@@ -6,12 +6,17 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chiefinventory.CollectionApplication
 import com.example.chiefinventory.databinding.ActivityIngredientListBinding
+import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.ui.adapter.IngredientAdapter
 import com.example.chiefinventory.ui.viewmodel.IngredientViewModel
 import com.example.chiefinventory.ui.viewmodel.ViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class IngredientListActivity : AppCompatActivity() {
 
@@ -39,6 +44,15 @@ class IngredientListActivity : AppCompatActivity() {
         setupSearch()
         observeViewModel()
 
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = com.example.chiefinventory.data.AppDatabase.getDatabase(applicationContext)
+            val locations = db.locationDao().getAllSync()
+            val map = locations.associate { it.id to it.name }
+            withContext(Dispatchers.Main) {
+                adapter.setLocationNamesMap(map)
+            }
+        }
+
         binding.fabAddIngredient.setOnClickListener {
             val intent = Intent(this, EditIngredientActivity::class.java)
             startActivity(intent)
@@ -52,12 +66,17 @@ class IngredientListActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = IngredientAdapter { ingredient ->
+        val openEdit = { ingredient: Ingredient ->
             val intent = Intent(this, EditIngredientActivity::class.java).apply {
-                putExtra(EXTRA_INGREDIENT_ID, ingredient.id)
+                putExtra(EditIngredientActivity.EXTRA_INGREDIENT_ID, ingredient.id)
             }
             startActivity(intent)
         }
+
+        adapter = IngredientAdapter(
+            onClick = openEdit,
+            onEditClick = openEdit
+        )
         binding.rvIngredientList.layoutManager = LinearLayoutManager(this)
         binding.rvIngredientList.adapter = adapter
     }

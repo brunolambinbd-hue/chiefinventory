@@ -280,4 +280,29 @@ class OcrHelperUtilsTest {
         assertWithMessage("Les informations entre parenthèses dans un ingrédient doivent être conservées")
             .that(OcrHelperUtils.cleanIngredientSemantics(line, emptyList())).isEqualTo(line)
     }
+
+    /**
+     * Vérifie la détection d'un poids ou volume d'ingrédient explicite (Ligne 17).
+     */
+    @Test
+    fun `hasExplicitWeight should return true when explicit weight or volume is present`() {
+        assertWithMessage("250 g contient un poids explicite")
+            .that(OcrHelperUtils.hasExplicitWeight("250 g de farine")).isTrue()
+
+        assertWithMessage("Poivre noir sans quantité ne contient pas de poids explicite")
+            .that(OcrHelperUtils.hasExplicitWeight("Poivre noir")).isFalse()
+    }
+
+    /**
+     * Vérifie la détection d'un caractère situé entre parenthèses (Ligne 71).
+     */
+    @Test
+    fun `isInsideParentheses should return true when index is inside parentheses`() {
+        val text = "Farine (250 g) de blé"
+        assertWithMessage("L'index 8 dans 'Farine (250 g) de blé' doit être détecté entre parenthèses")
+            .that(OcrHelperUtils.isInsideParentheses(text, 8)).isTrue()
+
+        assertWithMessage("L'index 0 doit être hors des parenthèses")
+            .that(OcrHelperUtils.isInsideParentheses(text, 0)).isFalse()
+    }
 }

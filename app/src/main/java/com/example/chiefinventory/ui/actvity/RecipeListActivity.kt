@@ -30,11 +30,16 @@ class RecipeListActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        // On affiche toujours le même titre pour cette page globale
-        supportActionBar?.title = "Toutes mes Recettes"
+        val categoryId = intent.getLongExtra(EXTRA_CATEGORY_ID, -1L)
+        val categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME)
 
-        // On force le chargement de TOUTES les recettes au démarrage
-        viewModel.setCategoryId(-1L)
+        if (categoryId != -1L && !categoryName.isNullOrBlank()) {
+            supportActionBar?.title = categoryName
+            viewModel.setCategoryId(categoryId)
+        } else {
+            supportActionBar?.title = "Toutes mes Recettes"
+            viewModel.setCategoryId(-1L)
+        }
 
         setupRecyclerView()
         setupSearch()

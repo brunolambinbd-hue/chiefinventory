@@ -10,7 +10,12 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import com.example.chiefinventory.R
@@ -142,21 +147,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         when (item.itemId) {
             R.id.nav_home -> { /* Already here */ }
-            R.id.nav_products -> {
-                val intent = Intent(this, CategoryListActivity::class.java).apply {
-                    putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_POSSESSED)
+            R.id.nav_setup_inventory -> {
+                startActivity(Intent(this, SetupInventoryActivity::class.java))
+            }
+            R.id.nav_update_inventory -> {
+                val intent = Intent(this, SetupInventoryActivity::class.java).apply {
+                    putExtra("EXTRA_MODE", "UPDATE")
                 }
                 startActivity(intent)
+            }
+            R.id.nav_shopping_list -> {
+                startActivity(Intent(this, ShoppingListActivity::class.java))
+            }
+            R.id.nav_match_pantry_recipe -> {
+                startActivity(Intent(this, MatchRecipeInventoryActivity::class.java))
             }
             R.id.nav_recent_finds -> navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
             R.id.nav_recent_organizations -> navigateToRecent(ItemListActivity.TYPE_RECENT_LOCATED)
             
-            R.id.nav_searches -> {
-                val intent = Intent(this, CategoryListActivity::class.java).apply {
-                    putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_SOUGHT)
-                }
-                startActivity(intent)
-            }
             R.id.nav_all_ingredients -> {
                 startActivity(Intent(this, IngredientListActivity::class.java))
             }
@@ -178,17 +186,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_add_recipe -> {
                 startActivity(Intent(this, EditRecipeActivity::class.java))
             }
-            R.id.nav_locations -> {
-                val intent = Intent(this, LocationManagementActivity::class.java).apply {
-                    putExtra(LocationManagementActivity.EXTRA_LOCATION_TYPE, LocationType.COLLECTION.ordinal)
-                }
-                startActivity(intent)
+            R.id.nav_import_web_recipe -> {
+                startActivity(Intent(this, ImportWebRecipeActivity::class.java))
+            }
+            R.id.nav_import_recipe_packs -> {
+                startActivity(Intent(this, ImportRecipePacksActivity::class.java))
             }
             R.id.nav_import -> {
                 importCsvLauncher.launch("text/comma-separated-values")
             }
             R.id.nav_backup -> {
                 startActivity(Intent(this, BackupActivity::class.java))
+            }
+            R.id.nav_recipe_audit -> {
+                startActivity(Intent(this, RecipeAuditActivity::class.java))
             }
             R.id.nav_signatures -> {
                 startActivity(Intent(this, SignatureReportActivity::class.java))

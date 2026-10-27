@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="fr" tools:ignore="MissingTranslation">
+
+    <!-- SETUP INVENTORY / GARDE-MANGER -->
+    <string name="setup_inventory_title_update">✏️ Mettre à jour mon Garde-Manger</string>
+    <string name="setup_inventory_title_init">📦 Initialiser mon Garde-Manger</string>
+    <string name="setup_inventory_btn_validate">Valider Tout mon Garde-Manger (%1$d sélectionnés)</string>
+    <string name="setup_inventory_toast_success">Garde-manger initialisé avec succès !</string>
+
+    <!-- IMPORT PACKS PAR PAYS -->
+    <string name="import_packs_title">📥 Importer un Pack par Pays</string>
+    <string name="pack_name_belgique">Cuisine Belge 🇧🇪</string>
+    <string name="pack_name_italie">Cuisine Italienne 🇮🇹</string>
+    <string name="pack_name_france">Cuisine Française 🇫🇷</string>
+    <string name="import_pack_toast_new">%1$d nouvelles recettes importées dans le Pack %2$s !</string>
+    <string name="import_pack_toast_updated">Le Pack %1$s a été mis à jour avec succès (%2$d recettes enrichies) !</string>
+    <string name="import_pack_toast_already_up_to_date">Le Pack %1$s est déjà 100%% à jour dans votre carnet !</string>
+
+    <!-- RAPPORT D'AUDIT RECETTES -->
+    <string name="recipe_audit_clip_label">Rapport d\'Audit Recettes</string>
+    <string name="recipe_audit_toast_copied">Rapport d\'audit copié dans le presse-papier !</string>
+    <string name="recipe_audit_health_status">🟢 %1$d / %2$d recettes conformes et complètes (%3$d%%)</string>
+    <string name="recipe_audit_no_missing_ingredients">• Aucune (100%% avec ingrédients)</string>
+    <string name="recipe_audit_no_missing_instructions">• Aucune (100%% avec consignes)</string>
+    <string name="recipe_audit_no_missing_categories">• Aucune (100%% catégorisées)</string>
+    <string name="recipe_audit_no_drinks">• Aucune</string>
+
+    <!-- QUE CUISINER / MATCH GARDE-MANGER -->
+    <string name="cuisine_option_all">Toutes les cuisines</string>
+    <string name="cuisine_option_belge">Cuisine Belge 🇧🇪</string>
+    <string name="cuisine_option_francaise">Cuisine Française 🇫🇷</string>
+    <string name="cuisine_option_italienne">Cuisine Italienne 🇮🇹</string>
+    <string name="match_count_header_format">%1$d recettes trouvées (%2$d faisables à 100%%)</string>
+
+</resources>

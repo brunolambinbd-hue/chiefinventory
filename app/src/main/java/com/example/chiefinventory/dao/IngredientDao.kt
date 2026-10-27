@@ -1,13 +1,21 @@
 package com.example.chiefinventory.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
 import com.example.chiefinventory.model.Ingredient
 
 @Dao
 interface IngredientDao {
     @Query("SELECT * FROM ingredients ORDER BY name")
     fun getAll(): LiveData<List<Ingredient>>
+
+    @Query("SELECT * FROM ingredients WHERE (quantity <= COALESCE(minThreshold, 0.0) OR quantity IS NULL OR quantity = 0) AND stockPolicy = 'PERMANENT' ORDER BY category, name")
+    fun getOutOfStockIngredients(): LiveData<List<Ingredient>>
 
     @Query("SELECT * FROM ingredients")
     suspend fun getAllSync(): List<Ingredient>

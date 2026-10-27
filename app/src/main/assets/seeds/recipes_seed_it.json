@@ -1,0 +1,1398 @@
+[
+  {
+    "title": "Boissons/Cocktails/Americano",
+    "category": "Boisson",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Americano_cocktail_at_Nightwood_Restaurant.jpg/960px-Americano_cocktail_at_Nightwood_Restaurant.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "5 cl de Campari soit 7/10,",
+      "2 cl de vermouth rouge (Martini, Cinzano) soit 3/10,",
+      "5 cl d'eau gazeuse (Perrier)."
+    ],
+    "instructions": [
+      "Verser les ingrédients dans un tumbler rempli de glace.",
+      "Compléter d'eau gazeuse."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Boissons/Cocktails/Americano",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Boissons/Cocktails/Negroni",
+    "category": "Boisson",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "3 ou 4 cl de gin",
+      "3 cl de vermouth Italien",
+      "3 cl de Campari"
+    ],
+    "instructions": [
+      "Dans un tumbler rempli de glace verser les ingrédients",
+      "Remuer"
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Boissons/Cocktails/Negroni",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Boissons/Cocktails/Spritz",
+    "category": "Boisson",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/White_wine_spritzer.jpg/960px-White_wine_spritzer.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "6 cl vin blanc tranquille (chardonnay) ou effervescent (prosecco, cava, crémant)",
+      "3 cl d'Aperol (Nicolas, Monoprix) ou de Campari",
+      "2 cl d'eau très pétillante (Perrier, San Pellegrino)",
+      "quelques cubes de glace",
+      "une tranche d'orange immergée",
+      "3, 2, 1 Aperol Spritz"
+    ],
+    "instructions": [
+      "directement dans le verre (idéalement un tumbler)."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Boissons/Cocktails/Spritz",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Cannelloni",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": 20,
+    "cookTimeMinutes": 20,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Cannelloni2.png/960px-Cannelloni2.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "On utilise la même pâte et la même farce que pour les ravioli. Si vous ne pouvez confectionner la pâte, achetez des boîtes de carrés de cannelloni, prêts à farcir.",
+      "2 boîtes de 12 carrés de cannelloni,",
+      "60 g de beurre,",
+      "2 cuillerées à soupe de concentré de tomate,",
+      "1 verre de vin blanc sec,",
+      "1 bouquet garni,",
+      "50 g de parmesan râpé,",
+      "1 cuillerée à soupe d’huile,",
+      "Sel & poivre.",
+      "200 g de viande de veau ou de reste de daube ou de rôti,",
+      "100 g de jambon cru de pays ou de lard fumé,",
+      "1 poignée de feuilles de blettes blanchies,",
+      "60 à 80 g de brocciu sec, dessalé puis écrasé à la fourchette,",
+      "50 g de mie de pain trempée,",
+      "1 oignon,",
+      "1 œuf,",
+      "1 cuillerée à soupe d’huile d’olive ou de jus de viande,",
+      "Sel & poivre,",
+      "Ail et persil hachés."
+    ],
+    "instructions": [],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Cannelloni",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Crostini à l'italienne",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "4 toasts briochés",
+      "2 tomates coupées en fines tranches",
+      "1 courgette émincée",
+      "1 poivron vert émincé",
+      "2 gousses d'ail écrasées, sans le germe vert",
+      "50 g d'olives vertes dénoyautées et égouttées",
+      "200 g de fromage mozzarella égoutté",
+      "2 cuillers à soupe d'origan",
+      "de l'huile d'olive"
+    ],
+    "instructions": [
+      "Arroser les toasts d'un filet d'huile d'olive, les parsemer d'ail écrasé",
+      "Recouvrer les toasts avec les fines tranches de tomate, courgette, olives dénoyautées et terminez par une tranche de mozarella",
+      "Répartissez le poivron et une cuiller à soupe d'origan, salez et poivrez",
+      "Placez les toasts sur une plaque huilée, mettez-les au four et laissez cuire 10 minutes",
+      "Lorsque les toasts sont bien dorés, retirez-les du four, parsemez-les avec une cuiller à soupe d'origan et servez aussitôt"
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Crostini%20%C3%A0%20l%27italienne",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Lasagnes faciles",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/Pr%C3%A9paration_des_lasagnes_%28mars_2020%29_-_%28010%29_faire_les_couches.jpg/960px-Pr%C3%A9paration_des_lasagnes_%28mars_2020%29_-_%28010%29_faire_les_couches.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "Un oignon",
+      "500 g de bœuf haché",
+      "Une boule de  mozzarella",
+      "Environ 600 g de coulis de tomates",
+      "Environ 12 plaques de lasagnes sèches",
+      "Du sel, du poivre et un morceau de sucre"
+    ],
+    "instructions": [
+      "Émincer l'oignon.",
+      "Faire dorer à la poêle/sauteuse.",
+      "Ajouter le bœuf et poursuivre la cuisson.",
+      "Dès que le bœuf est suffisamment saisi, incorporer le coulis de tomates.",
+      "Ajouter du sel et un morceau de sucre.",
+      "Laisser mijoter quelques minutes.",
+      "Idéalement faire tremper les lasagnes dans la sauce précédemment réalisée.",
+      "Beurrer le plat.",
+      "Réaliser une première couche de trois lasagnes.",
+      "Mettre de la sauce.",
+      "Alterner ainsi sur trois niveaux.",
+      "Terminer par une couche de lasagnes.",
+      "Émietter la mozzarella.",
+      "Disposer la mozzarella sur la dernière couche.",
+      "Mettre au four préchauffé, thermostat 180 °C, 15 min."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Lasagnes%20faciles",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Osso bucco",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Ossobuco.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "ingredients": [
+      "4 jarrets de veau,",
+      "3 carottes,",
+      "2 oignons,",
+      "2 côtes de céleri,",
+      "4 tomates,",
+      "25 cl de vin blanc sec,",
+      "25 cl de bouillon de poule,",
+      "1 bouquet garni,",
+      "1 branche de basilic frais,",
+      "2 cuillerées à soupe de farine,",
+      "3 cuillerées à soupe d'huile d'olive,",
+      "sel,",
+      "poivre.",
+      "=== Pour la gremolata ===",
+      "le zeste d'un citron râpé,",
+      "1 cuillerée à soupe de persil plat haché,",
+      "1 gousse d'ail écrasée,",
+      "1 filet d'anchois à l'huile."
+    ],
+    "instructions": [
+      "Éplucher les carottes et les oignons, les laver ainsi que les côtes de céleri.",
+      "Les hacher finement et les faire revenir dans une sauteuse avec une cuillerée à soupe d'huile d'olive.",
+      "Ajouter le bouquet garni et le basilic.",
+      "Couvrir et laisser mijoter.",
+      "Faire chauffer deux cuillerées à soupe d'huile d'olive dans une poêle et y faire revenir les jarrets de veau farinés.",
+      "Lorsqu'ils sont bien dorés, les retirer de la poêle et les mettre sur les légumes en ajoutant les tomates coupées en quartiers.",
+      "Déglacer la poêle au vin blanc et l'ajouter à la préparation précédente.",
+      "Couvrir de bouillon, saler, poivrer.",
+      "Laisser cuire à feu doux pendant deux heures.",
+      "Préparer la gremolata en mélangeant les zestes de citron, le persil haché, la gousse d'ail écrasée et le filet d'anchois.",
+      "Lorsque la cuisson est terminée, ajouter la gremolata et laisser infuser pendant cinq minutes avant de servir."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Osso%20bucco",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Panettone",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": 10,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Panettone_-_Nicolettone_2017_-_IMG_7085_%2831752542285%29.jpg/960px-Panettone_-_Nicolettone_2017_-_IMG_7085_%2831752542285%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "6 jaunes d'œufs,",
+      "250 g de farine,",
+      "150 g de raisins secs de Corinthe,",
+      "125 g de beurre,",
+      "80 g de sucre,",
+      "50 g de fruits confits,",
+      "10 g d'écorce de citron et d'orange râpées,",
+      "un sachet de levure de boulanger,",
+      "1 sachet de sucre vanillé,",
+      "une pincée de sel."
+    ],
+    "instructions": [
+      "Réhydrater la levure pendant 10 minutes dans une tasse d’eau tiède et attendre 15 minutes ;",
+      "Incorporer et mélanger les jaunes d'œufs, le sucre vanillé, les zestes râpés du citron et de l'orange, le sel et le sucre ;",
+      "Ajouter la moitié de la farine puis le beurre ramolli en morceaux, puis le reste de la farine ;",
+      "Pétrir la pâte pendant 15 min ;",
+      "Rouler la pâte en boule et laisser gonfler dans un endroit tiède (la pâte doit avoir doublé de volume) ;",
+      "Pétrir en incorporant les fruits confits hachés très fins et les raisins secs ;",
+      "Reformer la boule, tracer une croix sur le dessus, la mettre dans un moule cylindrique beurré et laisser lever ;",
+      "Enduire le dessus de beurre fondu et le mettre au four ;",
+      "Cuire à four moyen (190° C) pendant 10 min, puis baisser un peu la chaleur et faire cuire de 30 à 40 min en badigeonnant de beurre à mi-cuisson ;",
+      "Laisser refroidir."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Panettone",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Panna cotta",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Panna_Cotta_with_cream_and_garnish.jpg/960px-Panna_Cotta_with_cream_and_garnish.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "4 dL de crème fraîche",
+      "1 dL de lait",
+      "75 g de sucre",
+      "1 sachet de sucre vanillé",
+      "3 feuilles de gélatine ou 1 g d'agar-agar"
+    ],
+    "instructions": [
+      "Ramollir les feuilles de gélatine dans de l'eau froide.",
+      "Faire bouillir la crème fraîche et le lait.",
+      "Enlever du feu et ajouter le sucre, le sucre vanillé et les feuilles de gélatine.",
+      "Bien mélanger et répartir dans des ramequins individuels.",
+      "Mettre au frigo pendant au moins 2h."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Panna%20cotta",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pâtes à la Trapanese",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "500 g de pâtes",
+      "Tomates",
+      "Olives",
+      "Ail",
+      "Oignons",
+      "Basilic",
+      "Huile d'olive"
+    ],
+    "instructions": [
+      "Dorer à l'huile d'olive, l'oignon et l'ail émincés",
+      "Incorpore les tomates pelées coupées en cubes et les olives dénoyautées et coupées finement.",
+      "Cuire 10 min, ajouter sel et poivre.",
+      "Cuire les pâtes « al dente ».",
+      "Ajouter les pâtes égouttées et le basilic ciselé à la sauce.",
+      "Chauffer et servir."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/P%C3%A2tes%20%C3%A0%20la%20Trapanese",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Penne arrabbiata2",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "500 g de penne",
+      "Une cuillère à soupe d'huile d'olive",
+      "3 tomates épluchées et grossièrement coupées",
+      "2 dl de concentré de tomate",
+      "4 gousses d'ail",
+      "Un oignon émincé",
+      "2 piments rouges",
+      "sel & Poivre"
+    ],
+    "instructions": [
+      "Faites cuire les penne et laisser cuire 12 min.",
+      "Faites revenir dans une poêle, l'ail et l'oignon jusqu'à transparence.",
+      "Ajoutez les tomates et le concentré.",
+      "Ajoutez les piments très finements coupés et laissez mijoter jsuqu'à ce que les tomates perdent leur consistance (Ajouter un peu d'eau si la sauce s'assèche trop)",
+      "Dès que les pâtes sont « al dente » (légèrement croquantes), passez-les et rincez-les à l'eau fraîche.",
+      "Mélangez le tout dans le tout, salez et poivrez.",
+      "Servez chaud accompagné ou non de parmesan."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Penne%20arrabbiata2",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pesto",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Ingredienti_per_il_pesto_Genovese_%28Ingridients_for_Pesto_Genovese%29.jpg/960px-Ingredienti_per_il_pesto_Genovese_%28Ingridients_for_Pesto_Genovese%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "50 g de feuilles de basilic frais",
+      "deux gousses d'ail",
+      "25 g de pignons de pin grillés",
+      "100 g de parmesan",
+      "70 cl d'huile d'olive",
+      "100 g de pignons de pins",
+      "4 gousses d'ail",
+      "un bouquet de basilic",
+      "50 g de parmesan"
+    ],
+    "instructions": [
+      "Mettre les feuilles de basilic, l'ail et 35 cl d'huile d'olive, mixer",
+      "Ajouter les autres ingrédients, allonger à l’eau chaude salée",
+      "Mixer les gousses d'ail épluchées et les pignons grâce à un mixer.",
+      "Râper le parmesan et couper les feuilles de basilic.",
+      "Mélanger le tout."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pesto",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza mogador",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "250 g de farine,",
+      "15 g de levure fraîche de boulanger,",
+      "Une pincée de sucre ½ cuillerée à café de sel,",
+      "2 cuillerées à soupe d’huile d'olive,",
+      "4 tomates,",
+      "125 g de fromage,",
+      "1 petite boîte de filets d’anchois,",
+      "3 cuillerées à soupe d’olives fourrées,",
+      "2 cuillerées à soupe de câpres,",
+      "1 petite boîte de thon,",
+      "Sel, poivre Origan."
+    ],
+    "instructions": [
+      "Chauffez le four (200°C).",
+      "Dans une tasse, délayez la levure et une pincée de sucre dans un fond d’eau juste tiède.",
+      "Placez la tasse dans un endroit chaud (au bout de quelques instants, le mélange va augmenter de volume et faire des bulles).",
+      "Dans une terrine, mélangez la farine, une demi-cuillerée à café de sel, deux cuillerées à soupe d’huile, la levure délayée et, petit à petit, deux verres d’eau.",
+      "Pétrissez cette pâte jusqu’à en former une boule élastique et lisse. Poudrez-la légèrement de farine et laissez-la reposer une heure dans une grande jatte couverte, dans un endroit chaud sans courant d’air.",
+      "Lavez les tomates, coupez-les en rondelles et garnissez-en le fond de pâte.",
+      "Coupez le fromage en plaquettes fines. Déposez-les sur les tomates et, au-dessus, les filets d’anchois, les olives hachées, les câpres et le thon.",
+      "Épicez avec sel, poivre et origan.",
+      "Mettez au four 20 min."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20mogador",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Poisson au guazzetto",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "Outre le poisson :",
+      "2 gousses d'ail",
+      "persil",
+      "un jus de citron",
+      "romarin",
+      "sel et poivre"
+    ],
+    "instructions": [
+      "Dans une poêle de préférence oblongue, faire revenir une gousse d'ail et du persil hachés dans un peu d'huile d'olive extra-vierge. Avant même que l'ail n'ait doré, mettre le poisson (ou les praires, ou les gambas ou langoustines) dans la poêle, le faire revenir rapidement sur les deux côtés en salant et poivrant légèrement, avant d'ajouter un quart de verre de vin blanc sec et corsé (en Italie on utilise le plus souvent du Verdicchio, de la Vernaccia de San Gimignano, ou de l'Orvieto).",
+      "Laisser cuire à feu doux un quart d'heure ou vingt minutes selon la grosseur du poisson ; couvrir pour que le guazzetto (le jus obtenu durant la cuisson) n'évapore pas trop (éventuellement rajouter un tout petit peu d'eau), ajouter un jus de citron juste avant de retirer du feu.",
+      "Après avoir vidé et nettoyé le poisson avant de le cuire, on aura garni l'intérieur avec un brin de romarin, une gousse d'ail coupée en deux (dans le sens de la longueur), ou avec une branche de persil ou de basilic à la rigueur, sel et poivre.",
+      "On procédera de même pour les crustacés, qu'on servira alors en hors-d'œuvre, et pour les praires ou palourdes (de petite taille), mais dans ce cas on n'utilisera pas de romarin, seulement l'ail et le persil.",
+      "Si l'on désire utiliser ces dernières pour confectionner un plat de spaghetti alle vongole (pâtes aux praires), on s'abstiendra d'ajouter le jus de citron, mais on fera rapidement sauter les pâtes al dente (à peine cuites car elles finiront de cuire en revenant dans la poêle avec les praires).",
+      "Ce plat, qui ne nécessite guère plus d'une demi-heure entre la préparation et la cuisson, est une base permettant d'accommoder différentes variétés tant de poissons que de fruits de mer. C'est un mets agréable à déguster durant la période estivale, à laquelle on donnera ainsi une saveur méditerranéenne."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Poisson%20au%20guazzetto",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Polenta",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Cotechino-Servito-Polenta-Lenticchie.jpg/960px-Cotechino-Servito-Polenta-Lenticchie.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "Polenta savoyarde"
+    ],
+    "instructions": [],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Polenta",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Risotto",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": 18,
+    "servings": 4,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Risotto_de_gambas%2C_restaurant_Danieli_%28Vienne%2C_Autriche%29.jpg/960px-Risotto_de_gambas%2C_restaurant_Danieli_%28Vienne%2C_Autriche%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "1 oignon,",
+      "2 cuillères d'huile d'olive,",
+      "300 g de riz italien,",
+      "1/2 verre de vin blanc sec,",
+      "1 l de bouillon,",
+      "1 noix de beurre,",
+      "30 g de parmesan râpé."
+    ],
+    "instructions": [
+      "Émincer l'oignon et le faire fondre dans deux cuillères d'huile d'olive.",
+      "Ajouter le riz et le faire revenir jusqu'à ce qu'il soit translucide.",
+      "Puis arroser avec le vin blanc.",
+      "Quand celui-ci est réduit, ajouter peu à peu le bouillon chaud (une louche à la fois) jusqu'à absorption complète. La cuisson devrait prendre 18 minutes.",
+      "Avant de servir, incorporez une noix de beurre et le parmesan ensuite couvrir pendant deux minutes. Ceci achèvera d'apporter une consistance crémeuse au plat, dont la liaison est initialement apportée par l'amidon du riz.",
+      "Risotto à la milanaise",
+      "Risotto au potimarron",
+      "Risotto au poulet",
+      "Risotto de saumon",
+      "Risotto au noir",
+      "=== Liens externes ==="
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Risotto à la milanaise",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": 2,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Risotto_alla_Milanese.JPG/960px-Risotto_alla_Milanese.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "riz (de qualité « Arborio » du département « Lomellina» (située au sud-ouest de Milan, entre les fleuves « Po » et « Ticino »),",
+      "échalotes,",
+      "bouillon de qualité (viandes et légumes façon pot-au-feu),",
+      "vin blanc sec,",
+      "safran,",
+      "beurre,",
+      "huile d'olive,",
+      "grana padano."
+    ],
+    "instructions": [
+      "Couper les échalotes en rondelles,",
+      "Dans une grande casserole (ou une poêle très épaisse) faire fondre un morceau de beurre avec juste une cuillère d’huile d’olive (pour ne pas brûler le beurre).",
+      "Faire dorer les échalotes.",
+      "Baisser le feu et ajouter le riz en le remuant énergiquement avec une cuillère en bois.",
+      "Baisser juste un peu la flamme et verser le verre de vin blanc sec (pour faire brûler l’alcool).",
+      "À partir de ce moment, ne jamais laisser le riz coller, en le remuant avec la cuillère en bois, et ajouter doucement le bouillon jusqu'à la cuisson du riz.",
+      "minutes avant la cuisson parfaite, ajouter le safran que vous aurez incorporé à un peu de bouillon.",
+      "Finir la cuisson en faisant très attention à ce que le bouillon ne coule pas du risotto.",
+      "Ajouter encore un morceau de beurre et du grana padano selon votre goût.",
+      "Il faut remarquer qu'il y a une tradition spécifique à Milan pour goûter le risotto. En fait, les restes seront servis \"al salto\". Il s'agit d'un riz avec beaucoup de beurre, une véritable gâterie."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20%C3%A0%20la%20milanaise",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Risotto au noir",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Risotto_al_nero_di_seppia.jpg/960px-Risotto_al_nero_di_seppia.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "1 kg de seiches entières (ou 600 g de blanc de seiches et 2 sachets d'encre)",
+      "Fumet de poisson",
+      "30 cl de vin blanc sec",
+      "1 gousse d’ail",
+      "1 pincée de curcuma",
+      "1 feuille de laurier",
+      "1 cuillère à soupe d’huile d’olive",
+      "sel",
+      "Poivre",
+      "Parmesan"
+    ],
+    "instructions": [
+      "Retirez la peau des seiches, les vider, ôter l'os et les yeux, conserver la poche à encre et la poche contenant une substance jaune ;",
+      "Épluchez et hachez l’ail, coupez les seiches en rondelles ou en lanières ;",
+      "Faire blondir l’ail et le laurier émietté, ajouter les seiches qui vont d’abord rendre leur eau puis la réabsorber ;",
+      "Saupoudrez de curcuma, salez et mouillez avec la moitié du vin ;",
+      "À l'évaporation, poivrez et couvrir ;",
+      "Délayer l’encre dans le reste de vin blanc.",
+      "=== Le risotto ===",
+      "Préparer un risotto classique, au premier tiers de cuisson ajouter l'encre et le contenu de l'autre poche ;",
+      "Lorsqu’il est cuit, ajouter le beurre et le parmesan, versez-le dans un plat chauffé ;",
+      "Répartir dessus les seiches ;",
+      "Servir avec un flacon d’huile pimentée et du parmesan râpé (pour beaucoup le parmesan dans les plats avec des produits de la mer est une erreur)."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20au%20noir",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Risotto au poulet",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": 4,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Cuisse_de_poulet_%C3%A0_la_cr%C3%A8me%2C_olives%2C_carottes_et_risotto_%C3%A0_La_Tablature_%28Lyon%2C_2019%29.jpg/960px-Cuisse_de_poulet_%C3%A0_la_cr%C3%A8me%2C_olives%2C_carottes_et_risotto_%C3%A0_La_Tablature_%28Lyon%2C_2019%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "200 g de blanc de poulet coupés en fines lanières ;",
+      "300 g de riz Arborio, Carnaroli ou Vialone Nano ;",
+      "250 g de tomate pelée (en boîte) et coupée en quartiers ;",
+      "1 oignon émincé, ou échalote... ;",
+      "1 litre de bouillon de volaille ;",
+      "2 cuillères à soupe de persil haché ;",
+      "250 ml (1 tasse) de vin blanc, sel et poivre du moulin."
+    ],
+    "instructions": [
+      "Dans une cocotte à fond épais, faire revenir l'oignon haché, et dès qu'il commence à blondir, ajouter les lanières de blanc de poulet, et faire rissoler le tout.",
+      "Ajouter le verre de vin blanc et les morceaux de tomates pelées, et laisser cuire 10 minutes à feu doux.",
+      "Ajouter le riz, mélangez et laissez cuire 2 minutes, avant d'incorporer, petit à petit, le bouillon de volaille chaud, jusqu'à ce que le riz ne puisse plus absorber de liquide, salez et poivrez.",
+      "Disposer la préparation dans un plat de service et saupoudrer avec le persil haché."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20au%20poulet",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Risotto de saumon",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Seared_Salmon%2C_Risotto%2C_Curry_Sauce_-_La_Terrasse%2C_Rouen_2026-05-10.jpg/960px-Seared_Salmon%2C_Risotto%2C_Curry_Sauce_-_La_Terrasse%2C_Rouen_2026-05-10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "600 g de chair de saumon",
+      "400 g de riz rond",
+      "70 g de parmesan",
+      "1l de fumet de poisson",
+      "2 verres de vin blanc",
+      "1 oignon",
+      "1 filet d'huile d'olive"
+    ],
+    "instructions": [
+      "Eplucher et hacher l'oignon, le faire revenir cinq minutes dans une poêle avec de l'huile",
+      "Ajouter le riz et remuer jusqu'à ce qu'il soit nacré",
+      "Verser le vin blanc. Mélanger",
+      "Ajouter 1 dl de fumet, remuer. Lorsque le riz a tout absorbé, ajouter à nouveau du fumet. Et ainsi de suite",
+      "Couper le saumon en dés et l'ajouter. Laisser cuire cinq minutes",
+      "Ajouter le parmesan rapé",
+      "Laisser reposer quelques minutes et servir"
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20de%20saumon",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Salade de macaronis",
+    "category": "Entrée",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Grandma%27s_Macaroni_Salad_-_50594162638.jpg/960px-Grandma%27s_Macaroni_Salad_-_50594162638.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "500 g de macaroni",
+      "200 g de bacon",
+      "50 g de crème sure",
+      "50 g de mayonnaise",
+      "12 olives dénoyautées",
+      "8 radis",
+      "4 branches de céleri",
+      "4 œufs",
+      "3 poivrons (vert, rouge, jaune)",
+      "2 échalotes vertes",
+      "moutarde, sel, poivre et fines herbes (thym, basilic, persil, romarin, sauge)"
+    ],
+    "instructions": [
+      "Cuire les pâtes (un peu moins que \"al dente\"), le bacon croustillant et les œufs durs, laisser refroidir",
+      "Hacher le bacon, les légumes et les œufs écaillés",
+      "Mélanger les ingrédients dans un saladier et laisser reposer au réfrigérateur pendant quelques heures."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Salade%20de%20macaronis",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Sauce cinq P",
+    "category": "Accompagnement",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "Panna (crème),",
+      "Pomodoro (Tomate),",
+      "Parmigiano (Parmesan),",
+      "Prezzemolo (Persil),",
+      "Pepe (Poivre).",
+      "2 dl de crème,",
+      "2 cuillères à soupe de concentré de tomate,",
+      "2 cuillères à soupe de parmesan,",
+      "1/2 bouquet de persil,",
+      "à volonté poivre."
+    ],
+    "instructions": [
+      "Mettre le tout dans une casserole, porter à ébullition, cuire à feu doux pendant 5 min."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Sauce%20cinq%20P",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Soupe minestrone",
+    "category": "Entrée",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Minestrone.jpg/960px-Minestrone.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "150 g de haricots blancs secs",
+      "100 g de chou blanc",
+      "2 carottes",
+      "150 g de haricots verts",
+      "150 g de petits pois",
+      "2 pomme de terre",
+      "4 tomates",
+      "1 oignon",
+      "1 gousse d’ail",
+      "2L de Bouillon de légumes",
+      "thym, romarin, sel, poivre, basilic, huile d’olive"
+    ],
+    "instructions": [
+      "Mettre les haricots à tremper 12 heures",
+      "Emincer le chou et l'oignon. Couper les tomates, les pommes de terre et les carottes en dés.",
+      "Couper les haricots verts et hacher l'ail",
+      "Rissoler l’oignon et l’ail, ajouter les carottes, le chou, les haricots, les pois, les pommes de terre et les tomates",
+      "Laisser suer quelques instants",
+      "Mouiller avec le bouillon, parfumer de thym et de romarin et ajouter les haricots égouttés",
+      "Cuire 30 min dans un autocuiseur",
+      "Assaisonner et servir avec un pesto"
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Soupe%20minestrone",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Tiramisu",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Dolce_Tiramis%C3%B9_monoporzione.jpg/960px-Dolce_Tiramis%C3%B9_monoporzione.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "3 œufs,",
+      "500 g de mascarpone,",
+      "250 g de biscuits à la cuillère,",
+      "100 g de sucre,",
+      "15 cl de café très fort,",
+      "2 cuillerées de cacao en poudre,",
+      "un peu de Marsala."
+    ],
+    "instructions": [
+      "Séparer les blancs des jaunes d'œuf ; battre les jaunes avec le sucre. Ajouter le mascarpone.",
+      "Verser un peu de Marsala.",
+      "Battre les blancs en neige, et les incorporer au mélange précédent.",
+      "Dans un petit récipient, tremper rapidement les biscuits dans le café froid, puis tapissez-en le fond d'un plat large.",
+      "Recouvrir avec la moitié du mélange au mascarpone.",
+      "Déposer une seconde couche de biscuits, puis le reste de mascarpone.",
+      "Couvrir et laisser reposer au moins trois heures au réfrigérateur.",
+      "Au moment de servir, saupoudrer de cacao."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tiramisu",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Tomates mozzarella",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Tomate_mozzarella_2019.jpg/960px-Tomate_mozzarella_2019.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "8 tomates grappe,",
+      "250 g de mozzarella,",
+      "bouquet de basilic,",
+      "3 cuillerées à soupe d'huile d'olive,",
+      "sel, poivre."
+    ],
+    "instructions": [
+      "Laver les tomates puis les sécher. Couper les tomates en rondelles.",
+      "Couper la mozzarella en rondelles.",
+      "Disposer dans un plat en alternant tomate et mozzarella.",
+      "Arroser d'huile d'olive. Saler et poivrer.",
+      "Répandre du basilic découpé (avec des ciseaux) sur le tout."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tomates%20mozzarella",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Vitello tonnato",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": 6,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Vitello_tonnato_%286977537544%29.jpg/960px-Vitello_tonnato_%286977537544%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "1 rôti de veau",
+      "quelques feuilles de laurier, de sauge",
+      "3 clous de girofle",
+      "des câpres, des anchois",
+      "3 œufs durs",
+      "300 g de thon à l'huile",
+      "un jus de citron",
+      "huile d'olive",
+      "une bouteille de vin blanc sec",
+      "sel",
+      "poivre"
+    ],
+    "instructions": [
+      "Faire mariner pendant 24 heures la viande dans le vin avec le laurier, les clous de girofle et la sauge.",
+      "Cuire la viande couverte par la marinade (compléter avec de l'eau). Ajouter les anchois. Laisser réduire jusqu'à environ un demi-litre.",
+      "Mélanger et passer le bouillon avec les œufs, l'huile, le thon, le jus de citron de façon à créer une sorte de mayonnaise. Réserver au réfrigérateur.",
+      "En napper la viande froide, découpée en fines tranches sur des assiettes de présentation.",
+      "Décorer avec des câpres. On peut ajouter un brin de coriandre ou de persil pour la couleur, voire une demi-rondelle de citron ou d'orange, avec une demi-olive noire dénoyautée.",
+      "Aujourd'hui, la version plus basique, « plus bistro », et que l'on rencontre plus fréquemment (mais qui est tout aussi agréable), consiste en seulement napper la viande froide d'un mélange de mayonnaise et de thon à l'huile avec un jus de citron, sans oublier les câpres et de servir frais. Il est nécessaire de protéger par un film alimentaire pour que le plat ne se déssèche pas."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Vitello%20tonnato",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pâtes à la carbonara",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Espaguetis_carbonara.jpg/960px-Espaguetis_carbonara.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "360 g de pâtes,",
+      "200 g de guanciale,",
+      "120 g de pecorino,",
+      "4 œufs,",
+      "Poivre, Sel"
+    ],
+    "instructions": [
+      "Faire chauffer une grande casserole d'eau légèrement salée ;",
+      "Émincer la guanciale et la faire revenir à feu doux dans une grande poêle sans matière grasse ;",
+      "Lorsque l'eau boue, cuire les pâtes un peu en dessous la cuisson al dente ;",
+      "Battre les œufs avec le pecorino râpé et du poivre ;",
+      "Égoutter les pâtes mais conserver un peu d'eau de cuisson ;",
+      "Verser les pâtes dans la poêle avec la guanciale et un peu d'eau de cuisson des pâtes (l'amidon permet de lier la sauce);",
+      "Remuer pendant une à deux minute pour terminer de cuire les pâtes al dente (ajouter de l'eau de cuisson des pâtes si nécessaire) ;",
+      "Hors du feu, ajouter le mélange d'œufs, pecorino et poivre, remuer et servir."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/P%C3%A2tes%20%C3%A0%20la%20carbonara",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza au tofu et aux champignons2",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "=== Pâte ===",
+      "300 g de farine,",
+      "2 cuillères à soupe d’huile d'olive,",
+      "150 ml d’eau tiède,",
+      "0,5 sachet de levure,",
+      "sel.",
+      "=== Garniture ===",
+      "300 g de tomates en morceaux,",
+      "150 g de tofu écrasé,",
+      "350 g de champignons hachés,",
+      "6 tomates séchées conservées dans l’huile,",
+      "1 cuillères à soupe d’huile d’olive,",
+      "origan, sel, poivre."
+    ],
+    "instructions": [
+      "Préchauffer le four à 220°C.",
+      "Quelques heures à l’avance, faire mariner le tofu écrasé avec les tomates aromatisées à l’origan.",
+      "Préparer une pâte à pizza :",
+      "Mélanger tous les ingrédients et pétrir jusqu’à obtenir une masse lisse et élastique.",
+      "Laisser reposer une bonne heure au chaud, sous un torchon.",
+      "Faire rissoler les champignons hachés dans l’huile d’olive et réserver.",
+      "Étendre la pâte dans une moule à pizza huilé, la napper de tomates au tofu, puis disposer les champignons ainsi que les tomates séchées coupées en morceaux.",
+      "Saupoudrer d’origan et cuire 15 min à 220°C (dans le four préchauffé)."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20au%20tofu%20et%20aux%20champignons2",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza Margherita",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Margherita_Originale.JPG/960px-Margherita_Originale.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "200ml d'eau,",
+      "350g de farine,",
+      "25g de levure fraîche (ou l'équivalent de levure sèche),",
+      "2 cuillère à soupe d'huile d'olive,",
+      "2 cuillère à café de sel,",
+      "éventuellement 2 cuillère à café de sucre pour obtenir une croûte croustillante,",
+      "de la sauce tomate,",
+      "de la mozzarella,",
+      "du basilic."
+    ],
+    "instructions": [
+      "Tamiser la farine et la mélanger à la levure, le sel et le sucre.",
+      "Faire une puits au milieu de la farine et y verser l'eau et l'huile. Mélanger jusqu'à obtenir une pâte.",
+      "Pétrir la pâte (environ 15 minutes) jusqu'à obtenir la bonne consistance.",
+      "Laisser reposer la pâte pour qu'elle lève pendant au moins une heure.",
+      "Pétrir à nouveau la pâte.",
+      "Laissez à nouveau reposer la pâte, au moins 15 minutes.",
+      "Abaisser la pâte sur une épaisseur de plus ou moins 3mm.",
+      "Étaler la sauce tomate, disposer des tranches de mozzarella et le basilic.",
+      "Préchauffer le four à 250°C.",
+      "Faire cuire la pizza pendant 10 minutes en haut du four."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20Margherita",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Cassata",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Cassata.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "ingredients": [
+      "50 g de pépites de chocolat noir,",
+      "600 g de ricotta de brebis,",
+      "5 œufs moyennes,",
+      "175 g de sucre,",
+      "¼ de verre de marasquin,",
+      "315 g de sucre glace,",
+      "Fruits confits (surtout les oranges),",
+      "10 g de pâte de pistache,",
+      "100 g de massepain,",
+      "1 blanc d'œuf,",
+      "150 g de farine T45,",
+      "Une pincée de sel fin,",
+      "75 ml d’eau,",
+      "½ zeste de citron,",
+      "75 g de sucre glace vanillé."
+    ],
+    "instructions": [],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Cassata",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pasta con le sarde",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Pasta_con_le_sarde_%28Palermo%29.jpg/960px-Pasta_con_le_sarde_%28Palermo%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "500 g de sardines fraîches",
+      "500 g de bucatini",
+      "500 g de feuilles et tiges vertes de fenouil",
+      "50 g de raisin sec",
+      "50 g de pignons de pin",
+      "2 oignons moyens",
+      "3 anchois salés",
+      "1 sachet de safran",
+      "4 l d'eau",
+      "huile d'olive",
+      "sel",
+      "poivre",
+      "Facultatif :",
+      "tomates"
+    ],
+    "instructions": [
+      "Placer les feuilles de fenouil dans une casserole d'eau froide ajouter avec autant d'eau pour les pâtes (4 l d'eau pour 500 g)",
+      "Porter à ébullition puis laisser bouillir pendant 20 minutes.",
+      "Égoutter mais gardez l'eau de côté, Hacher le fenouil bouilli.",
+      "==== préparer le raisin sec ====",
+      "Faire tremper le raisin sec dans de l'eau tiède pendant une demi-heure au moins.",
+      "==== préparer les anchois ====",
+      "Dessaler les anchois, les laver, les sécher",
+      "Dissoudre les anchois dans une casserole avec une cuillerée d'huile chaude.",
+      "Retirer la tête, la queue et toutes les arêtes des sardines.",
+      "Blanchir les sardines dans 1 dl d'huile d'olive extra vierge (une minute par côté), égoutter et réserver.",
+      "Faire revenir les oignons finement émincés dans la même poêle jusqu'à ce qu'ils soient légèrement colorés",
+      "Ajouter le fenouil, les sardines, le raisin sec, les pignons de pin, le sel et le poivre.",
+      "Cuire à feu doux, en remuant, pour mélanger la sauce.",
+      "Au bout de 20 minutes environ, ajouter les anchois.",
+      "Cuire encore 15 minutes en remuant constamment.",
+      "Ajouter un sachet de safran, dissous dans une cuillère à soupe d'eau de cuisson du fenouil.",
+      "Pendant ce temps, faites cuire les pâtes dans l'eau de cuisson du fenouil.",
+      "Égouttez-les al dente et ajoutez-les à la sauce.",
+      "Laisser reposer quelques minutes avant de servir."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pasta%20con%20le%20sarde",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pâte à pizza",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Pizza_%C3%A0_la_po%C3%AAle.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "ingredients": [
+      "300 g de farine (type 45 ou 55 de préférence),",
+      "100 mL d'eau tiède (env. 35°C, c'est-à-dire ni chaud ni froid au toucher),",
+      "Levure :",
+      "soit 8 g de levure déshydratée (plus 100 mL d'eau tiède pour la réhydrater),",
+      "soit 24 g de levure fraîche,",
+      "2 pincées de sel,",
+      "Optionnel : 2 cuillères à soupe d'huile d'olive."
+    ],
+    "instructions": [
+      "=== Levure ===",
+      "Si utilisation de levure fraîche, il suffit de l'effriter.",
+      "Si utilisation de levure déshydratée, il faut d'abord la réhydrater :",
+      "Verser 100 mL d'eau tiède dans un verre",
+      "Dissoudre la levure déshydratée",
+      "Laisser reposer 15 minutes",
+      "=== Pâte ===",
+      "Sur un grand plan de travail, former un puits avec la farine",
+      "Verser dans le puits : l'eau tiède, le sel, l'huile d'olive et la levure fraîche ou réhydratée",
+      "Mélanger l'ensemble jusqu'à absorption des liquides",
+      "Pétrir alors énergiquement avec la paume des mains pendant environ 10 à 15 minutes, jusqu'à ce que la pâte devienne élastique et qu'elle ne se déchire plus quand on l'étire",
+      "Couvrir avec un torchon légèrement humide et laisser monter :",
+      "Pendant au moins une heure (jusqu'à 2 ou 3 jours !)",
+      "Dans un endroit tiède (jusqu'à env. 25°C ; par exemple à côté d'un radiateur l'hiver)",
+      "Et à l'abri des courants d'air pour éviter la formation d'une croûte (placer éventuellement dans un grand tupperware fermé)",
+      "Pétrir une dernière fois pour homogénéiser la pâte",
+      "Diviser la pâte en deux boules, et étaler puis aplatir chacune jusqu'à environ 3 ou 4 mm d'épaisseur",
+      "=== Notes ===",
+      "Ne jamais ajouter d'eau à une pâte déjà formée",
+      "La quantité d'eau est une première approximation. Il faut ajuster la quantité d'eau en fonction de l'humidité de la farine.",
+      "Préchauffer le four à 250°C ;",
+      "Poser sur une plaque métallique légèrement huilée ;",
+      "Garnir selon la  préparée ;",
+      "Enfourner à 250°C pendant 10 à 15 minutes."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/P%C3%A2te%20%C3%A0%20pizza",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza Calzone aux aubergines",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "250 g de pâte à pain",
+      "1 aubergine coupée en petits dés",
+      "1 oignon émincé",
+      "1 gousse d'ail hachée",
+      "50 g de tomates séchées",
+      "sel, poivre, origan, huile d'olive."
+    ],
+    "instructions": [
+      "Placer les dés d'aubergine dans une passoire, les saupoudrer de sel et laisser dégorger.",
+      "Rissoler l'oignon et l'ail dans l'huile, leur ajouter l'aubergine (rincée), les tomates séchées coupées en lamelles, ainsi que les épices et laisser mijoter une vingtaine de min.",
+      "Couper la pâte en deux portions et étendre chacune d'entre elles au rouleau en deux cercles.",
+      "Placer la garniture sur une moitié et rabattre la pâte de manière à enfermer la garniture.",
+      "Souder les bords par pression.",
+      "Placer les pizzas sur un moule préalablement huilé et cuire 20 min à 235°C."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20Calzone%20aux%20aubergines",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza familiale",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Pr%C3%A9paration_d%27une_pizza_maison%2C_mars_2020_%28025%29.jpg/960px-Pr%C3%A9paration_d%27une_pizza_maison%2C_mars_2020_%28025%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "(pour quatre personnes)",
+      "330 g de farine",
+      "18 cl d’eau tiède",
+      "2/3 d’un sachet de levure boulangère",
+      "1 cuiller à café de sel",
+      "1 cuiller à café de sucre en poudre",
+      "1 cuiller à soupe d'huile d'olive",
+      "5 bonnes cuillers à soupe de coulis de tomate",
+      "6 tranches de jambon italien tranché fin (prosciutto cotto)",
+      "une boule de mozzarella di buffala,",
+      "40 g d'emmental râpé"
+    ],
+    "instructions": [
+      "Verser la farine dans un bol ou saladier.",
+      "Dans le verre doseur, verser l’eau tiède.",
+      "Ajouter le sel, le sucre, puis la levure boulangère.",
+      "Bien mélanger jusqu'à dissolution de la levure.",
+      "Laisser reposer 3-4 minutes.",
+      "Verser le mélange dans le bol.",
+      "Pétrir la pâte.",
+      "(Ajouter de la farine si la pâte est encore trop collante).",
+      "Une fois une pâte homogène formée, ajouter l’huile d’olive et pétrir à nouveau.",
+      "Couvrir d’un linge humide et laisser reposer environ 20 min.",
+      "Pétrir à nouveau avant d’étaler au rouleau à pâtisserie jusqu’à obtention d’une pâte fine.",
+      "Étaler le coulis de tomates sur la pâte.",
+      "Ajouter les tranches entières, sans les couper, et les disposer collées les unes aux autres.",
+      "Couper la mozzarella en dés.",
+      "La disposer sur la préparation.",
+      "Terminer en saupoudrant d’emmental râpé.",
+      "Mettre au four préchauffé pendant 15 min, thermostat 180 °C."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20familiale",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Calzone",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Wikimania_2016_Deryck_day_0_-_07_calzone.jpg/960px-Wikimania_2016_Deryck_day_0_-_07_calzone.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "==== Pour la pâte ====",
+      "320 grammes de farine blanche",
+      "15 grammes de levure de bière",
+      "2 cuillerées d'huile d'olive extravierge",
+      "sel",
+      "==== Pour la farce ====",
+      "350 grammes d'oignons pelés",
+      "100 g. d'olives noires dénoyautées",
+      "2 petits filets d'anchois désalés",
+      "5 petites tomates ébouillantées et pelées",
+      "40 g . de câpres",
+      "1 c. à café d'origan",
+      "50 g de fromage de brebis râpé",
+      "100 g. de mozzarella tranchée",
+      "5 c. à soupe d'huile d'olive",
+      "sel"
+    ],
+    "instructions": [
+      "Mélanger tous les ingrédients de la pâte, l'étendre en lui donnant la forme d'un gros disque, et la laisser lever 30 minutes. Réchauffer 3 cuiller d'huile dans une casserole et y faire rissoler les oignons; mélanger ensemble les tomates taillées sur la longueur en petites tranches, les olives , les câpres, les filets d'anchois émincés, l'origan et le sel. laisser cuire 3 minutes, retirer la sauce du feu et y ajouter le fromage de brebis et la mozzarella. Etirer la pâte en cercle, y verser sur une moitié  la farce obtenue, refermer la pâte de façon à obtenir un demi cercle et en coller les bords avec une fourchette. Faire glisser le calzone sur une plaque enduite d'huile, et le faire cuire au four 30 minutes à 200°C. Servir aussitôt."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Calzone",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza à la pancetta",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Pizza_%C3%A0_la_pancetta.JPG/960px-Pizza_%C3%A0_la_pancetta.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "1 pâte à pizza",
+      "400 g de concassé de tomates",
+      "3 tranches de jambon fumé",
+      "120 g de pancetta",
+      "120 g de mozzarella",
+      "60 g de comté"
+    ],
+    "instructions": [
+      "Étaler la pâte à pizza dans un moule et la couvrir de concassé de tomates.",
+      "Couper le jambon en carré et les disposer sur la pizza.",
+      "Couvrir de rondelles de pancetta.",
+      "Couper la mozzarella en petits cubes et en recouvrir la pizza, couvrir de comté.",
+      "Cuire 15 min au four à 200°C."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20%C3%A0%20la%20pancetta",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza au chèvre et aux lardons",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "1 pâte à pizza,",
+      "1 bûche de fromage de chèvre,",
+      "400 g de concassé de tomates,",
+      "100 g de lardons,",
+      "50 g de parmesan."
+    ],
+    "instructions": [
+      "Faire chauffer le four à 200°C."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20au%20ch%C3%A8vre%20et%20aux%20lardons",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza au fromage gorgonzola",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "Pâte à pizza",
+      "Gorgonzola",
+      "Ail, huile d'olive",
+      "sel, poivre"
+    ],
+    "instructions": [
+      "Garnir la pâte de gorgonzola émietté",
+      "Parsemer d'ail en fines lamelles avant d'arroser d'huile d'olive. Saler et poivrer."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20au%20fromage%20gorgonzola",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza au thon",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Pizza_au_thon_preparation.JPG/960px-Pizza_au_thon_preparation.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "1 pâte à pizza",
+      "400 g de concassé de tomates",
+      "300 g de thon",
+      "100 g de comté"
+    ],
+    "instructions": [
+      "Préchauffer le four à 200°C.",
+      "Étaler la pâte dans un plat, la garnir de concassé de tomates.",
+      "Écraser le thon dans une assiette. Garnir la pizza.",
+      "Râper le comté en saupoudrer la pizza.",
+      "Cuire au four 20 minutes."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20au%20thon",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza au tofu et aux champignons",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "Pâte",
+      "300 g de farine",
+      "2 cuillères à soupe d’huile d’olive",
+      "150 ml d’eau tiède",
+      "0,5 sachet de levure,",
+      "sel",
+      "Garniture",
+      "300 g de tomates en morceaux",
+      "150 g de Tofu écrasé",
+      "350 g de champignons hachés",
+      "6 tomates séchées conservées dans l’huile",
+      "1 cuillères à soupe d’huile d’olive.",
+      "origan, sel, poivre"
+    ],
+    "instructions": [
+      "Quelques heures à l’avance, faire mariner le tofu écrasé avec les tomates aromatisées à l’origan.",
+      "Préparer la pâte à pizza : mélanger tous les ingrédients et pétrir jusqu’à obtenir une masse lisse et élastique. Laisser reposer une bonne heure au chaud, sous un torchon. Faire rissoler les champignons hachés dans l’huile d’olive et réserver.",
+      "Étendre la pâte dans une moule à pizza huilé, la napper de tomates au tofu, puis disposer les champignons ainsi que les tomates séchées coupées en morceaux.",
+      "Saupoudrer d’origan et cuire 15 min à 220°C (dans un four préchauffé)."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20au%20tofu%20et%20aux%20champignons",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza aux moules",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Pizza_aux_moules.jpg/960px-Pizza_aux_moules.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "1 pâte à pizza,",
+      "1 kg de moules,",
+      "1 dl de crème,",
+      "120 g de mozzarella,",
+      "1 échalote,",
+      "5 cl de vin blanc,",
+      "Curry, persil."
+    ],
+    "instructions": [
+      "Nettoyer, gratter les moules puis les laver à grande eau.",
+      "Cuire les moules avec l’échalote ciselée, le persil haché, le vin blanc et le curry.",
+      "Décortiquer les moules après cuisson.",
+      "Faire une sauce avec le jus de cuisson en ajoutant la crème. La sauce doit être épaisse (rajouter si besoin est de la maïzena).",
+      "Verser les moules dans la sauce.",
+      "Étaler la pâte et la disposer dans une tourtière. Répartir la sauce. Ajouter quelques dés de mozzarella.",
+      "Cuire à four chaud, 220°C pendant 15 à 20 minutes."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20moules",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza aux poivrons",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Pizza_aux_poivrons.JPG/960px-Pizza_aux_poivrons.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "1 pâte à pizza,",
+      "400 g de concassé de tomates,",
+      "1 poivron rouge,",
+      "1 poivron jaune,",
+      "1 oignon,",
+      "10 tranches de chorizo,",
+      "120 g de mozzarella,",
+      "50 g de comté,",
+      "huile."
+    ],
+    "instructions": [
+      "Couper les poivrons et l'oignon. Réserver quatre tranches de poivron jaune. Le faire mijoter pendant une demi heure à feu doux avec de l'huile.",
+      "Étaler la pâte à pizza dans un plat. La recouvrir de concassé de tomates et des légumes cuits.",
+      "Couper la mozzarella en dés et râper le comté. En couvrir la pizza ainsi que les quatre tranches de poivron restantes.",
+      "Cuire au four pendant un quart d'heure à 220°C. Au bout de dix minutes sortir la pizza pour y ajouter le chorizo."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20poivrons",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza aux poivrons 2",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Preparation_pizza_poivrons_2.JPG/960px-Preparation_pizza_poivrons_2.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "250 g de pâte à pain",
+      "3 petits poivrons multicolores émincés en lanières",
+      "origan, huile d’olive",
+      "1 bouquet de basilic mixé avec de l’huile d’olive et de l’ail ou 50 g de tofu mixé avec du basilic frais, de l’huile d’olive et de l’ail."
+    ],
+    "instructions": [
+      "Étendre la pâte dans un moule à pizza huilé.",
+      "Rissoler les poivrons dans l’huile.",
+      "Étendre sur la pâte le basilic mixé, répartir joliment les poivrons et saupoudrer abondamment d’origan. Procéder de la même manière avec les deux autres fonds de pizza.",
+      "Cuire 20 min la pizza à 235°C."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20poivrons%202",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza aux poivrons et au pesto",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": 20,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "250 g de pâte à pain",
+      "3 petits poivrons multicolores émincés en lanières",
+      "origan, huile d'olive, 3 cuillère à soupe de pesto (ou 1 bouquet de basilic mixé avec de l'huile d'olive et de l'ail ou 50 g de tofu mixé avec du basilic frais, de l'huile d'olive et de l'ail)."
+    ],
+    "instructions": [
+      "Etendre la pâte dans un moule à pizza huilé.",
+      "Rissoler les poivrons dans l'huile.",
+      "Étendre le pesto (ou autres préparations) sur la pâte, répartir les poivrons et saupoudrer abondamment d'origan. Procéder de la même manière avec les deux autres fonds de pizza. Cuire la pizza à 235°C pendant 20 min."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20poivrons%20et%20au%20pesto",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza aux quatre fromages",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Pizza_aux_quatre_fromages.jpg/960px-Pizza_aux_quatre_fromages.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "1 pâte à pizza",
+      "1 dose de concassé de tomates",
+      "100 g de mozzarella",
+      "100 g de gorgonzola",
+      "100 g de cheddar",
+      "50 g de comté"
+    ],
+    "instructions": [
+      "Étaler la pâte à pizza dans un moule supportant la cuisson au four.",
+      "Étaler le concassé de tomates sur la pâte.",
+      "Couper la mozzarella, le gorgonzola et le cheddar en dés, râper le comté.",
+      "Disposer les trois premiers fromages en suivant un motif, couvrir de comté.",
+      "Cuire au four 15 min à 210°C."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20quatre%20fromages",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza campagnarde",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Pizza_campagnarde.jpg/960px-Pizza_campagnarde.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "ingredients": [
+      "1 pâte à pizza",
+      "400 g de concassé de tomates",
+      "200 g de champignons",
+      "2 tranches de jambon",
+      "100 g de comté"
+    ],
+    "instructions": [
+      "Laver et éplucher les champignons. Les couper dans le sens de la longueur. Les faire revenir 10 min dans une casserole pour leur faire perdre leur eau.",
+      "Couper le jambon en carré et râper le comté.",
+      "Dans un plat fariné, étaler la pâte. La recouvrir de concassé de tomates, de jambon, champignons ainsi que de comté.",
+      "Cuire au four à 210°C  10 à 15 min."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20campagnarde",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Pizza végétalienne",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Italienne",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": null,
+    "ingredients": [
+      "Pâte",
+      "250 g de farine",
+      "150 ml d’eau tiède",
+      "1 sachet de levure boulangère",
+      "2 cuillères à soupe d’huile d’olive",
+      "sel",
+      "Sauce tomate",
+      "tomates, oignons, poivrons",
+      "champignons",
+      "huile d’olive",
+      "sel, poivre et épices",
+      "Légumes",
+      "maïs",
+      "courgettes",
+      "tofu grillé",
+      "brocolis",
+      "tomates en rondelle",
+      "..."
+    ],
+    "instructions": [
+      "Mettre la farine dans une terrine, y faire un puits et y verser l’eau tiède et la levure. Attendre 10 min que la levure se réhydrate. Ajouter l’huile d’olive et le sel. Mélanger jusqu’à ce que la pâte se décolle des parois. Laisser lever 2 h. dans un endroit tiède.",
+      "Sauce tomate : faire revenir à la poêle tous les ingrédients",
+      "Légumes : pré-cruire à l’eau, à la vapeur ou à la poêle tous les légumes qui composent votre pizza",
+      "Etaler la pâte (en choisissant l’épaisseur que vous voulez lui donner) sur une plaque de four ou dans un moule. Ajouter la sauce tomate puis les légumes que vous disposez par-dessus. Faire cuire le tout entre 30 et 45 min à th.6-7 (180 / 210°C)."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20v%C3%A9g%C3%A9talienne",
+    "license": "CC-BY-SA 3.0"
+  }
+]

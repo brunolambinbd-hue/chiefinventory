@@ -326,4 +326,72 @@ class WineParserTest {
         System.err.println("CLEANED WINE = '$actual'")
         assertEquals("Haut-Médoc 1995", actual)
     }
+
+    @Test
+    fun `loadResources should populate WineResources from Android Resources`() {
+        val mockRes = org.mockito.kotlin.mock<android.content.res.Resources>()
+        org.mockito.kotlin.whenever(mockRes.getStringArray(com.example.chiefinventory.R.array.wine_appellations)).thenReturn(arrayOf("Bordeaux", "Chianti"))
+        org.mockito.kotlin.whenever(mockRes.getStringArray(com.example.chiefinventory.R.array.wine_producers)).thenReturn(arrayOf("Château Margaux"))
+        org.mockito.kotlin.whenever(mockRes.getStringArray(com.example.chiefinventory.R.array.wine_keywords)).thenReturn(arrayOf("Merlot"))
+        org.mockito.kotlin.whenever(mockRes.getStringArray(com.example.chiefinventory.R.array.wine_title_keywords)).thenReturn(arrayOf("accord vin"))
+        org.mockito.kotlin.whenever(mockRes.getString(com.example.chiefinventory.R.string.wine_remove_pattern)).thenReturn("vin conseillé")
+
+        val wineRes = WineParser.loadResources(mockRes)
+
+        assertEquals(2, wineRes.appellations.size)
+        assertEquals("Bordeaux", wineRes.appellations.first())
+        assertEquals("Château Margaux", wineRes.producers.first())
+        assertEquals("Merlot", wineRes.keywords.first())
+        assertEquals("accord vin", wineRes.titleKeywords.first())
+        assertEquals("vin conseillé", wineRes.removePattern)
+    }
+
+    @Test
+    fun `loadResources should return empty removePattern when string resource throws exception`() {
+        val mockRes = org.mockito.kotlin.mock<android.content.res.Resources>()
+        org.mockito.kotlin.whenever(mockRes.getStringArray(com.example.chiefinventory.R.array.wine_appellations)).thenReturn(emptyArray())
+        org.mockito.kotlin.whenever(mockRes.getStringArray(com.example.chiefinventory.R.array.wine_producers)).thenReturn(emptyArray())
+        org.mockito.kotlin.whenever(mockRes.getStringArray(com.example.chiefinventory.R.array.wine_keywords)).thenReturn(emptyArray())
+        org.mockito.kotlin.whenever(mockRes.getStringArray(com.example.chiefinventory.R.array.wine_title_keywords)).thenReturn(emptyArray())
+        org.mockito.kotlin.whenever(mockRes.getString(com.example.chiefinventory.R.string.wine_remove_pattern)).thenThrow(RuntimeException("Resource not found"))
+
+        val wineRes = WineParser.loadResources(mockRes)
+
+        assertEquals("", wineRes.removePattern)
+    }
+
+    @Test
+    fun `isWineLine should return false for generic wine words`() {
+        val genericWords = listOf("vin", "vin blanc", "vin rouge", "du vin blanc", "du vin rouge")
+        genericWords.forEach { word ->
+            assertFalse("Mots génériques de vin doivent être rejetés : '$word'", WineParser.isWineLine(word, vocabulary))
+        }
+    }
+
+    @Test
+    fun `isWineLine should return true for short single year line`() {
+        assertTrue("Ligne courte avec année seule doit être détectée comme vin", WineParser.isWineLine("2015", vocabulary))
+    }
+
+    @Test
+    fun `hasWineVolume should return true when volume or bottle format is detected`() {
+        assertTrue(WineParser.hasWineVolume("75 cl"))
+        assertTrue(WineParser.hasWineVolume("1.5 l"))
+        assertFalse(WineParser.hasWineVolume("Sans volume"))
+    }
+
+    @Test
+    fun `cleanWineLine should catch exception gracefully when removePattern is invalid regex`() {
+        val invalidRegexResources = WineParser.WineResources(
+            appellations = emptyList(),
+            producers = emptyList(),
+            keywords = emptyList(),
+            titleKeywords = emptyList(),
+            removePattern = "["
+        )
+
+        val cleaned = WineParser.cleanWineLine("Un Bordeau 1996", invalidRegexResources)
+
+        assertEquals("Un Bordeaux 1996", cleaned)
+    }
 }

@@ -98,11 +98,21 @@
     <string name="restore_failed_delete">Restore failed: could not delete old database files.</string>
 
     <!-- Toast Messages -->
-    <string name="category_audit_success_format">%1$d objects haven reclassified with success.</string>
+    <plurals name="category_audit_success_format">
+        <item quantity="one">%1$d object has been reclassified with success.</item>
+        <item quantity="other">%1$d objects have been reclassified with success.</item>
+    </plurals>
     <string name="toast_camera_permission_denied">Camera permission denied</string>
     <string name="toast_title_is_mandatory">Title is mandatory</string>
     <string name="toast_crop_error">Cropping error: %1$s</string>
     <string name="rapport_signatures">Signature Report</string>
+
+    <!-- Kitchen & Pantry Menu Strings -->
+    <string name="menu_ingredients_title">My Ingredients</string>
+    <string name="menu_recipes_title">My Recipes</string>
+    <string name="menu_kitchen_supertitle">MY KITCHEN</string>
+    <string name="ingredients_management_title">My Ingredients Stock</string>
+    <string name="recipes_management_title">All My Recipes</string>
 
     <!-- Signature Report -->
     <string name="report_signatures_ok">Signatures OK: %1$d</string>

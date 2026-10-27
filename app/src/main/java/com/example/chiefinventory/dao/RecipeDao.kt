@@ -1,7 +1,15 @@
 package com.example.chiefinventory.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Embedded
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Relation
+import androidx.room.Transaction
+import androidx.room.Update
 import com.example.chiefinventory.model.Recipe
 import com.example.chiefinventory.model.RecipeIngredient
 
@@ -39,6 +47,10 @@ data class RecipeWithIngredients(
 interface RecipeDao {
     @Query("SELECT * FROM recipes ORDER BY updatedAt DESC")
     fun getAllRecipes(): LiveData<List<Recipe>>
+
+    @Transaction
+    @Query("SELECT * FROM recipes ORDER BY updatedAt DESC")
+    fun getAllRecipesWithIngredientsLiveData(): LiveData<List<RecipeWithIngredients>>
 
     @Transaction
     @Query("SELECT * FROM recipes")

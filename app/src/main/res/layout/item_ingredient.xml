@@ -2,65 +2,105 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardIngredient"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="8dp"
     android:layout_marginVertical="4dp"
     app:cardElevation="2dp"
-    app:cardCornerRadius="8dp">
+    app:cardCornerRadius="10dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="?attr/colorPrimary">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="12dp">
 
-        <TextView
-            android:id="@+id/tv_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_toStartOf="@+id/tv_quantity"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textStyle="bold"
-            tools:text="Farine de blé" />
-
-        <TextView
-            android:id="@+id/tv_quantity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignBaseline="@id/tv_name"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            tools:text="500 g" />
-
+        <!-- LIGNE 1 : NOM + QUANTITÉ + CRAYON ÉDITION -->
         <LinearLayout
-            android:id="@+id/ll_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_name"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="Lait demi-écrémé" />
+
+            <TextView
+                android:id="@+id/tv_quantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="11 L" />
+
+            <ImageButton
+                android:id="@+id/btnEditIngredient"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Modifier l'ingrédient"
+                app:tint="?attr/colorOnSurface"
+                android:src="@android:drawable/ic_menu_edit" />
+        </LinearLayout>
+
+        <!-- LIGNE 2 : BANDEAU DE SANTÉ & SEUIL/PACK -->
+        <TextView
+            android:id="@+id/tvStockStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            tools:text="🟢 Stock Sain (Seuil: 2 L • Pack d'achat: 6)" />
+
+        <!-- LIGNE 3 : EMPLACEMENT & POLITIQUE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tv_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                android:textColor="?attr/colorPrimary"
-                android:textStyle="italic"
                 android:layout_marginEnd="16dp"
-                tools:text="📍 Placard" />
+                android:textColor="?attr/colorPrimary"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                tools:text="📍 Crémerie • Frigo" />
 
             <TextView
-                android:id="@+id/tv_expiry"
+                android:id="@+id/tv_stock_policy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                android:textColor="?attr/colorError"
-                tools:text="Expire le : 12/12/2025" />
-
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="12sp"
+                tools:text="🔄 PERMANENT" />
         </LinearLayout>
 
-    </RelativeLayout>
+        <!-- LIGNE 4 : INFO SUPPLÉMENTAIRE / EXPIRATION -->
+        <TextView
+            android:id="@+id/tv_supplemental_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="Information complémentaire : 250g net"
+            tools:visibility="visible" />
 
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

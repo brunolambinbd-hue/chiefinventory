@@ -26,6 +26,9 @@ class SearchRecipeViewModel(
     private val _selectedIngredients = MutableLiveData<MutableSet<String>>(mutableSetOf())
     val selectedIngredients: LiveData<MutableSet<String>> = _selectedIngredients
 
+    // All recipes with their ingredients
+    val recipesWithIngredients = recipeRepository.getAllRecipesWithIngredientsLiveData()
+
     // All available ingredients in the database
     val allIngredients: LiveData<List<Ingredient>> = ingredientRepository.getAll()
 

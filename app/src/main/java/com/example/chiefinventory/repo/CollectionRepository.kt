@@ -1,10 +1,15 @@
 package com.example.chiefinventory.repo
 
 import androidx.annotation.ColorRes
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import com.example.chiefinventory.R
 import com.example.chiefinventory.dao.CollectionDao
-import com.example.chiefinventory.model.*
+import com.example.chiefinventory.model.AdvancedSearchResult
+import com.example.chiefinventory.model.CollectionItem
+import com.example.chiefinventory.model.SearchCriteria
+import com.example.chiefinventory.model.SignatureStats
 import com.example.chiefinventory.ui.model.CategoryInfo
 import com.example.chiefinventory.ui.model.SearchResultItem
 import com.example.chiefinventory.utils.CategoryMapper

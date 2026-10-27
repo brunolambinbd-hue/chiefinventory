@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ========================================================================================
+    CATALOGUE STANDARD D'INGRÉDIENTS TYPES DU GARDE-MANGER (ChefInventory)
+    ========================================================================================
+    Provenance & Crédits des Données d'Origine :
+    1. Open Food Facts (Projet Ouvert Open Data Mondial - Licence ODbL)
+    2. Table CIQUAL / ANSES (Agence Nationale de Sécurité Sanitaire & Ministère de la Santé, France)
+    3. Adaptation & Nomenclature Franco-Belge / Wallonne (Chicons, Sirop de Liège, Spéculoos, Ravier, Sachet)
+    ========================================================================================
+    Format d'Entrée : Nom|QuantitéDéfaut|UnitéDéfaut|SousCatégorie|PolitiqueStock|SeuilMin|TaillePack
+    PolitiqueStock  : PERMANENT (Alerte réassort automatique) | ON_DEMAND (Sur commande uniquement)
+    SeuilMin        : Seuil d'alerte de stock faible non nul (ex: 50 g, 0.25 L, 2 pièces)
+    TaillePack      : Taille du conditionnement/lot d'achat supermarché (ex: 6 pour pack de 6 L ou boîte de 6)
+-->
+<resources>
+    <!-- 1. FRIGO / PRODUITS FRAIS & CRÉMERIE -->
+    <string-array name="catalog_cremerie">
+        <item>Beurre|100|g|Crémerie|PERMANENT|50|1</item>
+        <item>Lait demi-écrémé|1|l|Crémerie|PERMANENT|0.25|6</item>
+        <item>Lait entier|1|l|Crémerie|PERMANENT|0.25|6</item>
+        <item>Œufs|6|pièce|Crémerie|PERMANENT|2|6</item>
+        <item>Crème fraîche fluide|20|cl|Crémerie|PERMANENT|10|1</item>
+        <item>Crème fraîche épaisse|100|g|Crémerie|PERMANENT|50|1</item>
+        <item>Emmental râpé|100|g|Crémerie|PERMANENT|50|1</item>
+        <item>Parmesan râpé|50|g|Crémerie|PERMANENT|20|1</item>
+        <item>Mozzarella|1|pièce|Crémerie|ON_DEMAND|0|1</item>
+        <item>Fromage de chèvre|1|pièce|Crémerie|ON_DEMAND|0|1</item>
+        <item>Feta|100|g|Crémerie|ON_DEMAND|0|1</item>
+        <item>Mascarpone|100|g|Crémerie|ON_DEMAND|0|1</item>
+        <item>Yaourts nature|1|pot|Crémerie|PERMANENT|1|4</item>
+        <item>Fromage blanc|100|g|Crémerie|PERMANENT|50|1</item>
+        <item>Moutarde forte|1|pot|Condiments|PERMANENT|1|1</item>
+        <item>Moutarde à l\'ancienne|1|pot|Condiments|PERMANENT|1|1</item>
+        <item>Mayonnaise|1|pot|Condiments|PERMANENT|1|1</item>
+        <item>Ketchup|1|flacon|Condiments|PERMANENT|1|1</item>
+        <item>Sauce soja|15|cl|Condiments|PERMANENT|5|1</item>
+    </string-array>
+
+    <!-- 2. PLACARD / ÉPICERIE, FÉCULENTS & SUCRES -->
+    <string-array name="catalog_epicerie">
+        <item>Farine|250|g|Épicerie|PERMANENT|100|1</item>
+        <item>Sucre|250|g|Épicerie|PERMANENT|100|1</item>
+        <item>Cassonade|250|g|Épicerie|PERMANENT|100|1</item>
+        <item>Levure chimique|1|sachet|Épicerie|PERMANENT|1|1</item>
+        <item>Levure de boulanger|1|sachet|Épicerie|PERMANENT|1|1</item>
+        <item>Sucre vanillé|1|sachet|Épicerie|PERMANENT|1|1</item>
+        <item>Extrait de vanille|1|flacon|Épicerie|PERMANENT|1|1</item>
+        <item>Riz|250|g|Féculents|PERMANENT|100|1</item>
+        <item>Riz arborio|250|g|Féculents|ON_DEMAND|0|1</item>
+        <item>Spaghetti|500|g|Féculents|PERMANENT|200|1</item>
+        <item>Penne|500|g|Féculents|PERMANENT|200|1</item>
+        <item>Coquillettes|500|g|Féculents|PERMANENT|200|1</item>
+        <item>Semoule fine|500|g|Féculents|PERMANENT|200|1</item>
+        <item>Quinoa|500|g|Féculents|ON_DEMAND|0|1</item>
+        <item>Lentilles vertes|500|g|Féculents|PERMANENT|200|1</item>
+        <item>Pois chiches|400|g|Féculents|PERMANENT|150|1</item>
+        <item>Chapelure|250|g|Épicerie|PERMANENT|100|1</item>
+        <item>Spéculoos|250|g|Pâtisserie Belge|ON_DEMAND|0|1</item>
+        <item>Sirop de Liège|300|g|Spécialités Belges|ON_DEMAND|0|1</item>
+        <item>Cacao en poudre|250|g|Pâtisserie|PERMANENT|100|1</item>
+        <item>Chocolat noir|200|g|Pâtisserie|PERMANENT|100|1</item>
+        <item>Poudre d\'amandes|125|g|Pâtisserie|ON_DEMAND|0|1</item>
+        <item>Miel de fleurs|250|g|Épicerie|PERMANENT|100|1</item>
+        <item>Confiture de fraises|350|g|Épicerie|PERMANENT|100|1</item>
+        <item>Pâte à tartiner|400|g|Épicerie|PERMANENT|150|1</item>
+        <item>Pain de mie|1|paquet|Boulangerie|PERMANENT|1|1</item>
+        <item>Baguette|1|pièce|Boulangerie|ON_DEMAND|0|1</item>
+        <item>Croûtons à l\'ail|1|sachet|Épicerie|ON_DEMAND|0|1</item>
+    </string-array>
+
+    <!-- 3. ÉPICES, HUILES & ASSAISONNEMENTS -->
+    <string-array name="catalog_epices_condiments">
+        <item>Sel fin|1|kg|Huiles et Sels|PERMANENT|0.25|1</item>
+        <item>Gros sel|1|kg|Huiles et Sels|PERMANENT|0.25|1</item>
+        <item>Fleur de sel|125|g|Huiles et Sels|PERMANENT|30|1</item>
+        <item>Poivre noir moulu|100|g|Épices|PERMANENT|30|1</item>
+        <item>Poivre du moulin|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Sel et poivre|1|pot|Huiles et Sels|PERMANENT|1|1</item>
+        <item>Sel et poivre du moulin|1|pot|Huiles et Sels|PERMANENT|1|1</item>
+        <item>Paprika doux|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Curry en poudre|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Cumin moulu|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Curcuma|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Piment d\'Espelette|50|g|Épices|ON_DEMAND|0|1</item>
+        <item>Herbes de Provence|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Origan séché|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Thym séché|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Romarin séché|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Noix de muscade râpée|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Cannelle moulue|1|flacon|Épices|PERMANENT|1|1</item>
+        <item>Thon au naturel|1|boîte|Conserves|PERMANENT|1|1</item>
+        <item>Concentré de tomate|140|g|Conserves|PERMANENT|50|1</item>
+        <item>Tomates pelées|400|g|Conserves|PERMANENT|150|1</item>
+        <item>Sauce tomate pasata|500|g|Conserves|PERMANENT|200|1</item>
+        <item>Cornichons|1|bocal|Condiments|PERMANENT|1|1</item>
+        <item>Câpres|1|bocal|Condiments|ON_DEMAND|0|1</item>
+        <item>Olives vertes dénoyautées|1|bocal|Condiments|PERMANENT|1|1</item>
+        <item>Olives noires dénoyautées|1|bocal|Condiments|PERMANENT|1|1</item>
+        <item>Huile d\'olive vierge extra|1|L|Huiles et Sels|PERMANENT|0.25|1</item>
+        <item>Huile de tournesol|1|L|Huiles et Sels|PERMANENT|0.25|1</item>
+        <item>Vinaigre de vin blanc|50|cl|Huiles et Sels|PERMANENT|10|1</item>
+        <item>Vinaigre balsamique|50|cl|Huiles et Sels|PERMANENT|10|1</item>
+        <item>Vinaigre de cidre|50|cl|Huiles et Sels|PERMANENT|10|1</item>
+    </string-array>
+
+    <!-- 4. LEGUMES & FRUITS DU QUOTIDIEN -->
+    <string-array name="catalog_legumes_fruits">
+        <item>Pommes de terre|2.5|kg|Légumes secs|PERMANENT|0.5|1</item>
+        <item>Oignons jaunes|1|kg|Légumes secs|PERMANENT|0.2|1</item>
+        <item>Oignons rouges|500|g|Légumes secs|PERMANENT|100|1</item>
+        <item>Échalotes|250|g|Légumes secs|PERMANENT|50|1</item>
+        <item>Ail|1|tête|Légumes secs|PERMANENT|1|1</item>
+        <item>Carottes|1|kg|Légumes frais|PERMANENT|0.3|1</item>
+        <item>Courgettes|1|kg|Légumes frais|ON_DEMAND|0|1</item>
+        <item>Tomates|1|kg|Légumes frais|ON_DEMAND|0|1</item>
+        <item>Poivrons rouges|2|pièces|Légumes frais|ON_DEMAND|0|1</item>
+        <item>Chicons / Endives|1|kg|Légumes frais|PERMANENT|0.3|1</item>
+        <item>Concombre|1|pièce|Légumes frais|ON_DEMAND|0|1</item>
+        <item>Champignons de Paris|250|g|Légumes frais|ON_DEMAND|0|1</item>
+        <item>Salade de blé|1|ravier|Légumes frais|PERMANENT|1|1</item>
+        <item>Citrons jaunes|3|pièces|Fruits frais|PERMANENT|1|1</item>
+        <item>Citrons verts|2|pièces|Fruits frais|ON_DEMAND|0|1</item>
+        <item>Pommes|1|kg|Fruits frais|PERMANENT|0.3|1</item>
+        <item>Bananes|1|régime|Fruits frais|PERMANENT|1|1</item>
+        <item>Poireaux|1|botte|Légumes frais|PERMANENT|1|1</item>
+        <item>Panais|500|g|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Rutabaga|500|g|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Topinambour|500|g|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Potimarron|1|pièce|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Courge Butternut|1|pièce|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Courge Spaghetti|1|pièce|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Courge Musquée de Provence|1|tranche|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Patidou / Sweet Dumpling|1|pièce|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Pâtisson|1|pièce|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Courge Delicata|1|pièce|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Courge Kabocha|1|pièce|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Navet Boule d\'or|500|g|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Crosnes|250|g|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Cerfeuil tubéreux|250|g|Légumes anciens Bio|ON_DEMAND|0|1</item>
+        <item>Persil plat frais|1|botte|Herbes fraîches|PERMANENT|1|1</item>
+        <item>Ciboulette fraîche|1|botte|Herbes fraîches|PERMANENT|1|1</item>
+        <item>Aneth frais|1|botte|Herbes fraîches|ON_DEMAND|0|1</item>
+        <item>Menthe fraîche|1|botte|Herbes fraîches|ON_DEMAND|0|1</item>
+        <item>Basilic frais|1|pot|Herbes fraîches|ON_DEMAND|0|1</item>
+    </string-array>
+
+    <!-- 5. SURGELÉS & ANTI-GASPILLAGE BIO -->
+    <string-array name="catalog_surgeles">
+        <item>Légumes pour potage|1|sachet|Surgelés|PERMANENT|1|1</item>
+        <item>Petits pois surgelés|1|kg|Surgelés|PERMANENT|0.3|1</item>
+        <item>Frites surgelées|1|kg|Surgelés|PERMANENT|0.3|1</item>
+        <item>Steaks hachés 15%|4|pièces|Surgelés|PERMANENT|1|1</item>
+        <item>Poisson pané|4|pièces|Surgelés|ON_DEMAND|0|1</item>
+        <item>Herbes hachées surgelées|1|boîte|Surgelés|PERMANENT|1|1</item>
+        <item>Fanes de carottes Bio|1|sachet|Anti-gaspillage Bio|ON_DEMAND|0|1</item>
+        <item>Fanes de radis Bio|1|sachet|Anti-gaspillage Bio|ON_DEMAND|0|1</item>
+        <item>Cosses de petits pois Bio|1|sachet|Anti-gaspillage Bio|ON_DEMAND|0|1</item>
+        <item>Fanes de navets Bio|1|sachet|Anti-gaspillage Bio|ON_DEMAND|0|1</item>
+        <item>Feuilles de chou-fleur Bio|1|sachet|Anti-gaspillage Bio|ON_DEMAND|0|1</item>
+        <item>Épluchures de légumes Bio pour bouillon|1|sachet|Anti-gaspillage Bio|ON_DEMAND|0|1</item>
+    </string-array>
+
+    <!-- 6. BOISSONS & CAVE -->
+    <string-array name="catalog_boissons_cave">
+        <item>Eau minérale plate|6|bouteilles|Boissons|PERMANENT|2|6</item>
+        <item>Eau gazeuse|6|bouteilles|Boissons|PERMANENT|2|6</item>
+        <item>Jus d\'orange pure pulpe|1|L|Boissons|PERMANENT|0.5|1</item>
+        <item>Jus de pomme|1|L|Boissons|PERMANENT|0.5|1</item>
+        <item>Vin blanc de cuisine|1|bouteille|Cave|PERMANENT|1|1</item>
+        <item>Vin rouge|1|bouteille|Cave|ON_DEMAND|0|1</item>
+        <item>Bières belges|6|bouteilles|Cave|PERMANENT|2|6</item>
+    </string-array>
+</resources>

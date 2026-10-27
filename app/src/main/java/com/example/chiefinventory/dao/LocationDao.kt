@@ -19,6 +19,9 @@ interface LocationDao {
     @Query("SELECT * FROM locations ORDER BY parentId, name")
     fun getAll(): LiveData<List<Location>>
 
+    @Query("SELECT * FROM locations")
+    suspend fun getAllSync(): List<Location>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(location: Location)
 

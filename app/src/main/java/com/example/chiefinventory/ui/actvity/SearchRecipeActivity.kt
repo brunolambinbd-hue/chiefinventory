@@ -22,9 +22,8 @@ class SearchRecipeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchRecipeBinding
     private lateinit var recipeAdapter: RecipeAdapter
-    private lateinit var ingredientAdapter: IngredientSelectAdapter
     
-    private var allIngredientsList: List<Ingredient> = emptyList()
+    private var allRecipesList: List<com.example.chiefinventory.dao.RecipeWithIngredients> = emptyList()
 
     private val viewModel: SearchRecipeViewModel by viewModels {
         val app = application as CollectionApplication
@@ -38,23 +37,11 @@ class SearchRecipeActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Que cuisiner ?"
+        supportActionBar?.title = "🔍 Que cuisiner (par mes Recettes) ?"
 
-        setupIngredientRecyclerView()
         setupRecipeRecyclerView()
         setupSearchFilter()
         observeViewModel()
-        
-        // On s'assure que la sélection est vide au démarrage
-        viewModel.clearSelection()
-    }
-
-    private fun setupIngredientRecyclerView() {
-        ingredientAdapter = IngredientSelectAdapter { ingredientName ->
-            viewModel.toggleIngredient(ingredientName)
-        }
-        binding.rvAvailableIngredients.layoutManager = LinearLayoutManager(this)
-        binding.rvAvailableIngredients.adapter = ingredientAdapter
     }
 
     private fun setupRecipeRecyclerView() {
@@ -69,60 +56,47 @@ class SearchRecipeActivity : AppCompatActivity() {
     }
 
     private fun setupSearchFilter() {
+        binding.etSearchStock.hint = "Rechercher une recette ou un ingrédient..."
         binding.etSearchStock.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                filterIngredients(s?.toString() ?: "")
+                filterRecipes(s?.toString() ?: "")
             }
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
-    private fun filterIngredients(query: String) {
-        val selected = viewModel.selectedIngredients.value ?: emptySet()
-        
-        // Vide par défaut : on ne montre les ingrédients du stock que si on cherche quelque chose
-        val filtered = if (query.isBlank()) {
+    private fun stripAccents(text: String): String {
+        val lower = text.lowercase().replace("œ", "oe").replace("æ", "ae")
+        return java.text.Normalizer.normalize(lower, java.text.Normalizer.Form.NFD)
+            .replace(Regex("\\p{M}"), "")
+            .trim()
+    }
+
+    private fun filterRecipes(query: String) {
+        val cleanQuery = stripAccents(query)
+        val filtered = if (cleanQuery.isBlank()) {
             emptyList()
         } else {
-            allIngredientsList
-                .filter { it.name.contains(query, ignoreCase = true) }
-                .map { IngredientSelectAdapter.IngredientItem(it.name, selected.contains(it.name)) }
+            allRecipesList.filter { item ->
+                val titleMatch = stripAccents(item.recipe.title).contains(cleanQuery)
+                val ingrMatch = item.ingredients.any { stripAccents(it.ingredientName).contains(cleanQuery) }
+                titleMatch || ingrMatch
+            }.map { it.recipe }
         }
-        ingredientAdapter.submitList(filtered)
+
+        recipeAdapter.submitList(filtered)
+        if (cleanQuery.isBlank()) {
+            binding.tvNoResults.visibility = View.GONE
+        } else {
+            binding.tvNoResults.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        }
     }
 
     private fun observeViewModel() {
-        viewModel.allIngredients.observe(this) { ingredients ->
-            allIngredientsList = ingredients ?: emptyList()
-            filterIngredients(binding.etSearchStock.text.toString())
-        }
-
-        viewModel.selectedIngredients.observe(this) { selected ->
-            binding.cgSelectedIngredients.removeAllViews()
-            selected.forEach { name ->
-                val chip = Chip(this).apply {
-                    text = name
-                    isCloseIconVisible = true
-                    setOnCloseIconClickListener {
-                        viewModel.toggleIngredient(name)
-                    }
-                }
-                binding.cgSelectedIngredients.addView(chip)
-            }
-            filterIngredients(binding.etSearchStock.text.toString())
-        }
-
-        viewModel.searchResults.observe(this) { results ->
-            val recipes = results?.map { it.first } ?: emptyList()
-            recipeAdapter.submitList(recipes)
-            
-            val hasSelection = viewModel.selectedIngredients.value?.isNotEmpty() == true
-            binding.tvNoResults.visibility = if (recipes.isEmpty() && hasSelection) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+        viewModel.recipesWithIngredients.observe(this) { recipesWithIngr ->
+            allRecipesList = recipesWithIngr ?: emptyList()
+            filterRecipes(binding.etSearchStock.text.toString())
         }
     }
 

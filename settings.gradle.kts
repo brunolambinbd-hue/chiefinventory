@@ -28,3 +28,9 @@ dependencyResolutionManagement {
 rootProject.name = "ChefInventory"
 include(":app")
 include(":imagecomparison")
+
+includeBuild("../TraceabilityLib") {
+    dependencySubstitution {
+        substitute(module("com.parabd.lib:traceability")).using(project(":library"))
+    }
+}

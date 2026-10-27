@@ -1,6 +1,188 @@
-# Android Project Rules & Coding Guidelines
+# Global Project Context & Knowledge Base
+- **Central Documentation**: The source of truth for all requirements, numbering plans, and roadmaps is located at: `https://github.com/brunolambinbd-hue/ProjectStandards/tree/main/docs`
+- **Requirement Numbering**: Always follow the 5-level numbering plan defined in `docs/requirements/`. If unsure about a requirement ID, check the central repository.
+- **Shared Docs**: Critical shared documents are automatically synced to the `docs/shared/` folder of this project during Gradle Sync.
 
-## KDoc Documentation Guidelines
-- **MANDATORY KDOC ON ALL FUNCTIONS**: Every function in Kotlin source files (including `private`, `internal`, `protected`, and `public` functions) MUST have full KDoc documentation.
-- **EXPLICIT PARAMETERS & RETURN VALUES**: Every function parameter MUST be explicitly documented with a `@param <paramName>` tag describing its purpose. Every non-Unit function MUST have a `@return` tag describing the returned value.
-- **EXPLICIT PROPERTY DOCS**: All properties in data classes and objects MUST have `@property` tags or field-level KDoc comments explaining their domain meaning.
+# Code Formatting and Constraints
+- **Line Length**: ALL lines MUST NOT exceed 140 characters. This is a STRICT rule to ensure readability and comply with `ktlint`.
+- **Wrapping**: Wrap long statements, chain calls, or use temporary variables to maintain the 140-character limit.
+- **Indentation**: Use 4 spaces for indentation (standard Kotlin style).
+
+# Kotlin Test Naming Convention
+- Always use camelCase for test functions (e.g., testMethod_Scenario).
+- NEVER use backticks (`` `...` ``) for test names, even in Kotlin.
+- This is to ensure correct mapping in Android Studio's test runner.
+
+# Kotlin Naming & Style Conventions
+
+## Properties and Variables
+- **Rule**: All properties, local variables, and parameters MUST start with a lowercase letter and use `camelCase`.
+- **Allowed**: `val collectionRepository`, `private val ioDispatcher`, `var isPossessed`
+- **Forbidden**: `val CollectionRepository` (starts with uppercase), `val item_id` (contains underscore)
+
+## Constants
+- **Rule**: Constants (properties inside companion objects with `const val` or `@JvmStatic val`) SHOULD use `SCREAMING_SNAKE_CASE`.
+- **Example**: `const val EXTRA_ITEM_ID = "itemId"`
+
+## Test Functions
+- **Rule**: Test functions MUST use `camelCase`.
+- **Traceability (Verification)**: EVERY test function MUST be preceded by the `@CoveredRequirement("REQ_ID")` annotation to ensure it is included in the traceability matrix.
+- **Forbidden**: Do NOT use backticks (`` `...` ``) or spaces in test names.
+- **Example**:
+  ```kotlin
+  @Test
+  @CoveredRequirement("1.2.3")
+  fun testSaveItem_Success() { ... }
+  ```
+
+# Production Code Traceability
+- **Requirement Implementation**: EVERY class and function in the production source code MUST be associated with at least one requirement ID using the `@SatisfiesRequirement("REQ_ID")` annotation.
+- **Repeatable**: If a block of code implements multiple requirements, repeat the annotation.
+- **Example**:
+  ```kotlin
+  @SatisfiesRequirement("1.2.1")
+  @SatisfiesRequirement("1.3.1")
+  fun processData() { ... }
+  ```
+
+# Documentation (KDoc)
+- **Mandatory**: EVERY class, interface, and function (WITHOUT EXCEPTION, including private and internal) MUST have a KDoc block.
+- **Class KDoc**: Describe the purpose of the class and its primary responsibility.
+- **Function KDoc**:
+  - Describe what the function does.
+  - MUST include `@param` for every parameter.
+  - MUST include `@return` for non-Unit functions.
+  - MUST include `@throws` if the function explicitly throws exceptions.
+- **Language**: Use English for technical documentation to remain consistent with Android SDK standards.
+- **Example**:
+  ```kotlin
+  /**
+   * Processes the input bitmap to extract text using OCR.
+   *
+   * @param bitmap The image to analyze.
+   * @return A list of detected words.
+   * @throws IOException If the image cannot be read.
+   */
+  fun processImage(bitmap: Bitmap): List<String> { ... }
+  ```
+
+# JaCoCo Coverage Optimization
+- **Rule**: For Kotlin lambdas and block-trailing functions (like `withContext`, `let`, `apply`, `run`, `launch`), ALWAYS place the opening brace `{` on the same line as the function call.
+- **Reason**: Placing the opening brace on a new line often causes JaCoCo to report the line as "partially covered" (yellow) because the compiler associates the closure initialization bytecode with that specific line.
+- **Example**:
+  ```kotlin
+  // Correct
+  withContext(dispatcher) {
+      // code
+  }
+
+  // Incorrect - Leads to Jacoco coverage warnings
+  withContext(dispatcher)
+  {
+      // code
+  }
+  ```
+
+# Kotlin Property Access Syntax
+- **Rule**: ALWAYS use property access syntax instead of explicit getter/setter method calls for Java-defined classes where available.
+- **Examples**:
+  - Use `activity.intent` instead of `activity.getIntent()`
+  - Use `cls.declaredFields` instead of `cls.getDeclaredFields()`
+  - Use `cls.declaredMethods` instead of `cls.getDeclaredMethods()`
+  - Use `context.packageManager` instead of `context.getPackageManager()`
+- **Reason**: This is the idiomatic Kotlin way, reduces boilerplate, and avoids lint warnings.
+
+# Explicit API Design
+- **Rule**: For all public and protected declarations (classes, functions, and properties), ALWAYS explicitly specify:
+  1. The visibility modifier (even if it is the default public).
+  2. The return type (never rely on type inference for public APIs).
+- **Suppressing Warnings**: Since explicit public is redundant in Kotlin, it will trigger an IDE and Sonar warning. To maintain a clean report while following this standard, ALWAYS add `@Suppress("RedundantVisibilityModifier")` at the top of the class or object.
+- **Example**:
+  ```kotlin
+  // Correct
+  @Suppress("RedundantVisibilityModifier")
+  public class DataProcessor {
+      public fun getItemCount(): Int = 10
+  }
+
+  // Incorrect
+  fun getItemCount() = 10
+  ```
+- **Reason**: This ensures API stability and forces a conscious decision when changing signatures, while avoiding noise in quality reports.
+
+# French Localization and Typography
+- **Rule**: For French user-facing strings (e.g., in `strings.xml`) and French documentation, ALWAYS follow standard French punctuation rules.
+- **Apostrophes**: ALWAYS use typographic apostrophes (’) instead of straight apostrophes ('). This improves readability and avoids XML escaping (\').
+- **Quotes**: ALWAYS use typographic quotes (“ ”) instead of straight quotes (").
+- **Colons**: Colons (:) MUST be preceded by a non-breaking space (or a standard space if the editor/format doesn't support it).
+- **Other Punctuation**: Question marks (?), exclamation marks (!), and semicolons (;) also require a space before them in French.
+- **Restriction**: NEVER apply these spacing rules to code syntax (e.g., Kotlin type declarations `val x: Int`, XML namespaces `android:id`, or Gradle dependencies).
+
+# Prefer Kotlin Built-in Types
+- **Rule**: ALWAYS use Kotlin built-in types instead of Java boxed types.
+- **Examples**:
+  - Use `Boolean` instead of `java.lang.Boolean`
+  - Use `Int` instead of `java.lang.Integer`
+  - Use `Double` instead of `java.lang.Double`
+  - Use `Long` instead of `java.lang.Long`
+- **Reason**: Direct use of Java boxed types is not recommended in Kotlin and triggers warnings.
+
+# Compliance
+- All generated code MUST strictly follow `ktlint` standard rules.
+- **Wildcard Imports**: NEVER use wildcard imports (`import package.*`). ALWAYS use explicit imports for each class or function used.
+- **Sonar Compliance**:
+  - **Cognitive Complexity**: Keep methods simple. Max complexity score of 15.
+  - **Function Length**: Methods SHOULD NOT exceed 50 lines of code.
+  - **Magic Numbers**: Do NOT use literal numbers in logic; use named constants.
+  - **Resource Management**: Always use `.use {}` for `Closeable` resources (Streams, Cursors).
+  - **Null Safety**: Avoid `!!` operator; use safe calls `?.` or explicit null checks.
+  - **Redundant Modifiers**: Do not remove `public` modifiers to fix Sonar warnings; use the class-level `@Suppress` mentioned in the API Design section instead.
+  - **Logging**: NEVER use `System.out.print`. ALWAYS use `android.util.Log` and follow the Logging Best Practices (see below).
+
+# Logging Best Practices
+- **Rule**: Avoid unconditional logging calls for `Log.v`, `Log.d`, and `Log.i`.
+- **Mandatory**: Wrap performance-sensitive log calls or those involving string concatenation with a `Log.isLoggable(TAG, Log.LEVEL)` check.
+- **Reason**: This prevents unnecessary string allocation and processing when logging is disabled (especially in production), ensuring optimal performance.
+- **Exception**: `Log.w` and `Log.e` should generally be called directly to ensure critical issues are captured.
+- **Example**:
+  ```kotlin
+  if (Log.isLoggable(TAG, Log.DEBUG)) {
+      Log.d(TAG, "Processed ${items.size} items in $duration ms")
+  }
+  ```
+
+# Strings and Localization
+- **Rule**: NEVER hardcode user-facing strings in Kotlin or XML files.
+- **Mandatory**: Use Android resource files (`strings.xml`) for all labels, hints, messages, and accessibility descriptions.
+- **Default Locale**: The default locale (`values/strings.xml`) is French (fr). Do NOT create a `values-fr` directory as it is redundant.
+- **Untranslatable**: Do NOT include strings marked as `translatable="false"` in non-default resource files (e.g., `values-en/strings.xml`). These must only exist in the default `values/strings.xml`.
+- **Traceability**: Always provide translations for the supported locales (at least the default `values` (fr) and `values-en`).
+- **Formatting**: Use string placeholders (`%1$s`, `%1$d`) for dynamic content to support different grammatical structures in translations.
+
+# Numeric Constants and Dimensions
+- **Magic Numbers**: NEVER use raw numeric literals in business logic or UI.
+- **UI Dimensions**: All offsets, sizes, and spacings MUST be defined in `res/values/dimens.xml`.
+- **Business Constants**: Use `const val` with descriptive `SCREAMING_SNAKE_CASE` names.
+- **Default Values**: Intent extra defaults or database fallbacks MUST use named constants (e.g., `DEFAULT_ID = -1L`).
+- If a property naming conflict arises between a parameter and a field, use `this.property = property` or a prefix like `_property` for private backing properties.
+
+# Testability over Syntactic Sugar (Coverage First)
+- **Rule**: Prefer explicit `if/else` structures for null checks and business logic branches over complex or chained Elvis operators (`?:`) and `let`/`run` chains for non-trivial logic.
+- **Reason**: This ensures that JaCoCo can accurately track and report branch coverage. Chained Elvis operators often merge multiple decision points into a single line of bytecode, making it impossible to achieve "Surgical 100%" coverage.
+- **Exception**: Simple default assignments (e.g., `val x = input ?: default`) are still encouraged.
+
+# Null Safety & String Validation
+- **Rule**: ALWAYS use `if (!msg.isNullOrBlank())` for single-call non-null and non-blank string checks instead of compound `if (msg != null && msg.isNotBlank())`.
+- **Reason**: `isNullOrBlank()` performs both checks in a single idiomatic Kotlin call and avoids creating unnecessary compound branches in bytecode.
+- **Example**:
+  ```kotlin
+  // Correct
+  val errorMsg = if (!rawMsg.isNullOrBlank()) rawMsg else LOG_AUDIT_FAILED_FALLBACK
+
+  // Incorrect
+  val errorMsg = if (rawMsg != null && rawMsg.isNotBlank()) rawMsg else LOG_AUDIT_FAILED_FALLBACK
+  ```
+
+# Suppressing Elvis Conversion Warnings (Sonar & IDE)
+- **Rule**: When using explicit `if (x == null)` or `if (!msg.isNullOrBlank())` blocks to maintain 100% JaCoCo branch coverage, ALWAYS add `@Suppress("IfThenToElvis", "FoldInitializerAndIfNull", "kotlin:S6529")` at the class/object or function level.
+- **Reason**: This maintains explicit `if/else` bytecode for JaCoCo while removing noisy IDE and Sonar warnings.

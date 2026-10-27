@@ -6,33 +6,28 @@
         android:icon="@android:drawable/ic_menu_myplaces"
         android:title="Accueil" />
 
-    <item android:title="MA COLLECTION">
+    <item android:title="MON GARDE-MANGER &amp; CUISINE">
         <menu>
             <item
-                android:id="@+id/nav_products"
-                android:icon="@android:drawable/ic_menu_directions"
-                android:title="Tous les Produits" />
+                android:id="@+id/nav_setup_inventory"
+                android:icon="@android:drawable/ic_menu_add"
+                android:title="Initialiser mon Garde-Manger" />
             <item
-                android:id="@+id/nav_searches"
-                android:icon="@android:drawable/ic_menu_compass"
-                android:title="Produits Recherchés" />
-            <item
-                android:id="@+id/nav_locations"
-                android:icon="@android:drawable/ic_menu_mapmode"
-                android:title="Emplacements Collection" />
-        </menu>
-    </item>
-
-    <item android:title="MA CUISINE">
-        <menu>
+                android:id="@+id/nav_update_inventory"
+                android:icon="@android:drawable/ic_menu_edit"
+                android:title="Mettre à jour mon Garde-Manger" />
             <item
                 android:id="@+id/nav_all_ingredients"
                 android:icon="@android:drawable/ic_menu_agenda"
                 android:title="Mon Stock d'Ingrédients" />
             <item
-                android:id="@+id/nav_search_recipe"
-                android:icon="@android:drawable/ic_menu_search"
-                android:title="Que cuisiner ?" />
+                android:id="@+id/nav_shopping_list"
+                android:icon="@android:drawable/ic_menu_today"
+                android:title="🛒 Liste de Courses &amp; Réassort" />
+            <item
+                android:id="@+id/nav_match_pantry_recipe"
+                android:icon="@android:drawable/ic_menu_compass"
+                android:title="🍳 Que cuisiner (par mon Garde-Manger)" />
             <item
                 android:id="@+id/nav_ingredients_locations"
                 android:icon="@android:drawable/ic_menu_manage"
@@ -47,6 +42,10 @@
                 android:icon="@android:drawable/ic_menu_agenda"
                 android:title="Toutes les Recettes" />
             <item
+                android:id="@+id/nav_search_recipe"
+                android:icon="@android:drawable/ic_menu_search"
+                android:title="🔍 Que cuisiner (par mes Recettes)" />
+            <item
                 android:id="@+id/nav_recipe_categories"
                 android:icon="@android:drawable/ic_menu_sort_by_size"
                 android:title="Types de Recettes" />
@@ -54,6 +53,14 @@
                 android:id="@+id/nav_add_recipe"
                 android:icon="@android:drawable/ic_menu_add"
                 android:title="Scanner une Recette" />
+            <item
+                android:id="@+id/nav_import_recipe_packs"
+                android:icon="@android:drawable/ic_menu_save"
+                android:title="📥 Importer un Pack de Recettes (BE / FR / IT)" />
+            <item
+                android:id="@+id/nav_import_web_recipe"
+                android:icon="@android:drawable/ic_menu_upload"
+                android:title="🌐 Importer une Recette Web" />
         </menu>
     </item>
 
@@ -67,6 +74,10 @@
                 android:id="@+id/nav_backup"
                 android:icon="@android:drawable/ic_menu_save"
                 android:title="Sauvegarde &amp; Restauration" />
+            <item
+                android:id="@+id/nav_recipe_audit"
+                android:icon="@android:drawable/ic_menu_info_details"
+                android:title="📊 Rapport d'Audit des Recettes" />
             <item
                 android:id="@+id/nav_signatures"
                 android:icon="@android:drawable/ic_menu_manage"

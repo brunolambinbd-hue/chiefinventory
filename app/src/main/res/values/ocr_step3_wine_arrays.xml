@@ -159,5 +159,5 @@
     </string-array>
 
     <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage robuste) -->
-    <string name="wine_remove_pattern">^(?:notre\s+)?vin\s+(?:conseill[éėeè]|sugg[éėeè]r[éėeè]|recommand[éėeè])?\s*:?|^conseil\s+vin\s*:?</string>
+    <string name="wine_remove_pattern" translatable="false">^(?:notre\s+)?vin\s+(?:conseill[éėeè]|sugg[éėeè]r[éėeè]|recommand[éėeè])?\s*:?|^conseil\s+vin\s*:?</string>
 </resources>
