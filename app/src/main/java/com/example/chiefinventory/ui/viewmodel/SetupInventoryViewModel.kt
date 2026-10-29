@@ -10,6 +10,8 @@ import com.example.chiefinventory.dao.IngredientDao
 import com.example.chiefinventory.dao.LocationDao
 import com.example.chiefinventory.data.AppDatabase
 import com.example.chiefinventory.model.Ingredient
+import com.example.chiefinventory.model.Location
+import com.example.chiefinventory.model.LocationType
 import com.example.chiefinventory.ui.adapter.SelectedCatalogEntry
 import com.example.chiefinventory.utils.StandardCatalogLoader
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class SetupInventoryViewModel @JvmOverloads constructor(
+class SetupInventoryViewModel(
     application: Application,
     private val ingredientDao: IngredientDao = AppDatabase.getDatabase(application).ingredientDao(),
     private val locationDao: LocationDao = AppDatabase.getDatabase(application).locationDao(),
@@ -64,7 +66,15 @@ class SetupInventoryViewModel @JvmOverloads constructor(
         }
 
         return viewModelScope.launch(ioDispatcher) {
-            val locations = locationDao.getAllSync()
+            var locations = locationDao.getAllSync()
+            if (locations.isEmpty()) {
+                locationDao.insert(Location(name = "Frigo", parentId = null, type = LocationType.INGREDIENT))
+                locationDao.insert(Location(name = "Placard", parentId = null, type = LocationType.INGREDIENT))
+                locationDao.insert(Location(name = "Surgélateur", parentId = null, type = LocationType.INGREDIENT))
+                locationDao.insert(Location(name = "Cave", parentId = null, type = LocationType.INGREDIENT))
+                locations = locationDao.getAllSync()
+            }
+
             val existingList = ingredientDao.getAllSync()
 
             for (entry in catalogEntries) {

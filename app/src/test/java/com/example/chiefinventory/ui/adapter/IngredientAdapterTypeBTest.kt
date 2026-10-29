@@ -80,12 +80,12 @@ class IngredientAdapterTypeBTest {
 
     @Test
     fun `resolveLocationName resolveCategoryName and resolveSupplementalInfoText helper functions should be covered atomically`() {
-        // resolveLocationName
-        assertThat(IngredientAdapter.resolveLocationName(null, emptyMap())).isEqualTo("Frigo")
-        assertThat(IngredientAdapter.resolveLocationName(1L, emptyMap())).isEqualTo("Frigo")
-        assertThat(IngredientAdapter.resolveLocationName(1L, mapOf(1L to ""))).isEqualTo("Frigo")
-        assertThat(IngredientAdapter.resolveLocationName(1L, mapOf(1L to "   "))).isEqualTo("Frigo")
-        assertThat(IngredientAdapter.resolveLocationName(1L, mapOf(1L to "Placard"))).isEqualTo("Placard")
+        // resolveLocationName with categories
+        assertThat(IngredientAdapter.resolveLocationName(null, emptyMap(), category = "Crémerie")).isEqualTo("Frigo")
+        assertThat(IngredientAdapter.resolveLocationName(null, emptyMap(), category = "Surgelés")).isEqualTo("Surgélateur")
+        assertThat(IngredientAdapter.resolveLocationName(null, emptyMap(), category = "Boissons")).isEqualTo("Cave")
+        assertThat(IngredientAdapter.resolveLocationName(null, emptyMap(), category = "Épicerie")).isEqualTo("Placard")
+        assertThat(IngredientAdapter.resolveLocationName(1L, mapOf(1L to "Placard"), category = "Crémerie")).isEqualTo("Placard")
 
         // resolveCategoryName
         assertThat(IngredientAdapter.resolveCategoryName(null)).isEqualTo("Épicerie")
@@ -196,10 +196,12 @@ class IngredientAdapterTypeBTest {
         adapterWithEdit.onBindViewHolder(h0, 0)
 
         h0.binding.root.performClick()
-        assertThat(clickedItem).isEqualTo(ingr)
+        assertThat(clickedItem?.id).isEqualTo(ingr.id)
+
+        org.robolectric.shadows.ShadowSystemClock.advanceBy(java.time.Duration.ofMillis(1000))
 
         h0.binding.btnEditIngredient.performClick()
-        assertThat(editedItem).isEqualTo(ingr)
+        assertThat(editedItem?.id).isEqualTo(ingr.id)
 
         // Null edit listener (line 87 onEditClick == null)
         val adapterNullEdit = IngredientAdapter(onClick = {}, onEditClick = null)

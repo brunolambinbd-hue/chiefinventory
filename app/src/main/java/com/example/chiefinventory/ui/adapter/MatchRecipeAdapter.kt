@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.chiefinventory.databinding.ItemMatchRecipeBinding
 import com.example.chiefinventory.utils.RecipeMatchResult
 
+import com.example.chiefinventory.utils.setOnSingleClickListener
+
 class MatchRecipeAdapter(
     private val onRecipeClicked: (RecipeMatchResult) -> Unit
 ) : ListAdapter<RecipeMatchResult, MatchRecipeAdapter.ViewHolder>(DiffCallback) {
@@ -42,7 +44,7 @@ class MatchRecipeAdapter(
             binding.tvMissingDetails.text = "🔴 À racheter : ${item.missingIngredients.joinToString(", ")}"
         }
 
-        binding.root.setOnClickListener {
+        binding.root.setOnSingleClickListener {
             onRecipeClicked(item)
         }
     }

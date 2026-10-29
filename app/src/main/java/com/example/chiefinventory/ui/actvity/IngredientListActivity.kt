@@ -14,6 +14,7 @@ import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.ui.adapter.IngredientAdapter
 import com.example.chiefinventory.ui.viewmodel.IngredientViewModel
 import com.example.chiefinventory.ui.viewmodel.ViewModelFactory
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,6 +23,10 @@ class IngredientListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityIngredientListBinding
     private lateinit var adapter: IngredientAdapter
+
+    private var allIngredientsList: List<Ingredient> = emptyList()
+    private var locationNamesMap: Map<Long, String> = emptyMap()
+    private var selectedLocationFilter: String = "TOUT"
 
     private val viewModel: IngredientViewModel by viewModels {
         val app = application as ChefInventoryApplication
@@ -37,19 +42,20 @@ class IngredientListActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Mon Stock d'Ingrédients"
 
-        // On ignore tout filtrage et on force le chargement complet du stock
         viewModel.setLocation(-1L)
 
         setupRecyclerView()
         setupSearch()
+        setupLocationTabs()
         observeViewModel()
 
         lifecycleScope.launch(Dispatchers.IO) {
             val db = com.example.chiefinventory.data.AppDatabase.getDatabase(applicationContext)
             val locations = db.locationDao().getAllSync()
-            val map = locations.associate { it.id to it.name }
+            locationNamesMap = locations.associate { it.id to it.name }
             withContext(Dispatchers.Main) {
-                adapter.setLocationNamesMap(map)
+                adapter.setLocationNamesMap(locationNamesMap)
+                applyFilters()
             }
         }
 
@@ -57,6 +63,25 @@ class IngredientListActivity : AppCompatActivity() {
             val intent = Intent(this, EditIngredientActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun setupLocationTabs() {
+        binding.tabLocationFilter.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                selectedLocationFilter = when (tab?.position) {
+                    1 -> "Frigo"
+                    2 -> "Placard"
+                    3 -> "Surgélateur"
+                    4 -> "Cave"
+                    5 -> "Autre"
+                    else -> "TOUT"
+                }
+                applyFilters()
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
     }
 
     private fun setupSearch() {
@@ -83,8 +108,85 @@ class IngredientListActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         viewModel.ingredients.observe(this) { ingredients ->
-            adapter.submitList(ingredients)
+            allIngredientsList = ingredients ?: emptyList()
+            applyFilters()
         }
+    }
+
+    private fun updateTabCounts() {
+        val totalCount = allIngredientsList.size
+        var frigoCount = 0
+        var placardCount = 0
+        var surgelateurCount = 0
+        var caveCount = 0
+        var autreCount = 0
+
+        for (ingredient in allIngredientsList) {
+            val locName = IngredientAdapter.resolveLocationName(
+                ingredient.locationId,
+                locationNamesMap,
+                ingredient.category
+            )
+            val lowerLocName = locName.lowercase()
+
+            when {
+                "frigo" in lowerLocName || "fridge" in lowerLocName -> frigoCount++
+                "placard" in lowerLocName || "cupboard" in lowerLocName || "pantry" in lowerLocName -> placardCount++
+                "surgélateur" in lowerLocName || "congélateur" in lowerLocName || "freezer" in lowerLocName -> surgelateurCount++
+                "cave" in lowerLocName || "cellar" in lowerLocName -> caveCount++
+                else -> autreCount++
+            }
+        }
+
+        binding.tabLocationFilter.getTabAt(0)?.text = "TOUT ($totalCount)"
+        binding.tabLocationFilter.getTabAt(1)?.text = "❄️ Frigo ($frigoCount)"
+        binding.tabLocationFilter.getTabAt(2)?.text = "🧺 Placard ($placardCount)"
+        binding.tabLocationFilter.getTabAt(3)?.text = "🧊 Surgélateur ($surgelateurCount)"
+        binding.tabLocationFilter.getTabAt(4)?.text = "🍷 Cave ($caveCount)"
+        binding.tabLocationFilter.getTabAt(5)?.text = "📍 Autre ($autreCount)"
+    }
+
+    private fun applyFilters() {
+        updateTabCounts()
+
+        val rawQuery = binding.etSearchIngredient.text?.toString() ?: ""
+        val cleanQuery = rawQuery.trim().lowercase()
+
+        val filtered = allIngredientsList.filter { ingredient ->
+            val nameMatches = ingredient.name.lowercase().contains(cleanQuery)
+            val categoryMatches = ingredient.category?.lowercase()?.contains(cleanQuery) == true
+            val matchesText = cleanQuery.isBlank() || nameMatches || categoryMatches
+
+            val locName = IngredientAdapter.resolveLocationName(
+                ingredient.locationId,
+                locationNamesMap,
+                ingredient.category
+            )
+            val lowerLocName = locName.lowercase()
+
+            val matchesLocation = when (selectedLocationFilter) {
+                "Frigo" -> "frigo" in lowerLocName || "fridge" in lowerLocName
+                "Placard" -> "placard" in lowerLocName || "cupboard" in lowerLocName || "pantry" in lowerLocName
+                "Surgélateur" -> "surgélateur" in lowerLocName || "congélateur" in lowerLocName || "freezer" in lowerLocName
+                "Cave" -> "cave" in lowerLocName || "cellar" in lowerLocName
+                "Autre" -> !("frigo" in lowerLocName || "fridge" in lowerLocName ||
+                             "placard" in lowerLocName || "cupboard" in lowerLocName || "pantry" in lowerLocName ||
+                             "surgélateur" in lowerLocName || "congélateur" in lowerLocName || "freezer" in lowerLocName ||
+                             "cave" in lowerLocName || "cellar" in lowerLocName)
+                else -> true
+            }
+
+            matchesText && matchesLocation
+        }
+
+        val totalCount = filtered.size
+        if (totalCount == 0) {
+            binding.tvIngredientCountHeader.text = "Aucun ingrédient trouvé"
+        } else {
+            binding.tvIngredientCountHeader.text = "📊 $totalCount ingrédient(s) affiché(s)"
+        }
+
+        adapter.submitList(filtered)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

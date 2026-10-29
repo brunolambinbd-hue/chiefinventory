@@ -182,6 +182,22 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val DB_CALLBACK = object : RoomDatabase.Callback() {
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
+                // 1. Emplacements racine par défaut pour le garde-manger
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, parentId, type) VALUES (1, 'Frigo', NULL, 'INGREDIENT')")
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, parentId, type) VALUES (2, 'Placard', NULL, 'INGREDIENT')")
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, parentId, type) VALUES (3, 'Surgélateur', NULL, 'INGREDIENT')")
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, parentId, type) VALUES (4, 'Cave', NULL, 'INGREDIENT')")
+
+                // 2. Correction automatique des ingrédients enregistrés avec locationId = 1 (Frigo) ou NULL
+                db.execSQL("UPDATE ingredients SET locationId = 2 WHERE (category LIKE '%épicerie%' OR category LIKE '%epicerie%' OR category LIKE '%féculents%' OR category LIKE '%feculents%' OR category LIKE '%condiments%' OR category LIKE '%légumes%' OR category LIKE '%legumes%' OR category LIKE '%pâtisserie%' OR category LIKE '%patisserie%') AND (locationId = 1 OR locationId IS NULL)")
+                db.execSQL("UPDATE ingredients SET locationId = 3 WHERE (category LIKE '%surgelé%' OR category LIKE '%surgele%' OR category LIKE '%glace%') AND (locationId = 1 OR locationId IS NULL)")
+                db.execSQL("UPDATE ingredients SET locationId = 4 WHERE (category LIKE '%boisson%' OR category LIKE '%cave%' OR category LIKE '%vin%') AND (locationId = 1 OR locationId IS NULL)")
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -199,6 +215,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_27_28, MIGRATION_28_29, MIGRATION_29_30, 
                     MIGRATION_30_31, MIGRATION_31_32
                 )
+                .addCallback(DB_CALLBACK)
                 .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance

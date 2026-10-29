@@ -13,6 +13,8 @@ import com.example.chiefinventory.R
 import com.example.chiefinventory.databinding.ItemIngredientBinding
 import com.example.chiefinventory.model.Ingredient
 
+import com.example.chiefinventory.utils.setOnSingleClickListener
+
 private data class StockStyle(
     @ColorRes val bgColorRes: Int,
     @ColorRes val strokeColorRes: Int,
@@ -125,7 +127,7 @@ class IngredientAdapter(
             binding.tvSupplementalInfo.setTextColor(textColor)
             binding.btnEditIngredient.setColorFilter(textColor)
 
-            val rawHomeLocName = resolveLocationName(ingredient.locationId, locationNamesMap, context)
+            val rawHomeLocName = resolveLocationName(ingredient.locationId, locationNamesMap, ingredient.category, context)
             val homeLocIcon = resolveHomeLocationIcon(rawHomeLocName, context)
             val categoryStr = resolveCategoryName(ingredient.category, context)
             val pinIcon = context.getString(R.string.icon_location_default)
@@ -151,10 +153,10 @@ class IngredientAdapter(
                 binding.tvSupplementalInfo.isVisible = false
             }
 
-            binding.root.setOnClickListener { onClick(ingredient) }
+            binding.root.setOnSingleClickListener { onClick(ingredient) }
 
             if (onEditClick != null) {
-                binding.btnEditIngredient.setOnClickListener { onEditClick.invoke(ingredient) }
+                binding.btnEditIngredient.setOnSingleClickListener { onEditClick.invoke(ingredient) }
             } else {
                 binding.btnEditIngredient.setOnClickListener(null)
             }
@@ -221,17 +223,34 @@ class IngredientAdapter(
             return context?.getString(R.string.icon_location_default) ?: "📍"
         }
 
-        fun resolveLocationName(locationId: Long?, locationNamesMap: Map<Long, String>, context: Context? = null): String {
-            if (locationId == null) {
-                return context?.getString(R.string.location_default_frigo) ?: "Frigo"
+        fun resolveLocationName(
+            locationId: Long?,
+            locationNamesMap: Map<Long, String>,
+            category: String? = null,
+            context: Context? = null
+        ): String {
+            if (locationId != null) {
+                val mappedName = locationNamesMap[locationId]
+                if (!mappedName.isNullOrBlank()) {
+                    return mappedName
+                }
             }
 
-            val mappedName = locationNamesMap[locationId]
-            if (mappedName.isNullOrBlank()) {
-                return context?.getString(R.string.location_default_frigo) ?: "Frigo"
+            val cleanCat = category?.lowercase()?.trim() ?: ""
+            return when {
+                "crémerie" in cleanCat || "cremerie" in cleanCat || "lait" in cleanCat || "frais" in cleanCat -> {
+                    context?.getString(R.string.location_default_frigo) ?: "Frigo"
+                }
+                "surgelé" in cleanCat || "surgele" in cleanCat || "glace" in cleanCat -> {
+                    "Surgélateur"
+                }
+                "boisson" in cleanCat || "cave" in cleanCat || "vin" in cleanCat -> {
+                    "Cave"
+                }
+                else -> {
+                    "Placard"
+                }
             }
-
-            return mappedName
         }
 
         fun resolveCategoryName(category: String?, context: Context? = null): String {

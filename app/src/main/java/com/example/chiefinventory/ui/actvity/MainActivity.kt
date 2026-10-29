@@ -21,6 +21,8 @@ import com.example.chiefinventory.ui.viewmodel.MainViewModel
 import com.example.chiefinventory.ui.viewmodel.ViewModelFactory
 import com.google.android.material.navigation.NavigationView
 
+import com.example.chiefinventory.utils.setOnSingleClickListener
+
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
@@ -65,35 +67,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setupClickListeners() {
-        binding.fabAdd.setOnClickListener {
+        binding.fabAdd.setOnSingleClickListener {
             startActivity(Intent(this, EditIngredientActivity::class.java))
         }
 
-        binding.cardIngredients.setOnClickListener {
+        binding.cardIngredients.setOnSingleClickListener {
             startActivity(Intent(this, IngredientListActivity::class.java))
         }
 
-        binding.totalIngredientsText.setOnClickListener {
-            startActivity(Intent(this, IngredientListActivity::class.java))
-        }
-
-        binding.cardShoppingList.setOnClickListener {
+        binding.cardShoppingList.setOnSingleClickListener {
             startActivity(Intent(this, ShoppingListActivity::class.java))
         }
 
-        binding.totalShoppingItemsText.setOnClickListener {
-            startActivity(Intent(this, ShoppingListActivity::class.java))
-        }
-
-        binding.shoppingPreviewText.setOnClickListener {
-            startActivity(Intent(this, ShoppingListActivity::class.java))
-        }
-
-        binding.cardRecipes.setOnClickListener {
-            startActivity(Intent(this, MatchRecipeInventoryActivity::class.java))
-        }
-
-        binding.totalRecipesText.setOnClickListener {
+        binding.cardRecipes.setOnSingleClickListener {
             startActivity(Intent(this, MatchRecipeInventoryActivity::class.java))
         }
     }
