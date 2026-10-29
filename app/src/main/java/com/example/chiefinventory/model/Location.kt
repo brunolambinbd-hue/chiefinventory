@@ -8,13 +8,12 @@ import androidx.room.PrimaryKey
  * Types of locations available in the application.
  */
 enum class LocationType {
-    COLLECTION, // Legacy items (ParaBD)
     INGREDIENT,
     RECIPE
 }
 
 /**
- * Represents a physical or logical location where an item, ingredient or recipe can be stored or classified.
+ * Represents a physical or logical location where an ingredient or recipe can be stored or classified.
  *
  * @property id The unique identifier for the location.
  * @property name The name of the location (e.g., "Fridge", "Bakery shelf").
@@ -29,5 +28,5 @@ data class Location(
     val id: Long = 0,
     val name: String,
     val parentId: Long?,
-    val type: LocationType = LocationType.COLLECTION
+    val type: LocationType = LocationType.INGREDIENT
 )

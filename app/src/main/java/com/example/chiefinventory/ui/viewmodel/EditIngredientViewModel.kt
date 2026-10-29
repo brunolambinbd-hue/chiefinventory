@@ -1,7 +1,6 @@
 package com.example.chiefinventory.ui.viewmodel
 
 import android.app.Application
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -12,7 +11,6 @@ import com.example.chiefinventory.model.Location
 import com.example.chiefinventory.model.LocationType
 import com.example.chiefinventory.repo.IngredientRepository
 import com.example.chiefinventory.repo.LocationRepository
-import com.example.imagecomparison.ImageEmbedderHelper
 import kotlinx.coroutines.launch
 
 class EditIngredientViewModel(
@@ -27,40 +25,23 @@ class EditIngredientViewModel(
     private val _imageUri = MutableLiveData<Uri?>()
     val imageUri: LiveData<Uri?> = _imageUri
 
-    private var _imageEmbedderHelper: ImageEmbedderHelper? = null
-    private fun getImageEmbedderHelper(): ImageEmbedderHelper {
-        if (_imageEmbedderHelper == null) {
-            _imageEmbedderHelper = ImageEmbedderHelper(getApplication(), null)
-        }
-        return _imageEmbedderHelper!!
-    }
-
     val ingredientCategories: LiveData<List<Location>> = locationRepository.getAllByType(LocationType.INGREDIENT)
 
     fun loadIngredient(id: Long) {
         viewModelScope.launch {
-            repository.getById(id)?.let {
-                _ingredient.value = it
-                it.imageUri?.let { uri -> _imageUri.value = Uri.parse(uri) }
+            val ingr = repository.getById(id)
+            if (ingr != null) {
+                _ingredient.value = ingr
+                val uriStr = ingr.imageUri
+                if (uriStr != null) {
+                    _imageUri.value = Uri.parse(uriStr)
+                }
             }
         }
     }
 
     fun setImageUri(uri: Uri?) {
         _imageUri.value = uri
-    }
-
-    fun calculateSignature(bitmap: Bitmap): ByteArray? {
-        val signature = getImageEmbedderHelper().computeSignature(bitmap)
-        return signature?.let {
-            val floatArray = it.floatEmbedding()
-            val byteArray = ByteArray(floatArray.size * 4)
-            java.nio.ByteBuffer.wrap(byteArray)
-                .order(java.nio.ByteOrder.LITTLE_ENDIAN)
-                .asFloatBuffer()
-                .put(floatArray)
-            byteArray
-        }
     }
 
     fun insert(ingredient: Ingredient) = viewModelScope.launch {
@@ -73,10 +54,5 @@ class EditIngredientViewModel(
 
     fun delete(ingredient: Ingredient) = viewModelScope.launch {
         repository.delete(ingredient)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        _imageEmbedderHelper?.clearImageEmbedder()
     }
 }

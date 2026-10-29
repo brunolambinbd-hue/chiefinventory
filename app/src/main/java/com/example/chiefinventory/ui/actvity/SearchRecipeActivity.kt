@@ -9,7 +9,7 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.chiefinventory.CollectionApplication
+import com.example.chiefinventory.ChefInventoryApplication
 import com.example.chiefinventory.databinding.ActivitySearchRecipeBinding
 import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.ui.adapter.IngredientSelectAdapter
@@ -26,8 +26,8 @@ class SearchRecipeActivity : AppCompatActivity() {
     private var allRecipesList: List<com.example.chiefinventory.dao.RecipeWithIngredients> = emptyList()
 
     private val viewModel: SearchRecipeViewModel by viewModels {
-        val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository, app.recipeRepository)
+        val app = application as ChefInventoryApplication
+        ViewModelFactory(app, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

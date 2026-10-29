@@ -113,32 +113,4 @@ class AdapterDiffCallbacksCoverageTypeBTest {
         assertThat(callback.areContentsTheSame(item1, item1Same)).isTrue()
         assertThat(callback.areContentsTheSame(item1, item2)).isFalse()
     }
-
-    @Test
-    fun `CategoryAdapter DiffCallback should compare categories by name and content`() {
-        val cat1 = com.example.chiefinventory.ui.model.CategoryInfo(name = "BD", possessedCount = 10, totalCount = 20, statusColorRes = 0)
-        val cat1Same = com.example.chiefinventory.ui.model.CategoryInfo(name = "BD", possessedCount = 10, totalCount = 20, statusColorRes = 0)
-        val cat2 = com.example.chiefinventory.ui.model.CategoryInfo(name = "Comics", possessedCount = 5, totalCount = 15, statusColorRes = 0)
-
-        assertThat(CategoryAdapter.DiffCallback.areItemsTheSame(cat1, cat1Same)).isTrue()
-        assertThat(CategoryAdapter.DiffCallback.areItemsTheSame(cat1, cat2)).isFalse()
-        assertThat(CategoryAdapter.DiffCallback.areContentsTheSame(cat1, cat1Same)).isTrue()
-        assertThat(CategoryAdapter.DiffCallback.areContentsTheSame(cat1, cat2)).isFalse()
-    }
-
-    @Test
-    fun `CategoryAdapterRevised DiffCallback should compare categories and return change payload`() {
-        val cat1 = com.example.chiefinventory.ui.model.CategoryInfo(name = "BD", possessedCount = 10, totalCount = 20, statusColorRes = 0)
-        val cat1Same = com.example.chiefinventory.ui.model.CategoryInfo(name = "BD", possessedCount = 10, totalCount = 20, statusColorRes = 0)
-        val cat1Changed = com.example.chiefinventory.ui.model.CategoryInfo(name = "BD", possessedCount = 12, totalCount = 20, statusColorRes = 0)
-        val cat2 = com.example.chiefinventory.ui.model.CategoryInfo(name = "Comics", possessedCount = 5, totalCount = 15, statusColorRes = 0)
-
-        assertThat(CategoryAdapterRevised.DiffCallback.areItemsTheSame(cat1, cat1Same)).isTrue()
-        assertThat(CategoryAdapterRevised.DiffCallback.areItemsTheSame(cat1, cat2)).isFalse()
-        assertThat(CategoryAdapterRevised.DiffCallback.areContentsTheSame(cat1, cat1Same)).isTrue()
-        assertThat(CategoryAdapterRevised.DiffCallback.areContentsTheSame(cat1, cat1Changed)).isFalse()
-
-        assertThat(CategoryAdapterRevised.DiffCallback.getChangePayload(cat1, cat1Same)).isNull()
-        assertThat(CategoryAdapterRevised.DiffCallback.getChangePayload(cat1, cat1Changed)).isEqualTo(CategoryAdapterRevised.Payload.PROGRESS_UPDATE)
-    }
 }

@@ -7,7 +7,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.chiefinventory.CollectionApplication
+import com.example.chiefinventory.ChefInventoryApplication
 import com.example.chiefinventory.databinding.ActivityRecipeCategoryListBinding
 import com.example.chiefinventory.model.LocationType
 import com.example.chiefinventory.ui.adapter.RecipeCategoryAdapter
@@ -20,8 +20,8 @@ class RecipeCategoryListActivity : AppCompatActivity() {
     private lateinit var adapter: RecipeCategoryAdapter
 
     private val viewModel: RecipeCategoryViewModel by viewModels {
-        val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository, app.recipeRepository)
+        val app = application as ChefInventoryApplication
+        ViewModelFactory(app, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

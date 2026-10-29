@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
  */
 class LocationViewModel(private val repository: LocationRepository) : ViewModel() {
 
-    private val _currentType = MutableStateFlow(LocationType.COLLECTION)
+    private val _currentType = MutableStateFlow(LocationType.INGREDIENT)
     val currentType: MutableStateFlow<LocationType> = _currentType
 
     /** A LiveData list of locations filtered by the current type. */

@@ -7,11 +7,9 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.chiefinventory.dao.CollectionDao
 import com.example.chiefinventory.dao.IngredientDao
 import com.example.chiefinventory.dao.LocationDao
 import com.example.chiefinventory.dao.RecipeDao
-import com.example.chiefinventory.model.CollectionItem
 import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.model.Location
 import com.example.chiefinventory.model.Recipe
@@ -19,24 +17,22 @@ import com.example.chiefinventory.model.RecipeIngredient
 
 @Database(
     entities = [
-        CollectionItem::class,
         Location::class,
         Ingredient::class,
         Recipe::class,
         RecipeIngredient::class
     ],
-    version = 31,
+    version = 32,
     exportSchema = false
 )
 @TypeConverters(com.example.chiefinventory.data.TypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun collectionDao(): CollectionDao
     abstract fun locationDao(): LocationDao
     abstract fun ingredientDao(): IngredientDao
     abstract fun recipeDao(): RecipeDao
 
     companion object {
-        const val DATABASE_VERSION: Int = 31
+        const val DATABASE_VERSION: Int = 32
         const val DATABASE_NAME: String = "chiefinventory_database"
 
         private val MIGRATION_18_19 = object : Migration(18, 19) {
@@ -177,6 +173,15 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration 31 -> 32: Suppression de la table collection_items (BD ParaBD).
+         */
+        private val MIGRATION_31_32 = object : Migration(31, 32) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS collection_items")
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -191,7 +196,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, 
                     MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24, 
                     MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27,
-                    MIGRATION_27_28, MIGRATION_28_29, MIGRATION_29_30, MIGRATION_30_31
+                    MIGRATION_27_28, MIGRATION_28_29, MIGRATION_29_30, 
+                    MIGRATION_30_31, MIGRATION_31_32
                 )
                 .fallbackToDestructiveMigration()
                 .build()

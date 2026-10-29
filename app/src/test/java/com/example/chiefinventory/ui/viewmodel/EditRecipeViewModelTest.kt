@@ -112,5 +112,18 @@ class EditRecipeViewModelTest {
         verify(mockRecipeRepo).deleteRecipe(recipe)
     }
 
+    @Test
+    fun `extractUrlFromSource helper function should extract http and https URLs`() {
+        assertThat(com.example.chiefinventory.ui.actvity.EditRecipeActivity.extractUrlFromSource(null)).isNull()
+        assertThat(com.example.chiefinventory.ui.actvity.EditRecipeActivity.extractUrlFromSource("   ")).isNull()
+        assertThat(com.example.chiefinventory.ui.actvity.EditRecipeActivity.extractUrlFromSource("Livre de Cuisine")).isNull()
+
+        val url1 = "https://www.marmiton.org/recettes/recette_tarte-aux-pommes.aspx"
+        assertThat(com.example.chiefinventory.ui.actvity.EditRecipeActivity.extractUrlFromSource(url1)).isEqualTo(url1)
+
+        val urlWithText = "Trouvé sur http://marmiton.org/recette.html par Jean"
+        assertThat(com.example.chiefinventory.ui.actvity.EditRecipeActivity.extractUrlFromSource(urlWithText)).isEqualTo("http://marmiton.org/recette.html")
+    }
+
     private fun anyRecipe(): Recipe = org.mockito.kotlin.any()
 }

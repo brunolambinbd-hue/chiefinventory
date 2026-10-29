@@ -9,7 +9,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.chiefinventory.CollectionApplication
+import com.example.chiefinventory.ChefInventoryApplication
 import com.example.chiefinventory.R
 import com.example.chiefinventory.databinding.ActivityLocationManagementBinding
 import com.example.chiefinventory.model.Location
@@ -22,17 +22,17 @@ import com.example.chiefinventory.utils.observeOnce
 
 /**
  * An activity for managing the hierarchical structure of storage locations.
- * Supports different [LocationType]s (Collection, Ingredient, Recipe).
+ * Supports different [LocationType]s (Ingredient, Recipe).
  */
 class LocationManagementActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLocationManagementBinding
     private lateinit var locationAdapter: LocationAdapter
-    private var currentType: LocationType = LocationType.COLLECTION
+    private var currentType: LocationType = LocationType.INGREDIENT
 
     private val viewModel: LocationViewModel by viewModels {
-        val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository)
+        val app = application as ChefInventoryApplication
+        ViewModelFactory(app, app.locationRepository, app.ingredientRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +41,7 @@ class LocationManagementActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // On récupère le type d'emplacement passé par l'Intent
-        val typeOrdinal = intent.getIntOf(EXTRA_LOCATION_TYPE, LocationType.COLLECTION.ordinal)
+        val typeOrdinal = intent.getIntOf(EXTRA_LOCATION_TYPE, LocationType.INGREDIENT.ordinal)
         currentType = LocationType.values()[typeOrdinal]
         viewModel.setLocationType(currentType)
 
@@ -52,7 +52,6 @@ class LocationManagementActivity : AppCompatActivity() {
         supportActionBar?.title = when (currentType) {
             LocationType.INGREDIENT -> getString(R.string.ingredients_management_title)
             LocationType.RECIPE -> getString(R.string.recipes_management_title)
-            else -> getString(R.string.locations_management_title)
         }
 
         setupRecyclerView()
@@ -74,10 +73,6 @@ class LocationManagementActivity : AppCompatActivity() {
 
     private fun showLocationOptionsDialog(location: Location) {
         val options = mutableListOf<String>()
-        // On ne propose le scan d'inventaire que pour la collection principale
-        if (currentType == LocationType.COLLECTION) {
-            options.add(getString(R.string.scan_inventory))
-        }
         options.add(getString(R.string.modifier_le_nom))
         options.add(getString(R.string.ajouter_un_sous_emplacement))
         options.add(getString(R.string.changer_de_parent))
@@ -86,28 +81,16 @@ class LocationManagementActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle(location.name)
             .setItems(options.toTypedArray()) { dialog, which ->
-                var adjustedWhich = which
-                if (currentType != LocationType.COLLECTION) adjustedWhich++ // Skip scan option
-                
-                when (adjustedWhich) {
-                    0 -> startInventoryScan(location)
-                    1 -> showEditLocationDialog(location)
-                    2 -> showAddLocationDialog(location)
-                    3 -> showChangeParentDialog(location)
-                    4 -> showDeleteConfirmationDialog(location)
+                when (which) {
+                    0 -> showEditLocationDialog(location)
+                    1 -> showAddLocationDialog(location)
+                    2 -> showChangeParentDialog(location)
+                    3 -> showDeleteConfirmationDialog(location)
                 }
                 dialog.dismiss()
             }
             .setNegativeButton(getString(R.string.annuler), null)
             .show()
-    }
-
-    private fun startInventoryScan(location: Location) {
-        val intent = Intent(this, InventoryScannerActivity::class.java).apply {
-            putExtra(InventoryScannerActivity.EXTRA_LOCATION_ID, location.id)
-            putExtra(InventoryScannerActivity.EXTRA_LOCATION_NAME, location.name)
-        }
-        startActivity(intent)
     }
 
     private fun showChangeParentDialog(locationToMove: Location) {
@@ -214,17 +197,7 @@ class LocationManagementActivity : AppCompatActivity() {
                 location?.let { showLocationOptionsDialog(it) }
             },
             onItemCountClick = { locationId ->
-                // Lorsqu'on clique sur un emplacement, on ouvre la liste d'objets ou d'ingrédients correspondante
-                if (currentType == LocationType.COLLECTION) {
-                    viewModel.displayLocations.observeOnce(this) { allDisplayLocations ->
-                        val fullPath = getFullPath(locationId, allDisplayLocations)
-                        val intent = Intent(this, ItemListActivity::class.java).apply {
-                            putExtra(ItemListActivity.EXTRA_LOCATION_ID, locationId)
-                            putExtra(ItemListActivity.EXTRA_LOCATION_NAME, fullPath)
-                        }
-                        startActivity(intent)
-                    }
-                } else if (currentType == LocationType.INGREDIENT) {
+                if (currentType == LocationType.INGREDIENT) {
                     viewModel.displayLocations.observeOnce(this) { allDisplayLocations ->
                         val fullPath = getFullPath(locationId, allDisplayLocations)
                         val intent = Intent(this, IngredientListActivity::class.java).apply {

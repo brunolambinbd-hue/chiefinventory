@@ -23,7 +23,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/imagecomparison" />
             <option value="$PROJECT_DIR$/../TraceabilityLib" />
             <option value="$PROJECT_DIR$/../TraceabilityLib/library" />
           </set>

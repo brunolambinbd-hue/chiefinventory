@@ -6,11 +6,11 @@
 
     <!-- On clarifie que la caméra est une fonctionnalité facultative -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <!-- Permission requise pour prendre des photos des objets et pour la recherche par image -->
+    <!-- Permission requise pour prendre des photos -->
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:name=".CollectionApplication"
+        android:name=".ChefInventoryApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -28,20 +28,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.actvity.EditItemActivity" />
-        <activity android:name=".ui.actvity.SearchActivity" />
-        <activity android:name=".ui.actvity.ItemListActivity" />
-        <activity android:name=".ui.actvity.CategoryListActivity" />
-        <activity android:name=".ui.actvity.SignatureReportActivity" />
         <activity android:name=".ui.actvity.LocationManagementActivity" />
         <activity
             android:name=".ui.actvity.FullScreenImageActivity"
             android:theme="@style/Theme.ChefInventory.FullScreen" />
-        <activity android:name=".ui.actvity.InventoryScannerActivity" />
-        <activity android:name=".ui.actvity.InventoryResultActivity" />
         <activity android:name=".ui.actvity.BackupActivity" />
-        <activity android:name=".ui.actvity.BatchPossessionActivity" />
-        <activity android:name=".ui.actvity.CategoryAuditActivity" />
         <activity
             android:name=".ui.actvity.CrashActivity"
             android:process=":crash"

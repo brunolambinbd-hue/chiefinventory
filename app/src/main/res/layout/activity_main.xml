@@ -36,78 +36,117 @@
                     android:orientation="vertical"
                     android:padding="24dp">
 
-                    <!-- Section COLLECTION -->
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- Section INGRÉDIENTS / GARDE-MANGER -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_ingredients"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="MA COLLECTION"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
-                        android:textColor="?attr/colorPrimary" />
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="3dp">
 
-                    <TextView
-                        android:id="@+id/total_items_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/total_items_label"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
-
-                    <TextView
-                        android:id="@+id/possessed_items_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/possessed_items_label"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
-
-                    <TextView
-                        android:id="@+id/sought_items_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sought_items_label"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
-
-                    <View
-                        android:layout_width="100dp"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="24dp"
-                        android:background="?android:attr/dividerVertical" />
-
-                    <!-- Section CUISINE / INGRÉDIENTS -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="MA CUISINE"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
-                        android:textColor="?attr/colorPrimary" />
-
-                    <TextView
-                        android:id="@+id/total_ingredients_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Ingrédients en stock: 0"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <Button
-                            android:id="@+id/btn_recent_finds"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/recent_finds_label" />
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                        <Button
-                            android:id="@+id/btn_recent_organizations"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:layout_width="wrap_content"
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🥬 GARDE-MANGER &amp; STOCK"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
+                                android:textColor="?attr/colorPrimary" />
+
+                            <TextView
+                                android:id="@+id/total_ingredients_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Ingrédients en stock : 0"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Section LISTE DE COURSES & RÉASSORT -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_shopping_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="3dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/recent_organizations_label" />
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                    </LinearLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🛒 LISTE DE COURSES &amp; RÉASSORT"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
+                                android:textColor="?attr/colorPrimary" />
+
+                            <TextView
+                                android:id="@+id/total_shopping_items_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="🟢 Garde-manger au complet"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+
+                            <TextView
+                                android:id="@+id/shopping_preview_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:textColor="?android:attr/textColorSecondary"
+                                android:textSize="14sp"
+                                android:visibility="gone"
+                                tools:text="• Lait demi-écrémé (6 L)\n• Œufs (1 pack)\n• Beurre"
+                                tools:visibility="visible" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Section QUE CUISINIER -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_recipes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="3dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🍳 QUE CUISINER (MON GARDE-MANGER)"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
+                                android:textColor="?attr/colorPrimary" />
+
+                            <TextView
+                                android:id="@+id/total_recipes_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Toutes les recettes : 0"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
             </ScrollView>
@@ -118,7 +157,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
                 android:layout_margin="16dp"
-                android:contentDescription="@string/add_item_description"
+                android:contentDescription="Ajouter un ingrédient"
                 android:src="@android:drawable/ic_input_add" />
 
         </FrameLayout>

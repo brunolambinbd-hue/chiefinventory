@@ -27,7 +27,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "ChefInventory"
 include(":app")
-include(":imagecomparison")
 
 includeBuild("../TraceabilityLib") {
     dependencySubstitution {

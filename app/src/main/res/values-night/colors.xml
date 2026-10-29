@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Adaptabilité Dark Mode pour les cartes de stock d'ingrédients -->
+    <color name="stock_out_of_stock_bg">#3E1A1D</color>
+    <color name="stock_out_of_stock_stroke">#E57373</color>
+    <color name="stock_out_of_stock_text">#FFCDD2</color>
+
+    <color name="stock_low_bg">#3C2E00</color>
+    <color name="stock_low_stroke">#FFB74D</color>
+    <color name="stock_low_text">#FFE0B2</color>
+
+    <color name="stock_healthy_bg">#0D2238</color>
+    <color name="stock_healthy_stroke">#64B5F6</color>
+    <color name="stock_healthy_text">#E3F2FD</color>
+</resources>

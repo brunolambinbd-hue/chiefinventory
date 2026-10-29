@@ -3,23 +3,17 @@ package com.example.chiefinventory.ui.actvity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
+import com.example.chiefinventory.ChefInventoryApplication
 import com.example.chiefinventory.R
-import com.example.chiefinventory.CollectionApplication
 import com.example.chiefinventory.databinding.ActivityMainBinding
 import com.example.chiefinventory.model.LocationType
 import com.example.chiefinventory.ui.viewmodel.ImportViewModel
@@ -31,19 +25,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var toggle: ActionBarDrawerToggle
-    private var possessedCounterTextView: TextView? = null
-    private var soughtCounterTextView: TextView? = null
 
     private val viewModel: MainViewModel by viewModels {
-        val app = application as CollectionApplication
+        val app = application as ChefInventoryApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository, app.recipeRepository)
+        ViewModelFactory(app, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
     private val importViewModel: ImportViewModel by viewModels {
-        val app = application as CollectionApplication
+        val app = application as ChefInventoryApplication
         @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository, app.recipeRepository)
+        ViewModelFactory(app, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
     private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -74,73 +66,61 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun setupClickListeners() {
         binding.fabAdd.setOnClickListener {
-            startActivity(Intent(this, EditItemActivity::class.java))
+            startActivity(Intent(this, EditIngredientActivity::class.java))
         }
 
-        binding.possessedItemsText.setOnClickListener {
-            val intent = Intent(this, CategoryListActivity::class.java).apply {
-                putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_POSSESSED)
-            }
-            startActivity(intent)
+        binding.cardIngredients.setOnClickListener {
+            startActivity(Intent(this, IngredientListActivity::class.java))
         }
 
-        binding.soughtItemsText.setOnClickListener {
-            val intent = Intent(this, CategoryListActivity::class.java).apply {
-                putExtra(ItemListActivity.EXTRA_LIST_TYPE, ItemListActivity.TYPE_SOUGHT)
-            }
-            startActivity(intent)
-        }
-
-        binding.btnRecentFinds.setOnClickListener {
-            navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
-        }
-
-        binding.btnRecentOrganizations.setOnClickListener {
-            navigateToRecent(ItemListActivity.TYPE_RECENT_LOCATED)
-        }
-        
         binding.totalIngredientsText.setOnClickListener {
             startActivity(Intent(this, IngredientListActivity::class.java))
         }
-    }
 
-    private fun navigateToRecent(type: Int) {
-        val intent = Intent(this, ItemListActivity::class.java).apply {
-            putExtra(ItemListActivity.EXTRA_LIST_TYPE, type)
+        binding.cardShoppingList.setOnClickListener {
+            startActivity(Intent(this, ShoppingListActivity::class.java))
         }
-        startActivity(intent)
+
+        binding.totalShoppingItemsText.setOnClickListener {
+            startActivity(Intent(this, ShoppingListActivity::class.java))
+        }
+
+        binding.shoppingPreviewText.setOnClickListener {
+            startActivity(Intent(this, ShoppingListActivity::class.java))
+        }
+
+        binding.cardRecipes.setOnClickListener {
+            startActivity(Intent(this, MatchRecipeInventoryActivity::class.java))
+        }
+
+        binding.totalRecipesText.setOnClickListener {
+            startActivity(Intent(this, MatchRecipeInventoryActivity::class.java))
+        }
     }
 
     private fun observeViewModel() {
-        viewModel.totalItemsCount.observe(this) { count ->
-            binding.totalItemsText.text = getString(R.string.total_items_label, count ?: 0)
+        viewModel.allIngredients.observe(this) { ingredients ->
+            val count = ingredients?.size ?: 0
+            binding.totalIngredientsText.text = "Ingrédients en stock : $count"
         }
 
-        viewModel.possessedItems.observe(this) { items ->
-            val count = items?.size ?: 0
-            binding.possessedItemsText.text = getString(R.string.possessed_items_label, count)
-            possessedCounterTextView?.text = count.toString()
+        viewModel.outOfStockIngredients.observe(this) { outOfStockList ->
+            val count = outOfStockList?.size ?: 0
+            if (count > 0) {
+                binding.totalShoppingItemsText.text = "🛒 $count article(s) à acheter"
+                val preview = outOfStockList.joinToString("\n") { "• ${it.name}" }
+                binding.shoppingPreviewText.text = preview
+                binding.shoppingPreviewText.isVisible = true
+            } else {
+                binding.totalShoppingItemsText.text = "🟢 Garde-manger au complet"
+                binding.shoppingPreviewText.isVisible = false
+            }
         }
 
-        viewModel.soughtItems.observe(this) { items ->
-            val count = items?.size ?: 0
-            binding.soughtItemsText.text = getString(R.string.sought_items_label, count)
-            soughtCounterTextView?.text = count.toString()
+        viewModel.allRecipes?.observe(this) { recipes ->
+            val count = recipes?.size ?: 0
+            binding.totalRecipesText.text = "Toutes les recettes : $count"
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.counter_menu, menu)
-        
-        val counterItem = menu?.findItem(R.id.action_counter)
-        val actionView = counterItem?.actionView
-        possessedCounterTextView = actionView?.findViewById(R.id.possessed_counter)
-        soughtCounterTextView = actionView?.findViewById(R.id.sought_counter)
-        
-        possessedCounterTextView?.text = viewModel.possessedItems.value?.size?.toString() ?: "0"
-        soughtCounterTextView?.text = viewModel.soughtItems.value?.size?.toString() ?: "0"
-        
-        return true
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -162,9 +142,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_match_pantry_recipe -> {
                 startActivity(Intent(this, MatchRecipeInventoryActivity::class.java))
             }
-            R.id.nav_recent_finds -> navigateToRecent(ItemListActivity.TYPE_RECENT_POSSESSED)
-            R.id.nav_recent_organizations -> navigateToRecent(ItemListActivity.TYPE_RECENT_LOCATED)
-            
             R.id.nav_all_ingredients -> {
                 startActivity(Intent(this, IngredientListActivity::class.java))
             }
@@ -201,19 +178,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_recipe_audit -> {
                 startActivity(Intent(this, RecipeAuditActivity::class.java))
             }
-            R.id.nav_signatures -> {
-                startActivity(Intent(this, SignatureReportActivity::class.java))
-            }
         }
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (toggle.onOptionsItemSelected(item)) return true
-        if (item.itemId == R.id.action_search) {
-            startActivity(Intent(this, SearchActivity::class.java))
-            return true
-        }
         return super.onOptionsItemSelected(item)
     }
 }

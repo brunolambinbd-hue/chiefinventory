@@ -2,10 +2,19 @@ package com.example.chiefinventory.ui.actvity
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.chiefinventory.dao.RecipeWithIngredients
 import com.example.chiefinventory.data.AppDatabase
 import com.example.chiefinventory.databinding.ActivityRecipeAuditBinding
 import com.example.chiefinventory.utils.RecipeAuditEngine
@@ -47,29 +56,23 @@ class RecipeAuditActivity : AppCompatActivity() {
                 val pct = if (report.totalRecipes > 0) (report.validRecipesCount * 100) / report.totalRecipes else 100
                 binding.tvValidRecipesCount.text = getString(com.example.chiefinventory.R.string.recipe_audit_health_status, report.validRecipesCount, report.totalRecipes, pct)
 
-                binding.tvMissingIngredientsList.text = if (report.missingIngredientsList.isNotEmpty()) {
-                    report.missingIngredientsList.joinToString("\n") { "• ${it.recipe.title}" }
-                } else {
-                    getString(com.example.chiefinventory.R.string.recipe_audit_no_missing_ingredients)
-                }
+                buildClickableRecipeList(
+                    report.missingIngredientsList,
+                    getString(com.example.chiefinventory.R.string.recipe_audit_no_missing_ingredients),
+                    binding.tvMissingIngredientsList
+                )
 
-                binding.tvMissingInstructionsList.text = if (report.missingInstructionsList.isNotEmpty()) {
-                    report.missingInstructionsList.joinToString("\n") { "• ${it.recipe.title}" }
-                } else {
-                    getString(com.example.chiefinventory.R.string.recipe_audit_no_missing_instructions)
-                }
+                buildClickableRecipeList(
+                    report.missingInstructionsList,
+                    getString(com.example.chiefinventory.R.string.recipe_audit_no_missing_instructions),
+                    binding.tvMissingInstructionsList
+                )
 
-                binding.tvMissingCategoryList.text = if (report.missingCategoryList.isNotEmpty()) {
-                    report.missingCategoryList.joinToString("\n") { "• ${it.recipe.title}" }
-                } else {
-                    getString(com.example.chiefinventory.R.string.recipe_audit_no_missing_categories)
-                }
-
-                binding.tvDrinkRecipesList.text = if (report.drinkRecipesList.isNotEmpty()) {
-                    report.drinkRecipesList.joinToString("\n") { "• ${it.recipe.title}" }
-                } else {
-                    getString(com.example.chiefinventory.R.string.recipe_audit_no_drinks)
-                }
+                buildClickableRecipeList(
+                    report.missingCategoryList,
+                    getString(com.example.chiefinventory.R.string.recipe_audit_no_missing_categories),
+                    binding.tvMissingCategoryList
+                )
 
                 val sb = StringBuilder()
                 sb.appendLine("=== RAPPORT D'AUDIT DES RECETTES CHEFINVENTORY ===")
@@ -80,10 +83,51 @@ class RecipeAuditActivity : AppCompatActivity() {
                 if (report.missingInstructionsList.isEmpty()) sb.appendLine("• Aucune") else report.missingInstructionsList.forEach { sb.appendLine("• ${it.recipe.title}") }
                 sb.appendLine("\n⚠️ Recettes sans catégorie (${report.missingCategoryList.size}) :")
                 if (report.missingCategoryList.isEmpty()) sb.appendLine("• Aucune") else report.missingCategoryList.forEach { sb.appendLine("• ${it.recipe.title}") }
-                sb.appendLine("\n🍹 Recettes classées en Boissons (${report.drinkRecipesList.size}) :")
-                if (report.drinkRecipesList.isEmpty()) sb.appendLine("• Aucune") else report.drinkRecipesList.forEach { sb.appendLine("• ${it.recipe.title}") }
                 lastReportText = sb.toString()
             }
         }
+    }
+
+    private fun buildClickableRecipeList(
+        items: List<RecipeWithIngredients>,
+        emptyMessage: String,
+        textView: TextView
+    ) {
+        if (items.isEmpty()) {
+            textView.text = emptyMessage
+            textView.movementMethod = null
+            return
+        }
+
+        val ssb = SpannableStringBuilder()
+        for ((index, item) in items.withIndex()) {
+            val recipe = item.recipe
+            val lineText = "• ${recipe.title}"
+            val start = ssb.length
+            ssb.append(lineText)
+            val end = ssb.length
+
+            val clickableSpan = object : ClickableSpan() {
+                override fun onClick(widget: View) {
+                    val intent = Intent(this@RecipeAuditActivity, EditRecipeActivity::class.java).apply {
+                        putExtra(EditRecipeActivity.EXTRA_RECIPE_ID, recipe.id)
+                    }
+                    startActivity(intent)
+                }
+
+                override fun updateDrawState(ds: TextPaint) {
+                    super.updateDrawState(ds)
+                    ds.isUnderlineText = true
+                }
+            }
+
+            ssb.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if (index < items.size - 1) {
+                ssb.append("\n")
+            }
+        }
+
+        textView.text = ssb
+        textView.movementMethod = LinkMovementMethod.getInstance()
     }
 }

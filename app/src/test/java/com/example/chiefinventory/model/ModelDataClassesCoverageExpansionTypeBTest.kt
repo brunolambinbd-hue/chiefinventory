@@ -145,36 +145,7 @@ class ModelDataClassesCoverageExpansionTypeBTest {
     }
 
     @Test
-    fun `SearchCriteria and StandardCatalogItem equals hashCode copy componentN should reach 100 percent coverage`() {
-        val s1 = SearchCriteria(
-            titre = "Titre", editeur = "Edit", annee = 2000, mois = 1,
-            superCategorie = "Super", categorie = "Cat", description = "Desc",
-            tirage = "Tirage", dimensions = "Dim", isPossessed = true
-        )
-        val s1Same = SearchCriteria(
-            titre = "Titre", editeur = "Edit", annee = 2000, mois = 1,
-            superCategorie = "Super", categorie = "Cat", description = "Desc",
-            tirage = "Tirage", dimensions = "Dim", isPossessed = true
-        )
-        val sNull = SearchCriteria()
-
-        val (t, _, a, _, sC, c, d, tr, dim, p) = s1
-        assertThat(t).isEqualTo("Titre")
-        assertThat(s1).isEqualTo(s1Same)
-        assertThat(s1.hashCode()).isEqualTo(s1Same.hashCode())
-        assertThat(sNull.hashCode()).isNotEqualTo(s1.hashCode())
-
-        assertThat(s1.copy(titre = "X")).isNotEqualTo(s1)
-        assertThat(s1.copy(editeur = "X")).isNotEqualTo(s1)
-        assertThat(s1.copy(annee = 99)).isNotEqualTo(s1)
-        assertThat(s1.copy(mois = 99)).isNotEqualTo(s1)
-        assertThat(s1.copy(superCategorie = "X")).isNotEqualTo(s1)
-        assertThat(s1.copy(categorie = "X")).isNotEqualTo(s1)
-        assertThat(s1.copy(description = "X")).isNotEqualTo(s1)
-        assertThat(s1.copy(tirage = "X")).isNotEqualTo(s1)
-        assertThat(s1.copy(dimensions = "X")).isNotEqualTo(s1)
-        assertThat(s1.copy(isPossessed = false)).isNotEqualTo(s1)
-
+    fun `StandardCatalogItem equals hashCode copy componentN should reach 100 percent coverage`() {
         val sc1 = StandardCatalogItem(
             name = "Lait", defaultQuantity = 1.0, defaultUnit = "L", category = "Crémerie",
             defaultLocationName = "Frigo", stockPolicy = "PERMANENT", minThreshold = 0.25, packSize = 6.0

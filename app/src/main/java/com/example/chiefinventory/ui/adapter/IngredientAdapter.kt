@@ -120,6 +120,9 @@ class IngredientAdapter(
             binding.tvStockStatus.setTextColor(textColor)
             binding.tvName.setTextColor(textColor)
             binding.tvQuantity.setTextColor(textColor)
+            binding.tvLocation.setTextColor(textColor)
+            binding.tvStockPolicy.setTextColor(textColor)
+            binding.tvSupplementalInfo.setTextColor(textColor)
             binding.btnEditIngredient.setColorFilter(textColor)
 
             val rawHomeLocName = resolveLocationName(ingredient.locationId, locationNamesMap, context)

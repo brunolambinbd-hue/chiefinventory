@@ -1,7 +1,6 @@
 package com.example.chiefinventory.ui.viewmodel
 
 import android.app.Application
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
@@ -83,15 +82,12 @@ class EditIngredientViewModelTest {
     }
 
     @Test
-    fun `setImageUri and calculateSignature should set URI and compute signature`() {
+    fun `setImageUri should update imageUri LiveData`() {
         val vm = EditIngredientViewModel(app, mockIngrRepo, mockLocRepo)
         val uri = Uri.parse("file:///tmp/test.jpg")
 
         vm.setImageUri(uri)
         assertThat(vm.imageUri.value).isEqualTo(uri)
-
-        val dummyBitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-        vm.calculateSignature(dummyBitmap)
     }
 
     @Test

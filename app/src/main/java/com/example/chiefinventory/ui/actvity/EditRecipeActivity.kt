@@ -1,8 +1,11 @@
 package com.example.chiefinventory.ui.actvity
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.widget.ArrayAdapter
@@ -14,10 +17,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import coil.load
-import com.example.chiefinventory.CollectionApplication
+import com.example.chiefinventory.ChefInventoryApplication
 import com.example.chiefinventory.databinding.ActivityEditRecipeBinding
-import com.example.chiefinventory.model.Recipe
 import com.example.chiefinventory.model.Location
+import com.example.chiefinventory.model.Recipe
 import com.example.chiefinventory.model.RecipeIngredient
 import com.example.chiefinventory.ui.viewmodel.EditRecipeViewModel
 import com.example.chiefinventory.ui.viewmodel.ViewModelFactory
@@ -41,8 +44,8 @@ class EditRecipeActivity : AppCompatActivity() {
     private var selectedLocationId: Long? = null
 
     private val viewModel: EditRecipeViewModel by viewModels {
-        val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository, app.recipeRepository)
+        val app = application as ChefInventoryApplication
+        ViewModelFactory(app, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -69,6 +72,7 @@ class EditRecipeActivity : AppCompatActivity() {
         }
         setupCategoryDropdown()
         setupDifficultyDropdown()
+        setupSourceWebLink()
 
         if (recipeId != -1L) {
             binding.btnDelete.isVisible = true
@@ -117,6 +121,45 @@ class EditRecipeActivity : AppCompatActivity() {
         binding.actvDifficulty.setAdapter(adapter)
     }
 
+    private fun setupSourceWebLink() {
+        binding.etSource.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updateSourceWebLinkState(s?.toString())
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    private fun updateSourceWebLinkState(sourceText: String?) {
+        val url = extractUrlFromSource(sourceText)
+        if (url != null) {
+            binding.tilSource.isEndIconVisible = true
+            binding.tilSource.setEndIconOnClickListener {
+                openWebUrlInBrowser(url)
+            }
+        } else {
+            binding.tilSource.isEndIconVisible = false
+            binding.tilSource.setEndIconOnClickListener(null)
+        }
+    }
+
+    private fun openWebUrlInBrowser(url: String) {
+        try {
+            val chromeIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                setPackage("com.android.chrome")
+            }
+            startActivity(chromeIntent)
+        } catch (e: Exception) {
+            try {
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                startActivity(browserIntent)
+            } catch (ex: Exception) {
+                Toast.makeText(this, "Impossible d'ouvrir le navigateur Web", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun handleNewImage(uri: Uri) {
         lastImageUri = uri
         binding.ivRecipe.isVisible = true
@@ -139,13 +182,14 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.etInstructions.setText(result.instructions ?: "")
                 binding.etWine.setText(result.wine ?: "")
                 binding.etSource.setText(result.source ?: "")
+                updateSourceWebLinkState(result.source)
                 binding.etServings.setText(result.servings ?: "")
                 
                 binding.etPrepTime.setText(result.prepTime ?: "")
                 binding.etCookTime.setText(result.cookTime ?: "")
                 binding.etRestingTime.setText(result.restingTime ?: "")
                 binding.etKcal.setText(result.kcalPerServing ?: "")
-                binding.actvDifficulty.setText(result.difficulty ?: "", false) // false pour ne pas filtrer la liste
+                binding.actvDifficulty.setText(result.difficulty ?: "", false)
                 binding.etNutritionInfo.setText(result.nutritionInfo ?: "")
 
                 Toast.makeText(this@EditRecipeActivity, "Scan terminé", Toast.LENGTH_SHORT).show()
@@ -165,6 +209,7 @@ class EditRecipeActivity : AppCompatActivity() {
         binding.etServings.setText(recipe.servings?.toString() ?: "")
         binding.etWine.setText(recipe.wineRecommendation ?: "")
         binding.etSource.setText(recipe.source ?: "")
+        updateSourceWebLinkState(recipe.source)
         binding.etKcal.setText(recipe.kcalPerServing?.toString() ?: "")
         binding.actvDifficulty.setText(recipe.difficulty ?: "", false)
         binding.etNutritionInfo.setText(recipe.nutritionInfo ?: "")
@@ -266,5 +311,20 @@ class EditRecipeActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_RECIPE_ID = "recipe_id"
         const val EXTRA_LOCATION_ID = "location_id"
+
+        fun extractUrlFromSource(sourceText: String?): String? {
+            if (sourceText.isNullOrBlank()) {
+                return null
+            }
+
+            val trimmed = sourceText.trim()
+            val regex = Regex("""https?://[^\s]+""", RegexOption.IGNORE_CASE)
+            val match = regex.find(trimmed)
+            if (match != null) {
+                return match.value
+            } else {
+                return null
+            }
+        }
     }
 }

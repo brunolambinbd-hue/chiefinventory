@@ -117,7 +117,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":imagecomparison"))
     implementation(libs.ocr)
     implementation(libs.traceability)
     implementation(libs.locationmanagement)

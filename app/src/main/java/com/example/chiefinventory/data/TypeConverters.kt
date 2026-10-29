@@ -17,7 +17,7 @@ class TypeConverters {
         return try {
             LocationType.valueOf(value)
         } catch (e: Exception) {
-            LocationType.COLLECTION
+            LocationType.INGREDIENT
         }
     }
 }

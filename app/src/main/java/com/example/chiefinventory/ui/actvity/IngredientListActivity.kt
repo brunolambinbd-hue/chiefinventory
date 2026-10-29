@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.chiefinventory.CollectionApplication
+import com.example.chiefinventory.ChefInventoryApplication
 import com.example.chiefinventory.databinding.ActivityIngredientListBinding
 import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.ui.adapter.IngredientAdapter
@@ -24,8 +24,8 @@ class IngredientListActivity : AppCompatActivity() {
     private lateinit var adapter: IngredientAdapter
 
     private val viewModel: IngredientViewModel by viewModels {
-        val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository)
+        val app = application as ChefInventoryApplication
+        ViewModelFactory(app, app.locationRepository, app.ingredientRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

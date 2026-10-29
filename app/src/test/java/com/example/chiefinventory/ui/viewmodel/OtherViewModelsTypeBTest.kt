@@ -6,15 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import com.example.chiefinventory.dao.RecipeCategoryInfo
-import com.example.chiefinventory.model.CollectionItem
 import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.model.Recipe
-import com.example.chiefinventory.model.SignatureStats
-import com.example.chiefinventory.repo.CollectionRepository
 import com.example.chiefinventory.repo.IngredientRepository
 import com.example.chiefinventory.repo.LocationRepository
 import com.example.chiefinventory.repo.RecipeRepository
-import com.example.chiefinventory.ui.model.CategoryInfo
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,7 +44,6 @@ class OtherViewModelsTypeBTest {
     private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var app: Application
 
-    private lateinit var mockCollectionRepo: CollectionRepository
     private lateinit var mockIngrRepo: IngredientRepository
     private lateinit var mockLocRepo: LocationRepository
     private lateinit var mockRecipeRepo: RecipeRepository
@@ -58,7 +53,6 @@ class OtherViewModelsTypeBTest {
         Dispatchers.setMain(testDispatcher)
         app = ApplicationProvider.getApplicationContext()
 
-        mockCollectionRepo = mock()
         mockIngrRepo = mock()
         mockLocRepo = mock()
         mockRecipeRepo = mock()
@@ -98,36 +92,16 @@ class OtherViewModelsTypeBTest {
     }
 
     @Test
-    fun `MainViewModel should delegate all getters to repositories`() {
-        val countLiveData = MutableLiveData(10)
-        val itemsLiveData = MutableLiveData<List<CollectionItem>>(emptyList())
+    fun `MainViewModel should delegate ingredient and recipe getters to repository`() {
         val ingrsLiveData = MutableLiveData<List<Ingredient>>(emptyList())
-        val statsLiveData = MutableLiveData(SignatureStats(10, 8, 1, 1))
-        val catInfoLiveData = MutableLiveData<List<CategoryInfo>>(emptyList())
-
-        whenever(mockCollectionRepo.getTotalCount()).thenReturn(countLiveData)
-        whenever(mockCollectionRepo.getAllPossessed()).thenReturn(itemsLiveData)
-        whenever(mockCollectionRepo.getAllSought()).thenReturn(itemsLiveData)
-        whenever(mockCollectionRepo.getRecentPossessed()).thenReturn(itemsLiveData)
-        whenever(mockCollectionRepo.getRecentLocated()).thenReturn(itemsLiveData)
-        whenever(mockCollectionRepo.getUnlocatedItems()).thenReturn(itemsLiveData)
-        whenever(mockCollectionRepo.getLocatedNotPossessedItems()).thenReturn(itemsLiveData)
-        whenever(mockCollectionRepo.getSignatureStats()).thenReturn(statsLiveData)
-        whenever(mockCollectionRepo.getSuperCategoryInfo(true)).thenReturn(catInfoLiveData)
-        whenever(mockCollectionRepo.getCategoryInfoForSuperCategory("BD", false)).thenReturn(catInfoLiveData)
-        whenever(mockCollectionRepo.getItemsBySuperCategoryAndCategory("BD", "Albums", true)).thenReturn(itemsLiveData)
-        whenever(mockCollectionRepo.getItemsByLocationId(5L)).thenReturn(itemsLiveData)
+        val recipesLiveData = MutableLiveData<List<Recipe>>(emptyList())
 
         whenever(mockIngrRepo.getAll()).thenReturn(ingrsLiveData)
+        whenever(mockRecipeRepo.allRecipes).thenReturn(recipesLiveData)
 
-        val vm = MainViewModel(mockCollectionRepo, mockIngrRepo)
-
-        assertThat(vm.totalItemsCount.value).isEqualTo(10)
+        val vm = MainViewModel(mockIngrRepo, mockRecipeRepo)
         assertThat(vm.allIngredients.value).isEmpty()
-        assertThat(vm.getSuperCategoryInfo(true).value).isEmpty()
-        assertThat(vm.getCategoryInfoForSuperCategory("BD", false).value).isEmpty()
-        assertThat(vm.getItemsBySuperCategoryAndCategory("BD", "Albums", true).value).isEmpty()
-        assertThat(vm.getItemsByLocationId(5L).value).isEmpty()
+        assertThat(vm.allRecipes?.value).isEmpty()
     }
 
     @Test
@@ -177,23 +151,14 @@ class OtherViewModelsTypeBTest {
 
     @Test
     fun `ViewModelFactory should create all registered ViewModel classes`() {
-        whenever(mockCollectionRepo.getAll()).thenReturn(MutableLiveData(emptyList()))
-        whenever(mockCollectionRepo.getById(1L)).thenReturn(MutableLiveData())
-        whenever(mockCollectionRepo.getSignatureStats()).thenReturn(MutableLiveData())
         whenever(mockLocRepo.getAll()).thenReturn(MutableLiveData(emptyList()))
 
-        val factory = ViewModelFactory(app, mockCollectionRepo, mockLocRepo, mockIngrRepo, mockRecipeRepo, testDispatcher)
+        val factory = ViewModelFactory(app, mockLocRepo, mockIngrRepo, mockRecipeRepo, testDispatcher)
 
         assertThat(factory.create(MainViewModel::class.java)).isNotNull()
-        assertThat(factory.create(SearchViewModel::class.java)).isNotNull()
-        assertThat(factory.create(ImportViewModel::class.java)).isNotNull()
-        assertThat(factory.create(SignatureReportViewModel::class.java)).isNotNull()
         assertThat(factory.create(LocationViewModel::class.java)).isNotNull()
-        assertThat(factory.create(EditItemViewModel::class.java)).isNotNull()
         assertThat(factory.create(InventoryViewModel::class.java)).isNotNull()
         assertThat(factory.create(BackupViewModel::class.java)).isNotNull()
-        assertThat(factory.create(BatchPossessionViewModel::class.java)).isNotNull()
-        assertThat(factory.create(CategoryAuditViewModel::class.java)).isNotNull()
         assertThat(factory.create(IngredientViewModel::class.java)).isNotNull()
         assertThat(factory.create(EditIngredientViewModel::class.java)).isNotNull()
         assertThat(factory.create(MatchRecipeViewModel::class.java)).isNotNull()

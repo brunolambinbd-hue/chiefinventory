@@ -6,7 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.load
-import com.example.chiefinventory.CollectionApplication
+import com.example.chiefinventory.ChefInventoryApplication
 import com.example.chiefinventory.databinding.ActivityImportWebRecipeBinding
 import com.example.chiefinventory.model.Recipe
 import com.example.chiefinventory.model.RecipeIngredient
@@ -105,7 +105,7 @@ class ImportWebRecipeActivity : AppCompatActivity() {
 
     private fun saveRecipeToDatabase() {
         val result = lastResult ?: return
-        val app = application as CollectionApplication
+        val app = application as ChefInventoryApplication
 
         lifecycleScope.launch(Dispatchers.IO) {
             val prepMinutes = result.prepTimeMinutes?.toIntOrNull()

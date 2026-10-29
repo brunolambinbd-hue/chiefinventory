@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import coil.load
-import com.example.chiefinventory.CollectionApplication
+import com.example.chiefinventory.ChefInventoryApplication
 import com.example.chiefinventory.databinding.ActivityEditIngredientBinding
 import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.model.Location
@@ -45,8 +45,8 @@ class EditIngredientActivity : AppCompatActivity() {
     )
 
     private val viewModel: EditIngredientViewModel by viewModels {
-        val app = application as CollectionApplication
-        ViewModelFactory(app, app.repository, app.locationRepository, app.ingredientRepository, app.recipeRepository)
+        val app = application as ChefInventoryApplication
+        ViewModelFactory(app, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -228,7 +228,7 @@ class EditIngredientActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val embedding = newBitmap?.let { viewModel.calculateSignature(it) } ?: currentIngredient?.imageEmbedding
+            val embedding = currentIngredient?.imageEmbedding
             val qtyVal = binding.etQuantity.text.toString().toDoubleOrNull()
             val thresholdVal = binding.etMinThreshold.text.toString().toDoubleOrNull() ?: (qtyVal ?: 0.0)
             val packVal = binding.etPackSize.text.toString().toDoubleOrNull() ?: 1.0

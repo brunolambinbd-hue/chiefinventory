@@ -81,7 +81,6 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
                 android:textColor="?attr/colorError"
-                android:textIsSelectable="true"
                 tools:text="• Pintade à la normande" />
 
             <TextView
@@ -98,7 +97,6 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
                 android:textColor="?attr/colorError"
-                android:textIsSelectable="true"
                 tools:text="• Soupe à l'ail" />
 
             <TextView
@@ -115,24 +113,8 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
                 android:textColor="?android:attr/textColorSecondary"
-                android:textIsSelectable="true"
                 tools:text="• Aucune" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="🍹 Recettes classées en Boissons :"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvDrinkRecipesList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textIsSelectable="true"
-                tools:text="• Embuscade\n• Hypocras" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

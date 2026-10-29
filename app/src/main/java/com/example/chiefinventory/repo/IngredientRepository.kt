@@ -11,6 +11,8 @@ class IngredientRepository(private val ingredientDao: IngredientDao) {
 
     fun getAll(): LiveData<List<Ingredient>> = ingredientDao.getAll()
 
+    fun getOutOfStockIngredients(): LiveData<List<Ingredient>> = ingredientDao.getOutOfStockIngredients()
+
     fun getByLocation(locationId: Long): LiveData<List<Ingredient>> = ingredientDao.getByLocation(locationId)
 
     /**
