@@ -30,4 +30,17 @@
     <color name="stripe_even">#00000000</color> <!-- Transparent -->
     <color name="stripe_odd">#1A000000</color>  <!-- Noir un peu plus visible (10% alpha) -->
 
+    <!-- Couleurs de stock pour les cartes d'ingrédients -->
+    <color name="stock_out_of_stock_bg">#FFEBEE</color>
+    <color name="stock_out_of_stock_stroke">#EF5350</color>
+    <color name="stock_out_of_stock_text">#B71C1C</color>
+
+    <color name="stock_low_bg">#FFF8E1</color>
+    <color name="stock_low_stroke">#FFA000</color>
+    <color name="stock_low_text">#E65100</color>
+
+    <color name="stock_healthy_bg">#E3F2FD</color>
+    <color name="stock_healthy_stroke">#1976D2</color>
+    <color name="stock_healthy_text">#0D47A1</color>
+
 </resources>

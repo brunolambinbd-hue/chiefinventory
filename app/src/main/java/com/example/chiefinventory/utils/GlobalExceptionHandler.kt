@@ -17,6 +17,8 @@ class GlobalExceptionHandler(private val applicationContext: Context) : Thread.U
     private val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
 
     override fun uncaughtException(t: Thread, e: Throwable) {
+        System.err.println("=== UNCAUGHT EXCEPTION IN THREAD ${t.name} ===")
+        e.printStackTrace()
         val stackTrace = e.stackTraceToString()
         val userFriendlyMessage = analyzeException(e)
         
@@ -35,8 +37,12 @@ class GlobalExceptionHandler(private val applicationContext: Context) : Thread.U
             return
         }
 
-        android.os.Process.killProcess(android.os.Process.myPid())
-        kotlin.system.exitProcess(10)
+        if (defaultHandler != null) {
+            defaultHandler.uncaughtException(t, e)
+        } else {
+            android.os.Process.killProcess(android.os.Process.myPid())
+            kotlin.system.exitProcess(10)
+        }
     }
 
     private fun analyzeException(e: Throwable): String {

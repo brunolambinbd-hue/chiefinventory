@@ -90,7 +90,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
                     val visualSim = cosineSimilarity(qE, it.imageEmbedding!!).toDouble()
                     // Si on a du texte OCR en entrée, on peut booster le score si le texte correspond
                     var finalSim = visualSim
-                    if (qOcr != null && it.ocrText?.contains(qOcr, ignoreCase = true) == true) {
+                    if (qOcr != null && it.ocrText != null && it.ocrText.contains(qOcr, ignoreCase = true)) {
                         finalSim += 0.1 // Petit boost de confiance
                     }
                     SearchResultItem(it, finalSim) 
@@ -106,7 +106,7 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     suspend fun findMostSimilarItems(qE: FloatArray): List<SearchResultItem> {
         return collectionDao.getAllItemsWithEmbeddings()
             .map { SearchResultItem(it, cosineSimilarity(qE, it.imageEmbedding!!).toDouble()) }
-            .filter { !(it.similarity?.isNaN() ?: true) }
+            .filter { it.similarity != null && !it.similarity.isNaN() }
             .sortedByDescending { it.similarity }
             .take(3)
     }
@@ -146,13 +146,25 @@ open class CollectionRepository(private val collectionDao: CollectionDao) {
     }
 
     fun getSuperCategoryInfo(sM: Boolean): LiveData<List<CategoryInfo>> = liveData(Dispatchers.IO) {
-        val all = CategoryMapper.getSuperCategories(); val dbC = collectionDao.getSuperCategoryInfoSuspend().associateBy { it.name }
-        emit(all.map { n -> val c = dbC[n]; val p = c?.possessedCount ?: 0; val t = c?.totalCount ?: 0; CategoryInfo(n, p, t, getStatusColor(p, t, sM)) })
+        val all = CategoryMapper.getSuperCategories()
+        val dbC = collectionDao.getSuperCategoryInfoSuspend().associateBy { it.name }
+        emit(all.map { n ->
+            val c = dbC[n]
+            val p = c?.possessedCount ?: 0
+            val t = c?.totalCount ?: 0
+            CategoryInfo(n, p, t, getStatusColor(p, t, sM))
+        })
     }
 
     fun getCategoryInfoForSuperCategory(sC: String, sM: Boolean): LiveData<List<CategoryInfo>> = liveData(Dispatchers.IO) {
-        val all = CategoryMapper.getCategoriesFor(sC); val dbC = collectionDao.getCategoryInfoForSuperCategorySuspend(sC).associateBy { it.name }
-        emit(all.map { n -> val c = dbC[n]; val p = c?.possessedCount ?: 0; val t = c?.totalCount ?: 0; CategoryInfo(n, p, t, getStatusColor(p, t, sM)) })
+        val all = CategoryMapper.getCategoriesFor(sC)
+        val dbC = collectionDao.getCategoryInfoForSuperCategorySuspend(sC).associateBy { it.name }
+        emit(all.map { n ->
+            val c = dbC[n]
+            val p = c?.possessedCount ?: 0
+            val t = c?.totalCount ?: 0
+            CategoryInfo(n, p, t, getStatusColor(p, t, sM))
+        })
     }
 
     fun getItemsBySuperCategoryAndCategory(s: String, c: String, p: Boolean): LiveData<List<CollectionItem>> = collectionDao.getItemsBySuperCategoryAndCategory(s, c, p)

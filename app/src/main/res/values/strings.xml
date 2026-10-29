@@ -208,4 +208,15 @@
     <string name="possessed_status">POSSÉDÉ</string>
     <string name="sought_status">RECHERCHÉ</string>
 
+    <!-- Gestion du Stock Ingrédients -->
+    <string name="stock_status_out_of_stock">%1$s En Rupture (Seuil: %2$s%3$s%4$s)</string>
+    <string name="stock_status_low">%1$s Stock Faible (Seuil: %2$s%3$s%4$s)</string>
+    <string name="stock_status_healthy">%1$s Seuil min : %2$s%3$s%4$s</string>
+    <string name="ingredient_pack_info_format"> • Pack: %1$s</string>
+    <string name="location_default_frigo">Frigo</string>
+    <string name="category_default_epicerie">Épicerie</string>
+    <string name="ingredient_info_format">Info : %1$s</string>
+    <string name="ingredient_location_category_format">%1$s %2$s  •  %3$s %4$s</string>
+    <string name="ingredient_stock_policy_format">%1$s %2$s</string>
+
 </resources>

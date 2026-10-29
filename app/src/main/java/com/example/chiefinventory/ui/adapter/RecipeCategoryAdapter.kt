@@ -20,7 +20,7 @@ class RecipeCategoryAdapter(private val onCategoryClick: (RecipeCategoryInfo) ->
         holder.bind(getItem(position))
     }
 
-    inner class ViewHolder(private val binding: ItemRecipeCategoryBinding) :
+    inner class ViewHolder(internal val binding: ItemRecipeCategoryBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(info: RecipeCategoryInfo) {

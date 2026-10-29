@@ -32,34 +32,50 @@ class ShoppingListAdapter(
         val ingredient = getItem(position)
         val binding = holder.binding
 
-        val currentQty = ingredient.quantity ?: 0.0
-        val targetThreshold = ingredient.minThreshold ?: 0.0
-        val packSize = if (ingredient.packSize > 0.0) ingredient.packSize else 1.0
+        val currentQty = if (ingredient.quantity != null) {
+            ingredient.quantity
+        } else {
+            0.0
+        }
 
-        val netMissing = if (targetThreshold > currentQty) {
-            targetThreshold - currentQty
-        } else if (currentQty <= 0.0) {
-            if (targetThreshold > 0.0) targetThreshold else 1.0
+        val targetThreshold = if (ingredient.minThreshold != null) {
+            ingredient.minThreshold
+        } else {
+            0.0
+        }
+
+        val rawPackSize = ingredient.packSize
+        val packSize = if (rawPackSize > 0.0) {
+            rawPackSize
         } else {
             1.0
         }
 
+        val netMissing = calculateNetMissing(currentQty, targetThreshold)
         val numPacks = kotlin.math.ceil(netMissing / packSize).toInt().coerceAtLeast(1)
         val qtyToBuy = numPacks * packSize
 
-        val formattedQty = if (qtyToBuy % 1.0 == 0.0) qtyToBuy.toInt().toString() else qtyToBuy.toString()
-        val unitStr = ingredient.unit?.let { if (it.isNotBlank()) " $it" else "" } ?: ""
+        val formattedQty = IngredientAdapter.formatDoubleValue(qtyToBuy)
+        val unitStr = if (!ingredient.unit.isNullOrBlank()) {
+            " ${ingredient.unit}"
+        } else {
+            ""
+        }
 
         binding.tvQuantityToBuy.text = "$formattedQty$unitStr"
         binding.tvQuantityToBuy.visibility = View.VISIBLE
 
-        val packInfoStr = if (packSize > 1.0) " ($numPacks pack${if (numPacks > 1) "s" else ""} de ${if (packSize % 1.0 == 0.0) packSize.toInt() else packSize})" else ""
+        val packInfoStr = formatPackInfo(packSize, numPacks)
         binding.tvItemName.text = " — ${ingredient.name}$packInfoStr"
 
-        val categoryStr = ingredient.category ?: "Épicerie"
+        val categoryStr = if (!ingredient.category.isNullOrBlank()) {
+            ingredient.category
+        } else {
+            "Épicerie"
+        }
         binding.tvCategoryAndLocation.text = categoryStr
 
-        val isBought = (ingredient.quantity ?: 0.0) > 0.0
+        val isBought = currentQty > 0.0
         binding.cbBought.isChecked = isBought
 
         if (isBought) {
@@ -82,5 +98,30 @@ class ShoppingListAdapter(
     object DiffCallback : DiffUtil.ItemCallback<Ingredient>() {
         override fun areItemsTheSame(oldItem: Ingredient, newItem: Ingredient) = oldItem.id == newItem.id
         override fun areContentsTheSame(oldItem: Ingredient, newItem: Ingredient) = oldItem == newItem
+    }
+
+    companion object {
+        fun calculateNetMissing(currentQty: Double, targetThreshold: Double): Double {
+            if (targetThreshold > currentQty) {
+                return targetThreshold - currentQty
+            } else {
+                return 1.0
+            }
+        }
+
+        fun formatPackInfo(packSize: Double, numPacks: Int): String {
+            if (packSize <= 1.0) {
+                return ""
+            }
+
+            val plural = if (numPacks > 1) {
+                "s"
+            } else {
+                ""
+            }
+
+            val formattedPackSize = IngredientAdapter.formatDoubleValue(packSize)
+            return " ($numPacks pack$plural de $formattedPackSize)"
+        }
     }
 }

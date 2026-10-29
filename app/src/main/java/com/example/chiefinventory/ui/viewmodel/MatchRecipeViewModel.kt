@@ -8,10 +8,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.chiefinventory.data.AppDatabase
 import com.example.chiefinventory.utils.MatchRecipeInventoryEngine
 import com.example.chiefinventory.utils.RecipeMatchResult
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class MatchRecipeViewModel(application: Application) : AndroidViewModel(application) {
+class MatchRecipeViewModel @JvmOverloads constructor(
+    application: Application,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) : AndroidViewModel(application) {
 
     private val db = AppDatabase.getDatabase(application)
     private val recipeDao = db.recipeDao()
@@ -20,8 +25,7 @@ class MatchRecipeViewModel(application: Application) : AndroidViewModel(applicat
     private val _matchedRecipes = MutableLiveData<List<RecipeMatchResult>>()
     val matchedRecipes: LiveData<List<RecipeMatchResult>> = _matchedRecipes
 
-    fun calculateMatches() {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun calculateMatches(): Job = viewModelScope.launch(ioDispatcher) {
             val recipesWithIngredients = recipeDao.getAllRecipesWithIngredients()
             val pantryIngredients = ingredientDao.getAllSync()
 
@@ -31,5 +35,4 @@ class MatchRecipeViewModel(application: Application) : AndroidViewModel(applicat
             val matches = MatchRecipeInventoryEngine.evaluateRecipesFeasibility(recipes, recipeIngredientsMap, pantryIngredients)
             _matchedRecipes.postValue(matches)
         }
-    }
 }

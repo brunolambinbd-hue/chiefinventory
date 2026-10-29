@@ -9,18 +9,23 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import com.example.imagecomparison.EmbeddingUtils
-import com.example.imagecomparison.ImageEmbedderHelper
 import com.example.chiefinventory.model.CollectionItem
 import com.example.chiefinventory.model.Location
 import com.example.chiefinventory.repo.CollectionRepository
 import com.example.chiefinventory.repo.LocationRepository
 import com.example.chiefinventory.ui.model.DisplayLocation
+import com.example.imagecomparison.EmbeddingUtils
+import com.example.imagecomparison.ImageEmbedderHelper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+enum class SaveOperation {
+    INSERT,
+    UPDATE
+}
 
 /**
  * ViewModel for the item editing screen ([com.example.chiefinventory.ui.actvity.EditItemActivity]).
@@ -48,10 +53,13 @@ class EditItemViewModel(
     /** The URI of the new image taken or selected by the user. */
     val imageUri: LiveData<Uri?> = _imageUri
 
-    private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(
-        context = application,
-        listener = null
-    )
+    private var _imageEmbedderHelper: ImageEmbedderHelper? = null
+    private fun getImageEmbedderHelper(): ImageEmbedderHelper {
+        if (_imageEmbedderHelper == null) {
+            _imageEmbedderHelper = ImageEmbedderHelper(getApplication(), null)
+        }
+        return _imageEmbedderHelper!!
+    }
 
     /** A flat list of all locations, decorated with their depth for indented display. */
     val displayLocations: LiveData<List<DisplayLocation>> = locationRepository.getAll().map {
@@ -59,34 +67,18 @@ class EditItemViewModel(
     }
 
     /**
-     * Recursively builds a flat list of [DisplayLocation]s from a hierarchical list of [Location]s.
-     * @param locations The complete list of locations from the database.
-     * @return A list of [DisplayLocation]s, ordered and with depth information.
-     */
-    private fun buildDisplayList(locations: List<Location>): List<DisplayLocation> {
-        val displayList = mutableListOf<DisplayLocation>()
-        val locationsByParent = locations.groupBy { it.parentId }
-
-        fun addChildren(parentId: Long?, depth: Int) {
-            locationsByParent[parentId]?.sortedBy { it.name }?.forEach { location ->
-                displayList.add(DisplayLocation(location, depth))
-                addChildren(location.id, depth + 1)
-            }
-        }
-
-        addChildren(null, 0) // Start with root elements
-        return displayList
-    }
-
-    /**
      * Loads an item from the repository by its ID.
      * @param id The ID of the item to load.
      */
     fun loadItem(id: Long) {
-        currentItemSource?.let { _item.removeSource(it) }
+        val oldSource = currentItemSource
+        if (oldSource != null) {
+            _item.removeSource(oldSource)
+        }
+
         val newSource = collectionRepository.getById(id)
-        _item.addSource(newSource) {
-            _item.value = it
+        _item.addSource(newSource) { fetchedItem ->
+            _item.value = fetchedItem
         }
         currentItemSource = newSource
     }
@@ -95,7 +87,7 @@ class EditItemViewModel(
      * Sets the new image URI.
      * @param uri The URI of the newly captured image.
      */
-    fun setImageUri(uri: Uri) {
+    fun setImageUri(uri: Uri?) {
         _imageUri.value = uri
     }
 
@@ -106,8 +98,12 @@ class EditItemViewModel(
      * @return A [ByteArray] representing the signature, or null if calculation fails.
      */
     suspend fun calculateSignature(bitmap: Bitmap, dispatcher: CoroutineDispatcher = Dispatchers.IO): ByteArray? = withContext(dispatcher) {
-        val signature = imageEmbedderHelper.computeSignature(bitmap)
-        signature?.let { EmbeddingUtils.embeddingToByteArray(it) }
+        val signature = getImageEmbedderHelper().computeSignature(bitmap)
+        if (signature != null) {
+            EmbeddingUtils.embeddingToByteArray(signature)
+        } else {
+            null
+        }
     }
 
     /**
@@ -116,7 +112,8 @@ class EditItemViewModel(
      */
     @Suppress("unused")
     fun saveItem(item: CollectionItem): Job = viewModelScope.launch {
-        if (item.id == 0L) {
+        val operation = determineSaveOperation(item.id)
+        if (operation == SaveOperation.INSERT) {
             collectionRepository.insert(item)
         } else {
             collectionRepository.update(item)
@@ -137,5 +134,41 @@ class EditItemViewModel(
      */
     fun update(item: CollectionItem): Job = viewModelScope.launch {
         collectionRepository.update(item)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        val helper = _imageEmbedderHelper
+        if (helper != null) {
+            helper.clearImageEmbedder()
+        }
+    }
+
+    companion object {
+        fun determineSaveOperation(itemId: Long): SaveOperation {
+            if (itemId == 0L) {
+                return SaveOperation.INSERT
+            } else {
+                return SaveOperation.UPDATE
+            }
+        }
+
+        fun buildDisplayList(locations: List<Location>): List<DisplayLocation> {
+            val displayList = mutableListOf<DisplayLocation>()
+            val locationsByParent = locations.groupBy { it.parentId }
+
+            fun addChildren(parentId: Long?, depth: Int) {
+                val children = locationsByParent[parentId]
+                if (children != null) {
+                    children.sortedBy { it.name }.forEach { location ->
+                        displayList.add(DisplayLocation(location, depth))
+                        addChildren(location.id, depth + 1)
+                    }
+                }
+            }
+
+            addChildren(null, 0)
+            return displayList
+        }
     }
 }

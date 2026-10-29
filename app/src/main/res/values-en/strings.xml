@@ -192,4 +192,15 @@
     <string name="search_displayed_count">" — %1$d displayed"</string>
     <string name="ajouter">Add</string>
 
+    <!-- Ingredients Stock Management -->
+    <string name="stock_status_out_of_stock">%1$s Out of Stock (Threshold: %2$s%3$s%4$s)</string>
+    <string name="stock_status_low">%1$s Low Stock (Threshold: %2$s%3$s%4$s)</string>
+    <string name="stock_status_healthy">%1$s Min Threshold: %2$s%3$s%4$s</string>
+    <string name="ingredient_pack_info_format"> • Pack: %1$s</string>
+    <string name="location_default_frigo">Fridge</string>
+    <string name="category_default_epicerie">Grocery</string>
+    <string name="ingredient_info_format">Info: %1$s</string>
+    <string name="ingredient_location_category_format">%1$s %2$s  •  %3$s %4$s</string>
+    <string name="ingredient_stock_policy_format">%1$s %2$s</string>
+
 </resources>

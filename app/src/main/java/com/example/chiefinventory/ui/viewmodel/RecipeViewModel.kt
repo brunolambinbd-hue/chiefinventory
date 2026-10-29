@@ -12,29 +12,25 @@ class RecipeViewModel(private val repository: RecipeRepository) : ViewModel() {
 
     private val _searchQuery = MutableLiveData("")
     private val _categoryId = MutableLiveData<Long>(-1L)
-    
+
     // Par défaut on affiche TOUT (categoryId = -1)
     private val _baseRecipes = _categoryId.switchMap { catId ->
-        if (catId == -1L) {
-            repository.allRecipes
-        } else {
-            repository.getRecipesByCategory(catId)
-        }
+        resolveBaseRecipes(catId, repository)
     }
 
     val recipes: LiveData<List<Recipe>> = MediatorLiveData<List<Recipe>>().apply {
         fun update() {
-            val query = _searchQuery.value ?: ""
-            val list = _baseRecipes.value ?: emptyList()
-            
-            value = if (query.isBlank()) {
-                list
+            val query = _searchQuery.value
+            val baseList = _baseRecipes.value
+            val list = if (baseList != null) {
+                baseList
             } else {
-                list.filter { it.title.contains(query, ignoreCase = true) || 
-                              it.instructions?.contains(query, ignoreCase = true) == true }
+                emptyList()
             }
+
+            value = filterRecipes(list, query)
         }
-        
+
         addSource(_baseRecipes) { update() }
         addSource(_searchQuery) { update() }
     }
@@ -45,5 +41,39 @@ class RecipeViewModel(private val repository: RecipeRepository) : ViewModel() {
 
     fun setCategoryId(id: Long) {
         _categoryId.value = id
+    }
+
+    companion object {
+        fun resolveBaseRecipes(catId: Long?, repository: RecipeRepository): LiveData<List<Recipe>> {
+            if (catId == null || catId == -1L) {
+                return repository.allRecipes
+            } else {
+                return repository.getRecipesByCategory(catId)
+            }
+        }
+
+        fun filterRecipes(recipes: List<Recipe>, query: String?): List<Recipe> {
+            val cleanQuery = if (!query.isNullOrBlank()) {
+                query.trim()
+            } else {
+                ""
+            }
+
+            if (cleanQuery.isBlank()) {
+                return recipes
+            }
+
+            return recipes.filter { recipe ->
+                val titleMatches = recipe.title.contains(cleanQuery, ignoreCase = true)
+                val instructions = recipe.instructions
+                val instructionsMatches = if (instructions != null) {
+                    instructions.contains(cleanQuery, ignoreCase = true)
+                } else {
+                    false
+                }
+
+                titleMatches || instructionsMatches
+            }
+        }
     }
 }

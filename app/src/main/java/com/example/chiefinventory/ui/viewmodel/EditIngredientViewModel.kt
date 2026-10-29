@@ -27,7 +27,13 @@ class EditIngredientViewModel(
     private val _imageUri = MutableLiveData<Uri?>()
     val imageUri: LiveData<Uri?> = _imageUri
 
-    private val imageEmbedderHelper = ImageEmbedderHelper(application, null)
+    private var _imageEmbedderHelper: ImageEmbedderHelper? = null
+    private fun getImageEmbedderHelper(): ImageEmbedderHelper {
+        if (_imageEmbedderHelper == null) {
+            _imageEmbedderHelper = ImageEmbedderHelper(getApplication(), null)
+        }
+        return _imageEmbedderHelper!!
+    }
 
     val ingredientCategories: LiveData<List<Location>> = locationRepository.getAllByType(LocationType.INGREDIENT)
 
@@ -45,7 +51,7 @@ class EditIngredientViewModel(
     }
 
     fun calculateSignature(bitmap: Bitmap): ByteArray? {
-        val signature = imageEmbedderHelper.computeSignature(bitmap)
+        val signature = getImageEmbedderHelper().computeSignature(bitmap)
         return signature?.let {
             val floatArray = it.floatEmbedding()
             val byteArray = ByteArray(floatArray.size * 4)
@@ -71,6 +77,6 @@ class EditIngredientViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        imageEmbedderHelper.clearImageEmbedder()
+        _imageEmbedderHelper?.clearImageEmbedder()
     }
 }

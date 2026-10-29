@@ -53,25 +53,31 @@ class SearchViewModel(application: Application, private val repository: Collecti
 
     private var searchJob: Job? = null
 
-    private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(
-        context = application,
-        listener = object : ImageEmbedderHelper.EmbedderListener {
-            override fun onError(error: String, errorCode: Int) {
-                Log.e("SearchViewModel", "ImageEmbedderHelper Error ($errorCode): $error")
-                _searchResultState.postValue(SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_image_analysis)))
-            }
+    private var _imageEmbedderHelper: ImageEmbedderHelper? = null
+    private fun getImageEmbedderHelper(): ImageEmbedderHelper {
+        if (_imageEmbedderHelper == null) {
+            _imageEmbedderHelper = ImageEmbedderHelper(
+                context = getApplication(),
+                listener = object : ImageEmbedderHelper.EmbedderListener {
+                    override fun onError(error: String, errorCode: Int) {
+                        Log.e("SearchViewModel", "ImageEmbedderHelper Error ($errorCode): $error")
+                        _searchResultState.postValue(SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_image_analysis)))
+                    }
+                }
+            )
         }
-    )
+        return _imageEmbedderHelper!!
+    }
 
-    private val textRecognitionHelper = TextRecognitionHelper(application)
+    private val textRecognitionHelper by lazy { TextRecognitionHelper(application) }
 
     /**
      * Calculates the signature of a given bitmap and updates the [signaturePreview] LiveData.
      * @param bitmap The image for which to compute the signature.
      */
-    fun calculateSignatureForPreview(bitmap: Bitmap) {
-        viewModelScope.launch {
-            val signature = imageEmbedderHelper.computeSignature(bitmap)
+    fun calculateSignatureForPreview(bitmap: Bitmap): Job {
+        return viewModelScope.launch {
+            val signature = getImageEmbedderHelper().computeSignature(bitmap)
             _signaturePreview.value = SignatureUtils.formatSignaturePreview(getApplication(), signature?.floatEmbedding())
         }
     }
@@ -80,10 +86,10 @@ class SearchViewModel(application: Application, private val repository: Collecti
      * Performs a simple text search by delegating to the repository.
      * @param query The search term.
      */
-    fun search(query: String) {
+    fun search(query: String): Job {
         searchJob?.cancel()
         _searchResultState.value = SearchResultState.Loading
-        searchJob = viewModelScope.launch {
+        val job = viewModelScope.launch {
             try {
                 val results = repository.search(query)
                 _searchResultState.value = SearchResultState.Success(results.map { SearchResultItem(it) })
@@ -96,6 +102,8 @@ class SearchViewModel(application: Application, private val repository: Collecti
                 _searchResultState.value = SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_simple))
             }
         }
+        searchJob = job
+        return job
     }
 
     /**
@@ -103,12 +111,12 @@ class SearchViewModel(application: Application, private val repository: Collecti
      * @param criteria The set of text-based search criteria.
      * @param bitmap The optional image to use for similarity search.
      */
-    fun advancedSearch(criteria: SearchCriteria, bitmap: Bitmap?) {
+    fun advancedSearch(criteria: SearchCriteria, bitmap: Bitmap?): Job {
         searchJob?.cancel()
         _searchResultState.value = SearchResultState.Loading
-        searchJob = viewModelScope.launch {
+        val job = viewModelScope.launch {
             try {
-                val queryEmbedding = bitmap?.let { imageEmbedderHelper.computeSignature(it)?.floatEmbedding() }
+                val queryEmbedding = bitmap?.let { getImageEmbedderHelper().computeSignature(it)?.floatEmbedding() }
                 val queryOcr = bitmap?.let { textRecognitionHelper.recognizeText(it) }
                 
                 val searchResult = repository.advancedSearch(criteria, queryEmbedding, queryOcr)
@@ -121,6 +129,8 @@ class SearchViewModel(application: Application, private val repository: Collecti
                 _searchResultState.value = SearchResultState.Error(getApplication<Application>().getString(R.string.search_error_advanced))
             }
         }
+        searchJob = job
+        return job
     }
 
     /**
@@ -137,6 +147,6 @@ class SearchViewModel(application: Application, private val repository: Collecti
      */
     override fun onCleared() {
         super.onCleared()
-        imageEmbedderHelper.clearImageEmbedder()
+        _imageEmbedderHelper?.clearImageEmbedder()
     }
 }

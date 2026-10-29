@@ -18,8 +18,26 @@ class CategoryAdapterRevised(
 ) : ListAdapter<CategoryInfo, CategoryAdapterRevised.CategoryViewHolder>(DiffCallback) {
 
     // Enum to represent the possible changes in a payload.
-    private enum class Payload {
+    enum class Payload {
         PROGRESS_UPDATE
+    }
+
+    object DiffCallback : DiffUtil.ItemCallback<CategoryInfo>() {
+        override fun areItemsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
+            return oldItem.name == newItem.name
+        }
+
+        override fun areContentsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
+            return oldItem.possessedCount == newItem.possessedCount && oldItem.totalCount == newItem.totalCount
+        }
+
+        override fun getChangePayload(oldItem: CategoryInfo, newItem: CategoryInfo): Any? {
+            if (oldItem.possessedCount != newItem.possessedCount || oldItem.totalCount != newItem.totalCount) {
+                return Payload.PROGRESS_UPDATE
+            } else {
+                return null
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -44,7 +62,7 @@ class CategoryAdapterRevised(
         holder.bind(current)
     }
 
-    class CategoryViewHolder(private val binding: ItemCategoryRevisedBinding, private val isSoughtMode: Boolean) :
+    class CategoryViewHolder(internal val binding: ItemCategoryRevisedBinding, private val isSoughtMode: Boolean) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(categoryInfo: CategoryInfo) {
@@ -58,7 +76,11 @@ class CategoryAdapterRevised(
             val totalCount = categoryInfo.totalCount
             val soughtCount = totalCount - possessedCount
 
-            val countToShow = if (isSoughtMode) soughtCount else possessedCount
+            val countToShow = if (isSoughtMode) {
+                soughtCount
+            } else {
+                possessedCount
+            }
 
             binding.revisedCategoryCount.text = context.getString(R.string.category_count_format, countToShow, totalCount)
 
@@ -86,26 +108,6 @@ class CategoryAdapterRevised(
             } else {
                 binding.revisedCategoryProgress.max = 1
                 binding.revisedCategoryProgress.progress = 0
-            }
-        }
-    }
-
-    companion object {
-        private object DiffCallback : DiffUtil.ItemCallback<CategoryInfo>() {
-            override fun areItemsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
-                return oldItem.name == newItem.name
-            }
-
-            override fun areContentsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
-                return oldItem.possessedCount == newItem.possessedCount && oldItem.totalCount == newItem.totalCount
-            }
-
-            override fun getChangePayload(oldItem: CategoryInfo, newItem: CategoryInfo): Any? {
-                return if (oldItem.possessedCount != newItem.possessedCount || oldItem.totalCount != newItem.totalCount) {
-                    Payload.PROGRESS_UPDATE
-                } else {
-                    null
-                }
             }
         }
     }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chiefinventory.dao.RecipeWithIngredients
 import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.model.Recipe
 import com.example.chiefinventory.repo.IngredientRepository
@@ -27,7 +28,7 @@ class SearchRecipeViewModel(
     val selectedIngredients: LiveData<MutableSet<String>> = _selectedIngredients
 
     // All recipes with their ingredients
-    val recipesWithIngredients = recipeRepository.getAllRecipesWithIngredientsLiveData()
+    val recipesWithIngredients: LiveData<List<RecipeWithIngredients>> = recipeRepository.getAllRecipesWithIngredientsLiveData()
 
     // All available ingredients in the database
     val allIngredients: LiveData<List<Ingredient>> = ingredientRepository.getAll()
@@ -36,12 +37,7 @@ class SearchRecipeViewModel(
      * Toggles an ingredient in the selection.
      */
     fun toggleIngredient(name: String) {
-        val current = _selectedIngredients.value ?: mutableSetOf()
-        if (current.contains(name)) {
-            current.remove(name)
-        } else {
-            current.add(name)
-        }
+        val current = toggleIngredientSet(_selectedIngredients.value, name)
         _selectedIngredients.value = current
         performSearch()
     }
@@ -58,7 +54,13 @@ class SearchRecipeViewModel(
      * Executes the search based on selected ingredients.
      */
     private fun performSearch() {
-        val selected = _selectedIngredients.value?.toList() ?: emptyList()
+        val set = _selectedIngredients.value
+        val selected = if (set != null) {
+            set.toList()
+        } else {
+            emptyList()
+        }
+
         if (selected.isEmpty()) {
             _searchResults.value = emptyList()
             return
@@ -67,6 +69,24 @@ class SearchRecipeViewModel(
         viewModelScope.launch {
             val results = recipeRepository.searchRecipesByIngredients(selected)
             _searchResults.value = results
+        }
+    }
+
+    companion object {
+        fun toggleIngredientSet(currentSet: MutableSet<String>?, name: String): MutableSet<String> {
+            val set = if (currentSet != null) {
+                currentSet
+            } else {
+                mutableSetOf()
+            }
+
+            if (set.contains(name)) {
+                set.remove(name)
+            } else {
+                set.add(name)
+            }
+
+            return set
         }
     }
 }

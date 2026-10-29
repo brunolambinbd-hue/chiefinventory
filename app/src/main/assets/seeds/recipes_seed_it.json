@@ -6,7 +6,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Americano_cocktail_at_Nightwood_Restaurant.jpg/960px-Americano_cocktail_at_Nightwood_Restaurant.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_americano.jpg",
     "ingredients": [
       "5 cl de Campari soit 7/10,",
       "2 cl de vermouth rouge (Martini, Cinzano) soit 3/10,",
@@ -17,7 +17,8 @@
       "Compléter d'eau gazeuse."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Boissons/Cocktails/Americano",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/boissons_cocktails_americano.jpg"
   },
   {
     "title": "Boissons/Cocktails/Negroni",
@@ -26,7 +27,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_negroni.jpg",
     "ingredients": [
       "3 ou 4 cl de gin",
       "3 cl de vermouth Italien",
@@ -46,7 +47,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/White_wine_spritzer.jpg/960px-White_wine_spritzer.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_spritz.jpg",
     "ingredients": [
       "6 cl vin blanc tranquille (chardonnay) ou effervescent (prosecco, cava, crémant)",
       "3 cl d'Aperol (Nicolas, Monoprix) ou de Campari",
@@ -59,7 +60,8 @@
       "directement dans le verre (idéalement un tumbler)."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Boissons/Cocktails/Spritz",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/boissons_cocktails_spritz.jpg"
   },
   {
     "title": "Cannelloni",
@@ -68,7 +70,7 @@
     "prepTimeMinutes": 20,
     "cookTimeMinutes": 20,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Cannelloni2.png/960px-Cannelloni2.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cannelloni.jpg",
     "ingredients": [
       "On utilise la même pâte et la même farce que pour les ravioli. Si vous ne pouvez confectionner la pâte, achetez des boîtes de carrés de cannelloni, prêts à farcir.",
       "2 boîtes de 12 carrés de cannelloni,",
@@ -92,7 +94,8 @@
     ],
     "instructions": [],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Cannelloni",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/cannelloni.jpg"
   },
   {
     "title": "Crostini à l'italienne",
@@ -101,7 +104,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/crostini_l_italienne.jpg",
     "ingredients": [
       "4 toasts briochés",
       "2 tomates coupées en fines tranches",
@@ -130,7 +133,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/Pr%C3%A9paration_des_lasagnes_%28mars_2020%29_-_%28010%29_faire_les_couches.jpg/960px-Pr%C3%A9paration_des_lasagnes_%28mars_2020%29_-_%28010%29_faire_les_couches.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/lasagnes_faciles.jpg",
     "ingredients": [
       "Un oignon",
       "500 g de bœuf haché",
@@ -157,7 +160,8 @@
       "Mettre au four préchauffé, thermostat 180 °C, 15 min."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Lasagnes%20faciles",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/lasagnes_faciles.jpg"
   },
   {
     "title": "Osso bucco",
@@ -166,7 +170,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Ossobuco.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/osso_bucco.jpg",
     "ingredients": [
       "4 jarrets de veau,",
       "3 carottes,",
@@ -210,7 +214,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 10,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Panettone_-_Nicolettone_2017_-_IMG_7085_%2831752542285%29.jpg/960px-Panettone_-_Nicolettone_2017_-_IMG_7085_%2831752542285%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/panettone.jpg",
     "ingredients": [
       "6 jaunes d'œufs,",
       "250 g de farine,",
@@ -236,7 +240,8 @@
       "Laisser refroidir."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Panettone",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/panettone.jpg"
   },
   {
     "title": "Panna cotta",
@@ -245,7 +250,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Panna_Cotta_with_cream_and_garnish.jpg/960px-Panna_Cotta_with_cream_and_garnish.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/panna_cotta.jpg",
     "ingredients": [
       "4 dL de crème fraîche",
       "1 dL de lait",
@@ -261,7 +266,8 @@
       "Mettre au frigo pendant au moins 2h."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Panna%20cotta",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/panna_cotta.jpg"
   },
   {
     "title": "Pâtes à la Trapanese",
@@ -270,7 +276,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/p_tes_la_trapanese.jpg",
     "ingredients": [
       "500 g de pâtes",
       "Tomates",
@@ -328,7 +334,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Ingredienti_per_il_pesto_Genovese_%28Ingridients_for_Pesto_Genovese%29.jpg/960px-Ingredienti_per_il_pesto_Genovese_%28Ingridients_for_Pesto_Genovese%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pesto.jpg",
     "ingredients": [
       "50 g de feuilles de basilic frais",
       "deux gousses d'ail",
@@ -348,7 +354,8 @@
       "Mélanger le tout."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pesto",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pesto.jpg"
   },
   {
     "title": "Pizza mogador",
@@ -392,7 +399,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/poisson_au_guazzetto.jpg",
     "ingredients": [
       "Outre le poisson :",
       "2 gousses d'ail",
@@ -419,13 +426,14 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Cotechino-Servito-Polenta-Lenticchie.jpg/960px-Cotechino-Servito-Polenta-Lenticchie.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/polenta.jpg",
     "ingredients": [
       "Polenta savoyarde"
     ],
     "instructions": [],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Polenta",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/polenta.jpg"
   },
   {
     "title": "Risotto",
@@ -434,7 +442,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 18,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Risotto_de_gambas%2C_restaurant_Danieli_%28Vienne%2C_Autriche%29.jpg/960px-Risotto_de_gambas%2C_restaurant_Danieli_%28Vienne%2C_Autriche%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto.jpg",
     "ingredients": [
       "1 oignon,",
       "2 cuillères d'huile d'olive,",
@@ -458,7 +466,8 @@
       "=== Liens externes ==="
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto.jpg"
   },
   {
     "title": "Risotto à la milanaise",
@@ -467,7 +476,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 2,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Risotto_alla_Milanese.JPG/960px-Risotto_alla_Milanese.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto_la_milanaise.jpg",
     "ingredients": [
       "riz (de qualité « Arborio » du département « Lomellina» (située au sud-ouest de Milan, entre les fleuves « Po » et « Ticino »),",
       "échalotes,",
@@ -491,7 +500,8 @@
       "Il faut remarquer qu'il y a une tradition spécifique à Milan pour goûter le risotto. En fait, les restes seront servis \"al salto\". Il s'agit d'un riz avec beaucoup de beurre, une véritable gâterie."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20%C3%A0%20la%20milanaise",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto_la_milanaise.jpg"
   },
   {
     "title": "Risotto au noir",
@@ -500,7 +510,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Risotto_al_nero_di_seppia.jpg/960px-Risotto_al_nero_di_seppia.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto_au_noir.jpg",
     "ingredients": [
       "1 kg de seiches entières (ou 600 g de blanc de seiches et 2 sachets d'encre)",
       "Fumet de poisson",
@@ -527,7 +537,8 @@
       "Servir avec un flacon d’huile pimentée et du parmesan râpé (pour beaucoup le parmesan dans les plats avec des produits de la mer est une erreur)."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20au%20noir",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto_au_noir.jpg"
   },
   {
     "title": "Risotto au poulet",
@@ -536,7 +547,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Cuisse_de_poulet_%C3%A0_la_cr%C3%A8me%2C_olives%2C_carottes_et_risotto_%C3%A0_La_Tablature_%28Lyon%2C_2019%29.jpg/960px-Cuisse_de_poulet_%C3%A0_la_cr%C3%A8me%2C_olives%2C_carottes_et_risotto_%C3%A0_La_Tablature_%28Lyon%2C_2019%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto_au_poulet.jpg",
     "ingredients": [
       "200 g de blanc de poulet coupés en fines lanières ;",
       "300 g de riz Arborio, Carnaroli ou Vialone Nano ;",
@@ -553,7 +564,8 @@
       "Disposer la préparation dans un plat de service et saupoudrer avec le persil haché."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20au%20poulet",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto_au_poulet.jpg"
   },
   {
     "title": "Risotto de saumon",
@@ -562,7 +574,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Seared_Salmon%2C_Risotto%2C_Curry_Sauce_-_La_Terrasse%2C_Rouen_2026-05-10.jpg/960px-Seared_Salmon%2C_Risotto%2C_Curry_Sauce_-_La_Terrasse%2C_Rouen_2026-05-10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto_de_saumon.jpg",
     "ingredients": [
       "600 g de chair de saumon",
       "400 g de riz rond",
@@ -582,7 +594,8 @@
       "Laisser reposer quelques minutes et servir"
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20de%20saumon",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto_de_saumon.jpg"
   },
   {
     "title": "Salade de macaronis",
@@ -591,7 +604,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Grandma%27s_Macaroni_Salad_-_50594162638.jpg/960px-Grandma%27s_Macaroni_Salad_-_50594162638.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/salade_de_macaronis.jpg",
     "ingredients": [
       "500 g de macaroni",
       "200 g de bacon",
@@ -611,7 +624,8 @@
       "Mélanger les ingrédients dans un saladier et laisser reposer au réfrigérateur pendant quelques heures."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Salade%20de%20macaronis",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/salade_de_macaronis.jpg"
   },
   {
     "title": "Sauce cinq P",
@@ -646,7 +660,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Minestrone.jpg/960px-Minestrone.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/soupe_minestrone.jpg",
     "ingredients": [
       "150 g de haricots blancs secs",
       "100 g de chou blanc",
@@ -671,7 +685,8 @@
       "Assaisonner et servir avec un pesto"
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Soupe%20minestrone",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/soupe_minestrone.jpg"
   },
   {
     "title": "Tiramisu",
@@ -680,7 +695,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Dolce_Tiramis%C3%B9_monoporzione.jpg/960px-Dolce_Tiramis%C3%B9_monoporzione.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tiramisu.jpg",
     "ingredients": [
       "3 œufs,",
       "500 g de mascarpone,",
@@ -701,7 +716,8 @@
       "Au moment de servir, saupoudrer de cacao."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tiramisu",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/tiramisu.jpg"
   },
   {
     "title": "Tomates mozzarella",
@@ -710,7 +726,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Tomate_mozzarella_2019.jpg/960px-Tomate_mozzarella_2019.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tomates_mozzarella.jpg",
     "ingredients": [
       "8 tomates grappe,",
       "250 g de mozzarella,",
@@ -726,7 +742,8 @@
       "Répandre du basilic découpé (avec des ciseaux) sur le tout."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tomates%20mozzarella",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/tomates_mozzarella.jpg"
   },
   {
     "title": "Vitello tonnato",
@@ -735,7 +752,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Vitello_tonnato_%286977537544%29.jpg/960px-Vitello_tonnato_%286977537544%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/vitello_tonnato.jpg",
     "ingredients": [
       "1 rôti de veau",
       "quelques feuilles de laurier, de sauge",
@@ -758,7 +775,8 @@
       "Aujourd'hui, la version plus basique, « plus bistro », et que l'on rencontre plus fréquemment (mais qui est tout aussi agréable), consiste en seulement napper la viande froide d'un mélange de mayonnaise et de thon à l'huile avec un jus de citron, sans oublier les câpres et de servir frais. Il est nécessaire de protéger par un film alimentaire pour que le plat ne se déssèche pas."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Vitello%20tonnato",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/vitello_tonnato.jpg"
   },
   {
     "title": "Pâtes à la carbonara",
@@ -767,7 +785,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Espaguetis_carbonara.jpg/960px-Espaguetis_carbonara.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/p_tes_la_carbonara.jpg",
     "ingredients": [
       "360 g de pâtes,",
       "200 g de guanciale,",
@@ -786,7 +804,8 @@
       "Hors du feu, ajouter le mélange d'œufs, pecorino et poivre, remuer et servir."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/P%C3%A2tes%20%C3%A0%20la%20carbonara",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/p_tes_la_carbonara.jpg"
   },
   {
     "title": "Pizza au tofu et aux champignons2",
@@ -795,7 +814,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_tofu_et_aux_champignons2.jpg",
     "ingredients": [
       "=== Pâte ===",
       "300 g de farine,",
@@ -831,7 +850,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Margherita_Originale.JPG/960px-Margherita_Originale.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_margherita.jpg",
     "ingredients": [
       "200ml d'eau,",
       "350g de farine,",
@@ -856,7 +875,8 @@
       "Faire cuire la pizza pendant 10 minutes en haut du four."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20Margherita",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_margherita.jpg"
   },
   {
     "title": "Cassata",
@@ -865,7 +885,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Cassata.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/cassata.jpg",
     "ingredients": [
       "50 g de pépites de chocolat noir,",
       "600 g de ricotta de brebis,",
@@ -894,7 +914,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Pasta_con_le_sarde_%28Palermo%29.jpg/960px-Pasta_con_le_sarde_%28Palermo%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pasta_con_le_sarde.jpg",
     "ingredients": [
       "500 g de sardines fraîches",
       "500 g de bucatini",
@@ -933,7 +953,8 @@
       "Laisser reposer quelques minutes avant de servir."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pasta%20con%20le%20sarde",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pasta_con_le_sarde.jpg"
   },
   {
     "title": "Pâte à pizza",
@@ -942,7 +963,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Pizza_%C3%A0_la_po%C3%AAle.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/p_te_pizza.jpg",
     "ingredients": [
       "300 g de farine (type 45 ou 55 de préférence),",
       "100 mL d'eau tiède (env. 35°C, c'est-à-dire ni chaud ni froid au toucher),",
@@ -1015,7 +1036,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Pr%C3%A9paration_d%27une_pizza_maison%2C_mars_2020_%28025%29.jpg/960px-Pr%C3%A9paration_d%27une_pizza_maison%2C_mars_2020_%28025%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_familiale.jpg",
     "ingredients": [
       "(pour quatre personnes)",
       "330 g de farine",
@@ -1049,7 +1070,8 @@
       "Mettre au four préchauffé pendant 15 min, thermostat 180 °C."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20familiale",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_familiale.jpg"
   },
   {
     "title": "Calzone",
@@ -1058,7 +1080,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Wikimania_2016_Deryck_day_0_-_07_calzone.jpg/960px-Wikimania_2016_Deryck_day_0_-_07_calzone.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/calzone.jpg",
     "ingredients": [
       "==== Pour la pâte ====",
       "320 grammes de farine blanche",
@@ -1081,7 +1103,8 @@
       "Mélanger tous les ingrédients de la pâte, l'étendre en lui donnant la forme d'un gros disque, et la laisser lever 30 minutes. Réchauffer 3 cuiller d'huile dans une casserole et y faire rissoler les oignons; mélanger ensemble les tomates taillées sur la longueur en petites tranches, les olives , les câpres, les filets d'anchois émincés, l'origan et le sel. laisser cuire 3 minutes, retirer la sauce du feu et y ajouter le fromage de brebis et la mozzarella. Etirer la pâte en cercle, y verser sur une moitié  la farce obtenue, refermer la pâte de façon à obtenir un demi cercle et en coller les bords avec une fourchette. Faire glisser le calzone sur une plaque enduite d'huile, et le faire cuire au four 30 minutes à 200°C. Servir aussitôt."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Calzone",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/calzone.jpg"
   },
   {
     "title": "Pizza à la pancetta",
@@ -1090,7 +1113,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Pizza_%C3%A0_la_pancetta.JPG/960px-Pizza_%C3%A0_la_pancetta.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_la_pancetta.jpg",
     "ingredients": [
       "1 pâte à pizza",
       "400 g de concassé de tomates",
@@ -1107,7 +1130,8 @@
       "Cuire 15 min au four à 200°C."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20%C3%A0%20la%20pancetta",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_la_pancetta.jpg"
   },
   {
     "title": "Pizza au chèvre et aux lardons",
@@ -1116,7 +1140,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_ch_vre_et_aux_lardons.jpg",
     "ingredients": [
       "1 pâte à pizza,",
       "1 bûche de fromage de chèvre,",
@@ -1137,7 +1161,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_fromage_gorgonzola.jpg",
     "ingredients": [
       "Pâte à pizza",
       "Gorgonzola",
@@ -1158,7 +1182,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Pizza_au_thon_preparation.JPG/960px-Pizza_au_thon_preparation.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_thon.jpg",
     "ingredients": [
       "1 pâte à pizza",
       "400 g de concassé de tomates",
@@ -1173,7 +1197,8 @@
       "Cuire au four 20 minutes."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20au%20thon",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_au_thon.jpg"
   },
   {
     "title": "Pizza au tofu et aux champignons",
@@ -1182,7 +1207,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_tofu_et_aux_champignons.jpg",
     "ingredients": [
       "Pâte",
       "300 g de farine",
@@ -1214,7 +1239,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Pizza_aux_moules.jpg/960px-Pizza_aux_moules.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_moules.jpg",
     "ingredients": [
       "1 pâte à pizza,",
       "1 kg de moules,",
@@ -1234,7 +1259,8 @@
       "Cuire à four chaud, 220°C pendant 15 à 20 minutes."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20moules",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_aux_moules.jpg"
   },
   {
     "title": "Pizza aux poivrons",
@@ -1243,7 +1269,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Pizza_aux_poivrons.JPG/960px-Pizza_aux_poivrons.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_poivrons.jpg",
     "ingredients": [
       "1 pâte à pizza,",
       "400 g de concassé de tomates,",
@@ -1262,7 +1288,8 @@
       "Cuire au four pendant un quart d'heure à 220°C. Au bout de dix minutes sortir la pizza pour y ajouter le chorizo."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20poivrons",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_aux_poivrons.jpg"
   },
   {
     "title": "Pizza aux poivrons 2",
@@ -1271,7 +1298,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Preparation_pizza_poivrons_2.JPG/960px-Preparation_pizza_poivrons_2.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_poivrons_2.jpg",
     "ingredients": [
       "250 g de pâte à pain",
       "3 petits poivrons multicolores émincés en lanières",
@@ -1285,7 +1312,8 @@
       "Cuire 20 min la pizza à 235°C."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20poivrons%202",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_aux_poivrons_2.jpg"
   },
   {
     "title": "Pizza aux poivrons et au pesto",
@@ -1294,7 +1322,7 @@
     "prepTimeMinutes": 20,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_poivrons_et_au_pesto.jpg",
     "ingredients": [
       "250 g de pâte à pain",
       "3 petits poivrons multicolores émincés en lanières",
@@ -1315,7 +1343,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Pizza_aux_quatre_fromages.jpg/960px-Pizza_aux_quatre_fromages.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_quatre_fromages.jpg",
     "ingredients": [
       "1 pâte à pizza",
       "1 dose de concassé de tomates",
@@ -1332,7 +1360,8 @@
       "Cuire au four 15 min à 210°C."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20quatre%20fromages",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_aux_quatre_fromages.jpg"
   },
   {
     "title": "Pizza campagnarde",
@@ -1341,7 +1370,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Pizza_campagnarde.jpg/960px-Pizza_campagnarde.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_campagnarde.jpg",
     "ingredients": [
       "1 pâte à pizza",
       "400 g de concassé de tomates",
@@ -1356,7 +1385,8 @@
       "Cuire au four à 210°C  10 à 15 min."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20campagnarde",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_campagnarde.jpg"
   },
   {
     "title": "Pizza végétalienne",

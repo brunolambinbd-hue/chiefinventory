@@ -21,6 +21,16 @@ import com.example.chiefinventory.ui.model.CategoryInfo
 class CategoryAdapter(private val isSoughtMode: Boolean, private val onItemClicked: (String) -> Unit) :
     ListAdapter<CategoryInfo, CategoryAdapter.CategoryViewHolder>(DiffCallback) {
 
+    object DiffCallback : DiffUtil.ItemCallback<CategoryInfo>() {
+        override fun areItemsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
+            return oldItem.name == newItem.name
+        }
+
+        override fun areContentsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
+            return oldItem == newItem
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val binding = ItemCollectionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return CategoryViewHolder(binding, isSoughtMode)
@@ -32,7 +42,7 @@ class CategoryAdapter(private val isSoughtMode: Boolean, private val onItemClick
         holder.bind(current)
     }
 
-    class CategoryViewHolder(private val binding: ItemCollectionBinding, private val isSoughtMode: Boolean) :
+    class CategoryViewHolder(internal val binding: ItemCollectionBinding, private val isSoughtMode: Boolean) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(categoryInfo: CategoryInfo) {
@@ -59,18 +69,6 @@ class CategoryAdapter(private val isSoughtMode: Boolean, private val onItemClick
             binding.itemDimensions.visibility = View.GONE
             binding.itemTirage.visibility = View.GONE
             binding.debugInfo.visibility = View.GONE
-        }
-    }
-
-    companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<CategoryInfo>() {
-            override fun areItemsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
-                return oldItem.name == newItem.name
-            }
-
-            override fun areContentsTheSame(oldItem: CategoryInfo, newItem: CategoryInfo): Boolean {
-                return oldItem == newItem
-            }
         }
     }
 }

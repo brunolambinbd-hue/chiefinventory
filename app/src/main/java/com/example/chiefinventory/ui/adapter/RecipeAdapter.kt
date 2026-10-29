@@ -21,7 +21,7 @@ class RecipeAdapter(private val onRecipeClick: (Recipe) -> Unit) :
         holder.bind(getItem(position))
     }
 
-    inner class RecipeViewHolder(private val binding: ItemRecipeBinding) :
+    inner class RecipeViewHolder(internal val binding: ItemRecipeBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(recipe: Recipe) {
@@ -32,8 +32,17 @@ class RecipeAdapter(private val onRecipeClick: (Recipe) -> Unit) :
             val kcalStr = recipe.kcalPerServing?.let { " | $it kcal" } ?: ""
             binding.tvRecipeInfo.text = "Prép: ${prep}min | Cuisson: ${cook}min$kcalStr"
 
-            val categoryStr = recipe.category?.takeIf { it.isNotBlank() } ?: ""
-            val nutritionStr = recipe.nutritionInfo?.takeIf { it.isNotBlank() } ?: ""
+            val categoryStr = if (!recipe.category.isNullOrBlank()) {
+                recipe.category
+            } else {
+                ""
+            }
+
+            val nutritionStr = if (!recipe.nutritionInfo.isNullOrBlank()) {
+                recipe.nutritionInfo
+            } else {
+                ""
+            }
             
             val displayCategory = when {
                 categoryStr.isNotBlank() && nutritionStr.isNotBlank() -> "$categoryStr | $nutritionStr"

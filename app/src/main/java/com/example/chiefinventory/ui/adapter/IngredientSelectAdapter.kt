@@ -28,7 +28,7 @@ class IngredientSelectAdapter(
         holder.bind(getItem(position))
     }
 
-    inner class ViewHolder(private val binding: ItemIngredientSelectBinding) :
+    inner class ViewHolder(internal val binding: ItemIngredientSelectBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: IngredientItem) {

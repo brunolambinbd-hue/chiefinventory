@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.chiefinventory.repo.CollectionRepository
 import com.example.chiefinventory.ui.model.SearchResultItem
 import com.example.imagecomparison.ImageEmbedderHelper
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
@@ -26,22 +27,26 @@ class InventoryViewModel(
     private val _similarItems = MutableLiveData<Pair<List<SearchResultItem>, Uri>>()
     val similarItems: LiveData<Pair<List<SearchResultItem>, Uri>> = _similarItems
 
-    private val imageEmbedderHelper: ImageEmbedderHelper = ImageEmbedderHelper(context = application, listener = null)
+    private var _imageEmbedderHelper: ImageEmbedderHelper? = null
+    private fun getImageEmbedderHelper(): ImageEmbedderHelper {
+        if (_imageEmbedderHelper == null) {
+            _imageEmbedderHelper = ImageEmbedderHelper(getApplication(), null)
+        }
+        return _imageEmbedderHelper!!
+    }
 
     /**
      * Takes a bitmap, computes its signature, and finds the top 3 most similar items.
      * @param bitmap The image of the item to find.
      * @param imageUri The URI of the scanned image, to pass it forward.
      */
-    fun findSimilarItems(bitmap: Bitmap, imageUri: Uri) {
-        viewModelScope.launch {
-            val queryEmbedding = imageEmbedderHelper.computeSignature(bitmap)?.floatEmbedding()
-            if (queryEmbedding != null) {
-                val results = repository.findMostSimilarItems(queryEmbedding)
-                _similarItems.postValue(Pair(results, imageUri))
-            } else {
-                _similarItems.postValue(Pair(emptyList(), imageUri)) // Post empty if signature calculation fails
-            }
+    fun findSimilarItems(bitmap: Bitmap, imageUri: Uri): Job = viewModelScope.launch {
+        val queryEmbedding = getImageEmbedderHelper().computeSignature(bitmap)?.floatEmbedding()
+        if (queryEmbedding != null) {
+            val results = repository.findMostSimilarItems(queryEmbedding)
+            _similarItems.postValue(Pair(results, imageUri))
+        } else {
+            _similarItems.postValue(Pair(emptyList(), imageUri)) // Post empty if signature calculation fails
         }
     }
 
@@ -50,18 +55,16 @@ class InventoryViewModel(
      * @param itemId The ID of the item to update.
      * @param locationId The new location ID for the item.
      */
-    fun updateItemLocationAndStatus(itemId: Long, locationId: Long) {
-        viewModelScope.launch {
+    fun updateItemLocationAndStatus(itemId: Long, locationId: Long): Job = viewModelScope.launch {
             val item = repository.getItemById(itemId)
             if (item != null) {
                 val updatedItem = item.copy(locationId = locationId, isPossessed = true)
                 repository.update(updatedItem)
             }
         }
-    }
 
     override fun onCleared() {
         super.onCleared()
-        imageEmbedderHelper.clearImageEmbedder()
+        _imageEmbedderHelper?.clearImageEmbedder()
     }
 }

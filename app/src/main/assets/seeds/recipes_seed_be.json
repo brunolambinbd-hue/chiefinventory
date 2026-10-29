@@ -6,7 +6,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/Lunch_Garden_witloof_hamrolletjes.jpg/960px-Lunch_Garden_witloof_hamrolletjes.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/chicons_au_gratin.jpg",
     "ingredients": [
       "6 gros endives",
       "3 belles tranches de jambon",
@@ -21,7 +21,8 @@
       "Pour une version plus légère, on peut remplacer la sauce blanche par un peu de crème fraîche épaisse."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Chicons%20au%20gratin",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/chicons_au_gratin.jpg"
   },
   {
     "title": "Cougnou",
@@ -30,7 +31,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Queniole.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/cougnou.jpg",
     "ingredients": [
       "Les ingrédients indispensables pour un grand cougnou sont les suivants :",
       "250 g de farine,",
@@ -69,7 +70,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Ingr%C3%A9dients_glace_speculoos.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/glace_aux_speculoos.jpg",
     "ingredients": [
       "200 g de spéculoos,",
       "4 jaunes d'œufs,",
@@ -100,7 +101,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Ingr%C3%A9dients_glace_speculoos.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/glace_aux_sp_culoos.jpg",
     "ingredients": [
       "Variante A :",
       "1 litre de lait",
@@ -147,7 +148,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Beer_cheese_soup.jpg/960px-Beer_cheese_soup.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/biersupp.jpg",
     "ingredients": [
       "1 oignon",
       "40g de beurre",
@@ -162,7 +163,8 @@
       "C'est un plat simple, campagnard, qu'on peut accommoder de crème, de lard fumé ou de saucisses de Strasbourg."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Biersupp",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/biersupp.jpg"
   },
   {
     "title": "Carbonade flamande",
@@ -171,7 +173,7 @@
     "prepTimeMinutes": 15,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Jielbeaumadier_carbonade_flamande_2010.jpg/960px-Jielbeaumadier_carbonade_flamande_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/carbonade_flamande.jpg",
     "ingredients": [
       "1 kg de bœuf (typiquement de la joue ou du paleron) ou de porc à braiser,",
       "3 oignons,",
@@ -196,7 +198,8 @@
       "Il est plus traditionnel d'accompagner la carbonade d'une bonne bière belge ; la sauce peut être servie sur des tranches de pain d'épice."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Carbonade%20flamande",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/carbonade_flamande.jpg"
   },
   {
     "title": "Carbonnade flamande",
@@ -205,7 +208,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Jielbeaumadier_carbonade_flamande_2010.jpg/960px-Jielbeaumadier_carbonade_flamande_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/carbonnade_flamande.jpg",
     "ingredients": [
       "2 kg de macreuse de bœuf,",
       "500 g d’oignons,",
@@ -224,7 +227,8 @@
       "Cuire 2 heures, rectifier l’assaisonnement."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Carbonnade%20flamande",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/carbonnade_flamande.jpg"
   },
   {
     "title": "Carbonnade flamande (2)",
@@ -233,7 +237,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Carbonnade_flamande_accompagn%C3%A9e_de_stoemp.jpg/960px-Carbonnade_flamande_accompagn%C3%A9e_de_stoemp.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/carbonnade_flamande_2.jpg",
     "ingredients": [
       "1 kg de bœuf à braiser,",
       "3 oignons,",
@@ -258,7 +262,8 @@
       "pour plus de saveur ne pas hésiter à remplacer le sucre roux par 2 bonnes tranches de pain d'épice et en accompagnement, des chicons (endives pour les non nordistes) braisés sur un lit de lardons légèrement mouillés d'un fond de jurançon."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Carbonnade%20flamande%20%282%29",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/carbonnade_flamande_2.jpg"
   },
   {
     "title": "Gosettes aux pommes",
@@ -267,7 +272,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/gosettes_aux_pommes.jpg",
     "ingredients": [
       "400 g de pâte levée (recette de base)",
       "farine pour le plan de travail",
@@ -337,7 +342,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Journal_des_Dames_et_des_Modes%2C_Costume_Parisien%2C_6_novembre_1802%2C_An_11%2C_%28424%29_Coeffure_orn%C3%A9e_d%27une_Fl%C3%A8ch_%28..%29%2C_RP-P-2009-2345.jpg/960px-Journal_des_Dames_et_des_Modes%2C_Costume_Parisien%2C_6_novembre_1802%2C_An_11%2C_%28424%29_Coeffure_orn%C3%A9e_d%27une_Fl%C3%A8ch_%28..%29%2C_RP-P-2009-2345.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/palet_de_dame.jpg",
     "ingredients": [
       "60 g de beurre ramolli",
       "60 g de sucre",
@@ -360,7 +365,8 @@
       "Napper les palets, et laisser refroidir jusqu'à solidification du glaçage."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Palet%20de%20dame",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/palet_de_dame.jpg"
   },
   {
     "title": "Pâté d'oie",
@@ -369,7 +375,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/P%C3%A2t%C3%A9_d%27oie_et_de_truffe_noire_en_croute.jpg/960px-P%C3%A2t%C3%A9_d%27oie_et_de_truffe_noire_en_croute.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/p_t_d_oie.jpg",
     "ingredients": [
       "une jeune oie",
       "250 g de hachis de porc",
@@ -403,7 +409,8 @@
       "Servez en entrée avec une salade mixte et un verre de saint-feuillien blonde."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/P%C3%A2t%C3%A9%20d%27oie",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/p_t_d_oie.jpg"
   },
   {
     "title": "Potjevleesch2",
@@ -446,7 +453,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Sauce_%C2%AB_entre_Sambre_et_Meuse_%C2%BB.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/sauce_entre_sambre_et_meuse.jpg",
     "ingredients": [
       "1 échalote",
       "1/2 blanc de poireaux",
@@ -471,7 +478,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Tarte_masteilles.JPG/960px-Tarte_masteilles.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_masteilles.jpg",
     "ingredients": [
       "La « tarte à masteilles » ou « tarte Gouyasse » est une préparation typique de la Ducasse d'Ath, en Belgique. L’origine de cette tarte se perd dans les brumes de l’histoire. L’existence d’une tarte d’Ath est attestée en 1529. En 1810, c’est la première mention d’une tarte Goliath. Chaque famille a sa recette, ses proportions d'ingrédients. Le moment privilégié pour la dégustation de la tarte à masteilles est, sans conteste, les instants qui suivent le combat entre David et Goliath. Le « vrai » Athois n'en mangera que jusqu'au « 8 de septembre » et attendra la prochaine ducasse pour la déguster à nouveau. Une recette parmi d'autres, sachant que la tradition veut que cette recette ne se transmette que de mère en fille ... ce qui se perd un peu:",
       "4 grandes masteilles ou 7 petites (la masteille est un petit pain sec, arrondi, plat et croquant)",
@@ -508,7 +515,8 @@
       "¾ d'heure à température moyenne."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tarte%20%C3%A0%20masteilles",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/tarte_masteilles.jpg"
   },
   {
     "title": "Tarte au riz",
@@ -517,7 +525,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 28,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Tarte_au_riz.jpg/960px-Tarte_au_riz.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_au_riz.jpg",
     "ingredients": [
       "Cette tarte est une spécialité belge provenant de la région de Verviers en province de Liège, mais aussi en Limbourg belge et néerlandais.",
       "Depuis des générations des petites tartes au riz de ce genre, font partie de l'approvisionnement journalier de cyclistes du tour de France.",
@@ -573,7 +581,8 @@
       "Au moment de la présentation, saupoudrer de sucre impalpable."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tarte%20au%20riz",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/tarte_au_riz.jpg"
   },
   {
     "title": "Tourteline",
@@ -603,7 +612,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/%28waterzooi%29_%2879743868%29.jpg/960px-%28waterzooi%29_%2879743868%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/waterzoo.jpg",
     "ingredients": [
       "Soupe verte ou au cerfeuil.",
       "2 poireaux",
@@ -634,6 +643,7 @@
       "(ce plat peut être préparé à l'avance et réchauffé avant de servir, pensez seulement à y inclure le mélange œuf crème fraîche juste avant de servir)"
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Waterzoo%C3%AF",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/waterzoo.jpg"
   }
 ]

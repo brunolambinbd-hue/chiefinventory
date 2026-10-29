@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Symboles & Émojis de Statut (Non-traduisibles) -->
+    <string name="icon_status_out_of_stock" translatable="false">🚨</string>
+    <string name="icon_status_low_stock" translatable="false">⚠️</string>
+    <string name="icon_status_healthy_stock" translatable="false">🎯</string>
+
+    <!-- Symboles d'Emplacements & Ingrédients -->
+    <string name="icon_location_frigo" translatable="false">❄️</string>
+    <string name="icon_location_placard" translatable="false">🧺</string>
+    <string name="icon_location_freezer" translatable="false">🧊</string>
+    <string name="icon_location_cave" translatable="false">🍷</string>
+    <string name="icon_location_default" translatable="false">📍</string>
+    <string name="icon_refresh" translatable="false">🔄</string>
+</resources>

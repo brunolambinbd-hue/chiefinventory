@@ -28,7 +28,7 @@ class CollectionAdapter(private val onItemClicked: (SearchResultItem) -> Unit) :
         holder.bind(current, position)
     }
 
-    class ItemViewHolder(private val binding: ItemSearchResultBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ItemViewHolder(internal val binding: ItemSearchResultBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(searchResult: SearchResultItem, position: Int) {
             val item = searchResult.item
             val context = binding.root.context

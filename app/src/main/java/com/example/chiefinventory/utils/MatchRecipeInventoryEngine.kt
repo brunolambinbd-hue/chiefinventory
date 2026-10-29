@@ -32,7 +32,14 @@ public data class RecipeMatchResult(
 public object MatchRecipeInventoryEngine {
 
     private val unitPrefixPattern: Regex by lazy {
-        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val vocab = try {
+            OcrVocabularyLoader.loadFromProjectResources()
+        } catch (_: Exception) {
+            null
+        }
+        val loadedUnits = vocab?.culinaryMeasurementUnits ?: emptyList()
+        val loadedConnectors = vocab?.ingredientConnectors ?: emptyList()
+
         val extraWords = listOf(
             "c. à soupe", "c. à café", "c à soupe", "c à café", "cuillère", "cuillere",
             "g", "kg", "cl", "ml", "l", "sachet", "sachets", "pot", "pots", "bocal", "bocaux",
@@ -40,7 +47,7 @@ public object MatchRecipeInventoryEngine {
             "paquet", "paquets", "flacon", "flacons", "botte", "bottes", "bouteille", "bouteilles",
             "de", "du", "des", "d'", "au", "aux", "à", "a", "en", "pour"
         )
-        val allWords = (vocab.culinaryMeasurementUnits + vocab.ingredientConnectors + extraWords)
+        val allWords = (loadedUnits + loadedConnectors + extraWords)
             .distinct()
             .filter { it.isNotBlank() }
             .sortedByDescending { it.length }

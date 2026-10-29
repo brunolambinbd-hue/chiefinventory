@@ -15,11 +15,16 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @ExperimentalCoroutinesApi
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class EditItemViewModelTest {
 
     @get:Rule
@@ -37,11 +42,17 @@ class EditItemViewModelTest {
     fun setup() {
         collectionRepository = mock()
         locationRepository = mock()
-        application = mock()
+        application = androidx.test.core.app.ApplicationProvider.getApplicationContext()
 
         whenever(locationRepository.getAll()).thenReturn(MutableLiveData(emptyList()))
 
         viewModel = EditItemViewModel(application, collectionRepository, locationRepository)
+    }
+
+    @Test
+    fun `determineSaveOperation should return INSERT for id 0 and UPDATE for non-zero id`() {
+        assertThat(EditItemViewModel.determineSaveOperation(0L)).isEqualTo(com.example.chiefinventory.ui.viewmodel.SaveOperation.INSERT)
+        assertThat(EditItemViewModel.determineSaveOperation(50L)).isEqualTo(com.example.chiefinventory.ui.viewmodel.SaveOperation.UPDATE)
     }
 
     @Test
@@ -78,6 +89,40 @@ class EditItemViewModelTest {
         viewModel.update(updatedItem)
 
         verify(collectionRepository).update(updatedItem)
+    }
+
+    @Test
+    fun `saveItem should insert if id is 0 and update if id is non-zero`() = runTest {
+        val newItem = createTestItem(id = 0L, titre = "Nouveau")
+        viewModel.saveItem(newItem).join()
+        verify(collectionRepository).insert(newItem)
+
+        val existingItem = createTestItem(id = 100L, titre = "Ancien")
+        viewModel.saveItem(existingItem).join()
+        verify(collectionRepository).update(existingItem)
+    }
+
+    @Test
+    fun `setImageUri and displayLocations should update imageUri and hierarchy`() {
+        val uri = android.net.Uri.parse("file:///tmp/item.jpg")
+        viewModel.setImageUri(uri)
+        assertThat(viewModel.imageUri.value).isEqualTo(uri)
+
+        val loc1 = com.example.chiefinventory.model.Location(id = 1L, name = "Salon", parentId = null)
+        val loc2 = com.example.chiefinventory.model.Location(id = 2L, name = "Vitrine", parentId = 1L)
+        val locsLiveData = MutableLiveData<List<com.example.chiefinventory.model.Location>>(listOf(loc1, loc2))
+        whenever(locationRepository.getAll()).thenReturn(locsLiveData)
+
+        val vm = EditItemViewModel(application, collectionRepository, locationRepository)
+        val observer = Observer<List<com.example.chiefinventory.ui.model.DisplayLocation>> { }
+        vm.displayLocations.observeForever(observer)
+
+        val list = vm.displayLocations.value ?: emptyList()
+        assertThat(list).hasSize(2)
+        assertThat(list[0].depth).isEqualTo(0)
+        assertThat(list[1].depth).isEqualTo(1)
+
+        vm.displayLocations.removeObserver(observer)
     }
 
     private fun createTestItem(id: Long = 0, titre: String): CollectionItem {

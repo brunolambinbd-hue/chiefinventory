@@ -63,7 +63,7 @@ class LocationAdapter(
     }
 
     companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<DisplayLocation>() {
+        val DiffCallback = object : DiffUtil.ItemCallback<DisplayLocation>() {
             override fun areItemsTheSame(oldItem: DisplayLocation, newItem: DisplayLocation):
                     Boolean = oldItem.location.id == newItem.location.id
 

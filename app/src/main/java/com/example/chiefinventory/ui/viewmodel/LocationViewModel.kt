@@ -49,33 +49,15 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
     }
 
     fun toggleExpansion(locationId: Long) {
-        val currentExpanded = _expandedStates.value ?: emptySet()
-        _expandedStates.value = if (locationId in currentExpanded) {
-            currentExpanded - locationId
-        } else {
-            currentExpanded + locationId
-        }
+        val currentExpanded = _expandedStates.value
+        _expandedStates.value = toggleLocationExpandedState(currentExpanded, locationId)
     }
 
     fun expandAll() {
-        displayLocations.value?.let { all ->
-            _expandedStates.value = all.mapNotNull { it.location.parentId }.toSet()
+        val all = displayLocations.value
+        if (all != null) {
+            _expandedStates.value = extractParentIds(all)
         }
-    }
-
-    private fun buildDisplayList(locations: List<Location>): List<DisplayLocation> {
-        val displayList = mutableListOf<DisplayLocation>()
-        val locationsByParent = locations.groupBy { it.parentId }
-
-        fun addChildren(parentId: Long?, depth: Int) {
-            locationsByParent[parentId]?.sortedBy { it.name }?.forEach { location ->
-                displayList.add(DisplayLocation(location, depth))
-                addChildren(location.id, depth + 1)
-            }
-        }
-
-        addChildren(null, 0)
-        return displayList
     }
 
     fun insert(name: String, parentId: Long?): Job = viewModelScope.launch {
@@ -92,5 +74,45 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
 
     fun updateLocationParent(locationId: Long, newParentId: Long?): Job = viewModelScope.launch {
         repository.updateLocationParent(locationId, newParentId)
+    }
+
+    companion object {
+        fun toggleLocationExpandedState(currentExpanded: Set<Long>?, locationId: Long): Set<Long> {
+            val set = if (currentExpanded != null) {
+                currentExpanded
+            } else {
+                emptySet()
+            }
+
+            if (locationId in set) {
+                return set - locationId
+            } else {
+                return set + locationId
+            }
+        }
+
+        fun extractParentIds(displayLocations: List<DisplayLocation>): Set<Long> {
+            return displayLocations.mapNotNull { displayLocation ->
+                displayLocation.location.parentId
+            }.toSet()
+        }
+
+        fun buildDisplayList(locations: List<Location>): List<DisplayLocation> {
+            val displayList = mutableListOf<DisplayLocation>()
+            val locationsByParent = locations.groupBy { it.parentId }
+
+            fun addChildren(parentId: Long?, depth: Int) {
+                val children = locationsByParent[parentId]
+                if (children != null) {
+                    children.sortedBy { it.name }.forEach { location ->
+                        displayList.add(DisplayLocation(location, depth))
+                        addChildren(location.id, depth + 1)
+                    }
+                }
+            }
+
+            addChildren(null, 0)
+            return displayList
+        }
     }
 }

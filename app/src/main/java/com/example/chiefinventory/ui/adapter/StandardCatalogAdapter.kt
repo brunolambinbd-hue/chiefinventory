@@ -3,6 +3,7 @@ package com.example.chiefinventory.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -24,6 +25,19 @@ data class SelectedCatalogEntry(
     var currentQuantity: Double = item.defaultQuantity
 )
 
+enum class CatalogStockState {
+    OUT_OF_STOCK,
+    LOW_STOCK,
+    HEALTHY_STOCK
+}
+
+private data class CatalogChipStyle(
+    @ColorRes val bgColorRes: Int,
+    @ColorRes val strokeColorRes: Int,
+    @ColorRes val textColorRes: Int,
+    val stepperVisibility: Int
+)
+
 /**
  * Adaptateur de grille du catalogue du garde-manger avec affichage à 3 couleurs.
  *
@@ -33,6 +47,11 @@ class StandardCatalogAdapter(
     private val onSelectionChanged: (Int) -> Unit,
     private val onEditIngredientClicked: ((StandardCatalogItem) -> Unit)? = null
 ) : ListAdapter<SelectedCatalogEntry, StandardCatalogAdapter.ViewHolder>(DiffCallback) {
+
+    object DiffCallback : DiffUtil.ItemCallback<SelectedCatalogEntry>() {
+        override fun areItemsTheSame(oldItem: SelectedCatalogEntry, newItem: SelectedCatalogEntry) = oldItem.item.name == newItem.item.name
+        override fun areContentsTheSame(oldItem: SelectedCatalogEntry, newItem: SelectedCatalogEntry) = oldItem == newItem
+    }
 
     class ViewHolder(val binding: ItemCatalogChipBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -44,51 +63,53 @@ class StandardCatalogAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val entry = getItem(position)
         val binding = holder.binding
+        val context = binding.root.context
 
         binding.tvIngredientName.text = entry.item.name
         binding.tvCategoryLocation.text = "${entry.item.category} • ${entry.item.defaultLocationName}"
 
         val effectiveThreshold = entry.item.minThreshold
-        val isOutOfStock = !entry.isSelected || entry.currentQuantity <= 0.0
-        val isLowStock = entry.isSelected && entry.currentQuantity <= effectiveThreshold && entry.currentQuantity > 0.0
+        val stockState = determineStockState(entry.isSelected, entry.currentQuantity, effectiveThreshold)
 
-        if (isOutOfStock) {
-            // 🔴 En Rupture : Fond Rose Pastel, Texte Rouge Bordeaux Foncé
-            binding.cardChip.setCardBackgroundColor(android.graphics.Color.parseColor("#FFEBEE"))
-            binding.cardChip.strokeColor = android.graphics.Color.parseColor("#EF5350")
-            binding.tvIngredientName.setTextColor(android.graphics.Color.parseColor("#B71C1C"))
-            binding.tvCategoryLocation.setTextColor(android.graphics.Color.parseColor("#C62828"))
-            binding.tvQuantity.setTextColor(android.graphics.Color.parseColor("#B71C1C"))
-            binding.btnDecrement.setColorFilter(android.graphics.Color.parseColor("#B71C1C"))
-            binding.btnIncrement.setColorFilter(android.graphics.Color.parseColor("#B71C1C"))
-            binding.btnEditIngredient.setColorFilter(android.graphics.Color.parseColor("#B71C1C"))
-            binding.layoutQuantityStepper.visibility = View.GONE
-        } else if (isLowStock) {
-            // 🟡 Stock Faible (Alerte) : Fond Jaune Pastel, Texte Ambre Sombre
-            binding.cardChip.setCardBackgroundColor(android.graphics.Color.parseColor("#FFF8E1"))
-            binding.cardChip.strokeColor = android.graphics.Color.parseColor("#FFA000")
-            binding.tvIngredientName.setTextColor(android.graphics.Color.parseColor("#E65100"))
-            binding.tvCategoryLocation.setTextColor(android.graphics.Color.parseColor("#F57C00"))
-            binding.tvQuantity.setTextColor(android.graphics.Color.parseColor("#E65100"))
-            binding.btnDecrement.setColorFilter(android.graphics.Color.parseColor("#E65100"))
-            binding.btnIncrement.setColorFilter(android.graphics.Color.parseColor("#E65100"))
-            binding.btnEditIngredient.setColorFilter(android.graphics.Color.parseColor("#E65100"))
-            binding.layoutQuantityStepper.visibility = View.VISIBLE
-        } else {
-            // 🟢 Stock Sain : Fond Bleu Pastel, Texte Bleu Marine Foncé
-            binding.cardChip.setCardBackgroundColor(android.graphics.Color.parseColor("#E3F2FD"))
-            binding.cardChip.strokeColor = android.graphics.Color.parseColor("#1976D2")
-            binding.tvIngredientName.setTextColor(android.graphics.Color.parseColor("#0D47A1"))
-            binding.tvCategoryLocation.setTextColor(android.graphics.Color.parseColor("#1565C0"))
-            binding.tvQuantity.setTextColor(android.graphics.Color.parseColor("#0D47A1"))
-            binding.btnDecrement.setColorFilter(android.graphics.Color.parseColor("#0D47A1"))
-            binding.btnIncrement.setColorFilter(android.graphics.Color.parseColor("#0D47A1"))
-            binding.btnEditIngredient.setColorFilter(android.graphics.Color.parseColor("#0D47A1"))
-            binding.layoutQuantityStepper.visibility = View.VISIBLE
+        val style = when (stockState) {
+            CatalogStockState.OUT_OF_STOCK -> CatalogChipStyle(
+                bgColorRes = R.color.stock_out_of_stock_bg,
+                strokeColorRes = R.color.stock_out_of_stock_stroke,
+                textColorRes = R.color.stock_out_of_stock_text,
+                stepperVisibility = View.GONE
+            )
+            CatalogStockState.LOW_STOCK -> CatalogChipStyle(
+                bgColorRes = R.color.stock_low_bg,
+                strokeColorRes = R.color.stock_low_stroke,
+                textColorRes = R.color.stock_low_text,
+                stepperVisibility = View.VISIBLE
+            )
+            CatalogStockState.HEALTHY_STOCK -> CatalogChipStyle(
+                bgColorRes = R.color.stock_healthy_bg,
+                strokeColorRes = R.color.stock_healthy_stroke,
+                textColorRes = R.color.stock_healthy_text,
+                stepperVisibility = View.VISIBLE
+            )
         }
 
-        val formattedQty = if (entry.currentQuantity % 1.0 == 0.0) entry.currentQuantity.toInt().toString() else entry.currentQuantity.toString()
-        val unitStr = entry.item.defaultUnit?.let { " $it" } ?: ""
+        val textColor = ContextCompat.getColor(context, style.textColorRes)
+        binding.cardChip.setCardBackgroundColor(ContextCompat.getColor(context, style.bgColorRes))
+        binding.cardChip.strokeColor = ContextCompat.getColor(context, style.strokeColorRes)
+        binding.tvIngredientName.setTextColor(textColor)
+        binding.tvCategoryLocation.setTextColor(textColor)
+        binding.tvQuantity.setTextColor(textColor)
+        binding.btnDecrement.setColorFilter(textColor)
+        binding.btnIncrement.setColorFilter(textColor)
+        binding.btnEditIngredient.setColorFilter(textColor)
+        binding.layoutQuantityStepper.visibility = style.stepperVisibility
+
+        val formattedQty = IngredientAdapter.formatDoubleValue(entry.currentQuantity)
+        val defaultUnit = entry.item.defaultUnit
+        val unitStr = if (!defaultUnit.isNullOrBlank()) {
+            " $defaultUnit"
+        } else {
+            ""
+        }
         binding.tvQuantity.text = "$formattedQty$unitStr"
 
         binding.cardChip.setOnClickListener {
@@ -97,8 +118,12 @@ class StandardCatalogAdapter(
             onSelectionChanged(getSelectionCount())
         }
 
-        binding.btnEditIngredient.setOnClickListener {
-            onEditIngredientClicked?.invoke(entry.item)
+        if (onEditIngredientClicked != null) {
+            binding.btnEditIngredient.setOnClickListener {
+                onEditIngredientClicked.invoke(entry.item)
+            }
+        } else {
+            binding.btnEditIngredient.setOnClickListener(null)
         }
 
         binding.btnIncrement.setOnClickListener {
@@ -125,8 +150,15 @@ class StandardCatalogAdapter(
         return currentList.filter { it.isSelected }
     }
 
-    object DiffCallback : DiffUtil.ItemCallback<SelectedCatalogEntry>() {
-        override fun areItemsTheSame(oldItem: SelectedCatalogEntry, newItem: SelectedCatalogEntry) = oldItem.item.name == newItem.item.name
-        override fun areContentsTheSame(oldItem: SelectedCatalogEntry, newItem: SelectedCatalogEntry) = oldItem == newItem
+    companion object {
+        fun determineStockState(isSelected: Boolean, currentQuantity: Double, threshold: Double): CatalogStockState {
+            if (!isSelected || currentQuantity <= 0.0) {
+                return CatalogStockState.OUT_OF_STOCK
+            } else if (currentQuantity <= threshold) {
+                return CatalogStockState.LOW_STOCK
+            } else {
+                return CatalogStockState.HEALTHY_STOCK
+            }
+        }
     }
 }

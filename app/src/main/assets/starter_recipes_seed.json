@@ -6,7 +6,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/Lunch_Garden_witloof_hamrolletjes.jpg/960px-Lunch_Garden_witloof_hamrolletjes.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/chicons_au_gratin.jpg",
     "ingredients": [
       "6 gros endives",
       "3 belles tranches de jambon",
@@ -21,7 +21,8 @@
       "Pour une version plus légère, on peut remplacer la sauce blanche par un peu de crème fraîche épaisse."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Chicons%20au%20gratin",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/chicons_au_gratin.jpg"
   },
   {
     "title": "Cougnou",
@@ -30,7 +31,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Queniole.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/cougnou.jpg",
     "ingredients": [
       "Les ingrédients indispensables pour un grand cougnou sont les suivants :",
       "250 g de farine,",
@@ -69,7 +70,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Ingr%C3%A9dients_glace_speculoos.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/glace_aux_speculoos.jpg",
     "ingredients": [
       "200 g de spéculoos,",
       "4 jaunes d'œufs,",
@@ -100,7 +101,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Ingr%C3%A9dients_glace_speculoos.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/glace_aux_sp_culoos.jpg",
     "ingredients": [
       "Variante A :",
       "1 litre de lait",
@@ -147,7 +148,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Beer_cheese_soup.jpg/960px-Beer_cheese_soup.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/biersupp.jpg",
     "ingredients": [
       "1 oignon",
       "40g de beurre",
@@ -162,7 +163,8 @@
       "C'est un plat simple, campagnard, qu'on peut accommoder de crème, de lard fumé ou de saucisses de Strasbourg."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Biersupp",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/biersupp.jpg"
   },
   {
     "title": "Carbonade flamande",
@@ -171,7 +173,7 @@
     "prepTimeMinutes": 15,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Jielbeaumadier_carbonade_flamande_2010.jpg/960px-Jielbeaumadier_carbonade_flamande_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/carbonade_flamande.jpg",
     "ingredients": [
       "1 kg de bœuf (typiquement de la joue ou du paleron) ou de porc à braiser,",
       "3 oignons,",
@@ -196,7 +198,8 @@
       "Il est plus traditionnel d'accompagner la carbonade d'une bonne bière belge ; la sauce peut être servie sur des tranches de pain d'épice."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Carbonade%20flamande",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/carbonade_flamande.jpg"
   },
   {
     "title": "Carbonnade flamande",
@@ -205,7 +208,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Jielbeaumadier_carbonade_flamande_2010.jpg/960px-Jielbeaumadier_carbonade_flamande_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/carbonnade_flamande.jpg",
     "ingredients": [
       "2 kg de macreuse de bœuf,",
       "500 g d’oignons,",
@@ -224,7 +227,8 @@
       "Cuire 2 heures, rectifier l’assaisonnement."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Carbonnade%20flamande",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/carbonnade_flamande.jpg"
   },
   {
     "title": "Carbonnade flamande (2)",
@@ -233,7 +237,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Carbonnade_flamande_accompagn%C3%A9e_de_stoemp.jpg/960px-Carbonnade_flamande_accompagn%C3%A9e_de_stoemp.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/carbonnade_flamande_2.jpg",
     "ingredients": [
       "1 kg de bœuf à braiser,",
       "3 oignons,",
@@ -258,7 +262,8 @@
       "pour plus de saveur ne pas hésiter à remplacer le sucre roux par 2 bonnes tranches de pain d'épice et en accompagnement, des chicons (endives pour les non nordistes) braisés sur un lit de lardons légèrement mouillés d'un fond de jurançon."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Carbonnade%20flamande%20%282%29",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/carbonnade_flamande_2.jpg"
   },
   {
     "title": "Gosettes aux pommes",
@@ -267,7 +272,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/gosettes_aux_pommes.jpg",
     "ingredients": [
       "400 g de pâte levée (recette de base)",
       "farine pour le plan de travail",
@@ -337,7 +342,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Journal_des_Dames_et_des_Modes%2C_Costume_Parisien%2C_6_novembre_1802%2C_An_11%2C_%28424%29_Coeffure_orn%C3%A9e_d%27une_Fl%C3%A8ch_%28..%29%2C_RP-P-2009-2345.jpg/960px-Journal_des_Dames_et_des_Modes%2C_Costume_Parisien%2C_6_novembre_1802%2C_An_11%2C_%28424%29_Coeffure_orn%C3%A9e_d%27une_Fl%C3%A8ch_%28..%29%2C_RP-P-2009-2345.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/palet_de_dame.jpg",
     "ingredients": [
       "60 g de beurre ramolli",
       "60 g de sucre",
@@ -360,7 +365,8 @@
       "Napper les palets, et laisser refroidir jusqu'à solidification du glaçage."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Palet%20de%20dame",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/palet_de_dame.jpg"
   },
   {
     "title": "Pâté d'oie",
@@ -369,7 +375,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/P%C3%A2t%C3%A9_d%27oie_et_de_truffe_noire_en_croute.jpg/960px-P%C3%A2t%C3%A9_d%27oie_et_de_truffe_noire_en_croute.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/p_t_d_oie.jpg",
     "ingredients": [
       "une jeune oie",
       "250 g de hachis de porc",
@@ -403,7 +409,8 @@
       "Servez en entrée avec une salade mixte et un verre de saint-feuillien blonde."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/P%C3%A2t%C3%A9%20d%27oie",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/p_t_d_oie.jpg"
   },
   {
     "title": "Potjevleesch2",
@@ -446,7 +453,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Sauce_%C2%AB_entre_Sambre_et_Meuse_%C2%BB.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/sauce_entre_sambre_et_meuse.jpg",
     "ingredients": [
       "1 échalote",
       "1/2 blanc de poireaux",
@@ -471,7 +478,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Tarte_masteilles.JPG/960px-Tarte_masteilles.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_masteilles.jpg",
     "ingredients": [
       "La « tarte à masteilles » ou « tarte Gouyasse » est une préparation typique de la Ducasse d'Ath, en Belgique. L’origine de cette tarte se perd dans les brumes de l’histoire. L’existence d’une tarte d’Ath est attestée en 1529. En 1810, c’est la première mention d’une tarte Goliath. Chaque famille a sa recette, ses proportions d'ingrédients. Le moment privilégié pour la dégustation de la tarte à masteilles est, sans conteste, les instants qui suivent le combat entre David et Goliath. Le « vrai » Athois n'en mangera que jusqu'au « 8 de septembre » et attendra la prochaine ducasse pour la déguster à nouveau. Une recette parmi d'autres, sachant que la tradition veut que cette recette ne se transmette que de mère en fille ... ce qui se perd un peu:",
       "4 grandes masteilles ou 7 petites (la masteille est un petit pain sec, arrondi, plat et croquant)",
@@ -508,7 +515,8 @@
       "¾ d'heure à température moyenne."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tarte%20%C3%A0%20masteilles",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/tarte_masteilles.jpg"
   },
   {
     "title": "Tarte au riz",
@@ -517,7 +525,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 28,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Tarte_au_riz.jpg/960px-Tarte_au_riz.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_au_riz.jpg",
     "ingredients": [
       "Cette tarte est une spécialité belge provenant de la région de Verviers en province de Liège, mais aussi en Limbourg belge et néerlandais.",
       "Depuis des générations des petites tartes au riz de ce genre, font partie de l'approvisionnement journalier de cyclistes du tour de France.",
@@ -573,7 +581,8 @@
       "Au moment de la présentation, saupoudrer de sucre impalpable."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tarte%20au%20riz",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/tarte_au_riz.jpg"
   },
   {
     "title": "Tourteline",
@@ -603,7 +612,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/%28waterzooi%29_%2879743868%29.jpg/960px-%28waterzooi%29_%2879743868%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/waterzoo.jpg",
     "ingredients": [
       "Soupe verte ou au cerfeuil.",
       "2 poireaux",
@@ -634,7 +643,8 @@
       "(ce plat peut être préparé à l'avance et réchauffé avant de servir, pensez seulement à y inclure le mélange œuf crème fraîche juste avant de servir)"
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Waterzoo%C3%AF",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/waterzoo.jpg"
   },
   {
     "title": "Boissons/Cocktails/Americano",
@@ -643,7 +653,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Americano_cocktail_at_Nightwood_Restaurant.jpg/960px-Americano_cocktail_at_Nightwood_Restaurant.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_americano.jpg",
     "ingredients": [
       "5 cl de Campari soit 7/10,",
       "2 cl de vermouth rouge (Martini, Cinzano) soit 3/10,",
@@ -654,7 +664,8 @@
       "Compléter d'eau gazeuse."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Boissons/Cocktails/Americano",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/boissons_cocktails_americano.jpg"
   },
   {
     "title": "Boissons/Cocktails/Negroni",
@@ -663,7 +674,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_negroni.jpg",
     "ingredients": [
       "3 ou 4 cl de gin",
       "3 cl de vermouth Italien",
@@ -683,7 +694,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/White_wine_spritzer.jpg/960px-White_wine_spritzer.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_spritz.jpg",
     "ingredients": [
       "6 cl vin blanc tranquille (chardonnay) ou effervescent (prosecco, cava, crémant)",
       "3 cl d'Aperol (Nicolas, Monoprix) ou de Campari",
@@ -696,7 +707,8 @@
       "directement dans le verre (idéalement un tumbler)."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Boissons/Cocktails/Spritz",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/boissons_cocktails_spritz.jpg"
   },
   {
     "title": "Cannelloni",
@@ -705,7 +717,7 @@
     "prepTimeMinutes": 20,
     "cookTimeMinutes": 20,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Cannelloni2.png/960px-Cannelloni2.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cannelloni.jpg",
     "ingredients": [
       "On utilise la même pâte et la même farce que pour les ravioli. Si vous ne pouvez confectionner la pâte, achetez des boîtes de carrés de cannelloni, prêts à farcir.",
       "2 boîtes de 12 carrés de cannelloni,",
@@ -729,7 +741,8 @@
     ],
     "instructions": [],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Cannelloni",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/cannelloni.jpg"
   },
   {
     "title": "Crostini à l'italienne",
@@ -738,7 +751,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/crostini_l_italienne.jpg",
     "ingredients": [
       "4 toasts briochés",
       "2 tomates coupées en fines tranches",
@@ -767,7 +780,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/Pr%C3%A9paration_des_lasagnes_%28mars_2020%29_-_%28010%29_faire_les_couches.jpg/960px-Pr%C3%A9paration_des_lasagnes_%28mars_2020%29_-_%28010%29_faire_les_couches.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/lasagnes_faciles.jpg",
     "ingredients": [
       "Un oignon",
       "500 g de bœuf haché",
@@ -794,7 +807,8 @@
       "Mettre au four préchauffé, thermostat 180 °C, 15 min."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Lasagnes%20faciles",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/lasagnes_faciles.jpg"
   },
   {
     "title": "Osso bucco",
@@ -803,7 +817,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Ossobuco.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/osso_bucco.jpg",
     "ingredients": [
       "4 jarrets de veau,",
       "3 carottes,",
@@ -847,7 +861,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 10,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Panettone_-_Nicolettone_2017_-_IMG_7085_%2831752542285%29.jpg/960px-Panettone_-_Nicolettone_2017_-_IMG_7085_%2831752542285%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/panettone.jpg",
     "ingredients": [
       "6 jaunes d'œufs,",
       "250 g de farine,",
@@ -873,7 +887,8 @@
       "Laisser refroidir."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Panettone",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/panettone.jpg"
   },
   {
     "title": "Panna cotta",
@@ -882,7 +897,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Panna_Cotta_with_cream_and_garnish.jpg/960px-Panna_Cotta_with_cream_and_garnish.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/panna_cotta.jpg",
     "ingredients": [
       "4 dL de crème fraîche",
       "1 dL de lait",
@@ -898,7 +913,8 @@
       "Mettre au frigo pendant au moins 2h."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Panna%20cotta",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/panna_cotta.jpg"
   },
   {
     "title": "Pâtes à la Trapanese",
@@ -907,7 +923,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/p_tes_la_trapanese.jpg",
     "ingredients": [
       "500 g de pâtes",
       "Tomates",
@@ -965,7 +981,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Ingredienti_per_il_pesto_Genovese_%28Ingridients_for_Pesto_Genovese%29.jpg/960px-Ingredienti_per_il_pesto_Genovese_%28Ingridients_for_Pesto_Genovese%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pesto.jpg",
     "ingredients": [
       "50 g de feuilles de basilic frais",
       "deux gousses d'ail",
@@ -985,7 +1001,8 @@
       "Mélanger le tout."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pesto",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pesto.jpg"
   },
   {
     "title": "Pizza mogador",
@@ -1029,7 +1046,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/poisson_au_guazzetto.jpg",
     "ingredients": [
       "Outre le poisson :",
       "2 gousses d'ail",
@@ -1056,13 +1073,14 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Cotechino-Servito-Polenta-Lenticchie.jpg/960px-Cotechino-Servito-Polenta-Lenticchie.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/polenta.jpg",
     "ingredients": [
       "Polenta savoyarde"
     ],
     "instructions": [],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Polenta",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/polenta.jpg"
   },
   {
     "title": "Risotto",
@@ -1071,7 +1089,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 18,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Risotto_de_gambas%2C_restaurant_Danieli_%28Vienne%2C_Autriche%29.jpg/960px-Risotto_de_gambas%2C_restaurant_Danieli_%28Vienne%2C_Autriche%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto.jpg",
     "ingredients": [
       "1 oignon,",
       "2 cuillères d'huile d'olive,",
@@ -1095,7 +1113,8 @@
       "=== Liens externes ==="
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto.jpg"
   },
   {
     "title": "Risotto à la milanaise",
@@ -1104,7 +1123,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 2,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Risotto_alla_Milanese.JPG/960px-Risotto_alla_Milanese.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto_la_milanaise.jpg",
     "ingredients": [
       "riz (de qualité « Arborio » du département « Lomellina» (située au sud-ouest de Milan, entre les fleuves « Po » et « Ticino »),",
       "échalotes,",
@@ -1128,7 +1147,8 @@
       "Il faut remarquer qu'il y a une tradition spécifique à Milan pour goûter le risotto. En fait, les restes seront servis \"al salto\". Il s'agit d'un riz avec beaucoup de beurre, une véritable gâterie."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20%C3%A0%20la%20milanaise",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto_la_milanaise.jpg"
   },
   {
     "title": "Risotto au noir",
@@ -1137,7 +1157,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Risotto_al_nero_di_seppia.jpg/960px-Risotto_al_nero_di_seppia.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto_au_noir.jpg",
     "ingredients": [
       "1 kg de seiches entières (ou 600 g de blanc de seiches et 2 sachets d'encre)",
       "Fumet de poisson",
@@ -1164,7 +1184,8 @@
       "Servir avec un flacon d’huile pimentée et du parmesan râpé (pour beaucoup le parmesan dans les plats avec des produits de la mer est une erreur)."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20au%20noir",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto_au_noir.jpg"
   },
   {
     "title": "Risotto au poulet",
@@ -1173,7 +1194,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Cuisse_de_poulet_%C3%A0_la_cr%C3%A8me%2C_olives%2C_carottes_et_risotto_%C3%A0_La_Tablature_%28Lyon%2C_2019%29.jpg/960px-Cuisse_de_poulet_%C3%A0_la_cr%C3%A8me%2C_olives%2C_carottes_et_risotto_%C3%A0_La_Tablature_%28Lyon%2C_2019%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto_au_poulet.jpg",
     "ingredients": [
       "200 g de blanc de poulet coupés en fines lanières ;",
       "300 g de riz Arborio, Carnaroli ou Vialone Nano ;",
@@ -1190,7 +1211,8 @@
       "Disposer la préparation dans un plat de service et saupoudrer avec le persil haché."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20au%20poulet",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto_au_poulet.jpg"
   },
   {
     "title": "Risotto de saumon",
@@ -1199,7 +1221,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Seared_Salmon%2C_Risotto%2C_Curry_Sauce_-_La_Terrasse%2C_Rouen_2026-05-10.jpg/960px-Seared_Salmon%2C_Risotto%2C_Curry_Sauce_-_La_Terrasse%2C_Rouen_2026-05-10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/risotto_de_saumon.jpg",
     "ingredients": [
       "600 g de chair de saumon",
       "400 g de riz rond",
@@ -1219,7 +1241,8 @@
       "Laisser reposer quelques minutes et servir"
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Risotto%20de%20saumon",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/risotto_de_saumon.jpg"
   },
   {
     "title": "Salade de macaronis",
@@ -1228,7 +1251,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Grandma%27s_Macaroni_Salad_-_50594162638.jpg/960px-Grandma%27s_Macaroni_Salad_-_50594162638.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/salade_de_macaronis.jpg",
     "ingredients": [
       "500 g de macaroni",
       "200 g de bacon",
@@ -1248,7 +1271,8 @@
       "Mélanger les ingrédients dans un saladier et laisser reposer au réfrigérateur pendant quelques heures."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Salade%20de%20macaronis",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/salade_de_macaronis.jpg"
   },
   {
     "title": "Sauce cinq P",
@@ -1283,7 +1307,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Minestrone.jpg/960px-Minestrone.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/soupe_minestrone.jpg",
     "ingredients": [
       "150 g de haricots blancs secs",
       "100 g de chou blanc",
@@ -1308,7 +1332,8 @@
       "Assaisonner et servir avec un pesto"
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Soupe%20minestrone",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/soupe_minestrone.jpg"
   },
   {
     "title": "Tiramisu",
@@ -1317,7 +1342,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Dolce_Tiramis%C3%B9_monoporzione.jpg/960px-Dolce_Tiramis%C3%B9_monoporzione.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tiramisu.jpg",
     "ingredients": [
       "3 œufs,",
       "500 g de mascarpone,",
@@ -1338,7 +1363,8 @@
       "Au moment de servir, saupoudrer de cacao."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tiramisu",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/tiramisu.jpg"
   },
   {
     "title": "Tomates mozzarella",
@@ -1347,7 +1373,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Tomate_mozzarella_2019.jpg/960px-Tomate_mozzarella_2019.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tomates_mozzarella.jpg",
     "ingredients": [
       "8 tomates grappe,",
       "250 g de mozzarella,",
@@ -1363,7 +1389,8 @@
       "Répandre du basilic découpé (avec des ciseaux) sur le tout."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tomates%20mozzarella",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/tomates_mozzarella.jpg"
   },
   {
     "title": "Vitello tonnato",
@@ -1372,7 +1399,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Vitello_tonnato_%286977537544%29.jpg/960px-Vitello_tonnato_%286977537544%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/vitello_tonnato.jpg",
     "ingredients": [
       "1 rôti de veau",
       "quelques feuilles de laurier, de sauge",
@@ -1395,7 +1422,8 @@
       "Aujourd'hui, la version plus basique, « plus bistro », et que l'on rencontre plus fréquemment (mais qui est tout aussi agréable), consiste en seulement napper la viande froide d'un mélange de mayonnaise et de thon à l'huile avec un jus de citron, sans oublier les câpres et de servir frais. Il est nécessaire de protéger par un film alimentaire pour que le plat ne se déssèche pas."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Vitello%20tonnato",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/vitello_tonnato.jpg"
   },
   {
     "title": "Pâtes à la carbonara",
@@ -1404,7 +1432,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Espaguetis_carbonara.jpg/960px-Espaguetis_carbonara.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/p_tes_la_carbonara.jpg",
     "ingredients": [
       "360 g de pâtes,",
       "200 g de guanciale,",
@@ -1423,7 +1451,8 @@
       "Hors du feu, ajouter le mélange d'œufs, pecorino et poivre, remuer et servir."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/P%C3%A2tes%20%C3%A0%20la%20carbonara",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/p_tes_la_carbonara.jpg"
   },
   {
     "title": "Pizza au tofu et aux champignons2",
@@ -1432,7 +1461,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_tofu_et_aux_champignons2.jpg",
     "ingredients": [
       "=== Pâte ===",
       "300 g de farine,",
@@ -1468,7 +1497,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Margherita_Originale.JPG/960px-Margherita_Originale.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_margherita.jpg",
     "ingredients": [
       "200ml d'eau,",
       "350g de farine,",
@@ -1493,7 +1522,8 @@
       "Faire cuire la pizza pendant 10 minutes en haut du four."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20Margherita",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_margherita.jpg"
   },
   {
     "title": "Cassata",
@@ -1502,7 +1532,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Cassata.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/cassata.jpg",
     "ingredients": [
       "50 g de pépites de chocolat noir,",
       "600 g de ricotta de brebis,",
@@ -1531,7 +1561,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Pasta_con_le_sarde_%28Palermo%29.jpg/960px-Pasta_con_le_sarde_%28Palermo%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pasta_con_le_sarde.jpg",
     "ingredients": [
       "500 g de sardines fraîches",
       "500 g de bucatini",
@@ -1570,7 +1600,8 @@
       "Laisser reposer quelques minutes avant de servir."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pasta%20con%20le%20sarde",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pasta_con_le_sarde.jpg"
   },
   {
     "title": "Pâte à pizza",
@@ -1579,7 +1610,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Pizza_%C3%A0_la_po%C3%AAle.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/p_te_pizza.jpg",
     "ingredients": [
       "300 g de farine (type 45 ou 55 de préférence),",
       "100 mL d'eau tiède (env. 35°C, c'est-à-dire ni chaud ni froid au toucher),",
@@ -1652,7 +1683,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Pr%C3%A9paration_d%27une_pizza_maison%2C_mars_2020_%28025%29.jpg/960px-Pr%C3%A9paration_d%27une_pizza_maison%2C_mars_2020_%28025%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_familiale.jpg",
     "ingredients": [
       "(pour quatre personnes)",
       "330 g de farine",
@@ -1686,7 +1717,8 @@
       "Mettre au four préchauffé pendant 15 min, thermostat 180 °C."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20familiale",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_familiale.jpg"
   },
   {
     "title": "Calzone",
@@ -1695,7 +1727,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Wikimania_2016_Deryck_day_0_-_07_calzone.jpg/960px-Wikimania_2016_Deryck_day_0_-_07_calzone.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/calzone.jpg",
     "ingredients": [
       "==== Pour la pâte ====",
       "320 grammes de farine blanche",
@@ -1718,7 +1750,8 @@
       "Mélanger tous les ingrédients de la pâte, l'étendre en lui donnant la forme d'un gros disque, et la laisser lever 30 minutes. Réchauffer 3 cuiller d'huile dans une casserole et y faire rissoler les oignons; mélanger ensemble les tomates taillées sur la longueur en petites tranches, les olives , les câpres, les filets d'anchois émincés, l'origan et le sel. laisser cuire 3 minutes, retirer la sauce du feu et y ajouter le fromage de brebis et la mozzarella. Etirer la pâte en cercle, y verser sur une moitié  la farce obtenue, refermer la pâte de façon à obtenir un demi cercle et en coller les bords avec une fourchette. Faire glisser le calzone sur une plaque enduite d'huile, et le faire cuire au four 30 minutes à 200°C. Servir aussitôt."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Calzone",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/calzone.jpg"
   },
   {
     "title": "Pizza à la pancetta",
@@ -1727,7 +1760,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Pizza_%C3%A0_la_pancetta.JPG/960px-Pizza_%C3%A0_la_pancetta.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_la_pancetta.jpg",
     "ingredients": [
       "1 pâte à pizza",
       "400 g de concassé de tomates",
@@ -1744,7 +1777,8 @@
       "Cuire 15 min au four à 200°C."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20%C3%A0%20la%20pancetta",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_la_pancetta.jpg"
   },
   {
     "title": "Pizza au chèvre et aux lardons",
@@ -1753,7 +1787,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_ch_vre_et_aux_lardons.jpg",
     "ingredients": [
       "1 pâte à pizza,",
       "1 bûche de fromage de chèvre,",
@@ -1774,7 +1808,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_fromage_gorgonzola.jpg",
     "ingredients": [
       "Pâte à pizza",
       "Gorgonzola",
@@ -1795,7 +1829,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Pizza_au_thon_preparation.JPG/960px-Pizza_au_thon_preparation.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_thon.jpg",
     "ingredients": [
       "1 pâte à pizza",
       "400 g de concassé de tomates",
@@ -1810,7 +1844,8 @@
       "Cuire au four 20 minutes."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20au%20thon",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_au_thon.jpg"
   },
   {
     "title": "Pizza au tofu et aux champignons",
@@ -1819,7 +1854,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_au_tofu_et_aux_champignons.jpg",
     "ingredients": [
       "Pâte",
       "300 g de farine",
@@ -1851,7 +1886,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Pizza_aux_moules.jpg/960px-Pizza_aux_moules.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_moules.jpg",
     "ingredients": [
       "1 pâte à pizza,",
       "1 kg de moules,",
@@ -1871,7 +1906,8 @@
       "Cuire à four chaud, 220°C pendant 15 à 20 minutes."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20moules",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_aux_moules.jpg"
   },
   {
     "title": "Pizza aux poivrons",
@@ -1880,7 +1916,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Pizza_aux_poivrons.JPG/960px-Pizza_aux_poivrons.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_poivrons.jpg",
     "ingredients": [
       "1 pâte à pizza,",
       "400 g de concassé de tomates,",
@@ -1899,7 +1935,8 @@
       "Cuire au four pendant un quart d'heure à 220°C. Au bout de dix minutes sortir la pizza pour y ajouter le chorizo."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20poivrons",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_aux_poivrons.jpg"
   },
   {
     "title": "Pizza aux poivrons 2",
@@ -1908,7 +1945,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Preparation_pizza_poivrons_2.JPG/960px-Preparation_pizza_poivrons_2.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_poivrons_2.jpg",
     "ingredients": [
       "250 g de pâte à pain",
       "3 petits poivrons multicolores émincés en lanières",
@@ -1922,7 +1959,8 @@
       "Cuire 20 min la pizza à 235°C."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20poivrons%202",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_aux_poivrons_2.jpg"
   },
   {
     "title": "Pizza aux poivrons et au pesto",
@@ -1931,7 +1969,7 @@
     "prepTimeMinutes": 20,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_poivrons_et_au_pesto.jpg",
     "ingredients": [
       "250 g de pâte à pain",
       "3 petits poivrons multicolores émincés en lanières",
@@ -1952,7 +1990,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Pizza_aux_quatre_fromages.jpg/960px-Pizza_aux_quatre_fromages.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_aux_quatre_fromages.jpg",
     "ingredients": [
       "1 pâte à pizza",
       "1 dose de concassé de tomates",
@@ -1969,7 +2007,8 @@
       "Cuire au four 15 min à 210°C."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20aux%20quatre%20fromages",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_aux_quatre_fromages.jpg"
   },
   {
     "title": "Pizza campagnarde",
@@ -1978,7 +2017,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Pizza_campagnarde.jpg/960px-Pizza_campagnarde.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pizza_campagnarde.jpg",
     "ingredients": [
       "1 pâte à pizza",
       "400 g de concassé de tomates",
@@ -1993,7 +2032,8 @@
       "Cuire au four à 210°C  10 à 15 min."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Pizza%20campagnarde",
-    "license": "CC-BY-SA 3.0"
+    "license": "CC-BY-SA 3.0",
+    "imageUri": "file:///android_asset/recipe_images/pizza_campagnarde.jpg"
   },
   {
     "title": "Pizza végétalienne",
@@ -2097,7 +2137,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/Cai%C3%B3n%2C_Galicia_%28Spain%29.jpg/960px-Cai%C3%B3n%2C_Galicia_%28Spain%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/ca_on.jpg",
     "ingredients": [
       "un décilitre de crème double,",
       "croûtons frits,",
@@ -2153,7 +2193,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 5,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/75/Coq_au_Vin_6of7_%288735164745%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/coq_au_vin.jpg",
     "ingredients": [
       "2,5 kg de poulet en morceaux (conserver le sang s'il est fraîchement abattu),",
       "24 petits oignons blancs,",
@@ -2192,7 +2232,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Food_in_Catalonia_06.jpg/960px-Food_in_Catalonia_06.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_catalane.jpg",
     "ingredients": [
       "1 litre de lait",
       "8 jaunes d'œuf",
@@ -2223,7 +2263,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/Cr%C3%AApe_Suzette_au_Citron.jpg/960px-Cr%C3%AApe_Suzette_au_Citron.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_pe_suzette.jpg",
     "ingredients": [
       "3 crêpes,",
       "60 g de sucre en morceaux,",
@@ -2254,7 +2294,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Croque_Monsieur_and_salad_at_Paris_Bakery.jpg/960px-Croque_Monsieur_and_salad_at_Paris_Bakery.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/croque_monsieur.jpg",
     "ingredients": [
       "pain de mie (2 tranches par croque-monsieur),",
       "emmental en tranches (peut être remplacé par du fromage à croque-monsieur ou de la mozzarella et cuit à la poêle sans gruyère râpé parsemé) (1 tranche par croque),",
@@ -2291,7 +2331,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/cuisses_de_grenouilles_l_ail_et_au_persil.jpg",
     "ingredients": [
       "cuisses de grenouilles",
       "Beurre",
@@ -2317,7 +2357,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_embuscade.jpg",
     "ingredients": [
       "6 cl de vin blanc",
       "2 cl de calvados",
@@ -2339,7 +2379,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Helix_pomatia_2026_G1.jpg/960px-Helix_pomatia_2026_G1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/escargot_de_bourgogne.jpg",
     "ingredients": [
       "=== Pour le court-bouillon ===",
       "100 Escargots de Bourgogne",
@@ -2379,7 +2419,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/PowderedSugar.png/960px-PowderedSugar.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/farinade.jpg",
     "ingredients": [
       "Farinade auvergnate (pour 4 personnes)",
       "300 g de farine de seigle,",
@@ -2412,7 +2452,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/Ficelle_picarde_1.jpg/960px-Ficelle_picarde_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/ficelle_picarde.jpg",
     "ingredients": [
       "Pâte à crêpes :",
       "250 g de farine,",
@@ -2447,7 +2487,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 50,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Flamusse_bourguignonne_02.jpg/960px-Flamusse_bourguignonne_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/flamusse_bourguignonne.jpg",
     "ingredients": [
       "3 pommes",
       "3 œufs",
@@ -2479,7 +2519,7 @@
     "prepTimeMinutes": 20,
     "cookTimeMinutes": 30,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Clafoutis_cerises.jpg/960px-Clafoutis_cerises.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/flaugnarde.jpg",
     "ingredients": [
       "3 œufs,",
       "2 tasses de sucre,",
@@ -2526,7 +2566,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Fondue_bressane_004.JPG/960px-Fondue_bressane_004.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/fondue_bressane.jpg",
     "ingredients": [
       "des blancs de poulet",
       "un œuf",
@@ -2552,7 +2592,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Midsummer_bonfire_closeup.jpg/960px-Midsummer_bonfire_closeup.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/fou_e.jpg",
     "ingredients": [
       "500 g de farine,",
       "10 g de sel,",
@@ -2626,7 +2666,7 @@
     "prepTimeMinutes": 40,
     "cookTimeMinutes": 15,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Gateau_de_Pommes_de_Terre_%284320841694%29.jpg/960px-Gateau_de_Pommes_de_Terre_%284320841694%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/g_teau_de_pommes_de_terre.jpg",
     "ingredients": [
       "500 g de pâte feuilletée",
       "1 jaune d'œuf",
@@ -2659,7 +2699,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_gdf.jpg",
     "ingredients": [
       "3 cl rhum",
       "3 cl liqueur de café",
@@ -2679,7 +2719,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 15,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/Gratin_dauphinois.jpg/960px-Gratin_dauphinois.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/gratin_dauphinois.jpg",
     "ingredients": [
       "1 kg de pommes de terre à chair ferme (Charlotte)",
       "250 ml de crème fraîche",
@@ -2738,7 +2778,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_hypocras.jpg",
     "ingredients": [
       "3 litres de vin rouge",
       "180 g de sucre roux",
@@ -2772,7 +2812,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Lapin_chasseur_002.jpg/960px-Lapin_chasseur_002.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/lapin_chasseur.jpg",
     "ingredients": [
       "Un lapin découpé en morceaux.",
       "Une cuillère à soupe de farine.",
@@ -2803,7 +2843,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Fa%C3%A7ade_fronton_madeleine_Paris.jpg/960px-Fa%C3%A7ade_fronton_madeleine_Paris.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/madeleine.jpg",
     "ingredients": [
       "2 œufs,",
       "1 jaune d'œuf,",
@@ -2842,7 +2882,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Le_Chat_Apt_Magret_de_canard_au_miel_de_lavande.jpg/960px-Le_Chat_Apt_Magret_de_canard_au_miel_de_lavande.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/magret_de_canard_au_miel.jpg",
     "ingredients": [
       "Un magret de canard de 400g,",
       "1 cuillère à café de miel,",
@@ -2871,7 +2911,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ca/Pissaladiera.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/pissaladi_re.jpg",
     "ingredients": [
       "Il s'agit d'une sorte de tarte.",
       "La pâte était faite anciennement à la maison, mais il s'agit d'une pâte à pain.",
@@ -2895,7 +2935,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Des_macarons_de_chez_Bouillet_%28mars_2023%29.jpg/960px-Des_macarons_de_chez_Bouillet_%28mars_2023%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/macarons_d_amiens.jpg",
     "ingredients": [
       "250 g de poudre d’amandes",
       "250 g de sucre glace",
@@ -2921,7 +2961,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 12,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Montmorillon_Macaron_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/macarons_de_montmorillon.jpg",
     "ingredients": [
       "40 g de sucre glace,",
       "40 g de sucre en poudre (la quantité peut être ajustée selon les goûts personnels),",
@@ -2946,7 +2986,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Des_macarons_de_chez_Bouillet_%28mars_2023%29.jpg/960px-Des_macarons_de_chez_Bouillet_%28mars_2023%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/macarons_parisiens.jpg",
     "ingredients": [
       "125 g sucre en poudre,",
       "125 g sucre glace,",
@@ -2979,7 +3019,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/Magret_de_canard_et_foie_gras.jpg/960px-Magret_de_canard_et_foie_gras.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/magret_de_canard.jpg",
     "ingredients": [
       "Le magret de canard peut être cuisiné à la poêle ou au four. Il est recommandé de préserver la couche de gras qui l'entoure, qui réduit à la cuisson.",
       "Avant la cuisson, le magret doit être salé et poivré. Il est d'abord saisi (à feu vif ou au grill) puis il cuit à feu doux ou à chaleur moyenne (180-200°C). Comme le foie gras, le magret de canard est excellent avec toutes sortes de fruits : pommes, pêches, griottes, raisins, fruits tropicaux... On peut cuire ces fruits avec le magret, ou bien les cuisiner à part dans une casserole, en ajoutant des épices cannelle, noix de muscade ...), des graines (amandes, noix), et éventuellement avec du vin rouge (pour les fruits rouges). Il est également délicieux au miel et aux épices (cumin, curry : un peu de chaque). Et bien entendu, les pommes de terre restent aussi idéales pour réveiller le subtil goût du magret, particulièrement les pommes de terre sarladaises, avec lesquelles on peut servir quelques cèpes pour être bien périgourdin.",
@@ -2996,7 +3036,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/97/Jean-Hippolyte_Michon.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/michon.jpg",
     "ingredients": [
       "200 g de comté râpé",
       "200 g de farine",
@@ -3025,7 +3065,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Chocolate_coffee_mousse.jpg/960px-Chocolate_coffee_mousse.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/mousse_au_chocolat.jpg",
     "ingredients": [
       "200 g de chocolat",
       "4 œufs",
@@ -3178,7 +3218,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Pastis_landais.JPG/960px-Pastis_landais.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pastis_landais.jpg",
     "ingredients": [
       "73 g de sucre",
       "50 g de beurre",
@@ -3212,7 +3252,7 @@
     "prepTimeMinutes": 25,
     "cookTimeMinutes": 40,
     "servings": 4,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Lindsey_Pelas.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/p_la.jpg",
     "ingredients": [
       "1 petit reblochon",
       "50 g de beurre",
@@ -3238,7 +3278,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 5,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Pot-au-feu_SAM_2723.JPG/960px-Pot-au-feu_SAM_2723.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pot_au_feu.jpg",
     "ingredients": [
       "LA recette de pot au feu n’existe pas, il en existe de très nombreuses variantes.",
       "Viande : il s’agit de bœuf à bouillir. On peut utiliser plusieurs types de viande, par exemple macreuse (maigre), flanchet ou plat de cote (plus gras), gîte ou jumeau (gélatineux), joue de bœuf, queue de bœuf. Mettre 2 kg d’une combinaison de plusieurs morceaux.",
@@ -3278,7 +3318,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Pot%C3%A9e_bourguignonne.jpg/960px-Pot%C3%A9e_bourguignonne.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pot_e_bourguignonne.jpg",
     "ingredients": [
       "1 kg d'échine de porc salée",
       "500 g de jarret de porc frais",
@@ -3303,13 +3343,47 @@
     "license": "CC-BY-SA 3.0"
   },
   {
+    "title": "Potjevleesch2",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Française",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": 10,
+    "servings": 6,
+    "imageUrl": null,
+    "ingredients": [
+      "poulet (300 grammes),",
+      "lapin (300 grammes),",
+      "veau (300 grammes de flanchet),",
+      "poitrine de lard (200 grammes)+200 g échine de porc,",
+      "oignons ou échalotes (200 grammes),",
+      "sel, poivre,",
+      "thym, laurier, baies de genévrier,",
+      "vin blanc sec (½ litre) (ou vinaigre de vin) ou bière des trois monts dans laquelle on ajoute des feuilles de gélatine,",
+      "eau,",
+      "1 sachet de gelée au madère."
+    ],
+    "instructions": [
+      "minutes",
+      "Disposer dans le fond de la terrine une couche d'oignons coupés en rondelles.",
+      "Ajouter sel, poivre, thym, laurier et les baies de genévrier.",
+      "Recouvrir de morceaux de poulet, lapin, veau et porc selon les proportions désirées.",
+      "Alterner successivement par couches oignons et viandes.",
+      "Puis verser eau et vinaigre ou eau et vin blanc en proportions égales sur la viande qui doit être complètement recouverte.",
+      "Porter à ébullition et laisser cuire à feu doux 3 à 4 heures. Ajouter un peu de mélange vinaigre-eau + 1 verre de genièvre.",
+      "min avant la fin de la cuisson ajouter la gelée que vous aurez préparée.",
+      "Laisser refroidir doucement puis placer au réfrigérateur pendant au moins 12 heures pour laisser prendre la gelée."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Potjevleesch2",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
     "title": "Poulet basquaise",
     "category": "Plat principal",
     "cuisineOrigin": "Cuisine Française",
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Poulet_basquaise_01.jpg/960px-Poulet_basquaise_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/poulet_basquaise.jpg",
     "ingredients": [
       "1 poulet",
       "2 poivrons : un rouge, un vert (à l'origine du piment doux du Pays basque).",
@@ -3380,7 +3454,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Erno_Rapee_1937.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/rap_e.jpg",
     "ingredients": [
       "4 pommes de terre",
       "1 œuf",
@@ -3401,7 +3475,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Etiquette_de_caisse_contenant_quatre_Panzerfaust_60%2C_recette_de_cuisine_au_revers%2C_2007.24.277.jpg/960px-Etiquette_de_caisse_contenant_quatre_Panzerfaust_60%2C_recette_de_cuisine_au_revers%2C_2007.24.277.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/riz_la_catalane.jpg",
     "ingredients": [
       "400 g de riz",
       "1 lapin d'environ 1,400 kg",
@@ -3433,7 +3507,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Roast_pork_and_Silesian_dumplings%2C_Pod_Si%C3%B3demk%C4%85%2C_Katowice%2C_2024_%2801%29.jpg/960px-Roast_pork_and_Silesian_dumplings%2C_Pod_Si%C3%B3demk%C4%85%2C_Katowice%2C_2024_%2801%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/r_ti_de_porc.jpg",
     "ingredients": [
       "Une grosse poignée d’olives noires à la grecque coupées en 4,",
       "4 belles gousses d’ail pour piquer dans le rôti,",
@@ -3500,7 +3574,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/Salade_Landaise.jpg/960px-Salade_Landaise.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/salade_landaise.jpg",
     "ingredients": [
       "Salades variées de saison,",
       "4 gésiers de canard confits,",
@@ -3537,7 +3611,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Salade_ni%C3%A7oise_%287545098258%29.jpg/960px-Salade_ni%C3%A7oise_%287545098258%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/salade_ni_oise.jpg",
     "ingredients": [
       "10 tomates moyennes",
       "1 beau concombre",
@@ -3569,7 +3643,7 @@
     "prepTimeMinutes": 5,
     "cookTimeMinutes": null,
     "servings": 12,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/%D0%A1%D0%B0%D0%BB%D0%BC%D0%B8%2C_%D1%83%D0%BB%D0%B8%D1%86%D0%B0_%D0%A1%D0%B2%D0%B8%D1%80%D1%81%D0%BA%D0%B8%D1%85_%D0%94%D0%B8%D0%B2%D0%B8%D0%B7%D0%B8%D0%B9_%D1%81%D0%B2%D0%B5%D1%80%D1%85%D1%83_%281%29.jpg/960px-%D0%A1%D0%B0%D0%BB%D0%BC%D0%B8%2C_%D1%83%D0%BB%D0%B8%D1%86%D0%B0_%D0%A1%D0%B2%D0%B8%D1%80%D1%81%D0%BA%D0%B8%D1%85_%D0%94%D0%B8%D0%B2%D0%B8%D0%B7%D0%B8%D0%B9_%D1%81%D0%B2%D0%B5%D1%80%D1%85%D1%83_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/salmis.jpg",
     "ingredients": [
       "Le gibier : 2 beaux faisans - 2 canards Col vert - 2 perdrix (rouges ou grises) -  2 pigeons ramiers (ou palombes) - et idéalement 2 bécasses.",
       "Les éléments de la sauce :  75 cl de vin rouge ( de préférence Bourgogne) -  15 cl de Cognac 3 cuillères à soupe de gelée de groseille -  75 g de Farine -  3 cuillères à soupe de crème fraîche épaisse -  4 cuillère d’huile d’olive . Pour la Mirepoix : 8 Carottes - 4 Oignons – 6 gousses d’ail - 1 Céleri (4 belles branches) - 200 g de morilles, ou, à défaut, de champignons de Paris - 100 g de poitrine de porc ou de dés de lardons, non fumé(s), un citron.",
@@ -3611,7 +3685,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Romesco_i_ingredients.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/sauce_romesco.jpg",
     "ingredients": [
       "8-10 amandes",
       "10 noisettes toastées",
@@ -3655,7 +3729,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Socca_a_Nice.jpg/960px-Socca_a_Nice.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/socca.jpg",
     "ingredients": [
       "250 g de farine de pois chiches",
       "50 cl d'eau",
@@ -3715,7 +3789,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/As_tarte_comt%C3%A9.jpg/960px-As_tarte_comt%C3%A9.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_au_comt.jpg",
     "ingredients": [
       "3 œufs",
       "100 g de lardons",
@@ -3745,7 +3819,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Tarte_en_quemeu.jpg/960px-Tarte_en_quemeu.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_en_quemeu.jpg",
     "ingredients": [
       "1 pâte brisée,",
       "3 œufs,",
@@ -3784,7 +3858,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Tarte_flamb%C3%A9e_alsacienne_514471722.jpg/960px-Tarte_flamb%C3%A9e_alsacienne_514471722.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_flamb_e.jpg",
     "ingredients": [
       "On comptera 1,3 tarte par personne au delà de 20 personnes.",
       "Ingrédients pour dix personnes :",
@@ -3817,7 +3891,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Closeup_of_tarte_tatin_%2813513714244%29.jpg/960px-Closeup_of_tarte_tatin_%2813513714244%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_tatin.jpg",
     "ingredients": [
       "1 pâte brisée,",
       "6 belles pommes,",
@@ -3891,7 +3965,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/34._Ulica_-_TNT_Shows_-_Moving_Poles_-_20210904_1310_1879.jpg/960px-34._Ulica_-_TNT_Shows_-_Moving_Poles_-_20210904_1310_1879.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_tnt.jpg",
     "ingredients": [
       "1 cl de Chartreuse (1/5)",
       "1 cl de vodka (1/5)",
@@ -3912,7 +3986,7 @@
     "prepTimeMinutes": 5,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Tourin.jpg/960px-Tourin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tourin.jpg",
     "ingredients": [
       "Gousses d'ail",
       "20 g de farine blanche",
@@ -3943,7 +4017,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/FR_631136102_GRA_N_67_107_I_Colomb_%28sons%2C_farines%2C_tourteaux%29%2C_Busset_%28Allier%2C_03%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/tourtou.jpg",
     "ingredients": [
       "200 g de farine de sarrasin (2/3)",
       "100 g de farine de blé type 55 (1/3)",
@@ -3974,7 +4048,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Truite_au_vin_jaune.jpg/960px-Truite_au_vin_jaune.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/truite_au_vin_jaune.jpg",
     "ingredients": [
       "De belles truites,",
       "1 verre de vin jaune du Jura,",
@@ -4003,7 +4077,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/A%C3%AFoli_maison.jpg/960px-A%C3%AFoli_maison.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/a_oli.jpg",
     "ingredients": [
       "Comme la mayonnaise, l'aïoli est une émulsion, un mélange de deux substances liquides non miscibles. Il faut donc nécessairement faire intervenir un liquide autre que l'huile pour que l'aïoli prenne. Dans la version traditionnelle, conforme à l'étymologie, la sauce est uniquement composée d’aï (ail) et d’olì (huile d'olive). C'est alors le jus de l'ail qui joue le rôle de deuxième liquide.",
       "La difficulté de faire prendre un tel mélange a amené la plupart des cuisiniers à ajouter un autre liquide pour faciliter la prise de l'émulsion, le plus souvent du jaune d'œuf ou du jus de citron. Il est possible de remplacer le jaune d'œuf par de la mie de pain détrempée, mais dans ce cas, il est plus difficile de monter l'aïoli. La sauce étant utilisée sur des aliments chauds, l'ajout d'une pomme de terre ou l'utilisation de mie de pain permet de lui assurer une meilleure tenue à la chaleur."
@@ -4019,7 +4093,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Ancho%C3%AFade_pr%C3%A9sentation.jpg/960px-Ancho%C3%AFade_pr%C3%A9sentation.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/ancho_ade.jpg",
     "ingredients": [
       "anchois,",
       "huile d'olive,",
@@ -4077,7 +4151,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Scorpaena_porcus_2009_G1.jpg/960px-Scorpaena_porcus_2009_G1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/bouillabaisse.jpg",
     "ingredients": [
       "=== Soupe ===",
       "2 kg de soupe de roche (ou à la rigueur 1 kg de soupe de roche et 1 kg de soupe chalut - moins chère) ou les têtes de gros poissons",
@@ -4197,7 +4271,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Daube_proven%C3%A7ale_03.jpg/960px-Daube_proven%C3%A7ale_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/daube_proven_ale.jpg",
     "ingredients": [
       "1,6 kg de viande de bœuf,",
       "200 g de lard,",
@@ -4250,7 +4324,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Fougasse_1.jpg/960px-Fougasse_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/fougasse.jpg",
     "ingredients": [
       "500 g de farine,",
       "10 g de levure de boulanger,",
@@ -4276,7 +4350,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Gardiane_de_Taureau.JPG/960px-Gardiane_de_Taureau.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/gardiane.jpg",
     "ingredients": [
       "500 gr à 1 kg de viande de taureau de camargue,",
       "1 gros oignon,",
@@ -4307,7 +4381,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Galette_Frangipane_2021.jpg/960px-Galette_Frangipane_2021.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/g_teau_des_rois.jpg",
     "ingredients": [
       "500 g de farine,",
       "5 œufs,",
@@ -4343,7 +4417,7 @@
     "prepTimeMinutes": 20,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Pan-bagnat002.jpg/960px-Pan-bagnat002.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pan_bagnat.jpg",
     "ingredients": [
       "4 pains ronds individuels.",
       "2 à 4 tomates + 1 tomate bien mure.",
@@ -4381,7 +4455,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/Panisses_marseillaises_4.jpg/960px-Panisses_marseillaises_4.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/panisse.jpg",
     "ingredients": [
       "Prendre 240 g de farine de pois chiches, 1 litre d'eau et 2 décilitres d'huile d'olive."
     ],
@@ -4401,7 +4475,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 10,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Midi_en_France_%C3%A0_Avignon_-_pompe_%C3%A0_huile.JPG/960px-Midi_en_France_%C3%A0_Avignon_-_pompe_%C3%A0_huile.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pompe_l_huile.jpg",
     "ingredients": [
       "500 g de farine pour la pâte,",
       "125 g de farine pour le levain,",
@@ -4439,7 +4513,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Ratatouille.jpg/960px-Ratatouille.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/ratatouille.jpg",
     "ingredients": [
       "3 aubergines,",
       "2 courgettes,",
@@ -4469,7 +4543,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/ratatouille2.jpg",
     "ingredients": [
       "2 aubergines coupées en petits carrés de 2 cm",
       "3 courgettes coupées en petits carrés de 2 cm",
@@ -4523,7 +4597,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/La_soupe_au_pistou.jpg/960px-La_soupe_au_pistou.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/soupe_au_pistou.jpg",
     "ingredients": [
       "2 litres d'eau environ,",
       "Des haricots (verts,marbrés rouges et blancs frais à égrener, 300 à 500 g de chaque),",
@@ -4561,7 +4635,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Tapenade_01.jpg/960px-Tapenade_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tapenade.jpg",
     "ingredients": [
       "Suivant les habitudes de chacun, les proportions peuvent changer.",
       "200 g d'olives noires",
@@ -4590,7 +4664,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Tarte_aux_abricots_de_la_Dr%C3%B4me_proven%C3%A7ale.jpg/960px-Tarte_aux_abricots_de_la_Dr%C3%B4me_proven%C3%A7ale.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_proven_ale.jpg",
     "ingredients": [
       "1 pâte brisée,",
       "1 aubergine,",
@@ -4619,7 +4693,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Tian_proven%C3%A7al_de_l%C3%A9gumes.jpg/960px-Tian_proven%C3%A7al_de_l%C3%A9gumes.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tian_proven_al.jpg",
     "ingredients": [
       "400 g de courgettes",
       "200 g d'aubergines",
@@ -4651,7 +4725,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/Tomate_Proven%C3%A7ale.JPG/960px-Tomate_Proven%C3%A7ale.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tomate_la_proven_ale.jpg",
     "ingredients": [
       "8 tomates",
       "8 gousses d'ail",
@@ -4677,7 +4751,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Baeckeoffe_01.JPG/960px-Baeckeoffe_01.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/baeckeoffe.jpg",
     "ingredients": [
       "700 g de paleron de bœuf (il est possible d'utiliser du gîte),",
       "700 g d'épaule de porc,",
@@ -4721,7 +4795,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Fruechtebrot.jpg/960px-Fruechtebrot.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/beerawecka.jpg",
     "ingredients": [
       "500 g de farine blanche",
       "500 g de poires séchées",
@@ -4751,6 +4825,30 @@
       "Décorer avec des cerneaux de noix ou des amandes entières."
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Beerawecka",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Biersupp",
+    "category": "Plat principal",
+    "cuisineOrigin": "Cuisine Française",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "file:///android_asset/recipe_images/biersupp.jpg",
+    "ingredients": [
+      "1 oignon",
+      "40g de beurre",
+      "1 ou 1/2 l de bouillon de viande",
+      "25 ou 33  cl de bière blonde ou brune",
+      "125 g de chapelure blonde ou de mie de pain",
+      "Noix de muscade, Sel, Poivre",
+      "Tranches de pain rassis pour les croûtons"
+    ],
+    "instructions": [
+      "On épluche et hache l’oignon, puis on le faire suer au beurre. On ajoute la bière et le bouillon de volaille. On porte à ébullition et on verse la chapelure et les épices en laisser mijoter de dix à trente minutes. On coupe alors le pain en croûtons à faire dorer au beurre.",
+      "C'est un plat simple, campagnard, qu'on peut accommoder de crème, de lard fumé ou de saucisses de Strasbourg."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Biersupp",
     "license": "CC-BY-SA 3.0"
   },
   {
@@ -4789,7 +4887,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Bretzel_03.JPG/960px-Bretzel_03.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/bretzel.jpg",
     "ingredients": [
       "300 g de farine",
       "15 g de levure de boulanger",
@@ -4820,7 +4918,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Carpe_frite_du_Sundgau-Hirtzbach.jpg/960px-Carpe_frite_du_Sundgau-Hirtzbach.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/carpe_frite.jpg",
     "ingredients": [
       "1 belle carpe de 1,2 kg, écaillée",
       "la couper en darnes de 2cm d'épaisseur.",
@@ -4847,7 +4945,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6f/Choucroute_d%27Alsace_004.jpg/960px-Choucroute_d%27Alsace_004.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/choucroute.jpg",
     "ingredients": [
       "Les proportions suivantes sont données pour 4 à 6 personnes. Compte tenu du nombre d'ingrédients, il parait en effet difficile de réaliser une choucroute pour un nombre plus réduit de convives.",
       "750 g de choucroute,",
@@ -4884,7 +4982,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 30,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Choucroute-garni_2.JPG/960px-Choucroute-garni_2.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/choucroute_2.jpg",
     "ingredients": [
       "Les proportions suivantes sont données pour 4 à 6 personnes. Compte tenu du nombre d'ingrédients, il parait en effet difficile de réaliser une choucroute pour un nombre plus réduit de convives.",
       "1,5 kg de choucroute crue",
@@ -4921,7 +5019,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 30,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Fleischschnacka_avec_bouillon.jpg/960px-Fleischschnacka_avec_bouillon.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/fleischschnacka.jpg",
     "ingredients": [
       "Pâte à nouilles :",
       "500 g de farine,",
@@ -4964,7 +5062,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Fleischschnacka.JPG/960px-Fleischschnacka.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/fleischschnacka_2.jpg",
     "ingredients": [
       "1.200 kg de viande hachée,",
       "1 litre de bouillon de bœuf,",
@@ -4993,7 +5091,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/03/Kouglof.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/kouglof.jpg",
     "ingredients": [
       "500 g de farine",
       "150 g de beurre",
@@ -5028,7 +5126,7 @@
     "prepTimeMinutes": 30,
     "cookTimeMinutes": 15,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/Grittib%C3%A4nz.jpg/960px-Grittib%C3%A4nz.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/mannala.jpg",
     "ingredients": [
       "Préparation : 30 min",
       "Cuisson : 15 min",
@@ -5096,7 +5194,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Tarte_%C3%A0_l%27oignon_des_C%C3%A9vennes.jpg/960px-Tarte_%C3%A0_l%27oignon_des_C%C3%A9vennes.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tarte_l_oignon.jpg",
     "ingredients": [
       "1 pâte brisée,",
       "650 g d'oignons en rondelle fine,",
@@ -5130,7 +5228,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Bali_Hai_seared_ahi.jpg/960px-Bali_Hai_seared_ahi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/beurre_blanc.jpg",
     "ingredients": [
       "3 échalotes",
       "10 cl de vin blanc sec (type muscadet)",
@@ -5157,7 +5255,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Cr%C3%A8me_de_Salidou_%28caramel_au_beurre_sal%C3%A9%29.jpg/960px-Cr%C3%A8me_de_Salidou_%28caramel_au_beurre_sal%C3%A9%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/caramel_au_beurre_sal.jpg",
     "ingredients": [
       "240 g de sucre",
       "100 g de beurre salé",
@@ -5179,7 +5277,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Cotriade_bretonne.jpg/960px-Cotriade_bretonne.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cotriade.jpg",
     "ingredients": [
       "2,5 kg de poisson (rouget, merlu ou merlan, congre, maquereau, grondin, vieille)",
       "coquillages et crustacés : moules, coques, étrilles, crevettes, langoustines",
@@ -5226,7 +5324,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Roscoff_2008_PD_30.JPG/960px-Roscoff_2008_PD_30.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_pe_bretonne.jpg",
     "ingredients": [
       "La crêpe bretonne, ou krampouezh, comporte soit de la farine de sarrasin (appelée également blé noir), soit de la farine de froment, selon les régions bretonnes la crêpe bretonne peut être un mélange de farine de blé noir et de farine de froment (ex : Brest)",
       "Crêpe de froment : farine de froment, œuf, lait",
@@ -5247,7 +5345,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 6,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Far-breton.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/far_breton.jpg",
     "ingredients": [
       "200 g de farine",
       "150 g de sucre semoule",
@@ -5275,7 +5373,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Kig_ha_farz_du_l%C3%A9on.jpg/960px-Kig_ha_farz_du_l%C3%A9on.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/kig_ha_farz.jpg",
     "ingredients": [
       "Viande :",
       "500 g de jarret de porc",
@@ -5318,7 +5416,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Kouign_Amann_at_bakery_in_Tr%C3%A9gastel.jpg/960px-Kouign_Amann_at_bakery_in_Tr%C3%A9gastel.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/kouign_amann.jpg",
     "ingredients": [
       "250 g de farine type 55,",
       "250 g de beurre demi-sel,",
@@ -5356,7 +5454,7 @@
     "prepTimeMinutes": 10,
     "cookTimeMinutes": 20,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Le_Vitr%C3%A9ais.jpg/960px-Le_Vitr%C3%A9ais.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/vitr_ais.jpg",
     "ingredients": [
       "=== Biscuit aux amandes ===",
       "30 g de sucre,",
@@ -5398,7 +5496,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Teurgoule_2.jpg/960px-Teurgoule_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/teurgoule.jpg",
     "ingredients": [
       "100 g de riz rond",
       "1 litre de lait cru entier",
@@ -5466,7 +5564,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Pommes_%C3%A0_la_grivette.jpg/960px-Pommes_%C3%A0_la_grivette.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pommes_la_grivette.jpg",
     "ingredients": [
       "5 pommes",
       "½ l de lait caillé",
@@ -5487,7 +5585,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Poulet_vallee_d%27auge_cropped.png/960px-Poulet_vallee_d%27auge_cropped.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/poulet_vall_e_d_auge.jpg",
     "ingredients": [
       "1 poulet découpé en morceaux, avec la peau;",
       "1 noix de beurre;",
@@ -5516,7 +5614,7 @@
     "prepTimeMinutes": 30,
     "cookTimeMinutes": 30,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Tripe_%C3%A0_la_mode_de_Caen_2.jpg/960px-Tripe_%C3%A0_la_mode_de_Caen_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tripes_la_mode_de_caen.jpg",
     "ingredients": [
       "Préparation : 30 minutes. Cuisson : 15 heures.",
       "3,5 kg de tripes de bœuf (panse, feuillet, bonnet, caillette) blanchies,",
@@ -5570,7 +5668,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Potjevleesch_in_Malo-les-Bains.jpg/960px-Potjevleesch_in_Malo-les-Bains.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/lapin_en_terrine.jpg",
     "ingredients": [
       "Un lapin découpé,",
       "De poitrine fumée en tranches,",
@@ -5632,7 +5730,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 2,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Chawan-mushi.JPG/960px-Chawan-mushi.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/chawanmushi.jpg",
     "ingredients": [
       "4 œufs",
       "600ml de bouillon à base de :",
@@ -5786,7 +5884,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Gazpacho_Cazuela_Barro.jpg/960px-Gazpacho_Cazuela_Barro.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/gazpacho.jpg",
     "ingredients": [
       "2 grosses tomates",
       "1-2 gros concombres",
@@ -5823,7 +5921,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Mel%C3%B3n_con_jam%C3%B3n_SDC14106-1.JPG/960px-Mel%C3%B3n_con_jam%C3%B3n_SDC14106-1.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/melon_au_jambon.jpg",
     "ingredients": [
       "1 Melon (chair orange)",
       "1 Melon Espagnol(chair verte pâle)",
@@ -5844,7 +5942,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Metropolitan_Library_Service_Agency_%28MELSA%29_booth_at_2026_Twin_Cities_Pride.jpg/960px-Metropolitan_Library_Service_Agency_%28MELSA%29_booth_at_2026_Twin_Cities_Pride.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/melsa.jpg",
     "ingredients": [
       "1 rate de bœuf, de veau ou de porc (de préférence non percée)",
       "250 g de chair à saucisse",
@@ -5950,7 +6048,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Pa_amb_tom%C3%A0quet_-_001.jpg/960px-Pa_amb_tom%C3%A0quet_-_001.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pa_amb_tom_quet.jpg",
     "ingredients": [
       "pain de campagne,",
       "200g de jambon serrano, ibérique ou \"de bellota\" (facultatif),",
@@ -5978,7 +6076,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 30,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Bisteeya.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/pastilla.jpg",
     "ingredients": [
       "4 pigeons",
       "24 feuilles de brik",
@@ -6050,7 +6148,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Pontin.jpg/960px-Pontin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pounti.jpg",
     "ingredients": [
       "500 g de viande de porc (maigre et lard)",
       "250 g de farine",
@@ -6080,7 +6178,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Parcelles_d%27un_viticulteur_de_l%27AOC.jpg/960px-Parcelles_d%27un_viticulteur_de_l%27AOC.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/r_tie.jpg",
     "ingredients": [
       "La rôtie peut être considérée comme une soupe froide constituée de :",
       "tranches de pain",
@@ -6095,13 +6193,42 @@
     "license": "CC-BY-SA 3.0"
   },
   {
+    "title": "Salade de macaronis",
+    "category": "Entrée",
+    "cuisineOrigin": "Cuisine Française",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "file:///android_asset/recipe_images/salade_de_macaronis.jpg",
+    "ingredients": [
+      "500 g de macaroni",
+      "200 g de bacon",
+      "50 g de crème sure",
+      "50 g de mayonnaise",
+      "12 olives dénoyautées",
+      "8 radis",
+      "4 branches de céleri",
+      "4 œufs",
+      "3 poivrons (vert, rouge, jaune)",
+      "2 échalotes vertes",
+      "moutarde, sel, poivre et fines herbes (thym, basilic, persil, romarin, sauge)"
+    ],
+    "instructions": [
+      "Cuire les pâtes (un peu moins que \"al dente\"), le bacon croustillant et les œufs durs, laisser refroidir",
+      "Hacher le bacon, les légumes et les œufs écaillés",
+      "Mélanger les ingrédients dans un saladier et laisser reposer au réfrigérateur pendant quelques heures."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Salade%20de%20macaronis",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
     "title": "Salade de morue",
     "category": "Entrée",
     "cuisineOrigin": "Cuisine Française",
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Pal%C3%A9o_-_Salade_de_foie_de_morue_%2815184283954%29.jpg/960px-Pal%C3%A9o_-_Salade_de_foie_de_morue_%2815184283954%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/salade_de_morue.jpg",
     "ingredients": [
       "1 kg de morue séchée, épaisse",
       "2 citrons",
@@ -6189,7 +6316,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Sopa_castelhana.JPG/960px-Sopa_castelhana.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/soupe_l_ail.jpg",
     "ingredients": [
       "(pour 4)",
       "6 gousses d'ail",
@@ -6260,13 +6387,38 @@
     "license": "CC-BY-SA 3.0"
   },
   {
+    "title": "Tomates mozzarella",
+    "category": "Entrée",
+    "cuisineOrigin": "Cuisine Française",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "file:///android_asset/recipe_images/tomates_mozzarella.jpg",
+    "ingredients": [
+      "8 tomates grappe,",
+      "250 g de mozzarella,",
+      "bouquet de basilic,",
+      "3 cuillerées à soupe d'huile d'olive,",
+      "sel, poivre."
+    ],
+    "instructions": [
+      "Laver les tomates puis les sécher. Couper les tomates en rondelles.",
+      "Couper la mozzarella en rondelles.",
+      "Disposer dans un plat en alternant tomate et mozzarella.",
+      "Arroser d'huile d'olive. Saler et poivrer.",
+      "Répandre du basilic découpé (avec des ciseaux) sur le tout."
+    ],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Tomates%20mozzarella",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
     "title": "Salade russe au poulet",
     "category": "Entrée",
     "cuisineOrigin": "Cuisine Française",
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6f/2023_Sa%C5%82atka_jarzynowa_%281%29.jpg/960px-2023_Sa%C5%82atka_jarzynowa_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/salade_russe_au_poulet.jpg",
     "ingredients": [
       "Viande de poulet fumé ou cuit",
       "Cornichons russes aigre-doux",
@@ -6292,7 +6444,7 @@
     "prepTimeMinutes": 5,
     "cookTimeMinutes": 5,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Apothermum.jpg/960px-Apothermum.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/apothermum.jpg",
     "ingredients": [
       "1/2 litre de lait entier",
       "50 grammes de semoule fine",
@@ -6320,7 +6472,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 1,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Traditional_Banana_Boat.jpg/960px-Traditional_Banana_Boat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/banana_split.jpg",
     "ingredients": [
       "1 banane ;",
       "glace (parfum(s) de votre choix) ;",
@@ -6345,7 +6497,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 1,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Fondants_banane-chocolat_3.jpg/960px-Fondants_banane-chocolat_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/banane_au_chocolat.jpg",
     "ingredients": [
       "1 banane ;",
       "3 carreaux de chocolat ;",
@@ -6416,7 +6568,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Barfi.JPG/960px-Barfi.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/barfi.jpg",
     "ingredients": [
       "1 litre de lait",
       "150 g de sucre",
@@ -6443,7 +6595,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Batbout.jpg/960px-Batbout.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/batbout.jpg",
     "ingredients": [
       "100 g de farine",
       "250g g de semoule",
@@ -6498,7 +6650,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/Bienmesabe_antequerano.jpg/960px-Bienmesabe_antequerano.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/bienmesabe.jpg",
     "ingredients": [
       "500 g de poudre d'amandes,",
       "500 g de sucre,",
@@ -6526,7 +6678,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b2/Bombom_de_nozes.jpg/960px-Bombom_de_nozes.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/bonbons_pralin_s_au_chocolat.jpg",
     "ingredients": [
       "1/2 tablette de chocolat noir ou au lait ou blanc;",
       "20 g. de beurre;",
@@ -6554,7 +6706,7 @@
     "prepTimeMinutes": 30,
     "cookTimeMinutes": 10,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/34/Pumpkin_tangyuan_%28%E6%B1%A4%E5%9C%86%29_with_red_bean_baste_and_black_sesame_fillings.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/boulettes_de_riz_gluant_aux_haricots_rouges.jpg",
     "ingredients": [
       "Préparation : 20-30 minutes",
       "Cuisson : 10 minutes",
@@ -6581,7 +6733,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Brioche.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/brioche.jpg",
     "ingredients": [
       "=== Première version ===",
       "400 grammes de farine",
@@ -6649,7 +6801,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Brownie.jpg/960px-Brownie.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/brownies.jpg",
     "ingredients": [
       "120 g de chocolat noir,",
       "125 g de beurre mou,",
@@ -6677,7 +6829,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/b_che_aux_marrons.jpg",
     "ingredients": [
       "crème de marrons : une boîte de 500 g,",
       "biscuits à la cuillère ou à champagne : une vingtaine pour un moule à cake,",
@@ -6706,7 +6858,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/b_che_aux_marrons_et_au_chocolat.jpg",
     "ingredients": [
       "1 kg de marrons ;",
       "2 grosses cuillerées à soupe de sucre en poudre de sucre ;",
@@ -6737,7 +6889,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/B%C3%BBche_de_No%C3%ABl_chocolat_framboise_maison.jpg/960px-B%C3%BBche_de_No%C3%ABl_chocolat_framboise_maison.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/b_che_de_no_l.jpg",
     "ingredients": [
       "100 g de farine ;",
       "100 g de sucre ;",
@@ -6784,7 +6936,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/B%C3%BBche_de_No%C3%ABl_facile_%282014-12-23%29.jpg/960px-B%C3%BBche_de_No%C3%ABl_facile_%282014-12-23%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/b_che_de_no_l_facile.jpg",
     "ingredients": [
       "6 œufs,",
       "210 g de sucre,",
@@ -6824,7 +6976,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Chemin_Bugnes_St_Jean_Veyle_1.jpg/960px-Chemin_Bugnes_St_Jean_Veyle_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/bugnes.jpg",
     "ingredients": [
       "250 g de farine,",
       "50 g de sucre,",
@@ -6859,7 +7011,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Martial_Caillebotte_-_Gustave_Caillebotte_et_Berg%C3%A8re_sur_la_place_du_Caroussel%2C_1892.jpg/960px-Martial_Caillebotte_-_Gustave_Caillebotte_et_Berg%C3%A8re_sur_la_place_du_Caroussel%2C_1892.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/caillebotte_fromage.jpg",
     "ingredients": [
       "1 l de lait entier cru",
       "Un petit flacon de « présure » (se trouve en pharmacie)",
@@ -6883,7 +7035,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/G%C3%A2teau_au_yaourt_et_aux_pommes_d%C3%A9cor%C3%A9_gla%C3%A7age_blanc.JPG/960px-G%C3%A2teau_au_yaourt_et_aux_pommes_d%C3%A9cor%C3%A9_gla%C3%A7age_blanc.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cake_au_yaourt.jpg",
     "ingredients": [
       "3 œufs",
       "150 g de sucre",
@@ -6911,7 +7063,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Panettone_2013_%288400330750%29.jpg/960px-Panettone_2013_%288400330750%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cake_citron_orange.jpg",
     "ingredients": [
       "=== Pâte et farce ===",
       "50 g farine riz-millet,",
@@ -6944,7 +7096,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Cake_moelleux_au_chocolat_d%C3%A9cor%C3%A9.jpg/960px-Cake_moelleux_au_chocolat_d%C3%A9cor%C3%A9.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cake_moelleux_au_chocolat.jpg",
     "ingredients": [
       "600 g de chocolat,",
       "400 g de beurre,",
@@ -6973,7 +7125,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Raphaelle_Peale_-_Still_Life_with_Cake_%281818%29.jpg/960px-Raphaelle_Peale_-_Still_Life_with_Cake_%281818%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cake_nature.jpg",
     "ingredients": [
       "2 kg de farine,",
       "8 g de levure,",
@@ -6997,7 +7149,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Caramel-3.jpg/960px-Caramel-3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/caramel.jpg",
     "ingredients": [
       "225 g de sucre",
       "10 cl d'eau"
@@ -7039,7 +7191,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Salon_chocolat_Paris_2017_Charlotte_Landemaine_3244c.jpg/960px-Salon_chocolat_Paris_2017_Charlotte_Landemaine_3244c.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/charlotte_au_chocolat.jpg",
     "ingredients": [
       "200 g de mousse au chocolat,",
       "30 biscuits à la cuillère,",
@@ -7070,7 +7222,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Charlotte_aux_fraises.JPG/960px-Charlotte_aux_fraises.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/charlotte_aux_fraises.jpg",
     "ingredients": [
       "500 g de fraises",
       "30 biscuits à la cuillère",
@@ -7104,7 +7256,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/charlotte_aux_pommes_et_la_cassonade.jpg",
     "ingredients": [
       "30 biscuits à la cuillère",
       "6 pommes",
@@ -7180,7 +7332,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Satou_Sabally_2025b.jpg/960px-Satou_Sabally_2025b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/chaudeau.jpg",
     "ingredients": [
       "1 litre de lait.",
       "3 œufs.",
@@ -7231,7 +7383,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Small_waterfall._%22Arji_chrik%22_located_just_4_km_north-east_of_the_town_of_Lusagyugh..jpg/960px-Small_waterfall._%22Arji_chrik%22_located_just_4_km_north-east_of_the_town_of_Lusagyugh..jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/chrik.jpg",
     "ingredients": [
       "1 kg de farine",
       "250 g de sucre",
@@ -7259,7 +7411,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 45,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Clafoutis_cerises.jpg/960px-Clafoutis_cerises.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/clafoutis.jpg",
     "ingredients": [
       "500 g de cerises noires,",
       "4 œufs entiers,",
@@ -7313,7 +7465,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Artichauds_%C3%A0_la_compote_de_pommes_%285263650250%29.jpg/960px-Artichauds_%C3%A0_la_compote_de_pommes_%285263650250%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/compote_de_pommes.jpg",
     "ingredients": [
       "20 pommes fraîches,",
       "1 tasse de sucre."
@@ -7337,7 +7489,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 15,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/H%C3%B4tel_Le_Concorde_Qu%C3%A9bec.jpg/960px-H%C3%B4tel_Le_Concorde_Qu%C3%A9bec.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/concorde.jpg",
     "ingredients": [
       "9 blancs d'œuf,",
       "3 jaunes d'œuf,",
@@ -7372,7 +7524,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Pr%C3%A9paration_des_cookies%2C_apr%C3%A8s_cuisson%2C_mars_2020_%283%29.jpg/960px-Pr%C3%A9paration_des_cookies%2C_apr%C3%A8s_cuisson%2C_mars_2020_%283%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cookies_aux_p_pites_de_chocolat.jpg",
     "ingredients": [
       "250 g de beurre",
       "120 g de sucre",
@@ -7400,7 +7552,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Pr%C3%A9paration_des_cookies%2C_d%C3%A9gustation%2C_mars_2020_%282%29.jpg/960px-Pr%C3%A9paration_des_cookies%2C_d%C3%A9gustation%2C_mars_2020_%282%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cookies_aux_p_pites_de_chocolat_2.jpg",
     "ingredients": [
       "450g de farine,",
       "2 œufs,",
@@ -7440,7 +7592,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Pr%C3%A9paration_des_cookies%2C_apr%C3%A8s_cuisson%2C_mars_2020_%283%29.jpg/960px-Pr%C3%A9paration_des_cookies%2C_apr%C3%A8s_cuisson%2C_mars_2020_%283%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cookies_aux_p_pites_de_chocolat_3.jpg",
     "ingredients": [
       "250 g de farine,",
       "1 œuf,",
@@ -7496,7 +7648,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Creme_anglaise_p1050168.jpg/960px-Creme_anglaise_p1050168.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_anglaise.jpg",
     "ingredients": [
       "1 litre de lait,",
       "de 4 à 12 jaunes d'œuf (plus il y a de jaunes, plus la crème sera onctueuse),",
@@ -7529,7 +7681,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Creme_anglaise_p1050168.jpg/960px-Creme_anglaise_p1050168.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_anglaise.jpg",
     "ingredients": [
       "Ingrédients pour une recette riche :",
       "1/2 litre de lait ;",
@@ -7559,7 +7711,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Buttercreme_in_einer_Glassch%C3%BCssel-8493.jpg/960px-Buttercreme_in_einer_Glassch%C3%BCssel-8493.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_au_beurre.jpg",
     "ingredients": [
       "8 jaunes d'œufs",
       "250 g de sucre",
@@ -7606,7 +7758,7 @@
     "prepTimeMinutes": 15,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/91/Cr%C3%A8me_br%C3%BBl%C3%A9e_w._whipped_cream.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_br_l_e.jpg",
     "ingredients": [
       "5 jaunes d'œuf ;",
       "100 g de sucre ;",
@@ -7644,7 +7796,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/And_some_whipped_cream_%284315201282%29.jpg/960px-And_some_whipped_cream_%284315201282%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_chantilly.jpg",
     "ingredients": [
       "100 g de crème fraîche,",
       "25 g de sucre,",
@@ -7665,7 +7817,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Lemon_curd-2.jpg/960px-Lemon_curd-2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_de_citron.jpg",
     "ingredients": [
       "4 citrons,",
       "3 œufs,",
@@ -7692,7 +7844,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Dessert_%28sabl%C3%A9_press%C3%A9_au_gianduja%2C_cr%C3%A8me_chocolat_au_lait%2C_glace_mogador%29.jpg/960px-Dessert_%28sabl%C3%A9_press%C3%A9_au_gianduja%2C_cr%C3%A8me_chocolat_au_lait%2C_glace_mogador%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_dessert_au_chocolat.jpg",
     "ingredients": [
       "1 litre de lait entier",
       "200 grammes de chocolat noir",
@@ -7717,7 +7869,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Apple_cake_with_vanilla_ice_cream_2.jpg/960px-Apple_cake_with_vanilla_ice_cream_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_glac_e.jpg",
     "ingredients": [
       "500 grammes de fruits",
       "250 grammes de sucre glace",
@@ -7741,7 +7893,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Pastry_cream.jpg/960px-Pastry_cream.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/cr_me_p_tissi_re.jpg",
     "ingredients": [
       "1/4 de litre de lait,",
       "2 jaunes d'œufs,",
@@ -7828,7 +7980,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/18/Cuajada_cropped_-_juantigues.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/cuajada.jpg",
     "ingredients": [
       "1 litre de lait frais de brebis",
       "18 gouttes de pressure",
@@ -7848,7 +8000,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Fiadone.jpg/960px-Fiadone.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/fiadone.jpg",
     "ingredients": [
       "500 g de brocciu frais,",
       "6 œufs entiers,",
@@ -7874,7 +8026,7 @@
     "prepTimeMinutes": 45,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/91/Cr%C3%A8me_br%C3%BBl%C3%A9e_w._whipped_cream.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/flan_aux_oeufs.jpg",
     "ingredients": [
       "(Pour 4 parts environ)",
       "4 à 6 œufs (suivant le calibre)",
@@ -7987,7 +8139,7 @@
     "prepTimeMinutes": 30,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Flans_de_fromage_blanc_au_fruit_de_la_passion_%281%29.jpg/960px-Flans_de_fromage_blanc_au_fruit_de_la_passion_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/flan_blanc.jpg",
     "ingredients": [
       "(4 parts environ)",
       "1 à 2 blanc d’œufs (suivant le calibre),",
@@ -8022,7 +8174,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Fondue_au_chocolat.JPG/960px-Fondue_au_chocolat.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/fondue_au_chocolat.jpg",
     "ingredients": [
       "250 g de chocolat à cuire (blanc, noir ou au lait, selon les goûts)",
       "125 ml de crème fraîche épaisse",
@@ -8072,7 +8224,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/D%C3%A9coration_sur_un_cadre_fraisier.JPG/960px-D%C3%A9coration_sur_un_cadre_fraisier.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/fraisier.jpg",
     "ingredients": [
       "=== Génoise ===",
       "125g de farine",
@@ -8122,7 +8274,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Frari_%28Venice%29_-_Sacristy_-_Descent_from_the_Cross_by_Niccol%C3%B2_Frangipane.jpg/960px-Frari_%28Venice%29_-_Sacristy_-_Descent_from_the_Cross_by_Niccol%C3%B2_Frangipane.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/frangipane.jpg",
     "ingredients": [
       "150 g de poudre d'amande,",
       "75 g de sucre blanc ou sucre glace,",
@@ -8174,7 +8326,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Galaktoboureko_doughnut_from_Oakleigh_Doughnut_Company%2C_Richmond.jpg/960px-Galaktoboureko_doughnut_from_Oakleigh_Doughnut_Company%2C_Richmond.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/galaktobo_reko.jpg",
     "ingredients": [
       "450 g de pâte filo",
       "650 g de sucre",
@@ -8205,7 +8357,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/PBfudge_ganache.jpg/960px-PBfudge_ganache.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/ganache.jpg",
     "ingredients": [
       "2 dl de crème",
       "400 g de chocolat",
@@ -8262,7 +8414,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 5,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Jielbeaumadier_gaufres_lilloises_2008.jpg/960px-Jielbeaumadier_gaufres_lilloises_2008.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/gaufre.jpg",
     "ingredients": [
       "(Pour 15 à 25 gaufres)",
       "1 kg de farine,",
@@ -8310,7 +8462,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Gulab_jamun_%28Gibraltar%2C_November_2020%29.jpg/960px-Gulab_jamun_%28Gibraltar%2C_November_2020%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/gulabjaman.jpg",
     "ingredients": [
       "175 g de lait entier en poudre",
       "2 c. à soupe de farine",
@@ -8342,7 +8494,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/%D7%97%D7%9C%D7%95%D7%95%D7%94_%D7%91%D7%A9%D7%95%D7%A7_%D7%9E%D7%97%D7%A0%D7%94_%D7%99%D7%94%D7%95%D7%93%D7%94%2C_%D7%A6%D7%99%D7%9C%D7%9D-_%D7%93%D7%A8%D7%95%D7%A8_%D7%90%D7%9C%D7%95%D7%9F.jpg/960px-%D7%97%D7%9C%D7%95%D7%95%D7%94_%D7%91%D7%A9%D7%95%D7%A7_%D7%9E%D7%97%D7%A0%D7%94_%D7%99%D7%94%D7%95%D7%93%D7%94%2C_%D7%A6%D7%99%D7%9C%D7%9D-_%D7%93%D7%A8%D7%95%D7%A8_%D7%90%D7%9C%D7%95%D7%9F.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/halavah.jpg",
     "ingredients": [
       "4 tasses d'eau",
       "3 tasses de sucre",
@@ -8367,7 +8519,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Brasserie_Georges_%28Lyon%29_-_%C3%8Ele_flottante_aux_pralines_roses_%28oct_2022%29.jpg/960px-Brasserie_Georges_%28Lyon%29_-_%C3%8Ele_flottante_aux_pralines_roses_%28oct_2022%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/le_flottante.jpg",
     "ingredients": [
       "3 blancs d'œufs.",
       "1 pincée de sel.",
@@ -8392,7 +8544,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/360%C2%B0_Hohe_Kugel_Panorama.jpg/960px-360%C2%B0_Hohe_Kugel_Panorama.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/kugel.jpg",
     "ingredients": [
       "500 cl de crème fraîche",
       "300 g de farine",
@@ -8421,7 +8573,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Kulfi_2.jpg/960px-Kulfi_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/kulfi.jpg",
     "ingredients": [
       "1 boîte de lait condensé",
       "1 boîte de lait condensé sucré",
@@ -8470,7 +8622,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/Turkish_Delight_lokum.jpg/960px-Turkish_Delight_lokum.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/loukoum.jpg",
     "ingredients": [
       "2 tasses de sucre",
       "1/2 tasse de fécule de maïs",
@@ -8546,7 +8698,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fb/FrenchMeringue.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/meringue_fran_aise.jpg",
     "ingredients": [
       "200 g de sucre glace",
       "4 blancs d'œuf"
@@ -8566,7 +8718,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Making_Italian_Meringue.jpg/960px-Making_Italian_Meringue.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/meringue_italienne.jpg",
     "ingredients": [
       "10 cl d'eau,",
       "blanc d'œuf,",
@@ -8588,7 +8740,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Vert_aux_lardons_pissenlit%2C_lardons%2C_miel_de_Lavande_mix%C3%A9_%C3%A0_une_vinaigrette%2C_oeuf_poch%C3%A9_et_cro%C3%BBtons.jpg/960px-Vert_aux_lardons_pissenlit%2C_lardons%2C_miel_de_Lavande_mix%C3%A9_%C3%A0_une_vinaigrette%2C_oeuf_poch%C3%A9_et_cro%C3%BBtons.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/miel_de_pissenlits.jpg",
     "ingredients": [
       "~ 500 fleurs de pissenlit représentent un volume de 2 litres - ~ 260 g ;",
       "500 g de sucre ;",
@@ -8616,7 +8768,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Ville_de_Millas.jpg/960px-Ville_de_Millas.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/millas.jpg",
     "ingredients": [
       "5 œufs",
       "240 g de sucre",
@@ -8673,7 +8825,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Mont_Blanc_and_Dome_du_Gouter.jpg/960px-Mont_Blanc_and_Dome_du_Gouter.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/mont_blanc.jpg",
     "ingredients": [
       "5 œufs,",
       "200 g de sucre roux de canne,",
@@ -8712,7 +8864,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Mousse_au_Chocolat_2010_006.JPG/960px-Mousse_au_Chocolat_2010_006.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/mousse_au_chocolat_3.jpg",
     "ingredients": [
       "1 œuf",
       "2 cuillères à soupe de sucre",
@@ -8734,7 +8886,7 @@
     "prepTimeMinutes": 20,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Pr%C3%A9paration_du_Jus_de_fruit_du_tamarin_et_pain_de_%C3%89tape_3.jpg/960px-Pr%C3%A9paration_du_Jus_de_fruit_du_tamarin_et_pain_de_%C3%89tape_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/jus_de_tamarin.jpg",
     "ingredients": [
       "Ingrédients pour le Tommy Dji",
       "4 bonnes poignées de tommy ;",
@@ -8829,7 +8981,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/Funeraire_stela_van_Rourou%2C_GDE002960.jpg/960px-Funeraire_stela_van_Rourou%2C_GDE002960.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_rourou.jpg",
     "ingredients": [
       "pastis : 2,5 cl",
       "sirop de fraise : 2,5 cl",
@@ -8850,7 +9002,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Bloody_Mary_Coctail_with_celery_stalk_-_Evan_Swigart.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_tomate.jpg",
     "ingredients": [
       "pastis : 2,5 cl",
       "sirop de grenadine : 2,5 cl",
@@ -8871,7 +9023,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/47/2004_Indonesia_Tsunami_Complete.gif?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_tsunami.jpg",
     "ingredients": [
       "20 cl de bière blonde",
       "20 cl de jus de prune",
@@ -8937,7 +9089,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": null,
+    "imageUrl": "file:///android_asset/recipe_images/boissons_cocktails_zombie.jpg",
     "ingredients": [
       "3 cl de rhum blanc",
       "3 cl de rhum doré",
@@ -8963,7 +9115,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 4,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Tonnelet_en_cristal_de_roche_taill%C3%A9%2C_mont%C3%A9_en_argent_dor%C3%A9_et_%C3%A9mail%2C_XVe_si%C3%A8cle_-_estampe_-_H._Gu%C3%A9rard_-_btv1b10532205n.jpg/960px-Tonnelet_en_cristal_de_roche_taill%C3%A9%2C_mont%C3%A9_en_argent_dor%C3%A9_et_%C3%A9mail%2C_XVe_si%C3%A8cle_-_estampe_-_H._Gu%C3%A9rard_-_btv1b10532205n.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_dor.jpg",
     "ingredients": [
       "500 grammes de yaourt",
       "1 cuillère à café de sel",
@@ -8988,7 +9140,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/File-moi_tes_sous.jpg/960px-File-moi_tes_sous.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/boissons_hydromel.jpg",
     "ingredients": [
       "5 litres d'eau",
       "1,5 kg de miel",
@@ -9165,7 +9317,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Dictionnaire_des_symboles%2C_embl%C3%A8mes_and_attributs_%281897%29_%2814559471228%29.jpg/960px-Dictionnaire_des_symboles%2C_embl%C3%A8mes_and_attributs_%281897%29_%2814559471228%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/vin_de_rhubarbe.jpg",
     "ingredients": [
       "Des jeunes tiges de rhubarbe,",
       "4 litres d'eau,",
@@ -9255,7 +9407,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Beignets_de_citrouille_au_sucre_glace.jpg/960px-Beignets_de_citrouille_au_sucre_glace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/beignets_de_citrouille.jpg",
     "ingredients": [
       "1 kg de potiron",
       "300 g de farine",
@@ -9289,7 +9441,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Beignets_de_pommes_de_terre.jpg/960px-Beignets_de_pommes_de_terre.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/beignets_de_pommes_de_terre.jpg",
     "ingredients": [
       "1 kg de Pommes de terre,",
       "1 cuillère à soupe de Farine,",
@@ -9312,7 +9464,7 @@
     "prepTimeMinutes": 10,
     "cookTimeMinutes": 20,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Poulets_farcis_aux_champignons_de_couche.jpg/960px-Poulets_farcis_aux_champignons_de_couche.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/champignons_farcis.jpg",
     "ingredients": [
       "2 échalotes,",
       "25 g de beurre,",
@@ -9346,7 +9498,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Poulaupair_gargotier_restaurateur_successeur_de_Charlot%2C_Rue_de_Rivoli.jpg/960px-Poulaupair_gargotier_restaurateur_successeur_de_Charlot%2C_Rue_de_Rivoli.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/chou_fleur_la_cr_me.jpg",
     "ingredients": [
       "400 g chou-fleur congelé",
       "2 CS crème fraîche ou fromage blanc",
@@ -9402,7 +9554,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/Pav%C3%A9s_de_saumon_%C3%A9pinards_%C3%A0_la_cr%C3%A8me.jpg/960px-Pav%C3%A9s_de_saumon_%C3%A9pinards_%C3%A0_la_cr%C3%A8me.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pinards_la_cr_me.jpg",
     "ingredients": [
       "400 g d’ épinards",
       "200 g de champignons",
@@ -9483,7 +9635,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Lyon_5e_-_Rue_Lainerie%2C_restaurant_Les_Fines_Gueules%2C_gratin_d%27andouillette_de_veau.jpg/960px-Lyon_5e_-_Rue_Lainerie%2C_restaurant_Les_Fines_Gueules%2C_gratin_d%27andouillette_de_veau.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/fondue_de_poireaux_la_cr_me.jpg",
     "ingredients": [
       "25 g de beurre",
       "2 échalotes",
@@ -9535,7 +9687,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/Golabki_jacek.jpg/960px-Golabki_jacek.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/golabkis.jpg",
     "ingredients": [
       "1 chou vert,",
       "800 g de bœuf ou de porc,",
@@ -9588,7 +9740,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Cassolette_poireaux_Saint-Jacques.jpg/960px-Cassolette_poireaux_Saint-Jacques.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/gratin_de_poireaux.jpg",
     "ingredients": [
       "400 g de poireaux",
       "100 g champignons",
@@ -9670,7 +9822,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Museum_of_the_Mazovian_Countryside_in_Sierpc_%28okraszone_kluski%29.jpg/960px-Museum_of_the_Mazovian_Countryside_in_Sierpc_%28okraszone_kluski%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/kluski.jpg",
     "ingredients": [
       "300 g de farine,",
       "100 g de sucre (facultatif),",
@@ -9704,7 +9856,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 5,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Mujaddara.jpg/960px-Mujaddara.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/lentilles_cuisin_es.jpg",
     "ingredients": [
       "250 g de lentilles sèches",
       "100 g de lardons",
@@ -9740,7 +9892,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Cuisson_mogettes_au_feu_de_bois.jpg/960px-Cuisson_mogettes_au_feu_de_bois.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/mogettes_cuisin_es.jpg",
     "ingredients": [
       "500 g de haricots cocos",
       "1/2 litre d’eau chaude",
@@ -9795,7 +9947,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Frische%2C_selbstgemachte_Reibekuchen-8786.jpg/960px-Frische%2C_selbstgemachte_Reibekuchen-8786.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/placki_ziemniaczane.jpg",
     "ingredients": [
       "2 kg de pommes de terre",
       "2 oignons",
@@ -9821,7 +9973,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": 5,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Chateau_de_Brindos_-_Ballotine_de_lotte_rotie_aux_poivrons_confits.jpg/960px-Chateau_de_Brindos_-_Ballotine_de_lotte_rotie_aux_poivrons_confits.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/poivrons_confits.jpg",
     "ingredients": [
       "5 poivrons : 2 rouges, 3 verts",
       "huile d'olive",
@@ -9844,6 +9996,21 @@
       "Les poivrons peuvent être servis froids, en entrée, voire en apéro, sur une tranche de pain grillée"
     ],
     "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Poivrons%20confits",
+    "license": "CC-BY-SA 3.0"
+  },
+  {
+    "title": "Polenta",
+    "category": "Accompagnement",
+    "cuisineOrigin": "Cuisine Française",
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "servings": null,
+    "imageUrl": "file:///android_asset/recipe_images/polenta.jpg",
+    "ingredients": [
+      "Polenta savoyarde"
+    ],
+    "instructions": [],
+    "sourceUrl": "https://fr.wikibooks.org/wiki/Livre%20de%20cuisine/Polenta",
     "license": "CC-BY-SA 3.0"
   },
   {
@@ -9879,7 +10046,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Pommes_Dauphines.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageUrl": "file:///android_asset/recipe_images/pommes_dauphines.jpg",
     "ingredients": [
       "350 g de pommes de terre,",
       "80 g de beurre,",
@@ -9965,7 +10132,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Filet_de_fl%C3%A9tan%2C_pur%C3%A9e_de_carottes_%C3%A0_la_badiane%2C_sauce_vierge_%28radis%2C_oignons_rouges_et_graines_de_courge%29.jpg/960px-Filet_de_fl%C3%A9tan%2C_pur%C3%A9e_de_carottes_%C3%A0_la_badiane%2C_sauce_vierge_%28radis%2C_oignons_rouges_et_graines_de_courge%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pur_e_de_carottes.jpg",
     "ingredients": [
       "400 g de carottes",
       "100 g de pomme de terre",
@@ -9987,7 +10154,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Filet_mignon_avec_gratin_dauphinois_et_pur%C3%A9e_de_c%C3%A9leri.jpg/960px-Filet_mignon_avec_gratin_dauphinois_et_pur%C3%A9e_de_c%C3%A9leri.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pur_e_de_c_leris.jpg",
     "ingredients": [
       "300 g de céleris rave",
       "150 g de pommes de terre",
@@ -10011,7 +10178,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Pur%C3%A9ed_veggies.jpg/960px-Pur%C3%A9ed_veggies.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pur_e_de_courgettes.jpg",
     "ingredients": [
       "200 g de courgettes",
       "200 g de  pommes de terre",
@@ -10037,7 +10204,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Pur%C3%A9ed_veggies.jpg/960px-Pur%C3%A9ed_veggies.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pur_e_de_navets.jpg",
     "ingredients": [
       "200 g de  pommes de terre",
       "200 g de navets",
@@ -10062,7 +10229,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Le_pont_de_Thorey_-_Pur%C3%A9e_de_pommes_de_terre_%27Vitelotte%27.jpg/960px-Le_pont_de_Thorey_-_Pur%C3%A9e_de_pommes_de_terre_%27Vitelotte%27.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pur_e_de_pommes_de_terre.jpg",
     "ingredients": [
       "500 g de pommes de terre",
       "20 cl de lait",
@@ -10084,7 +10251,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/Taboul%C3%A9_arm%C3%A9nien_en_mars_2020_%28001%29.jpg/960px-Taboul%C3%A9_arm%C3%A9nien_en_mars_2020_%28001%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/taboul_arm_nien.jpg",
     "ingredients": [
       "(pour deux ou trois personnes)",
       "1 oignon ou 2 échalotes (aux choix)",
@@ -10206,7 +10373,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Tian_de_courgettes_et_d%27asperges_vertes_de_Lauris.jpg/960px-Tian_de_courgettes_et_d%27asperges_vertes_de_Lauris.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/tian_de_courgettes.jpg",
     "ingredients": [
       "200 g de courgettes",
       "100 g  de riz",
@@ -10236,7 +10403,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/Marche_de_Gros_Gras_et_B%C3%AAte%2C_Planches_7_et_8%2C_Paris_Mus%C3%A9es_20230707182828.jpg/960px-Marche_de_Gros_Gras_et_B%C3%AAte%2C_Planches_7_et_8%2C_Paris_Mus%C3%A9es_20230707182828.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/desserts_pav_aux_noix.jpg",
     "ingredients": [
       "150 g de cerneaux de noix",
       "40 g de beurre",
@@ -10263,7 +10430,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": 30,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Chicken_pakora-MB21.jpg/960px-Chicken_pakora-MB21.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pakora.jpg",
     "ingredients": [
       "250 g de farine de pois chiches",
       "1/3 cuillerée à thé de levure chimique",
@@ -10293,7 +10460,7 @@
     "prepTimeMinutes": null,
     "cookTimeMinutes": null,
     "servings": null,
-    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Len%C3%B4tre-Filet_de_bar_en_%C3%A9caille_de_l%C3%A9gumes%2C_mousseline_de_panais_et_pousses_d%E2%80%99%C3%A9pinard.jpg/960px-Len%C3%B4tre-Filet_de_bar_en_%C3%A9caille_de_l%C3%A9gumes%2C_mousseline_de_panais_et_pousses_d%E2%80%99%C3%A9pinard.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageUrl": "file:///android_asset/recipe_images/pur_e_de_l_gumes.jpg",
     "ingredients": [],
     "instructions": [
       "Peler les légumes et les laver",

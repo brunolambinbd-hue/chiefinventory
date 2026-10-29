@@ -38,6 +38,7 @@ object StarterRecipeSeedLoader {
         val prepTimeMinutes: Int?,
         val cookTimeMinutes: Int?,
         val servings: Int?,
+        val imageUrl: String? = null,
         val ingredients: List<String>,
         val instructions: List<String>,
         val sourceUrl: String?
@@ -104,6 +105,7 @@ object StarterRecipeSeedLoader {
         }
 
         val cuisineOrigin = obj.optString("cuisineOrigin", "").ifBlank { null }
+        val imageUrl = obj.optString("imageUrl", "").ifBlank { null }
 
         return SeedRecipe(
             title = title,
@@ -112,6 +114,7 @@ object StarterRecipeSeedLoader {
             prepTimeMinutes = prep,
             cookTimeMinutes = cook,
             servings = serv,
+            imageUrl = imageUrl,
             ingredients = ingredientsList,
             instructions = instructionsList,
             sourceUrl = sourceUrl
@@ -173,7 +176,8 @@ object StarterRecipeSeedLoader {
                 val updatedRecipe = existing.recipe.copy(
                     instructions = if (existing.recipe.instructions.isNullOrBlank() && seed.instructions.isNotEmpty()) seed.instructions.joinToString("\n\n") else existing.recipe.instructions,
                     source = if (fullSource.isNotBlank()) fullSource else existing.recipe.source,
-                    locationId = if (existing.recipe.locationId == null || existing.recipe.locationId == -1L) matchedCat?.id else existing.recipe.locationId
+                    locationId = if (existing.recipe.locationId == null || existing.recipe.locationId == -1L) matchedCat?.id else existing.recipe.locationId,
+                    imageUri = if (!seed.imageUrl.isNullOrBlank()) seed.imageUrl else existing.recipe.imageUri
                 )
                 recipeDao.updateRecipe(updatedRecipe)
 
@@ -201,6 +205,7 @@ object StarterRecipeSeedLoader {
                     cookingTimeMinutes = seed.cookTimeMinutes,
                     servings = seed.servings,
                     source = fullSource.ifBlank { null },
+                    imageUri = seed.imageUrl,
                     locationId = matchedCat?.id
                 )
 

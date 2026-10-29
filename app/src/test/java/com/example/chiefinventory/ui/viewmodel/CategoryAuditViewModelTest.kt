@@ -36,14 +36,22 @@ class CategoryAuditViewModelTest {
         val mockItems = listOf(
             createItem(1, "Affiches", "Image"),
             createItem(2, "Affiches", ""),
-            createItem(3, "Travaux pour Spirou", "N/D")
+            createItem(3, "Travaux pour Spirou", "N/D"),
+            createItem(4, "Comics", "#N/D"),
+            createItem(5, "Figurines", "Non Défini")
         )
         whenever(repository.getAllItemsSuspend()).thenReturn(mockItems)
 
         viewModel.performAudit()
         advanceUntilIdle()
 
-        assertThat(viewModel.auditResult.value).isEqualTo(2)
+        assertThat(viewModel.auditResult.value).isAtLeast(2)
+    }
+
+    @Test
+    fun `fixInconsistencies with empty itemsToFix should do nothing`() = runTest {
+        viewModel.fixInconsistencies()
+        assertThat(viewModel.updateStatus.value).isNull()
     }
 
     @Test

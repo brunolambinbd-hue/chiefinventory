@@ -33,8 +33,8 @@ class BatchPossessionViewModelTest {
         repository = mock()
         locationRepository = mock()
         whenever(locationRepository.getAll()).thenReturn(MutableLiveData(emptyList()))
-        
-        viewModel = BatchPossessionViewModel(repository, locationRepository)
+
+        viewModel = BatchPossessionViewModel(repository, locationRepository, mainDispatcherRule.testDispatcher)
     }
 
     @Test
@@ -70,6 +70,28 @@ class BatchPossessionViewModelTest {
             this.id == 1L && this.isPossessed && this.locationId == targetLocationId 
         })
         assertThat(viewModel.updateStatus.value).isEqualTo(1)
+    }
+
+    @Test
+    fun `applyUpdate with empty itemsToUpdate should do nothing`() = runTest {
+        viewModel.applyUpdate()
+        assertThat(viewModel.updateStatus.value).isNull()
+    }
+
+    @Test
+    fun `displayLocations should map locations hierarchy`() {
+        val loc1 = com.example.chiefinventory.model.Location(id = 1L, name = "Étagère 1", parentId = null)
+        val loc2 = com.example.chiefinventory.model.Location(id = 2L, name = "Boîte A", parentId = 1L)
+        whenever(locationRepository.getAll()).thenReturn(MutableLiveData(listOf(loc1, loc2)))
+
+        val vm = BatchPossessionViewModel(repository, locationRepository, mainDispatcherRule.testDispatcher)
+        val list = vm.displayLocations.value ?: emptyList()
+
+        assertThat(list).hasSize(2)
+        assertThat(list[0].location.id).isEqualTo(1L)
+        assertThat(list[0].depth).isEqualTo(0)
+        assertThat(list[1].location.id).isEqualTo(2L)
+        assertThat(list[1].depth).isEqualTo(1)
     }
 
     private fun createMockItem(id: Long, title: String, possessed: Boolean = false): CollectionItem {

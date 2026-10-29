@@ -144,7 +144,9 @@ class ImageEmbedderHelper(
      * Closes the [ImageEmbedder] instance to free up resources.
      */
     fun clearImageEmbedder() {
-        imageEmbedder?.close()
+        try {
+            imageEmbedder?.close()
+        } catch (_: Throwable) {}
         imageEmbedder = null
     }
 

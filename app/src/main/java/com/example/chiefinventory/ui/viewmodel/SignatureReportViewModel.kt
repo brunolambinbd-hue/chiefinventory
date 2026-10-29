@@ -31,15 +31,33 @@ class SignatureReportViewModel(repository: CollectionRepository) : ViewModel() {
     init {
         filteredItems.addSource(_allItems) { items ->
             // Filter for items with problematic signatures (null or empty).
-            val problems = items.filter { it.imageEmbedding == null || it.imageEmbedding.isEmpty() }
+            val problems = items.filter { isSignatureProblematic(it.imageEmbedding) }
                                  .sortedBy { it.remoteId } // Sort for a stable order.
 
             // Take a small sample of valid items for context.
-            val valids = items.filter { it.imageEmbedding != null && it.imageEmbedding.isNotEmpty() }
+            val valids = items.filter { isSignatureValid(it.imageEmbedding) }
                               .take(5)
 
             // Combine the lists, showing problematic items first.
             filteredItems.value = problems + valids
+        }
+    }
+
+    companion object {
+        fun isSignatureProblematic(imageEmbedding: ByteArray?): Boolean {
+            if (imageEmbedding == null) {
+                return true
+            } else {
+                return imageEmbedding.isEmpty()
+            }
+        }
+
+        fun isSignatureValid(imageEmbedding: ByteArray?): Boolean {
+            if (imageEmbedding == null) {
+                return false
+            } else {
+                return imageEmbedding.isNotEmpty()
+            }
         }
     }
 }

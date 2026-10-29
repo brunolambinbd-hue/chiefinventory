@@ -30,10 +30,19 @@ import java.io.InputStreamReader
  * @param application The application instance.
  * @param repository The [CollectionRepository] for data operations.
  */
-class ImportViewModel(application: Application, private val repository: CollectionRepository) : AndroidViewModel(application) {
+class ImportViewModel(
+    application: Application,
+    private val repository: CollectionRepository,
+    private val imageLoader: ImageLoader = ImageLoader(application)
+) : AndroidViewModel(application) {
 
-    private val imageEmbedderHelper = ImageEmbedderHelper(context = getApplication(), listener = null)
-    private val imageLoader = ImageLoader(application)
+    private var _imageEmbedderHelper: ImageEmbedderHelper? = null
+    private fun getImageEmbedderHelper(): ImageEmbedderHelper {
+        if (_imageEmbedderHelper == null) {
+            _imageEmbedderHelper = ImageEmbedderHelper(getApplication(), null)
+        }
+        return _imageEmbedderHelper!!
+    }
     private val baseImageUrl = "https://frankpe.com/images/bdg_new/" // URL Web correcte
 
     /**
@@ -100,7 +109,7 @@ class ImportViewModel(application: Application, private val repository: Collecti
                             Log.d("ImportViewModel", "Item $remoteId - Bitmap loading result: ${if (bitmap == null) "NULL" else "OK"}")
 
                             if (bitmap != null) {
-                                val signature = imageEmbedderHelper.computeSignature(bitmap)
+                                val signature = getImageEmbedderHelper().computeSignature(bitmap)
                                 if (signature != null) {
                                     itemToSave = itemToSave.copy(imageEmbedding = EmbeddingUtils.embeddingToByteArray(signature))
                                     Log.i("ImportViewModel", "Item $remoteId - Signature calculée avec succès.")
@@ -142,6 +151,6 @@ class ImportViewModel(application: Application, private val repository: Collecti
      */
     override fun onCleared() {
         super.onCleared()
-        imageEmbedderHelper.clearImageEmbedder()
+        _imageEmbedderHelper?.clearImageEmbedder()
     }
 }
