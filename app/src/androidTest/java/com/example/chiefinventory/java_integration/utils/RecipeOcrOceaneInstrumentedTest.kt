@@ -1,8 +1,8 @@
-package com.example.chiefinventory.java_integration.utils
+package com.chefinventory.app.java_integration.utils
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.chiefinventory.utils.RecipeOcrParser
+import com.chefinventory.app.utils.RecipeOcrParser
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

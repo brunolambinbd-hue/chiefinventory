@@ -1,4 +1,4 @@
-package com.example.chiefinventory.util
+package com.chefinventory.app.util
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.chiefinventory.utils.TextRecognitionHelper
+import com.chefinventory.app.utils.TextRecognitionHelper
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before

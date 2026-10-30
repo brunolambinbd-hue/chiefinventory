@@ -1,10 +1,10 @@
-package com.example.chiefinventory.java_integration.utils
+package com.chefinventory.app.java_integration.utils
 
 import android.content.Context
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.chiefinventory.utils.ImageStorageHelper
+import com.chefinventory.app.utils.ImageStorageHelper
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before

@@ -1,4 +1,4 @@
-package com.example.chiefinventory.java_ui
+package com.chefinventory.app.java_ui
 
 import android.content.Context
 import android.content.Intent
@@ -8,14 +8,14 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.chiefinventory.R
-import com.example.chiefinventory.ui.actvity.FullScreenImageActivity
+import com.chefinventory.app.R
+import com.chefinventory.app.ui.actvity.FullScreenImageActivity
 import org.hamcrest.Matchers
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Instrumented UI tests for the [com.example.chiefinventory.ui.actvity.FullScreenImageActivity].
+ * Instrumented UI tests for the [com.chefinventory.app.ui.actvity.FullScreenImageActivity].
  *
  * This class verifies that all item details passed via Intent extras are correctly
  * displayed in their respective TextViews.

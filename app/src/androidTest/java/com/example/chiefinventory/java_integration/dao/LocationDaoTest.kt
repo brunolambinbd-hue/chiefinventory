@@ -1,14 +1,14 @@
-package com.example.chiefinventory.java_integration.dao
+package com.chefinventory.app.java_integration.dao
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.example.chiefinventory.dao.LocationDao
-import com.example.chiefinventory.data.AppDatabase
-import com.example.chiefinventory.java_integration.utils.getOrAwaitValue
-import com.example.chiefinventory.model.Location
+import com.chefinventory.app.dao.LocationDao
+import com.chefinventory.app.data.AppDatabase
+import com.chefinventory.app.java_integration.utils.getOrAwaitValue
+import com.chefinventory.app.model.Location
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest

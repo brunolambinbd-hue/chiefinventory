@@ -29,7 +29,7 @@ val gitCommitHash: String = try {
 val buildTimestamp: String = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(Date())
 
 android {
-    namespace = "com.example.chiefinventory"
+    namespace = "com.chefinventory.app"
     compileSdk = libs.versions.sdkCompile.get().toString().toInt()
 
     @Suppress("UnstableApiUsage")
@@ -72,7 +72,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.chiefinventory"
+        applicationId = "com.chefinventory.app"
         minSdk = libs.versions.sdkMin.get().toString().toInt()
         targetSdk = libs.versions.sdkTarget.get().toString().toInt()
         versionCode = project.property("APP_VERSION_CODE").toString().toInt()

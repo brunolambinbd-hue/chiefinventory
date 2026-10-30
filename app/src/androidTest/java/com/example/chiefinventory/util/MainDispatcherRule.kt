@@ -1,4 +1,4 @@
-package com.example.chiefinventory.util
+package com.chefinventory.app.util
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

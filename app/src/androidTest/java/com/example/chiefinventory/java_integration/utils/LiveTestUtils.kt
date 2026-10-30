@@ -1,4 +1,4 @@
-package com.example.chiefinventory.java_integration.utils
+package com.chefinventory.app.java_integration.utils
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer

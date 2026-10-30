@@ -1,4 +1,4 @@
-package com.example.chiefinventory.ui.actvity
+package com.chefinventory.app.ui.actvity
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
@@ -9,7 +9,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.chiefinventory.R
+import com.chefinventory.app.R
 import com.google.common.truth.Truth.assertThat
 import org.hamcrest.Matchers.containsString
 import org.junit.Test

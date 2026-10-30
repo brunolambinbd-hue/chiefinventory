@@ -1,13 +1,13 @@
-package com.example.chiefinventory.java_integration.utils
+package com.chefinventory.app.java_integration.utils
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.chiefinventory.R
-import com.example.chiefinventory.ui.actvity.EditItemActivity
-import com.example.chiefinventory.utils.ImageCaptureUtil
+import com.chefinventory.app.R
+import com.chefinventory.app.ui.actvity.EditItemActivity
+import com.chefinventory.app.utils.ImageCaptureUtil
 import org.junit.Test
 import org.junit.runner.RunWith
 

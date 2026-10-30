@@ -1,4 +1,4 @@
-package com.example.chiefinventory.java_ui
+package com.chefinventory.app.java_ui
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -9,13 +9,13 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.chiefinventory.data.AppDatabase
-import com.example.chiefinventory.CollectionApplication
-import com.example.chiefinventory.R
-import com.example.chiefinventory.model.CollectionItem
-import com.example.chiefinventory.repo.CollectionRepository
-import com.example.chiefinventory.repo.LocationRepository
-import com.example.chiefinventory.ui.actvity.MainActivity
+import com.chefinventory.app.data.AppDatabase
+import com.chefinventory.app.CollectionApplication
+import com.chefinventory.app.R
+import com.chefinventory.app.model.CollectionItem
+import com.chefinventory.app.repo.CollectionRepository
+import com.chefinventory.app.repo.LocationRepository
+import com.chefinventory.app.ui.actvity.MainActivity
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before

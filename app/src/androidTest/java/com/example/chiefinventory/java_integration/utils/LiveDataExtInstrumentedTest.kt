@@ -1,11 +1,11 @@
-package com.example.chiefinventory.java_integration.utils
+package com.chefinventory.app.java_integration.utils
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.chiefinventory.utils.observeOnce
+import com.chefinventory.app.utils.observeOnce
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
