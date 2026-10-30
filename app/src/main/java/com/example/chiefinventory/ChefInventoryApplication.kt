@@ -25,7 +25,7 @@ open class ChefInventoryApplication : Application() {
 
     private var _recipeRepository: RecipeRepository? = null
     open var recipeRepository: RecipeRepository
-        get() = _recipeRepository ?: RecipeRepository(database.recipeDao(), database.ingredientDao()).also { _recipeRepository = it }
+        get() = _recipeRepository ?: RecipeRepository(database.recipeDao()).also { _recipeRepository = it }
         set(value) { _recipeRepository = value }
 
     override fun onCreate() {

@@ -12,13 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.chiefinventory.R
 import com.example.chiefinventory.databinding.ItemIngredientBinding
 import com.example.chiefinventory.model.Ingredient
-
 import com.example.chiefinventory.utils.setOnSingleClickListener
 
 private data class StockStyle(
-    @ColorRes val bgColorRes: Int,
-    @ColorRes val strokeColorRes: Int,
-    @ColorRes val textColorRes: Int,
+    @get:ColorRes val bgColorRes: Int,
+    @get:ColorRes val strokeColorRes: Int,
+    @get:ColorRes val textColorRes: Int,
     val statusText: String
 )
 
@@ -28,18 +27,25 @@ class IngredientAdapter(
     private var locationNamesMap: Map<Long, String> = emptyMap()
 ) : ListAdapter<Ingredient, IngredientAdapter.ViewHolder>(DiffCallback) {
 
+    @Suppress("NotifyDataSetChanged")
     fun setLocationNamesMap(map: Map<Long, String>) {
         this.locationNamesMap = map
-        notifyDataSetChanged()
+        val size = itemCount
+        if (size > 0) {
+            notifyItemRangeChanged(0, size)
+        } else {
+            notifyDataSetChanged()
+        }
     }
 
     object DiffCallback : DiffUtil.ItemCallback<Ingredient>() {
-        override fun areItemsTheSame(oldItem: Ingredient, newItem: Ingredient) = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: Ingredient, newItem: Ingredient) = oldItem == newItem
+        override fun areItemsTheSame(oldItem: Ingredient, newItem: Ingredient): Boolean = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Ingredient, newItem: Ingredient): Boolean = oldItem == newItem
     }
 
     class ViewHolder(internal val binding: ItemIngredientBinding) : RecyclerView.ViewHolder(binding.root) {
 
+        @Suppress("SetTextI18n")
         fun bind(
             ingredient: Ingredient,
             onClick: (Ingredient) -> Unit,
@@ -174,10 +180,10 @@ class IngredientAdapter(
 
     companion object {
         fun formatDoubleValue(value: Double): String {
-            if (value % 1.0 == 0.0) {
-                return value.toInt().toString()
+            return if (value % 1.0 == 0.0) {
+                value.toInt().toString()
             } else {
-                return value.toString()
+                value.toString()
             }
         }
 
@@ -188,39 +194,46 @@ class IngredientAdapter(
                 1.0
             }
 
-            if (packVal > 1.0) {
+            return if (packVal > 1.0) {
                 val formatted = formatDoubleValue(packVal)
-                return context?.getString(R.string.ingredient_pack_info_format, formatted) ?: " • Pack: $formatted"
+                context?.getString(R.string.ingredient_pack_info_format, formatted) ?: " • Pack: $formatted"
             } else {
-                return ""
+                ""
             }
         }
 
         fun resolveHomeLocationIcon(locationName: String?, context: Context? = null): String {
-            val defaultIcon = context?.getString(R.string.icon_location_frigo) ?: "❄️"
+            val iconFrigo = context?.getString(R.string.icon_location_frigo) ?: "❄️"
+            val iconPlacard = context?.getString(R.string.icon_location_placard) ?: "🧺"
+            val iconFreezer = context?.getString(R.string.icon_location_freezer) ?: "🧊"
+            val iconCave = context?.getString(R.string.icon_location_cave) ?: "🍷"
+            val iconDefault = context?.getString(R.string.icon_location_default) ?: "📍"
+
             if (locationName.isNullOrBlank()) {
-                return defaultIcon
+                return iconFrigo
             }
 
             val lower = locationName.lowercase()
 
-            if ("frigo" in lower || "fridge" in lower) {
-                return defaultIcon
-            }
+            val frigoKeywords = context?.resources?.getStringArray(R.array.keywords_location_frigo)
+                ?: arrayOf("frigo", "fridge", "réfrigérateur", "refrigerateur", "crémerie", "cremerie")
 
-            if ("placard" in lower || "cupboard" in lower || "pantry" in lower) {
-                return context?.getString(R.string.icon_location_placard) ?: "🧺"
-            }
+            val placardKeywords = context?.resources?.getStringArray(R.array.keywords_location_placard)
+                ?: arrayOf("placard", "cupboard", "pantry", "épicerie", "epicerie", "réserve", "reserve")
 
-            if ("surgélateur" in lower || "freezer" in lower || "congélateur" in lower) {
-                return context?.getString(R.string.icon_location_freezer) ?: "🧊"
-            }
+            val surgelatorKeywords = context?.resources?.getStringArray(R.array.keywords_location_surgele)
+                ?: arrayOf("surgélateur", "surgelateur", "congélateur", "congelateur", "freezer", "surgelés", "surgeles")
 
-            if ("cave" in lower || "cellar" in lower) {
-                return context?.getString(R.string.icon_location_cave) ?: "🍷"
-            }
+            val caveKeywords = context?.resources?.getStringArray(R.array.keywords_location_cave)
+                ?: arrayOf("cave", "cellar", "boisson", "boissons", "drink", "vin", "bière", "biere")
 
-            return context?.getString(R.string.icon_location_default) ?: "📍"
+            return when {
+                frigoKeywords.any { it in lower } -> iconFrigo
+                placardKeywords.any { it in lower } -> iconPlacard
+                surgelatorKeywords.any { it in lower } -> iconFreezer
+                caveKeywords.any { it in lower } -> iconCave
+                else -> iconDefault
+            }
         }
 
         fun resolveLocationName(
@@ -237,36 +250,46 @@ class IngredientAdapter(
             }
 
             val cleanCat = category?.lowercase()?.trim() ?: ""
+
+            val frigoKeywords = context?.resources?.getStringArray(R.array.keywords_location_frigo)
+                ?: arrayOf("crémerie", "cremerie", "lait", "frais", "fromage", "yaourt", "beurre")
+
+            val surgelatorKeywords = context?.resources?.getStringArray(R.array.keywords_location_surgele)
+                ?: arrayOf("surgelé", "surgele", "glace", "congelé", "congele")
+
+            val caveKeywords = context?.resources?.getStringArray(R.array.keywords_location_cave)
+                ?: arrayOf("boisson", "cave", "vin", "bière", "biere", "jus")
+
             return when {
-                "crémerie" in cleanCat || "cremerie" in cleanCat || "lait" in cleanCat || "frais" in cleanCat -> {
+                frigoKeywords.any { it in cleanCat } -> {
                     context?.getString(R.string.location_default_frigo) ?: "Frigo"
                 }
-                "surgelé" in cleanCat || "surgele" in cleanCat || "glace" in cleanCat -> {
-                    "Surgélateur"
+                surgelatorKeywords.any { it in cleanCat } -> {
+                    context?.getString(R.string.location_default_surgele) ?: "Surgélateur"
                 }
-                "boisson" in cleanCat || "cave" in cleanCat || "vin" in cleanCat -> {
-                    "Cave"
+                caveKeywords.any { it in cleanCat } -> {
+                    context?.getString(R.string.location_default_cave) ?: "Cave"
                 }
                 else -> {
-                    "Placard"
+                    context?.getString(R.string.location_default_placard) ?: "Placard"
                 }
             }
         }
 
         fun resolveCategoryName(category: String?, context: Context? = null): String {
-            if (category.isNullOrBlank()) {
-                return context?.getString(R.string.category_default_epicerie) ?: "Épicerie"
+            return if (category.isNullOrBlank()) {
+                context?.getString(R.string.category_default_epicerie) ?: "Épicerie"
+            } else {
+                category
             }
-
-            return category
         }
 
         fun resolveSupplementalInfoText(supplementalInfo: String?, context: Context? = null): String? {
-            if (supplementalInfo.isNullOrBlank()) {
-                return null
+            return if (supplementalInfo.isNullOrBlank()) {
+                null
+            } else {
+                context?.getString(R.string.ingredient_info_format, supplementalInfo) ?: "Info : $supplementalInfo"
             }
-
-            return context?.getString(R.string.ingredient_info_format, supplementalInfo) ?: "Info : $supplementalInfo"
         }
     }
 }

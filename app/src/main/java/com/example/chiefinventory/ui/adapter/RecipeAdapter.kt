@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.example.chiefinventory.R
 import com.example.chiefinventory.databinding.ItemRecipeBinding
 import com.example.chiefinventory.model.Recipe
 
@@ -25,12 +26,13 @@ class RecipeAdapter(private val onRecipeClick: (Recipe) -> Unit) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(recipe: Recipe) {
+            val context = binding.root.context
             binding.tvRecipeTitle.text = recipe.title
             
             val prep = recipe.preparationTimeMinutes ?: 0
             val cook = recipe.cookingTimeMinutes ?: 0
-            val kcalStr = recipe.kcalPerServing?.let { " | $it kcal" } ?: ""
-            binding.tvRecipeInfo.text = "Prép: ${prep}min | Cuisson: ${cook}min$kcalStr"
+            val kcalStr = recipe.kcalPerServing?.let { context.getString(R.string.recipe_kcal_format, it) } ?: ""
+            binding.tvRecipeInfo.text = context.getString(R.string.recipe_info_format, prep, cook, kcalStr)
 
             val categoryStr = if (!recipe.category.isNullOrBlank()) {
                 recipe.category
@@ -45,7 +47,7 @@ class RecipeAdapter(private val onRecipeClick: (Recipe) -> Unit) :
             }
             
             val displayCategory = when {
-                categoryStr.isNotBlank() && nutritionStr.isNotBlank() -> "$categoryStr | $nutritionStr"
+                categoryStr.isNotBlank() && nutritionStr.isNotBlank() -> context.getString(R.string.recipe_category_nutrition_format, categoryStr, nutritionStr)
                 categoryStr.isNotBlank() -> categoryStr
                 else -> nutritionStr
             }

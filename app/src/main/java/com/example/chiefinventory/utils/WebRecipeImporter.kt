@@ -1,6 +1,6 @@
 package com.example.chiefinventory.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 import org.json.JSONArray
 import org.json.JSONObject
 import org.jsoup.Jsoup
@@ -41,6 +41,7 @@ object WebRecipeImporter {
      * Analyse un document HTML JSoup et extrait la recette depuis ses balises script JSON-LD ou ses balises meta.
      */
     fun parseHtmlDocument(doc: org.jsoup.nodes.Document, url: String): WebRecipeResult {
+        LogManager.d(TAG, "Analyse du document HTML pour URL: $url")
         val scripts = doc.select("script[type=application/ld+json]")
         for (script in scripts) {
             val html = script.html().trim()
@@ -48,12 +49,14 @@ object WebRecipeImporter {
 
             val result = parseJsonLdScript(html, url)
             if (result != null && !result.title.isNullOrBlank()) {
+                LogManager.d(TAG, "Recette JSON-LD extraite avec succès pour '$url': ${result.title}")
                 return result
             }
         }
 
         // Fallback meta tags HTML si pas de JSON-LD
         val titleFallback = doc.title().replace(Regex("(?i)\\s*[-–•]\\s*(marmiton|750g|cuisine az).*"), "").trim()
+        LogManager.d(TAG, "Aucun bloc JSON-LD valide trouvé. Utilisation du fallback titre: $titleFallback")
         return WebRecipeResult(
             title = titleFallback.ifBlank { "Recette Web" },
             ingredients = emptyList(),
@@ -73,11 +76,28 @@ object WebRecipeImporter {
      * @return L'objet [WebRecipeResult] structuré.
      */
     fun importFromUrl(url: String): WebRecipeResult {
-        val doc = Jsoup.connect(url)
-            .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-            .timeout(10000)
-            .get()
-        return parseHtmlDocument(doc, url)
+        return try {
+            LogManager.d(TAG, "Début de l'importation Web depuis l'URL: $url")
+            val doc = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                .timeout(10000)
+                .get()
+            val result = parseHtmlDocument(doc, url)
+            LogManager.d(TAG, "Importation Web terminée avec succès pour '$url'")
+            result
+        } catch (e: Exception) {
+            LogManager.e(TAG, "Échec de l'importation Web depuis '$url': ${e.localizedMessage}", e)
+            WebRecipeResult(
+                title = null,
+                ingredients = emptyList(),
+                instructions = emptyList(),
+                prepTimeMinutes = null,
+                cookTimeMinutes = null,
+                servings = null,
+                imageUrl = null,
+                sourceUrl = url
+            )
+        }
     }
 
     /**
@@ -107,8 +127,8 @@ object WebRecipeImporter {
                 }
                 return parseRecipeJsonObject(obj, sourceUrl)
             }
-        } catch (_: Exception) {
-            // Ignoré
+        } catch (e: Exception) {
+            LogManager.e(TAG, "Erreur d'analyse du JSON-LD: ${e.localizedMessage}", e)
         }
         return null
     }
@@ -205,17 +225,11 @@ object WebRecipeImporter {
 
     fun normalizeRecipeCategory(rawCategory: String?): String? {
         if (rawCategory.isNullOrBlank()) return null
-        val lower = rawCategory.lowercase()
-        return when {
-            lower.contains("entrée") || lower.contains("entree") || lower.contains("starter") || lower.contains("appetizer") || lower.contains("amuse-bouche") -> "Entrée"
-            lower.contains("plat") || lower.contains("main") || lower.contains("dinner") || lower.contains("viande") || lower.contains("poisson") -> "Plat principal"
-            lower.contains("dessert") || lower.contains("gâteau") || lower.contains("gateau") || lower.contains("patisserie") || lower.contains("pâtisserie") || lower.contains("douceur") -> "Dessert"
-            else -> rawCategory.trim()
-        }
+        return CategoryMapper.normalizeRecipeCategory(rawCategory) ?: rawCategory.trim().ifBlank { null }
     }
 
     /**
-     * Convertit une durée ISO 8601 (ex: "PT15M", "PT1H30M") en nombre de minutes sous forme de texte.
+     * Convertit une durée ISO 8601 (ex : "PT15M", "PT1H30M") en nombre de minutes sous forme de texte.
      */
     fun parseIsoDurationToMinutes(isoStr: String): String? {
         if (isoStr.isBlank()) return null

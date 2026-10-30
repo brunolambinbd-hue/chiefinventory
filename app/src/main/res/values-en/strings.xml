@@ -91,6 +91,7 @@
     <!-- Backup and Restore -->
     <string name="backup_button_backup">Backup</string>
     <string name="backup_button_restore">Restore</string>
+    <string name="version_info_format" translatable="false">v%1$s (%4$s) • DB v%2$d\nBuilt on: %5$s</string>
     <string name="backup_success">Backup successful!</string>
     <string name="backup_failed">Backup failed: %1$s</string>
     <string name="restore_success">Restore successful! Please restart the application.</string>
@@ -148,9 +149,78 @@
     <string name="inventory_create_new_button">Item not found? Create a new entry</string>
     <string name="scan_item_button">Scan an item</string>
     <string name="retry">Retry</string>
+
+    <!-- Strings for EditRecipeActivity -->
+    <string name="edit_recipe_title_new">New Recipe</string>
+    <string name="edit_recipe_title_edit">Edit Recipe</string>
+    <string name="toast_cannot_open_web_browser">Unable to open web browser</string>
+    <string name="toast_scan_completed">Scan completed</string>
+    <string name="toast_scan_failed">Scan failed</string>
+    <string name="toast_recipe_title_required">Title is mandatory</string>
+    <string name="toast_recipe_saved">Recipe saved</string>
+    <string name="dialog_delete_recipe_title">Delete recipe</string>
+    <string name="dialog_delete_recipe_message">Are you sure you want to delete this recipe?</string>
+
+    <string-array name="recipe_difficulties">
+        <item>easy</item>
+        <item>medium</item>
+        <item>hard</item>
+    </string-array>
     <string name="search_no_results">No result</string>
     <string name="search_error_simple">The basic research has failed</string>
     <string name="search_error_advanced">The advanced research has failed</string>
+
+    <!-- Location deduction category keywords -->
+    <string-array name="keywords_location_frigo">
+        <item>frigo</item>
+        <item>fridge</item>
+        <item>refrigerator</item>
+        <item>fridgefreezer</item>
+        <item>dairy</item>
+        <item>cremerie</item>
+        <item>milk</item>
+        <item>fresh</item>
+        <item>cheese</item>
+        <item>yogurt</item>
+        <item>butter</item>
+    </string-array>
+
+    <string-array name="keywords_location_placard">
+        <item>placard</item>
+        <item>cupboard</item>
+        <item>pantry</item>
+        <item>grocery</item>
+        <item>groceries</item>
+        <item>store</item>
+        <item>cabinet</item>
+    </string-array>
+
+    <string-array name="keywords_location_surgele">
+        <item>surgélateur</item>
+        <item>surgelateur</item>
+        <item>congélateur</item>
+        <item>congelateur</item>
+        <item>frozen</item>
+        <item>surgele</item>
+        <item>ice</item>
+        <item>freezer</item>
+    </string-array>
+
+    <string-array name="keywords_location_cave">
+        <item>drink</item>
+        <item>cellar</item>
+        <item>wine</item>
+        <item>beer</item>
+        <item>beverage</item>
+        <item>juice</item>
+        <item>vegetable</item>
+        <item>vegetables</item>
+        <item>legume</item>
+        <item>legumes</item>
+        <item>potato</item>
+        <item>onion</item>
+        <item>garlic</item>
+    </string-array>
     <string name="erreur_lors_de_l_analyse_de_l_image">Error during analysis of image</string>
     <string name="red_marrer_l_application">Restart application</string>
     <string name="la_recherche_textuelle_a_chou">Textual research has failed</string>
@@ -198,9 +268,88 @@
     <string name="stock_status_healthy">%1$s Min Threshold: %2$s%3$s%4$s</string>
     <string name="ingredient_pack_info_format"> • Pack: %1$s</string>
     <string name="location_default_frigo">Fridge</string>
+    <string name="location_default_surgele">Freezer</string>
+    <string name="location_default_cave">Cellar</string>
+    <string name="location_default_placard">Pantry</string>
     <string name="category_default_epicerie">Grocery</string>
     <string name="ingredient_info_format">Info: %1$s</string>
     <string name="ingredient_location_category_format">%1$s %2$s  •  %3$s %4$s</string>
     <string name="ingredient_stock_policy_format">%1$s %2$s</string>
+
+    <!-- MatchRecipeAdapter -->
+    <string name="match_percentage_format">%1$d%% Stock</string>
+    <string name="match_details_100_format">🟢 100%% in stock (%1$d/%2$d ingredients)</string>
+    <string name="match_details_partial_format">🟡 %1$d/%2$d ingredients in stock</string>
+    <string name="match_details_missing_format">🔴 To buy: %1$s</string>
+
+    <!-- RecipeAdapter -->
+    <string name="recipe_info_format">Prep: %1$d min | Cook: %2$d min%3$s</string>
+    <string name="recipe_kcal_format"> | %1$d kcal</string>
+    <string name="recipe_category_nutrition_format">%1$s | %2$s</string>
+
+    <!-- StandardCatalogAdapter -->
+    <string name="catalog_category_location_format">%1$s • %2$s</string>
+    <string name="quantity_unit_format">%1$s%2$s</string>
+
+    <!-- Strings for EditIngredientActivity -->
+    <string name="edit_ingredient_title_new">New Ingredient</string>
+    <string name="edit_ingredient_title_edit">Edit Ingredient</string>
+    <string name="stock_policy_permanent_label">🔄 PERMANENT (Keep in Stock)</string>
+    <string name="stock_policy_on_demand_label">🛒 ON_DEMAND (Order on Demand)</string>
+    <string name="toast_ingredient_detected">Ingredient detected!</string>
+    <string name="toast_ingredient_name_required">Name is mandatory</string>
+    <string name="toast_ingredient_saved">Ingredient saved</string>
+    <string name="dialog_delete_ingredient_title">Delete ingredient</string>
+    <string name="dialog_delete_ingredient_message">Are you sure you want to delete this ingredient?</string>
+
+    <!-- Canonical Recipe Categories & Keywords -->
+    <string name="category_recipe_entree">Starter</string>
+    <string name="category_recipe_plat">Main dish</string>
+    <string name="category_recipe_dessert">Dessert</string>
+    <string name="category_recipe_boisson">Drink</string>
+    <string name="category_recipe_accompagnement">Side dish</string>
+
+    <string-array name="keywords_recipe_boisson">
+        <item>drink</item>
+        <item>cocktail</item>
+        <item>juice</item>
+        <item>syrup</item>
+        <item>aperitif</item>
+        <item>aperitif</item>
+    </string-array>
+
+    <string-array name="keywords_recipe_accompagnement">
+        <item>side</item>
+        <item>sauce</item>
+        <item>garnish</item>
+        <item>mash</item>
+        <item>puree</item>
+    </string-array>
+
+    <string-array name="keywords_recipe_entree">
+        <item>starter</item>
+        <item>entree</item>
+        <item>appetizer</item>
+        <item>first course</item>
+        <item>amuse-bouche</item>
+        <item>hors d\'œuvre</item>
+    </string-array>
+
+    <string-array name="keywords_recipe_plat">
+        <item>main</item>
+        <item>dish</item>
+        <item>dinner</item>
+        <item>meat</item>
+        <item>fish</item>
+    </string-array>
+
+    <string-array name="keywords_recipe_dessert">
+        <item>dessert</item>
+        <item>cake</item>
+        <item>pastry</item>
+        <item>sweet</item>
+        <item>gateau</item>
+        <item>patisserie</item>
+    </string-array>
 
 </resources>

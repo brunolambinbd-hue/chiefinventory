@@ -12,6 +12,7 @@ import com.example.chiefinventory.data.AppDatabase
 import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.model.Location
 import com.example.chiefinventory.model.LocationType
+import com.example.chiefinventory.model.StockPolicy
 import com.example.chiefinventory.ui.adapter.SelectedCatalogEntry
 import com.example.chiefinventory.utils.StandardCatalogLoader
 import kotlinx.coroutines.CoroutineDispatcher
@@ -141,7 +142,7 @@ class SetupInventoryViewModel(
             matchQuantity: Double?
         ): Boolean {
             if (isFreshSetup) {
-                return stockPolicy.equals("PERMANENT", ignoreCase = true)
+                return stockPolicy.equals(StockPolicy.PERMANENT, ignoreCase = true)
             } else {
                 return hasMatch && matchQuantity != null && matchQuantity > 0.0
             }

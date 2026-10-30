@@ -1,5 +1,8 @@
 import java.util.Properties
 import java.io.FileInputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 plugins {
     alias(libs.plugins.android.application)
@@ -23,13 +26,14 @@ val gitCommitHash: String = try {
     "unknown"
 }
 
+val buildTimestamp: String = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(Date())
+
 android {
     namespace = "com.example.chiefinventory"
     compileSdk = libs.versions.sdkCompile.get().toString().toInt()
 
     @Suppress("UnstableApiUsage")
     androidResources {
-        // La nouvelle API pour filtrer les locales
         localeFilters += listOf("fr", "en")
     }
 
@@ -54,7 +58,6 @@ android {
                 storeFile = file(keystoreProperties.getProperty("storeFile"))
                 storePassword = keystoreProperties.getProperty("storePassword")
             } else {
-                // Fallback si le fichier properties n'existe pas encore ou a été renommé
                 keyAlias = "chiefinventory"
                 keyPassword = "votre_mot_de_passe"
                 storeFile = file("../chiefinventory.jks")
@@ -72,16 +75,19 @@ android {
         applicationId = "com.example.chiefinventory"
         minSdk = libs.versions.sdkMin.get().toString().toInt()
         targetSdk = libs.versions.sdkTarget.get().toString().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = project.property("APP_VERSION_CODE").toString().toInt()
+        versionName = project.property("APP_VERSION_NAME").toString()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
         buildConfigField("String", "GIT_COMMIT_HASH", "\"$gitCommitHash\"")
+        buildConfigField("String", "BUILD_DATE", "\"$buildTimestamp\"")
     }
 
     buildTypes {
         debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-DEBUG"
             buildConfigField("String", "API_URL", "\"https://dev.api.com\"")
             buildConfigField("boolean", "ENABLE_LOGS", "true")
             enableUnitTestCoverage = true

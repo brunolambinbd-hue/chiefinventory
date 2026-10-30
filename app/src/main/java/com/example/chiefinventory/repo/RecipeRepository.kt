@@ -2,19 +2,15 @@ package com.example.chiefinventory.repo
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import com.example.chiefinventory.dao.RecipeDao
-import com.example.chiefinventory.dao.IngredientDao
 import com.example.chiefinventory.dao.RecipeCategoryInfo
+import com.example.chiefinventory.dao.RecipeDao
 import com.example.chiefinventory.dao.RecipeWithIngredients
 import com.example.chiefinventory.model.Recipe
-import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.model.RecipeIngredient
-import com.example.chiefinventory.utils.IngredientParser
 import java.text.Normalizer
 
 class RecipeRepository(
-    private val recipeDao: RecipeDao,
-    private val ingredientDao: IngredientDao
+    private val recipeDao: RecipeDao
 ) {
 
     val allRecipes: LiveData<List<Recipe>> = recipeDao.getAllRecipes()
@@ -29,9 +25,9 @@ class RecipeRepository(
 
     suspend fun insertRecipe(recipe: Recipe): Long = recipeDao.insertRecipe(recipe)
 
-    suspend fun updateRecipe(recipe: Recipe) = recipeDao.updateRecipe(recipe)
+    suspend fun updateRecipe(recipe: Recipe): Unit = recipeDao.updateRecipe(recipe)
 
-    suspend fun deleteRecipe(recipe: Recipe) = recipeDao.deleteRecipe(recipe)
+    suspend fun deleteRecipe(recipe: Recipe): Unit = recipeDao.deleteRecipe(recipe)
 
     /**
      * Recherche des recettes contenant les ingrédients fournis.
@@ -42,9 +38,7 @@ class RecipeRepository(
 
         return allWithIngredients.map { item ->
             val recipeIngredients = item.ingredients.map { normalize(it.ingredientName) }
-            val matchCount = recipeIngredients.count { recipeIng ->
-                normalizedAvailable.any { availIng -> recipeIng.contains(availIng) || availIng.contains(recipeIng) }
-            }
+            val matchCount = calculateRecipeMatchCount(recipeIngredients, normalizedAvailable)
             Pair(item.recipe, matchCount)
         }
         .filter { it.second > 0 }
@@ -59,19 +53,35 @@ class RecipeRepository(
         recipeDao.insertRecipeIngredients(ingredients)
     }
 
-    private fun normalize(input: String): String {
-        val temp = Normalizer.normalize(input.lowercase(), Normalizer.Form.NFD)
-        return temp.replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
-                   .replace(" ", "")
-                   .replace("-", "")
-    }
-
     fun getIngredientsForRecipe(recipeId: Long): LiveData<List<RecipeIngredient>> = 
         recipeDao.getIngredientsForRecipe(recipeId)
 
-    suspend fun deleteIngredientsByRecipeId(recipeId: Long) = 
+    suspend fun deleteIngredientsByRecipeId(recipeId: Long): Unit = 
         recipeDao.deleteIngredientsByRecipeId(recipeId)
 
     fun getRecipeCategoriesWithCount(): LiveData<List<RecipeCategoryInfo>> = 
         recipeDao.getRecipeCategoriesWithCount()
+
+    companion object {
+        fun normalize(input: String): String {
+            val temp = Normalizer.normalize(input.lowercase(), Normalizer.Form.NFD)
+            return temp.replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+                       .replace(" ", "")
+                       .replace("-", "")
+        }
+
+        fun isIngredientMatching(recipeIng: String, availIng: String): Boolean {
+            if (recipeIng.contains(availIng)) {
+                return true
+            } else {
+                return availIng.contains(recipeIng)
+            }
+        }
+
+        fun calculateRecipeMatchCount(recipeIngredients: List<String>, normalizedAvailable: List<String>): Int {
+            return recipeIngredients.count { recipeIng ->
+                normalizedAvailable.any { availIng -> isIngredientMatching(recipeIng, availIng) }
+            }
+        }
+    }
 }

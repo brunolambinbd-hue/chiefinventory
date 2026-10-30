@@ -57,12 +57,14 @@ class BackupActivity : AppCompatActivity() {
 
     private fun setupVersionInfo() {
         val gitHash = BuildConfig.GIT_COMMIT_HASH
+        val buildDate = BuildConfig.BUILD_DATE
         val versionInfo = getString(
             R.string.version_info_format,
             BuildConfig.VERSION_NAME,
             AppDatabase.DATABASE_VERSION,
             BuildConfig.API_URL,
-            gitHash
+            gitHash,
+            buildDate
         )
         binding.tvVersionInfo.text = versionInfo
     }

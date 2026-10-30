@@ -11,21 +11,26 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 /**
- * Suite de tests unitaires de Type B couvrant à 100% l'ensemble des méthodes de [IngredientRepository].
+ * Tests unitaires dédiés (1-à-1) pour le repository [IngredientRepository].
  */
-class IngredientRepositoryTypeBTest {
+class IngredientRepositoryTest {
 
     @Test
-    fun `getAll should delegate to ingredientDao getAll`() {
+    fun `getAll and getOutOfStockIngredients should delegate to ingredientDao`() {
         val mockDao = mock<IngredientDao>()
         val liveData = MutableLiveData<List<Ingredient>>(emptyList())
+        val outOfStockLiveData = MutableLiveData<List<Ingredient>>(emptyList())
+
         whenever(mockDao.getAll()).thenReturn(liveData)
+        whenever(mockDao.getOutOfStockIngredients()).thenReturn(outOfStockLiveData)
 
         val repository = IngredientRepository(mockDao)
-        val result = repository.getAll()
 
-        assertThat(result).isEqualTo(liveData)
+        assertThat(repository.getAll()).isEqualTo(liveData)
+        assertThat(repository.getOutOfStockIngredients()).isEqualTo(outOfStockLiveData)
+
         verify(mockDao).getAll()
+        verify(mockDao).getOutOfStockIngredients()
     }
 
     @Test

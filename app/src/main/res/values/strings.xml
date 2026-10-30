@@ -116,7 +116,7 @@
     <string name="backup_button_restore">Restaurer une sauvegarde</string>
     <string name="show_unlocated_items_button">Objets non localisés</string>
     <string name="show_located_not_possessed_items_button">Objets localisés non possédés</string>
-    <string name="version_info_format" translatable="false">App v%1$s (%4$s) (DB v%2$d)\nAPI URL: %3$s</string>
+    <string name="version_info_format" translatable="false">v%1$s (%4$s) • BDD v%2$d\nCompilé le : %5$s</string>
     <string name="backup_success">Sauvegarde réussie !</string>
     <string name="backup_failed">Échec de la sauvegarde : %1$s</string>
     <string name="restore_success">Restauration réussie ! Veuillez redémarrer l\'application.</string>
@@ -208,15 +208,163 @@
     <string name="possessed_status">POSSÉDÉ</string>
     <string name="sought_status">RECHERCHÉ</string>
 
+    <!-- Strings pour EditRecipeActivity -->
+    <string name="edit_recipe_title_new">Nouvelle recette</string>
+    <string name="edit_recipe_title_edit">Modifier la recette</string>
+    <string name="toast_cannot_open_web_browser">Impossible d\'ouvrir le navigateur Web</string>
+    <string name="toast_scan_completed">Scan terminé</string>
+    <string name="toast_scan_failed">Échec du scan</string>
+    <string name="toast_recipe_title_required">Le titre est obligatoire</string>
+    <string name="toast_recipe_saved">Recette sauvegardée</string>
+    <string name="dialog_delete_recipe_title">Supprimer la recette</string>
+    <string name="dialog_delete_recipe_message">Voulez-vous vraiment supprimer cette recette ?</string>
+
+    <string-array name="recipe_difficulties">
+        <item>facile</item>
+        <item>moyen</item>
+        <item>difficile</item>
+    </string-array>
+
     <!-- Gestion du Stock Ingrédients -->
     <string name="stock_status_out_of_stock">%1$s En Rupture (Seuil: %2$s%3$s%4$s)</string>
     <string name="stock_status_low">%1$s Stock Faible (Seuil: %2$s%3$s%4$s)</string>
     <string name="stock_status_healthy">%1$s Seuil min : %2$s%3$s%4$s</string>
     <string name="ingredient_pack_info_format"> • Pack: %1$s</string>
     <string name="location_default_frigo">Frigo</string>
+    <string name="location_default_surgele">Surgélateur</string>
+    <string name="location_default_cave">Cave</string>
+    <string name="location_default_placard">Placard</string>
     <string name="category_default_epicerie">Épicerie</string>
     <string name="ingredient_info_format">Info : %1$s</string>
     <string name="ingredient_location_category_format">%1$s %2$s  •  %3$s %4$s</string>
     <string name="ingredient_stock_policy_format">%1$s %2$s</string>
+
+    <!-- MatchRecipeAdapter -->
+    <string name="match_percentage_format">%1$d%% Stock</string>
+    <string name="match_details_100_format">🟢 100%% en stock (%1$d/%2$d ingrédients)</string>
+    <string name="match_details_partial_format">🟡 %1$d/%2$d ingrédients en stock</string>
+    <string name="match_details_missing_format">🔴 À racheter : %1$s</string>
+
+    <!-- RecipeAdapter -->
+    <string name="recipe_info_format">Prép: %1$d min | Cuisson: %2$d min%3$s</string>
+    <string name="recipe_kcal_format"> | %1$d kcal</string>
+    <string name="recipe_category_nutrition_format">%1$s | %2$s</string>
+
+    <!-- StandardCatalogAdapter -->
+    <string name="catalog_category_location_format">%1$s • %2$s</string>
+    <string name="quantity_unit_format">%1$s%2$s</string>
+
+    <!-- Strings pour EditIngredientActivity -->
+    <string name="edit_ingredient_title_new">Nouvel ingrédient</string>
+    <string name="edit_ingredient_title_edit">Modifier ingrédient</string>
+    <string name="stock_policy_permanent_label">🔄 PERMANENT (Garder en Stock)</string>
+    <string name="stock_policy_on_demand_label">🛒 ON_DEMAND (Achat sur Commande)</string>
+    <string name="toast_ingredient_detected">Ingrédient détecté !</string>
+    <string name="toast_ingredient_name_required">Le nom est obligatoire</string>
+    <string name="toast_ingredient_saved">Ingrédient sauvegardé</string>
+    <string name="dialog_delete_ingredient_title">Supprimer l\'ingrédient</string>
+    <string name="dialog_delete_ingredient_message">Êtes-vous sûr de vouloir supprimer cet ingrédient ?</string>
+
+    <!-- Catégories de Recettes Canoniques & Mots-Clés -->
+    <string name="category_recipe_entree">Entrée</string>
+    <string name="category_recipe_plat">Plat principal</string>
+    <string name="category_recipe_dessert">Dessert</string>
+    <string name="category_recipe_boisson">Boisson</string>
+    <string name="category_recipe_accompagnement">Accompagnement</string>
+
+    <string-array name="keywords_recipe_boisson">
+        <item>boisson</item>
+        <item>cocktail</item>
+        <item>jus</item>
+        <item>sirop</item>
+        <item>apéritif</item>
+        <item>aperitif</item>
+    </string-array>
+
+    <string-array name="keywords_recipe_accompagnement">
+        <item>accompagnement</item>
+        <item>sauce</item>
+        <item>garniture</item>
+        <item>purée</item>
+        <item>puree</item>
+    </string-array>
+
+    <string-array name="keywords_recipe_entree">
+        <item>entrée</item>
+        <item>entree</item>
+        <item>starter</item>
+        <item>appetizer</item>
+        <item>amuse-bouche</item>
+        <item>hors d\'œuvre</item>
+    </string-array>
+
+    <string-array name="keywords_recipe_plat">
+        <item>plat</item>
+        <item>main</item>
+        <item>dinner</item>
+        <item>viande</item>
+        <item>poisson</item>
+    </string-array>
+
+    <string-array name="keywords_recipe_dessert">
+        <item>dessert</item>
+        <item>gâteau</item>
+        <item>gateau</item>
+        <item>patisserie</item>
+        <item>pâtisserie</item>
+        <item>douceur</item>
+    </string-array>
+
+    <!-- Mots-clés de catégories pour déduction d'emplacement -->
+    <string-array name="keywords_location_frigo">
+        <item>frigo</item>
+        <item>fridge</item>
+        <item>réfrigérateur</item>
+        <item>refrigerateur</item>
+        <item>crémerie</item>
+        <item>cremerie</item>
+        <item>lait</item>
+        <item>frais</item>
+        <item>fromage</item>
+        <item>yaourt</item>
+        <item>beurre</item>
+    </string-array>
+
+    <string-array name="keywords_location_placard">
+        <item>placard</item>
+        <item>cupboard</item>
+        <item>pantry</item>
+        <item>épicerie</item>
+        <item>epicerie</item>
+        <item>réserve</item>
+        <item>reserve</item>
+    </string-array>
+
+    <string-array name="keywords_location_surgele">
+        <item>surgélateur</item>
+        <item>surgelateur</item>
+        <item>congélateur</item>
+        <item>congelateur</item>
+        <item>surgelé</item>
+        <item>surgele</item>
+        <item>glace</item>
+        <item>congelé</item>
+    </string-array>
+
+    <string-array name="keywords_location_cave">
+        <item>boisson</item>
+        <item>cave</item>
+        <item>vin</item>
+        <item>bière</item>
+        <item>biere</item>
+        <item>jus</item>
+        <item>légumes</item>
+        <item>legumes</item>
+        <item>légume</item>
+        <item>legume</item>
+        <item>pomme de terre</item>
+        <item>oignon</item>
+        <item>ail</item>
+    </string-array>
 
 </resources>

@@ -24,7 +24,7 @@ data class StandardCatalogItem(
     val defaultUnit: String? = null,
     val category: String = "Épicerie",
     val defaultLocationName: String = "Placard",
-    val stockPolicy: String = "PERMANENT",
+    val stockPolicy: String = StockPolicy.PERMANENT,
     val minThreshold: Double = defaultQuantity / 2.0,
     val packSize: Double = 1.0
 ) : Parcelable

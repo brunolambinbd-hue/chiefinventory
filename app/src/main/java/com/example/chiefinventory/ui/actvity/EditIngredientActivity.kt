@@ -1,23 +1,24 @@
 package com.example.chiefinventory.ui.actvity
 
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.chiefinventory.ChefInventoryApplication
+import com.example.chiefinventory.R
 import com.example.chiefinventory.databinding.ActivityEditIngredientBinding
 import com.example.chiefinventory.model.Ingredient
 import com.example.chiefinventory.model.Location
+import com.example.chiefinventory.model.StockPolicy
 import com.example.chiefinventory.ui.viewmodel.EditIngredientViewModel
 import com.example.chiefinventory.ui.viewmodel.ViewModelFactory
 import com.example.chiefinventory.utils.BitmapUtils
@@ -37,12 +38,7 @@ class EditIngredientActivity : AppCompatActivity() {
     private var locations: List<Location> = emptyList()
     private var selectedLocationId: Long? = null
     private var extractedOcrText: String? = null
-    private var selectedStockPolicy: String = "PERMANENT"
-
-    private val stockPolicyOptions = listOf(
-        "🔄 PERMANENT (Garder en Stock)",
-        "🛒 ON_DEMAND (Achat sur Commande)"
-    )
+    private var selectedStockPolicy: String = StockPolicy.PERMANENT
 
     private val viewModel: EditIngredientViewModel by viewModels {
         val app = application as ChefInventoryApplication
@@ -59,7 +55,7 @@ class EditIngredientActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = if (ingredientId == -1L) "Nouvel ingrédient" else "Modifier ingrédient"
+        supportActionBar?.title = if (ingredientId == -1L) getString(R.string.edit_ingredient_title_new) else getString(R.string.edit_ingredient_title_edit)
 
         textRecognitionHelper = TextRecognitionHelper(this)
         setupImageCapture()
@@ -113,10 +109,11 @@ class EditIngredientActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("UsePropertyAccessSyntax")
     private fun setupLocationDropdown() {
         viewModel.ingredientCategories.observe(this) { list ->
             locations = list
-            // Construction des noms hiérarchiques (ex: Cuisine > Frigo)
+            // Construction des noms hiérarchiques (ex : Cuisine > Frigo)
             val displayNames = list.map { buildLocationPath(it, list) }
             val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, displayNames)
             binding.actvIngredientLocation.setAdapter(adapter)
@@ -141,7 +138,7 @@ class EditIngredientActivity : AppCompatActivity() {
         var current: Location? = location
         while (current != null) {
             path.add(0, current.name)
-            current = allLocations.find { it.id == current?.parentId }
+            current = allLocations.find { it.id == current.parentId }
         }
         return path.joinToString(" > ")
     }
@@ -183,7 +180,7 @@ class EditIngredientActivity : AppCompatActivity() {
                         if (binding.etSupplementalInfo.text.isNullOrBlank()) {
                             binding.etSupplementalInfo.setText(parsedIngredient.supplementalInfo ?: "")
                         }
-                        Toast.makeText(this@EditIngredientActivity, "Ingrédient détecté !", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@EditIngredientActivity, getString(R.string.toast_ingredient_detected), Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
@@ -192,11 +189,16 @@ class EditIngredientActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("UsePropertyAccessSyntax")
     private fun setupStockPolicyDropdown() {
+        val stockPolicyOptions = listOf(
+            getString(R.string.stock_policy_permanent_label),
+            getString(R.string.stock_policy_on_demand_label)
+        )
         val adapterDropdown = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, stockPolicyOptions)
         binding.actvStockPolicy.setAdapter(adapterDropdown)
         binding.actvStockPolicy.setOnItemClickListener { _, _, position, _ ->
-            selectedStockPolicy = if (position == 0) "PERMANENT" else "ON_DEMAND"
+            selectedStockPolicy = if (position == 0) StockPolicy.PERMANENT else StockPolicy.ON_DEMAND
         }
     }
 
@@ -211,19 +213,19 @@ class EditIngredientActivity : AppCompatActivity() {
         val packVal = if (ingredient.packSize > 0.0) ingredient.packSize else 1.0
         binding.etPackSize.setText(if (packVal % 1.0 == 0.0) packVal.toInt().toString() else packVal.toString())
         selectedStockPolicy = ingredient.stockPolicy.uppercase()
-        val policyLabel = if (selectedStockPolicy == "ON_DEMAND") "🛒 ON_DEMAND (Achat sur Commande)" else "🔄 PERMANENT (Garder en Stock)"
+        val policyLabel = if (selectedStockPolicy == StockPolicy.ON_DEMAND) getString(R.string.stock_policy_on_demand_label) else getString(R.string.stock_policy_permanent_label)
         binding.actvStockPolicy.setText(policyLabel, false)
 
         ingredient.imageUri?.let {
             binding.ivIngredient.isVisible = true
-            binding.ivIngredient.load(Uri.parse(it))
+            binding.ivIngredient.load(it.toUri())
         }
     }
 
     private fun saveIngredient() {
         val name = binding.etName.text.toString()
         if (name.isBlank()) {
-            Toast.makeText(this, "Le nom est obligatoire", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_ingredient_name_required), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -251,22 +253,22 @@ class EditIngredientActivity : AppCompatActivity() {
 
             if (ingredient.id == 0L) viewModel.insert(ingredient) else viewModel.update(ingredient)
             
-            Toast.makeText(this@EditIngredientActivity, "Ingrédient sauvegardé", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@EditIngredientActivity, getString(R.string.toast_ingredient_saved), Toast.LENGTH_SHORT).show()
             finish()
         }
     }
 
     private fun showDeleteConfirmation() {
         AlertDialog.Builder(this)
-            .setTitle("Supprimer l'ingrédient")
-            .setMessage("Êtes-vous sûr de vouloir supprimer cet ingrédient ?")
-            .setPositiveButton("Supprimer") { _, _ ->
+            .setTitle(R.string.dialog_delete_ingredient_title)
+            .setMessage(R.string.dialog_delete_ingredient_message)
+            .setPositiveButton(R.string.supprimer) { _, _ ->
                 currentIngredient?.let {
                     viewModel.delete(it)
                     finish()
                 }
             }
-            .setNegativeButton("Annuler", null)
+            .setNegativeButton(R.string.annuler, null)
             .show()
     }
 
@@ -276,13 +278,13 @@ class EditIngredientActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_LOCATION_ID = "location_id"
-        const val EXTRA_INGREDIENT_ID = "ingredient_id"
-        const val EXTRA_NAME = "extra_name"
-        const val EXTRA_QTY = "extra_qty"
-        const val EXTRA_UNIT = "extra_unit"
-        const val EXTRA_THRESHOLD = "extra_threshold"
-        const val EXTRA_PACK_SIZE = "extra_pack_size"
+        const val EXTRA_LOCATION_ID: String = "location_id"
+        const val EXTRA_INGREDIENT_ID: String = "ingredient_id"
+        const val EXTRA_NAME: String = "extra_name"
+        const val EXTRA_QTY: String = "extra_qty"
+        const val EXTRA_UNIT: String = "extra_unit"
+        const val EXTRA_THRESHOLD: String = "extra_threshold"
+        const val EXTRA_PACK_SIZE: String = "extra_pack_size"
 
         fun calculateQuantityStep(unit: String): Double {
             val cleanUnit = unit.lowercase().trim()

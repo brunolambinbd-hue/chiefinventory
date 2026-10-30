@@ -43,9 +43,9 @@ class AdapterDiffCallbacksCoverageTypeBTest {
     @Test
     fun `RecipeAdapter RecipeDiffCallback should compare recipe IDs and equality`() {
         val callback = RecipeAdapter.RecipeDiffCallback()
-        val rec1 = Recipe(id = 5L, title = "Coq au vin")
-        val rec1Same = Recipe(id = 5L, title = "Coq au vin")
-        val rec2 = Recipe(id = 6L, title = "Panna cotta")
+        val rec1 = Recipe(id = 5L, title = "Coq au vin", updatedAt = 1000L)
+        val rec1Same = Recipe(id = 5L, title = "Coq au vin", updatedAt = 1000L)
+        val rec2 = Recipe(id = 6L, title = "Panna cotta", updatedAt = 1000L)
 
         assertThat(callback.areItemsTheSame(rec1, rec1Same)).isTrue()
         assertThat(callback.areItemsTheSame(rec1, rec2)).isFalse()

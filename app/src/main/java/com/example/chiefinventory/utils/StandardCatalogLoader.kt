@@ -4,6 +4,8 @@ import android.content.res.Resources
 import com.example.chiefinventory.R
 import com.example.chiefinventory.model.StandardCatalogItem
 
+import com.example.chiefinventory.model.StockPolicy
+
 /**
  * Chargeur du catalogue d'ingrédients types du garde-manger depuis les ressources XML Android.
  * Provenance : Open Food Facts & ANSES CIQUAL (Adaptation Franco-Belge).
@@ -64,8 +66,8 @@ object StandardCatalogLoader {
         val qty = if (parts.size > 1) parts[1].trim().toDoubleOrNull() ?: 1.0 else 1.0
         val unit = if (parts.size > 2) parts[2].trim().ifBlank { null } else null
         val category = if (parts.size > 3) parts[3].trim().ifBlank { "Épicerie" } else "Épicerie"
-        val policyRaw = if (parts.size > 4) parts[4].trim().uppercase() else "PERMANENT"
-        val stockPolicy = if (policyRaw == "ON_DEMAND") "ON_DEMAND" else "PERMANENT"
+        val policyRaw = if (parts.size > 4) parts[4].trim().uppercase() else StockPolicy.PERMANENT
+        val stockPolicy = if (policyRaw == StockPolicy.ON_DEMAND) StockPolicy.ON_DEMAND else StockPolicy.PERMANENT
         val thresholdVal = if (parts.size > 5) parts[5].trim().toDoubleOrNull() else null
         val minThreshold = thresholdVal ?: (qty / 2.0)
         val packVal = if (parts.size > 6) parts[6].trim().toDoubleOrNull() else null

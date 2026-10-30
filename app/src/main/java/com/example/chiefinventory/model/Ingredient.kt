@@ -36,7 +36,7 @@ data class Ingredient(
     val imageEmbedding: ByteArray? = null,
     val ocrText: String? = null,
     val locationId: Long? = null, // ID from the locations table (type INGREDIENT)
-    val stockPolicy: String = "PERMANENT", // PERMANENT or ON_DEMAND
+    val stockPolicy: String = StockPolicy.PERMANENT, // PERMANENT or ON_DEMAND
     val minThreshold: Double? = null, // Seuil minimum d'alerte non nul
     val packSize: Double = 1.0, // Taille du conditionnement/pack d'achat (ex: 6)
     val updatedAt: Long = System.currentTimeMillis()

@@ -32,14 +32,14 @@ enum class CatalogStockState {
 }
 
 private data class CatalogChipStyle(
-    @ColorRes val bgColorRes: Int,
-    @ColorRes val strokeColorRes: Int,
-    @ColorRes val textColorRes: Int,
+    @get:ColorRes val bgColorRes: Int,
+    @get:ColorRes val strokeColorRes: Int,
+    @get:ColorRes val textColorRes: Int,
     val stepperVisibility: Int
 )
 
 /**
- * Adaptateur de grille du catalogue du garde-manger avec affichage à 3 couleurs.
+ * Adaptateur de grille du catalogue du garde-manger avec affichage à trois couleurs.
  *
  * @param onSelectionChanged Callback déclenché lors de la modification du nombre d'articles sélectionnés.
  */
@@ -49,8 +49,8 @@ class StandardCatalogAdapter(
 ) : ListAdapter<SelectedCatalogEntry, StandardCatalogAdapter.ViewHolder>(DiffCallback) {
 
     object DiffCallback : DiffUtil.ItemCallback<SelectedCatalogEntry>() {
-        override fun areItemsTheSame(oldItem: SelectedCatalogEntry, newItem: SelectedCatalogEntry) = oldItem.item.name == newItem.item.name
-        override fun areContentsTheSame(oldItem: SelectedCatalogEntry, newItem: SelectedCatalogEntry) = oldItem == newItem
+        override fun areItemsTheSame(oldItem: SelectedCatalogEntry, newItem: SelectedCatalogEntry): Boolean = oldItem.item.name == newItem.item.name
+        override fun areContentsTheSame(oldItem: SelectedCatalogEntry, newItem: SelectedCatalogEntry): Boolean = oldItem == newItem
     }
 
     class ViewHolder(val binding: ItemCatalogChipBinding) : RecyclerView.ViewHolder(binding.root)
@@ -60,13 +60,18 @@ class StandardCatalogAdapter(
         return ViewHolder(binding)
     }
 
+    @Suppress("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val entry = getItem(position)
         val binding = holder.binding
         val context = binding.root.context
 
         binding.tvIngredientName.text = entry.item.name
-        binding.tvCategoryLocation.text = "${entry.item.category} • ${entry.item.defaultLocationName}"
+        binding.tvCategoryLocation.text = context.getString(
+            R.string.catalog_category_location_format,
+            entry.item.category,
+            entry.item.defaultLocationName
+        )
 
         val effectiveThreshold = entry.item.minThreshold
         val stockState = determineStockState(entry.isSelected, entry.currentQuantity, effectiveThreshold)
@@ -110,7 +115,7 @@ class StandardCatalogAdapter(
         } else {
             ""
         }
-        binding.tvQuantity.text = "$formattedQty$unitStr"
+        binding.tvQuantity.text = context.getString(R.string.quantity_unit_format, formattedQty, unitStr)
 
         binding.cardChip.setOnClickListener {
             entry.isSelected = !entry.isSelected
@@ -146,18 +151,19 @@ class StandardCatalogAdapter(
         return currentList.count { it.isSelected }
     }
 
+    @Suppress("unused")
     fun getSelectedEntries(): List<SelectedCatalogEntry> {
         return currentList.filter { it.isSelected }
     }
 
     companion object {
         fun determineStockState(isSelected: Boolean, currentQuantity: Double, threshold: Double): CatalogStockState {
-            if (!isSelected || currentQuantity <= 0.0) {
-                return CatalogStockState.OUT_OF_STOCK
+            return if (!isSelected || currentQuantity <= 0.0) {
+                CatalogStockState.OUT_OF_STOCK
             } else if (currentQuantity <= threshold) {
-                return CatalogStockState.LOW_STOCK
+                CatalogStockState.LOW_STOCK
             } else {
-                return CatalogStockState.HEALTHY_STOCK
+                CatalogStockState.HEALTHY_STOCK
             }
         }
     }

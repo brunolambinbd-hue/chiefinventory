@@ -16,7 +16,7 @@ class TypeConverters {
     fun toLocationType(value: String): LocationType {
         return try {
             LocationType.valueOf(value)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             LocationType.INGREDIENT
         }
     }

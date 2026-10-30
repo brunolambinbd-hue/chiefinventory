@@ -26,7 +26,7 @@ class IngredientListActivity : AppCompatActivity() {
 
     private var allIngredientsList: List<Ingredient> = emptyList()
     private var locationNamesMap: Map<Long, String> = emptyMap()
-    private var selectedLocationFilter: String = "TOUT"
+    private var selectedLocationFilter: String = FILTER_ALL
 
     private val viewModel: IngredientViewModel by viewModels {
         val app = application as ChefInventoryApplication
@@ -69,12 +69,11 @@ class IngredientListActivity : AppCompatActivity() {
         binding.tabLocationFilter.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 selectedLocationFilter = when (tab?.position) {
-                    1 -> "Frigo"
-                    2 -> "Placard"
-                    3 -> "Surgélateur"
-                    4 -> "Cave"
-                    5 -> "Autre"
-                    else -> "TOUT"
+                    1 -> FILTER_FRIGO
+                    2 -> FILTER_PLACARD
+                    3 -> FILTER_SURGELE
+                    4 -> FILTER_CAVE
+                    else -> FILTER_ALL
                 }
                 applyFilters()
             }
@@ -85,8 +84,8 @@ class IngredientListActivity : AppCompatActivity() {
     }
 
     private fun setupSearch() {
-        binding.etSearchIngredient.doAfterTextChanged { text ->
-            viewModel.setSearchQuery(text?.toString() ?: "")
+        binding.etSearchIngredient.doAfterTextChanged { _ ->
+            applyFilters()
         }
     }
 
@@ -119,7 +118,6 @@ class IngredientListActivity : AppCompatActivity() {
         var placardCount = 0
         var surgelateurCount = 0
         var caveCount = 0
-        var autreCount = 0
 
         for (ingredient in allIngredientsList) {
             val locName = IngredientAdapter.resolveLocationName(
@@ -127,14 +125,12 @@ class IngredientListActivity : AppCompatActivity() {
                 locationNamesMap,
                 ingredient.category
             )
-            val lowerLocName = locName.lowercase()
 
             when {
-                "frigo" in lowerLocName || "fridge" in lowerLocName -> frigoCount++
-                "placard" in lowerLocName || "cupboard" in lowerLocName || "pantry" in lowerLocName -> placardCount++
-                "surgélateur" in lowerLocName || "congélateur" in lowerLocName || "freezer" in lowerLocName -> surgelateurCount++
-                "cave" in lowerLocName || "cellar" in lowerLocName -> caveCount++
-                else -> autreCount++
+                matchesLocationFilter(locName, FILTER_FRIGO) -> frigoCount++
+                matchesLocationFilter(locName, FILTER_SURGELE) -> surgelateurCount++
+                matchesLocationFilter(locName, FILTER_CAVE) -> caveCount++
+                else -> placardCount++
             }
         }
 
@@ -143,38 +139,30 @@ class IngredientListActivity : AppCompatActivity() {
         binding.tabLocationFilter.getTabAt(2)?.text = "🧺 Placard ($placardCount)"
         binding.tabLocationFilter.getTabAt(3)?.text = "🧊 Surgélateur ($surgelateurCount)"
         binding.tabLocationFilter.getTabAt(4)?.text = "🍷 Cave ($caveCount)"
-        binding.tabLocationFilter.getTabAt(5)?.text = "📍 Autre ($autreCount)"
     }
 
     private fun applyFilters() {
         updateTabCounts()
 
-        val rawQuery = binding.etSearchIngredient.text?.toString() ?: ""
-        val cleanQuery = rawQuery.trim().lowercase()
+        val cleanQuery = stripAccents(binding.etSearchIngredient.text?.toString())
 
         val filtered = allIngredientsList.filter { ingredient ->
-            val nameMatches = ingredient.name.lowercase().contains(cleanQuery)
-            val categoryMatches = ingredient.category?.lowercase()?.contains(cleanQuery) == true
-            val matchesText = cleanQuery.isBlank() || nameMatches || categoryMatches
+            val cleanName = stripAccents(ingredient.name)
+            val cleanCategory = stripAccents(ingredient.category)
+            val cleanDescription = stripAccents(ingredient.description)
+
+            val nameMatches = cleanName.contains(cleanQuery)
+            val categoryMatches = cleanCategory.contains(cleanQuery)
+            val descriptionMatches = cleanDescription.contains(cleanQuery)
+            val matchesText = cleanQuery.isBlank() || nameMatches || categoryMatches || descriptionMatches
 
             val locName = IngredientAdapter.resolveLocationName(
                 ingredient.locationId,
                 locationNamesMap,
                 ingredient.category
             )
-            val lowerLocName = locName.lowercase()
 
-            val matchesLocation = when (selectedLocationFilter) {
-                "Frigo" -> "frigo" in lowerLocName || "fridge" in lowerLocName
-                "Placard" -> "placard" in lowerLocName || "cupboard" in lowerLocName || "pantry" in lowerLocName
-                "Surgélateur" -> "surgélateur" in lowerLocName || "congélateur" in lowerLocName || "freezer" in lowerLocName
-                "Cave" -> "cave" in lowerLocName || "cellar" in lowerLocName
-                "Autre" -> !("frigo" in lowerLocName || "fridge" in lowerLocName ||
-                             "placard" in lowerLocName || "cupboard" in lowerLocName || "pantry" in lowerLocName ||
-                             "surgélateur" in lowerLocName || "congélateur" in lowerLocName || "freezer" in lowerLocName ||
-                             "cave" in lowerLocName || "cellar" in lowerLocName)
-                else -> true
-            }
+            val matchesLocation = matchesLocationFilter(locName, selectedLocationFilter)
 
             matchesText && matchesLocation
         }
@@ -198,8 +186,45 @@ class IngredientListActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_LOCATION_ID = "location_id"
-        const val EXTRA_LOCATION_NAME = "location_name"
-        const val EXTRA_INGREDIENT_ID = "ingredient_id"
+        const val EXTRA_LOCATION_ID: String = "location_id"
+        const val EXTRA_LOCATION_NAME: String = "location_name"
+        const val EXTRA_INGREDIENT_ID: String = "ingredient_id"
+
+        const val FILTER_ALL: String = "TOUT"
+        const val FILTER_FRIGO: String = "Frigo"
+        const val FILTER_PLACARD: String = "Placard"
+        const val FILTER_SURGELE: String = "Surgélateur"
+        const val FILTER_CAVE: String = "Cave"
+
+        fun stripAccents(text: String?): String {
+            if (text.isNullOrBlank()) return ""
+            val lower = text.lowercase().replace("œ", "oe").replace("æ", "ae")
+            return java.text.Normalizer.normalize(lower, java.text.Normalizer.Form.NFD)
+                .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+                .trim()
+        }
+
+        fun isFrigoLocation(locNameLower: String): Boolean {
+            return "frigo" in locNameLower || "fridge" in locNameLower || "réfrigérateur" in locNameLower || "refrigerateur" in locNameLower
+        }
+
+        fun isSurgeleLocation(locNameLower: String): Boolean {
+            return "surgélateur" in locNameLower || "surgelateur" in locNameLower || "congélateur" in locNameLower || "congelateur" in locNameLower || "freezer" in locNameLower || "surgelés" in locNameLower || "surgeles" in locNameLower
+        }
+
+        fun isCaveLocation(locNameLower: String): Boolean {
+            return "cave" in locNameLower || "cellar" in locNameLower || "boisson" in locNameLower || "boissons" in locNameLower || "drink" in locNameLower || "vin" in locNameLower || "bière" in locNameLower || "biere" in locNameLower || "bieres" in locNameLower || "légume" in locNameLower || "legume" in locNameLower || "vegetable" in locNameLower || "potato" in locNameLower || "pomme de terre" in locNameLower || "oignon" in locNameLower || "onion" in locNameLower || "ail" in locNameLower || "garlic" in locNameLower || "échalote" in locNameLower || "echalote" in locNameLower
+        }
+
+        fun matchesLocationFilter(locName: String, filter: String): Boolean {
+            val lower = locName.lowercase()
+            return when (filter) {
+                FILTER_FRIGO -> isFrigoLocation(lower)
+                FILTER_SURGELE -> isSurgeleLocation(lower)
+                FILTER_CAVE -> isCaveLocation(lower)
+                FILTER_PLACARD -> !(isFrigoLocation(lower) || isSurgeleLocation(lower) || isCaveLocation(lower))
+                else -> true
+            }
+        }
     }
 }

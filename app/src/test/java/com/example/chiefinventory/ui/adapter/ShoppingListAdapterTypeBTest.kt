@@ -54,9 +54,9 @@ class ShoppingListAdapterTypeBTest {
 
     @Test
     fun `DiffCallback areItemsTheSame and areContentsTheSame should reach 100 percent coverage`() {
-        val ingr1 = Ingredient(id = 10L, name = "Lait", quantity = 0.0)
-        val ingr1Same = Ingredient(id = 10L, name = "Lait", quantity = 0.0)
-        val ingr2 = Ingredient(id = 20L, name = "Beurre", quantity = 100.0)
+        val ingr1 = Ingredient(id = 10L, name = "Lait", quantity = 0.0, updatedAt = 1000L)
+        val ingr1Same = Ingredient(id = 10L, name = "Lait", quantity = 0.0, updatedAt = 1000L)
+        val ingr2 = Ingredient(id = 20L, name = "Beurre", quantity = 100.0, updatedAt = 1000L)
 
         assertThat(ShoppingListAdapter.DiffCallback.areItemsTheSame(ingr1, ingr1Same)).isTrue()
         assertThat(ShoppingListAdapter.DiffCallback.areItemsTheSame(ingr1, ingr2)).isFalse()

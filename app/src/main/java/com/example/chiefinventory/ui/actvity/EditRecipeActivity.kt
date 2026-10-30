@@ -14,10 +14,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.chiefinventory.ChefInventoryApplication
+import com.example.chiefinventory.R
 import com.example.chiefinventory.databinding.ActivityEditRecipeBinding
 import com.example.chiefinventory.model.Location
 import com.example.chiefinventory.model.Recipe
@@ -64,7 +66,7 @@ class EditRecipeActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = if (recipeId == -1L) "Nouvelle recette" else "Modifier la recette"
+        supportActionBar?.title = if (recipeId == -1L) getString(R.string.edit_recipe_title_new) else getString(R.string.edit_recipe_title_edit)
 
         textRecognitionHelper = TextRecognitionHelper(this)
         imageCaptureUtil = ImageCaptureUtil(this) { uri ->
@@ -97,11 +99,12 @@ class EditRecipeActivity : AppCompatActivity() {
         pickImage.launch("image/*")
     }
 
+    @Suppress("UsePropertyAccessSyntax")
     private fun setupCategoryDropdown() {
         viewModel.recipeCategories.observe(this) { list ->
             categories = list
-            val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, list.map { it.name })
-            binding.actvRecipeCategory.setAdapter(adapter)
+            val adapterDropdown = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, list.map { it.name })
+            binding.actvRecipeCategory.setAdapter(adapterDropdown)
             
             selectedLocationId?.let { id ->
                 list.find { it.id == id }?.let {
@@ -115,10 +118,11 @@ class EditRecipeActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("UsePropertyAccessSyntax")
     private fun setupDifficultyDropdown() {
-        val difficulties = arrayOf("facile", "moyen", "difficile")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, difficulties)
-        binding.actvDifficulty.setAdapter(adapter)
+        val difficulties = resources.getStringArray(R.array.recipe_difficulties)
+        val adapterDropdown = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, difficulties)
+        binding.actvDifficulty.setAdapter(adapterDropdown)
     }
 
     private fun setupSourceWebLink() {
@@ -146,16 +150,16 @@ class EditRecipeActivity : AppCompatActivity() {
 
     private fun openWebUrlInBrowser(url: String) {
         try {
-            val chromeIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            val chromeIntent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
                 setPackage("com.android.chrome")
             }
             startActivity(chromeIntent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             try {
-                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
                 startActivity(browserIntent)
-            } catch (ex: Exception) {
-                Toast.makeText(this, "Impossible d'ouvrir le navigateur Web", Toast.LENGTH_SHORT).show()
+            } catch (_: Exception) {
+                Toast.makeText(this, getString(R.string.toast_cannot_open_web_browser), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -192,10 +196,10 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.actvDifficulty.setText(result.difficulty ?: "", false)
                 binding.etNutritionInfo.setText(result.nutritionInfo ?: "")
 
-                Toast.makeText(this@EditRecipeActivity, "Scan terminé", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_scan_completed), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Log.e("EditRecipe", "OCR failed", e)
-                Toast.makeText(this@EditRecipeActivity, "Échec du scan", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_scan_failed), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -215,7 +219,7 @@ class EditRecipeActivity : AppCompatActivity() {
         binding.etNutritionInfo.setText(recipe.nutritionInfo ?: "")
         
         recipe.imageUri?.let {
-            val uri = Uri.parse(it)
+            val uri = it.toUri()
             lastImageUri = uri
             binding.ivRecipe.isVisible = true
             binding.ivRecipe.load(uri)
@@ -239,7 +243,7 @@ class EditRecipeActivity : AppCompatActivity() {
     private fun saveRecipe() {
         val title = binding.etTitle.text.toString()
         if (title.isBlank()) {
-            Toast.makeText(this, "Le titre est obligatoire", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_recipe_title_required), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -269,7 +273,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 viewModel.update(recipe, ingredients)
             }
             
-            Toast.makeText(this@EditRecipeActivity, "Recette sauvegardée", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_recipe_saved), Toast.LENGTH_SHORT).show()
             finish()
         }
     }
@@ -291,15 +295,15 @@ class EditRecipeActivity : AppCompatActivity() {
 
     private fun showDeleteConfirmation() {
         AlertDialog.Builder(this)
-            .setTitle("Supprimer la recette")
-            .setMessage("Voulez-vous vraiment supprimer cette recette ?")
-            .setPositiveButton("Supprimer") { _, _ ->
+            .setTitle(R.string.dialog_delete_recipe_title)
+            .setMessage(R.string.dialog_delete_recipe_message)
+            .setPositiveButton(R.string.supprimer) { _, _ ->
                 currentRecipe?.let {
                     viewModel.delete(it)
                     finish()
                 }
             }
-            .setNegativeButton("Annuler", null)
+            .setNegativeButton(R.string.annuler, null)
             .show()
     }
 
@@ -309,8 +313,8 @@ class EditRecipeActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_RECIPE_ID = "recipe_id"
-        const val EXTRA_LOCATION_ID = "location_id"
+        const val EXTRA_RECIPE_ID: String = "recipe_id"
+        const val EXTRA_LOCATION_ID: String = "location_id"
 
         fun extractUrlFromSource(sourceText: String?): String? {
             if (sourceText.isNullOrBlank()) {
@@ -318,13 +322,9 @@ class EditRecipeActivity : AppCompatActivity() {
             }
 
             val trimmed = sourceText.trim()
-            val regex = Regex("""https?://[^\s]+""", RegexOption.IGNORE_CASE)
+            val regex = Regex("""https?://\S+""", RegexOption.IGNORE_CASE)
             val match = regex.find(trimmed)
-            if (match != null) {
-                return match.value
-            } else {
-                return null
-            }
+            return match?.value
         }
     }
 }
