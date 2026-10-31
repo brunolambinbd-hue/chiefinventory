@@ -6,6 +6,8 @@ package com.chefinventory.app.utils
  * Responsabilités :
  * - Déléguer la beautification des consignes d'instructions à [Ocr5InstructionBeautifier].
  * - Déléguer la beautification des ingrédients à [Ocr5IngredientBeautifier].
+ * - Déléguer la beautification des recommandations de vins à [Ocr5WineBeautifier].
+ * - Déléguer la beautification des sources et coordonnées d'établissements à [Ocr5SourceBeautifier].
  */
 object Ocr5Beautifier {
 
@@ -52,5 +54,25 @@ object Ocr5Beautifier {
             baseIngredients,
             varietyQualifiers
         )
+    }
+
+    /**
+     * Effectue la beautification et le dé-doublonnage des recommandations de vins.
+     *
+     * @param wines La liste des recommandations de vins brutes.
+     * @return La liste finale nettoyée, majusculée et sans doublons des vins recommandés.
+     */
+    fun beautifyWines(wines: List<String>): List<String> {
+        return Ocr5WineBeautifier.beautifyWines(wines)
+    }
+
+    /**
+     * Effectue la beautification et le dé-doublonnage des sources et coordonnées d'établissements.
+     *
+     * @param sources La liste des sources et coordonnées brutes.
+     * @return La liste finale nettoyée, majusculée et sans doublons des sources d'origine.
+     */
+    fun beautifySources(sources: List<String>): List<String> {
+        return Ocr5SourceBeautifier.beautifySources(sources)
     }
 }

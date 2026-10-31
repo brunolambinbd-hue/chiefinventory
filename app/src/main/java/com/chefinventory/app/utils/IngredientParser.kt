@@ -1,14 +1,17 @@
 package com.chefinventory.app.utils
 
+import com.parabd.lib.traceability.utils.LogManager
+
 /**
  * Analyseur d'ingrédients culinaires data-driven.
  *
  * Responsabilités :
  * - Décomposer une chaîne d'ingrédient brute (ex: "250 g de farine (tamisée)") en ses 4 composants structurés :
  *   nom (`"farine"`), quantité numérique (`250.0`), unité culinaire (`"g"`), information complémentaire (`"tamisée"`).
- * - Prendre en charge les fractions ("1/2"), les plages ("10 à 15"), et les quantifieurs vagues ("quelques").
+ * - Prendre en charge les fractions ("1/2"), les plages ("10 à 15"), et les quantificateurs vagues ("quelques").
  * - Consommer les expressions régulières pré-compilées et le cache d'unités de [OcrRegexes].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object IngredientParser {
 
     /**
@@ -23,19 +26,29 @@ object IngredientParser {
         val name: String,
         val quantity: Double? = null,
         val unit: String? = null,
-        val supplementalInfo: String? = null
+        val supplementalInfo: String? = null,
     )
 
     /**
-     * Unités de mesure culinaires par défaut chargées dynamiquement depuis [R.array.culinary_measurement_units] (`culinary_units.xml`).
+     * Charge la liste des unités culinaires autorisées depuis les ressources XML du projet.
+     *
+     * @param projectDir Répertoire racine optionnel pour la résolution des ressources (par défaut : dossier courant `"."`).
+     * @return La liste des unités culinaires ou une liste vide en cas d'erreur I/O.
      */
-    internal val defaultUnits: List<String> by lazy {
-        try {
-            OcrVocabularyLoader.loadFromProjectResources().culinaryMeasurementUnits
+    internal fun loadDefaultUnits(projectDir: java.io.File = java.io.File(".")): List<String> {
+        return try {
+            OcrVocabularyLoader.loadFromProjectResources(projectDir).culinaryMeasurementUnits
         } catch (e: Exception) {
+            LogManager.e("IngredientParser", "Failed to load default culinary measurement units", e)
             emptyList()
         }
     }
+
+    /**
+     * Unités de mesure culinaires par défaut chargées dynamiquement depuis `R.array.culinary_measurement_units` (`culinary_units.xml`).
+     */
+    internal val defaultUnits: List<String>
+        get() = loadDefaultUnits()
 
     /**
      * Décompose une chaîne de texte d'ingrédient brute en un objet structuré [ParsedIngredient].
@@ -45,84 +58,141 @@ object IngredientParser {
      * @return L'ingrédient décomposé et structuré.
      */
     fun parse(input: String, customUnits: List<String> = emptyList()): ParsedIngredient {
-        val activeUnits = if (customUnits.isNotEmpty()) {
-            (customUnits + defaultUnits).distinct().sortedByDescending { it.length }
-        } else {
-            defaultUnits.sortedByDescending { it.length }
+        val activeUnits = customUnits.ifEmpty { defaultUnits }
+        val text = input.trim()
+        if (text.isEmpty()) {
+            return ParsedIngredient("")
         }
 
-        val parentheticalMatch = OcrRegexes.Ingredients.PARENTHESES.find(input)
-        var supplementalInfo = parentheticalMatch?.groupValues?.get(1)
-        var mainText = input.replace(OcrRegexes.Ingredients.PARENTHESES, "").trim()
+        // 1. Isoler et extraire les informations complémentaires entre parenthèses
+        var workingText = text
+        var supplementalInfo: String? = null
+        val parentheticalMatch = OcrRegexes.Ingredients.PARENTHESES.find(workingText)
+        if (parentheticalMatch != null) {
+            supplementalInfo = parentheticalMatch.groupValues[1].trim()
+            workingText = workingText.replace(parentheticalMatch.value, " ").trim()
+        }
 
-        val (textAfterFirstExtraction, infoAfterFirstExtraction) = extractExtra(mainText, supplementalInfo)
-        mainText = textAfterFirstExtraction
-        supplementalInfo = infoAfterFirstExtraction
-
-        val fractionMatch = OcrRegexes.Quantities.FRACTION.find(mainText)
+        // 2. Traiter le cas spécial des fractions pures (ex: "1/2 verre d'eau", "3/4 l", "le jus de 1/2 citron")
+        val fractionMatch = OcrRegexes.Quantities.FRACTION.find(workingText)
         if (fractionMatch != null) {
-            val numerator = fractionMatch.groupValues[1].toDoubleOrNull() ?: 0.0
-            val denominator = fractionMatch.groupValues[2].toDoubleOrNull() ?: 1.0
-            val rest = mainText.replace(fractionMatch.value, "").trim()
-            val unitInfo = findUnit(rest, activeUnits)
-            val (finalName, finalInfo) = extractExtra(unitInfo.remainingText, supplementalInfo)
-            return ParsedIngredient(finalName, numerator / denominator, unitInfo.unit, finalInfo)
-        }
+            val prefixBeforeFraction = workingText.substring(0, fractionMatch.range.first).trim()
+            val isCleanPrefix = prefixBeforeFraction.isEmpty() || OcrRegexes.Ingredients.VAGUE_QUANTITY.containsMatchIn(prefixBeforeFraction) || prefixBeforeFraction.lowercase().startsWith("le jus")
+            if (isCleanPrefix) {
+                val denominator = fractionMatch.groupValues[2].toDouble()
+                if (denominator == 0.0) {
+                    return createParsedIngredient(name = workingText, quantity = null, unit = null, supplementalInfo = null)
+                } else {
+                    val numerator = fractionMatch.groupValues[1].toDouble()
+                    val value = numerator / denominator
 
-        val rangeMatch = OcrRegexes.Quantities.RANGE.find(mainText)
-        if (rangeMatch != null) {
-            val secondQty = rangeMatch.groupValues[2].replace(",", ".").toDoubleOrNull()
-            val rest = mainText.substring(rangeMatch.range.last + 1).trim()
-            val standard = parseStandard(rest, supplementalInfo, activeUnits)
-            return ParsedIngredient(standard.name, secondQty, standard.unit, standard.supplementalInfo)
-        }
+                    val restText = workingText.substring(fractionMatch.range.last + 1).trim()
+                    val unitInfo = findUnit(restText, activeUnits)
 
-        return parseStandard(mainText, supplementalInfo, activeUnits)
-    }
+                    val combinedInfo = when {
+                        prefixBeforeFraction.isEmpty() -> supplementalInfo
+                        supplementalInfo == null -> prefixBeforeFraction
+                        else -> "$prefixBeforeFraction $supplementalInfo"
+                    }
 
-    /**
-     * Extrait les préfixes de préparation (ex: "le jus de"), quantifieurs vagues ("quelques") ou adjectifs ("petites")
-     * du nom principal pour les placer dans l'information supplémentaire.
-     *
-     * @param text Le texte principal d'ingrédient en cours d'analyse.
-     * @param currentInfo L'information supplémentaire déjà accumulée.
-     * @return Une paire contenant `(textePrincipalRestant, informationSecondaireFormatee)`.
-     */
-    private fun extractExtra(text: String, currentInfo: String?): Pair<String, String?> {
-        var mainText = text.trim()
-        var supplementalInfo = currentInfo
-        var continueExtraction = true
-        while (continueExtraction) {
-            val prepMatch = OcrRegexes.Ingredients.PREPARATION_PREFIX.find(mainText)
-            val vagueMatch = OcrRegexes.Ingredients.VAGUE_QUANTITY.find(mainText)
-            val adjMatch = OcrRegexes.Ingredients.ADJECTIVE_PREFIX.find(mainText)
-
-            if (prepMatch != null) {
-                val word = prepMatch.value.trim()
-                supplementalInfo = if (supplementalInfo.isNullOrBlank()) word else "$supplementalInfo $word"
-                mainText = mainText.replaceFirst(prepMatch.value, "").trim()
-            } else if (vagueMatch != null) {
-                val word = vagueMatch.groupValues[1]
-                supplementalInfo = if (supplementalInfo.isNullOrBlank()) word else "$word $supplementalInfo"
-                mainText = mainText.replaceFirst(vagueMatch.value, "").trim()
-            } else if (adjMatch != null) {
-                val word = adjMatch.groupValues[1]
-                supplementalInfo = if (supplementalInfo.isNullOrBlank()) word else "$word $supplementalInfo"
-                mainText = mainText.replaceFirst(adjMatch.value, "").trim()
-            } else {
-                continueExtraction = false
+                    return createParsedIngredient(
+                        name = unitInfo.remainingText,
+                        quantity = value,
+                        unit = unitInfo.unit,
+                        supplementalInfo = combinedInfo,
+                    )
+                }
             }
         }
-        return mainText to supplementalInfo
+
+        // 3. Traiter le cas des plages numériques (ex: "10 à 15 min", "1 ou 2 gousses")
+        val rangeMatch = OcrRegexes.Quantities.RANGE.find(workingText)
+        if (rangeMatch != null && rangeMatch.range.first == 0) {
+            val high = rangeMatch.groupValues[2].toDouble()
+
+            val restText = workingText.substring(rangeMatch.range.last + 1).trim()
+            val unitInfo = findUnit(restText, activeUnits)
+
+            return createParsedIngredient(
+                name = unitInfo.remainingText,
+                quantity = high,
+                unit = unitInfo.unit,
+                supplementalInfo = supplementalInfo,
+            )
+        }
+
+        // 3.5. Traiter les quantificateurs vagues (ex: "quelques branches d'aneth", "des petites feuilles de chicon")
+        val vagueMatch = OcrRegexes.Ingredients.VAGUE_QUANTITY.find(workingText)
+        if (vagueMatch != null && vagueMatch.range.first == 0) {
+            val vagueWord = vagueMatch.groupValues[1].trim()
+            var restText = workingText.substring(vagueMatch.range.last + 1).trim()
+
+            val extraInfo: String?
+            val adjMatch = OcrRegexes.Ingredients.ADJECTIVE_PREFIX.find(restText)
+            if (adjMatch != null && adjMatch.range.first == 0) {
+                extraInfo = adjMatch.groupValues[1].trim()
+                restText = restText.substring(adjMatch.range.last + 1).trim()
+            } else {
+                extraInfo = null
+            }
+
+            val unitInfo = findUnit(restText, activeUnits)
+
+            val combinedInfoList = listOfNotNull(extraInfo, vagueWord, supplementalInfo)
+            val finalInfo = combinedInfoList.joinToString(" ")
+
+            return createParsedIngredient(
+                name = unitInfo.remainingText,
+                quantity = null,
+                unit = unitInfo.unit,
+                supplementalInfo = finalInfo,
+            )
+        }
+
+        // 4. Traitement standard des quantités numériques (ex: "250 g de farine", "2 grosses tomates")
+        val standardParsed = parseStandardQuantity(workingText, activeUnits)
+
+        // Réassembler supplementalInfo si des qualificatifs supplémentaires étaient en parenthèses
+        val finalInfo = when {
+            supplementalInfo == null -> standardParsed.supplementalInfo
+            standardParsed.supplementalInfo == null -> supplementalInfo
+            else -> "$supplementalInfo ${standardParsed.supplementalInfo}"
+        }
+
+        return createParsedIngredient(
+            name = standardParsed.name,
+            quantity = standardParsed.quantity,
+            unit = standardParsed.unit,
+            supplementalInfo = finalInfo,
+        )
     }
 
     /**
-     * Encapsule le résultat de la détection d'unité de mesure et le texte restant d'ingrédient.
+     * Fabrique un objet [ParsedIngredient] en nettoyant et normalisant les espaces superflus du nom de l'aliment.
      *
-     * @property unit L'unité de mesure culinaire identifiée (ex: "g", "c. à soupe"), ou null si non trouvée.
-     * @property remainingText Le texte de l'ingrédient restant après extraction de l'unité.
+     * @param name Le nom brut ou intermédiaire de l'aliment (ex: "  surimi   ou de crabe  ").
+     * @param quantity La quantité numérique extraite (ou null si non précisée).
+     * @param unit L'unité culinaire identifiée (ou null si sans unité).
+     * @param supplementalInfo Les précisions de préparation ou qualificatifs secondaires (ou null si absents).
+     * @return L'objet [ParsedIngredient] instancié avec le nom d'aliment purgé des espaces multiples.
      */
-    private data class UnitInfo(val unit: String?, val remainingText: String)
+    private fun createParsedIngredient(
+        name: String,
+        quantity: Double?,
+        unit: String?,
+        supplementalInfo: String?,
+    ): ParsedIngredient {
+        val cleanName = name.replace(Regex("\\s+"), " ").trim()
+        return ParsedIngredient(cleanName, quantity, unit, supplementalInfo)
+    }
+
+    /**
+     * Conteneur interne représentant le résultat de la recherche d'unité culinaire.
+     *
+     * @property unit L'unité identifiée (ou null si aucune unité ne correspond).
+     * @property remainingText Le texte restant de l'ingrédient purgé du préfixe d'unité et des articles.
+     */
+    internal data class UnitInfo(val unit: String?, val remainingText: String)
 
     /**
      * Recherche la plus longue unité de mesure correspondant au début du texte transmis.
@@ -131,14 +201,14 @@ object IngredientParser {
      * @param activeUnits La liste ordonnée des unités culinaires autorisées.
      * @return Un conteneur [UnitInfo] avec l'unité trouvée et le texte du nom restant.
      */
-    private fun findUnit(text: String, activeUnits: List<String> = defaultUnits): UnitInfo {
+    internal fun findUnit(text: String, activeUnits: List<String> = defaultUnits): UnitInfo {
         for (unit in activeUnits) {
             val unitPattern = OcrRegexes.getUnitPattern(unit)
             val match = unitPattern.find(text)
             if (match != null) {
                 val namePart = text.substring(match.range.last + 1).trim()
                 val finalName = namePart.replace(OcrRegexes.Ingredients.DE_PREFIX, "").trim()
-                return UnitInfo(unit, if (finalName.isEmpty()) text else finalName)
+                return UnitInfo(unit, finalName.ifEmpty { text })
             }
         }
         return UnitInfo(null, text)
@@ -148,25 +218,53 @@ object IngredientParser {
      * Effectue le parsing d'une ligne d'ingrédient à quantité numérique standard (ex: "250 g de farine").
      *
      * @param input La ligne d'ingrédient brute sans parenthèses.
-     * @param supplementalInfo L'information supplémentaire déjà extraite.
      * @param activeUnits La liste ordonnée des unités culinaires autorisées.
-     * @return L'ingrédient décomposé et structuré.
+     * @return L'ingrédient décomposé.
      */
-    private fun parseStandard(input: String, supplementalInfo: String?, activeUnits: List<String>): ParsedIngredient {
+    private fun parseStandardQuantity(input: String, activeUnits: List<String>): ParsedIngredient {
         val matcher = OcrRegexes.Quantities.STANDARD.matcher(input)
-        var qty: Double? = null
-        var rest = input.trim()
-
         if (matcher.find()) {
-            val qtyStr = matcher.group(1)
-            if (!qtyStr.isNullOrEmpty()) {
-                qty = qtyStr.replace(",", ".").toDoubleOrNull()
-                rest = matcher.group(2)?.trim() ?: ""
+            val rawGroup1 = matcher.group(1)
+            val qtyStr = if (rawGroup1 != null) rawGroup1 else ""
+            val qty = qtyStr.replace(',', '.').toDoubleOrNull()
+
+            val rawGroup2 = matcher.group(2)
+            var restText = if (rawGroup2 != null) rawGroup2.trim() else ""
+
+            val extraInfo: String?
+            val adjMatch = OcrRegexes.Ingredients.ADJECTIVE_PREFIX.find(restText)
+            if (adjMatch != null && adjMatch.range.first == 0) {
+                extraInfo = adjMatch.groupValues[1].trim()
+                restText = restText.substring(adjMatch.range.last + 1).trim()
+            } else {
+                extraInfo = null
             }
+
+            val unitInfo = findUnit(restText, activeUnits)
+
+            return createParsedIngredient(
+                name = unitInfo.remainingText,
+                quantity = qty,
+                unit = unitInfo.unit,
+                supplementalInfo = extraInfo,
+            )
         }
 
-        val unitInfo = findUnit(rest, activeUnits)
-        val (finalName, finalInfo) = extractExtra(unitInfo.remainingText, supplementalInfo)
-        return ParsedIngredient(finalName, qty, unitInfo.unit, finalInfo)
+        val unitInfo = findUnit(input, activeUnits)
+        if (unitInfo.unit != null) {
+            return createParsedIngredient(
+                name = unitInfo.remainingText,
+                quantity = null,
+                unit = unitInfo.unit,
+                supplementalInfo = null,
+            )
+        }
+
+        return createParsedIngredient(
+            name = input,
+            quantity = null,
+            unit = null,
+            supplementalInfo = null,
+        )
     }
 }

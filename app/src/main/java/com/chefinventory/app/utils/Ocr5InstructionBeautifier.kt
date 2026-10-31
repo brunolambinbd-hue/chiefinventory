@@ -13,6 +13,7 @@ import android.util.Log
  * - Filtrer les mots d'en-tête de section isolés ("Préparation.", "Instructions.").
  * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Beautifier].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr5InstructionBeautifier {
     private const val TAG = "RecipeOCR"
 
@@ -68,18 +69,9 @@ object Ocr5InstructionBeautifier {
         var i = 0
         while (i < cleanedLines.size) {
             var current = cleanedLines[i].trim()
-            if (current.isBlank()) {
-                i++
-                continue
-            }
 
             while (i + 1 < cleanedLines.size) {
                 val nextLine = cleanedLines[i + 1].trim()
-                if (nextLine.isBlank()) {
-                    i++
-                    break
-                }
-
                 val currentClean = current.trim()
                 val currentLower = currentClean.lowercase()
 
@@ -107,7 +99,7 @@ object Ocr5InstructionBeautifier {
 
             // Capitalisation initiale et ponctuation finale
             if (current.isNotEmpty()) {
-                current = current.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                current = current.replaceFirstChar { it.titlecase() }
             }
             if (current.isNotEmpty() && !current.endsWith(".") && !current.endsWith("!") && !current.endsWith("?")) {
                 current += "."

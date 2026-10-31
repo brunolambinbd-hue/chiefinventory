@@ -11,8 +11,16 @@ import android.util.Log
  * - Extraire les ingrédients implicites (quantités + noms d'aliments) contenus dans les consignes pour alimenter [RawSections.rawIngredientsList]
  *   afin d'indexer la recette pour le moteur de recherche par garde-manger.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3NarrativeCategorizer {
     private const val TAG = "Ocr3NarrativeCat"
+
+    private val EXPLICIT_INGR_KEYWORDS = listOf("ingrédients", "ingredients", "composition", "ngrédients")
+    private val INSTRUCTION_HEADER_KEYWORDS = setOf("instructions", "réalisation", "méthode", "progression")
+    private val DURATION_UNITS = setOf("min", "mn", "sec", "h", "min.", "mn.", "sec.", "h.")
+    private val DURATION_ENDINGS = listOf(" min", " mn", " h")
+    private val META_HEADER_PREFIXES = listOf("préparation", "cuisson", "repos", "pour")
+    private val STEP_NUMBER_REGEX = Regex("^\\d{1,2}(?:\\s+[\\p{Lu}]|[.)\\-])")
 
     /**
      * Détermine si le scan de recette correspond à une recette narrative courte sans section d'ingrédients dédiée (Type 2).
@@ -27,19 +35,19 @@ object Ocr3NarrativeCategorizer {
         // 1. Si la fiche contient un en-tête d'ingrédients explicite ("INGRÉDIENTS", "COMPOSITION"), ce n'est PAS du Type 2 !
         val hasExplicitIngrHeader = lines.any { line ->
             val lower = line.lowercase().trim()
-            lower.contains("ingrédients") || lower.contains("ingredients") || lower.contains("composition") || lower.contains("ngrédients")
+            EXPLICIT_INGR_KEYWORDS.any { lower.contains(it) }
         }
         if (hasExplicitIngrHeader) return false
 
         // 1.5 Si la fiche contient un en-tête d'instructions ET un ingrédient quantifié -> Type 1 !
         val hasInstructionHeader = lines.any { line ->
-            val lower = line.lowercase().trim()
-            (lower == "instructions" || lower == "réalisation" || lower == "méthode" || lower == "progression") && !lower.contains("mn") && !lower.contains("min")
+            val lower = line.lowercase().trim().trimEnd(':', '.')
+            INSTRUCTION_HEADER_KEYWORDS.any { lower.startsWith(it) } && "mn" !in lower && "min" !in lower
         }
         val hasIngredientWithQuantity = lines.any { line ->
             val parsed = IngredientParser.parse(line, vocabulary.culinaryMeasurementUnits)
-            val unitLower = parsed.unit?.lowercase()?.trim() ?: ""
-            val isDurationUnit = unitLower in listOf("min", "mn", "sec", "h", "min.", "mn.", "sec.", "h.") || (parsed.quantity != null && (line.lowercase().endsWith(" min") || line.lowercase().endsWith(" mn") || line.lowercase().endsWith(" h")))
+            val unitLower = parsed.unit?.lowercase()?.trim().orEmpty()
+            val isDurationUnit = unitLower in DURATION_UNITS || (parsed.quantity != null && DURATION_ENDINGS.any { line.endsWith(it, ignoreCase = true) })
             parsed.quantity != null && parsed.name.isNotBlank() && !isDurationUnit
         }
         if (hasInstructionHeader && hasIngredientWithQuantity) return false
@@ -58,10 +66,9 @@ object Ocr3NarrativeCategorizer {
         val hasStandaloneIngredientLine = lines.any { line ->
             val lower = line.lowercase().trim()
             val hasAction = OcrInstructionUtils.hasActionVerb(line, vocabulary.stepActionKeywords)
-            val isHeader = lower == "pour" || lower.startsWith("préparation") || lower.startsWith("cuisson") || lower.startsWith("repos") || lower.startsWith("réalisation") || lower.startsWith("instructions")
-            
-            val isMetaHeader = lower.startsWith("préparation") || lower.startsWith("cuisson") || lower.startsWith("repos") || lower == "pour" || lower.startsWith("pour ")
-            
+            val isMetaHeader = META_HEADER_PREFIXES.any { lower.startsWith(it) } || lower == "pour"
+            val isHeader = isMetaHeader || lower.startsWith("réalisation") || lower.startsWith("instructions")
+
             if (hasAction || (OcrInstructionUtils.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) && !isMetaHeader)) {
                 hasInstructionStarted = true
             }
@@ -69,22 +76,24 @@ object Ocr3NarrativeCategorizer {
             if (isHeader || hasInstructionStarted) return@any false
 
             val parsed = IngredientParser.parse(line, vocabulary.culinaryMeasurementUnits)
-            parsed.quantity != null && (parsed.name.length >= 3 || !parsed.unit.isNullOrBlank())
+            val hasValidNameOrUnit = parsed.name.length >= 3 || !parsed.unit.isNullOrEmpty()
+            parsed.quantity != null && hasValidNameOrUnit
         }
         if (hasStandaloneIngredientLine) return false
 
         // 3. Recherche de la première véritable ligne d'instruction (verbe d'action ou numéro d'étape)
         val firstInstructionLine = lines.firstOrNull { line ->
             val lower = line.lowercase().trim()
-            if (lower == "pour" || lower.startsWith("préparation") || lower.startsWith("cuisson") || lower.startsWith("repos")) return@firstOrNull false
+            if (lower == "pour" || META_HEADER_PREFIXES.any { lower.startsWith(it) }) return@firstOrNull false
             if (OcrHelperUtils.isLikelyProperNameOrSource(line, vocabulary)) return@firstOrNull false
             if (vocabulary.excludedOcrKeywords.any { it.equals(line.trim(), ignoreCase = true) }) return@firstOrNull false
 
+            val isStepNumber = STEP_NUMBER_REGEX.containsMatchIn(line)
+            val isBullet = line.startsWith("•") || line.startsWith("-")
+
             OcrInstructionUtils.hasActionVerb(line, vocabulary.stepActionKeywords) ||
                     OcrInstructionUtils.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) ||
-                    Regex("^\\d{1,2}\\s+[\\p{Lu}]").containsMatchIn(line) ||
-                    Regex("^\\d{1,2}[.)\\-]").containsMatchIn(line) ||
-                    line.startsWith("•") || line.startsWith("-")
+                    isStepNumber || isBullet
         }
 
         val result = firstInstructionLine != null

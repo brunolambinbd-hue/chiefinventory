@@ -13,44 +13,72 @@ import androidx.core.content.FileProvider
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
+import com.canhub.cropper.CropImageView
 import com.chefinventory.app.R
+import com.parabd.lib.traceability.utils.LogManager
 import java.io.File
 
 /**
  * A utility class to handle image acquisition (Capture or Pick) and cropping workflow.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 class ImageCaptureUtil(
     private val activity: AppCompatActivity,
     private val onImageReady: (Uri?) -> Unit
 ) {
 
-    private var photoUri: Uri? = null
+    internal var photoUri: Uri? = null
 
     // 1. Cropping Launcher
     private val cropImageLauncher = activity.registerForActivityResult(CropImageContract()) { result ->
-        if (result.isSuccessful) {
-            result.uriContent?.let { tempUri ->
-                val permanentUri = ImageStorageHelper.saveImageToInternalStorage(activity, tempUri)
-                onImageReady(permanentUri)
-            } ?: onImageReady(null)
-        } else {
-            val exception = result.error
-            Toast.makeText(activity, activity.getString(R.string.toast_crop_error, exception?.message), Toast.LENGTH_SHORT).show()
-            onImageReady(null)
-        }
+        handleCropResult(result)
     }
 
     // 2. Camera Launcher
     private val takePictureLauncher = activity.registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        handleCameraResult(success)
+    }
+
+    // 3. File Picker Launcher (Using OpenDocument for better access to Downloads)
+    private val pickFileLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        handlePickFileResult(uri)
+    }
+
+    // 4. Permission Launcher
+    private val requestPermissionLauncher = activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        handlePermissionResult(isGranted)
+    }
+
+    internal fun handleCropResult(result: CropImageView.CropResult) {
+        if (result.isSuccessful) {
+            val tempUri = result.uriContent
+            if (tempUri != null) {
+                val permanentUri = ImageStorageHelper.saveImageToInternalStorage(activity, tempUri)
+                onImageReady(permanentUri)
+            } else {
+                onImageReady(null)
+            }
+        } else {
+            val exception = result.error
+            Toast.makeText(activity, activity.getString(R.string.toast_crop_error, exception?.message.orEmpty()), Toast.LENGTH_SHORT).show()
+            onImageReady(null)
+        }
+    }
+
+    internal fun handleCameraResult(success: Boolean) {
         if (success) {
-            photoUri?.let { uri -> launchCropper(uri) }
+            val uri = photoUri
+            if (uri != null) {
+                launchCropper(uri)
+            } else {
+                onImageReady(null)
+            }
         } else {
             onImageReady(null)
         }
     }
 
-    // 3. File Picker Launcher (Using OpenDocument for better access to Downloads)
-    private val pickFileLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+    internal fun handlePickFileResult(uri: Uri?) {
         if (uri != null) {
             launchCropper(uri)
         } else {
@@ -58,12 +86,15 @@ class ImageCaptureUtil(
         }
     }
 
-    // 4. Permission Launcher
-    private val requestPermissionLauncher = activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) launchCamera() else Toast.makeText(activity, R.string.toast_camera_permission_denied, Toast.LENGTH_SHORT).show()
+    internal fun handlePermissionResult(isGranted: Boolean) {
+        if (isGranted) {
+            launchCamera()
+        } else {
+            Toast.makeText(activity, R.string.toast_camera_permission_denied, Toast.LENGTH_SHORT).show()
+        }
     }
 
-    private fun launchCropper(sourceUri: Uri) {
+    internal fun launchCropper(sourceUri: Uri) {
         val cropOptions = CropImageOptions().apply {
             allowRotation = true
             allowFlipping = true
@@ -87,9 +118,14 @@ class ImageCaptureUtil(
     /** Legacy entry point. */
     fun start(): Unit = startCamera()
 
-    private fun launchCamera() {
+    internal fun launchCamera() {
         val imageFile = File(activity.filesDir, "images/capture_${System.currentTimeMillis()}.jpg").apply { parentFile?.mkdirs() }
-        photoUri = FileProvider.getUriForFile(activity, "${activity.applicationContext.packageName}.fileprovider", imageFile)
+        photoUri = try {
+            FileProvider.getUriForFile(activity, "${activity.applicationContext.packageName}.fileprovider", imageFile)
+        } catch (e: Exception) {
+            LogManager.e("ImageCaptureUtil", "Failed to get FileProvider URI for file: ${imageFile.absolutePath}", e)
+            Uri.fromFile(imageFile)
+        }
         photoUri?.let { takePictureLauncher.launch(it) }
     }
 }

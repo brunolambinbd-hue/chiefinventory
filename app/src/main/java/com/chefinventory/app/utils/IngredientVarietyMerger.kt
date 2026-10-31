@@ -9,6 +9,7 @@ import android.util.Log
  * Ce sous-composant isole la logique de correspondance des qualificatifs pour réduire la charge cognitive
  * et maintenir une lisibilité optimale dans [Ocr4Merger] et [Ocr5Beautifier].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object IngredientVarietyMerger {
     private const val TAG = "RecipeOCR"
 
@@ -21,7 +22,8 @@ object IngredientVarietyMerger {
         val words = lower.split(Regex("\\s+"))
         val lastWord = words.lastOrNull() ?: ""
         return baseIngredients.any { base ->
-            base.equalsIgnoreCase(lastWord) || lower.endsWith(" $base")
+            val lowerBase = base.lowercase().trim()
+            lowerBase.equals(lastWord, ignoreCase = true) || lower.endsWith(" $lowerBase")
         }
     }
 
@@ -38,51 +40,45 @@ object IngredientVarietyMerger {
     }
 
     /**
-     * Effectue la fusion de post-processing d'une liste d'ingrédients beautified pour regrouper
-     * tout qualificatif de variété orphelin isolé avec l'ingrédient de la ligne précédente.
+     * Balaye la liste nettoyée des lignes d'ingrédients et fusionne les qualificatifs de variété orphelins avec la ligne précédente.
+     *
+     * @param ingredientLines La liste des lignes d'ingrédients.
+     * @param baseIngredients La liste des noms d'ingrédients de base attendant une variété.
+     * @param qualifiers La liste des adjectifs et qualificatifs de variété.
+     * @return La liste nettoyée des lignes d'ingrédients avec variétés fusionnées.
      */
     fun beautifyIngredientVarieties(
-        ingredients: List<String>,
+        ingredientLines: List<String>,
         baseIngredients: List<String>,
         qualifiers: List<String>
     ): List<String> {
-        if (ingredients.isEmpty()) return emptyList()
+        if (ingredientLines.isEmpty()) return emptyList()
 
-        val mergedList = mutableListOf<String>()
-        var i = 0
-        while (i < ingredients.size) {
-            var current = ingredients[i].trim()
-            if (current.isBlank()) {
-                i++
-                continue
-            }
+        val result = mutableListOf<String>()
+        var idx = 0
 
-            while (i + 1 < ingredients.size) {
-                val nextLine = ingredients[i + 1].trim()
-                if (nextLine.isBlank()) {
-                    i++
-                    break
-                }
+        while (idx < ingredientLines.size) {
+            val currentLine = ingredientLines[idx].trim()
+            val nextLine = if (idx + 1 < ingredientLines.size) ingredientLines[idx + 1].trim() else ""
 
+            if (nextLine.isNotEmpty()) {
                 val isNextVariety = isVarietyQualifier(nextLine, qualifiers)
-                val isCurrentBase = isBaseExpectingVariety(current, baseIngredients)
+                val isCurrentBase = isBaseExpectingVariety(currentLine, baseIngredients)
 
                 if (isNextVariety && isCurrentBase) {
                     val uncapitalizedNext = nextLine.replaceFirstChar { if (it.isUpperCase()) it.lowercase() else it.toString() }
-                    current = "$current $uncapitalizedNext"
-                    Log.d(TAG, "VARIETY MERGER: Merged '$current' with '$nextLine'")
-                    i++
-                } else {
-                    break
+                    val merged = "$currentLine $uncapitalizedNext"
+                    result.add(merged)
+                    Log.d(TAG, "VARIETY MERGER: Fusion de la variété '$nextLine' avec '$currentLine' -> '$merged'")
+                    idx += 2
+                    continue
                 }
             }
-            mergedList.add(current)
-            i++
-        }
-        return mergedList
-    }
 
-    private fun String.equalsIgnoreCase(other: String): Boolean {
-        return this.equals(other, ignoreCase = true)
+            result.add(currentLine)
+            idx++
+        }
+
+        return result
     }
 }

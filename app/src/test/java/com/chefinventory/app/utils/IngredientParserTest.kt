@@ -2,8 +2,10 @@ package com.chefinventory.app.utils
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
+import java.io.File
 
 class IngredientParserTest {
 
@@ -30,6 +32,74 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testAtomizedVagueQuantityAndAdjectiveVariations() {
+        data class VagueTestCase(
+            val input: String,
+            val expectedName: String,
+            val expectedUnit: String?,
+            val expectedInfo: String?
+        )
+
+        val testCases = listOf(
+            VagueTestCase("quelques branches d'aneth", "aneth", "branches", "quelques"),
+            VagueTestCase("des petites feuilles de chicon", "chicon", "feuilles", "petites des"),
+            VagueTestCase("des feuilles petites de chicon", "petites de chicon", "feuilles", "des"),
+            VagueTestCase("des petites feuilles de chicon (frais)", "chicon", "feuilles", "petites des frais"),
+            VagueTestCase("plusieurs gousses d'ail", "ail", "gousses", "plusieurs")
+        )
+
+        for (tc in testCases) {
+            val result = IngredientParser.parse(tc.input)
+            assertWithMessage("Échec sur le nom pour '${tc.input}'").that(result.name).isEqualTo(tc.expectedName)
+            assertWithMessage("Échec sur l'unité pour '${tc.input}'").that(result.unit).isEqualTo(tc.expectedUnit)
+            assertWithMessage("Échec sur info pour '${tc.input}'").that(result.supplementalInfo).isEqualTo(tc.expectedInfo)
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFractionWithZeroDenominator_ReturnsOriginalText() {
+        val result = IngredientParser.parse("1/0 verre d'eau")
+        assertThat(result.quantity).isNull()
+        assertThat(result.name).isEqualTo("1/0 verre d'eau")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFractionWithPrefixAndParenthesisAndAdjectiveElseBranch() {
+        val resultFraction = IngredientParser.parse("le jus de 1/2 citron (biologique)")
+        assertThat(resultFraction.quantity).isEqualTo(0.5)
+        assertThat(resultFraction.name).isEqualTo("citron")
+        assertThat(resultFraction.supplementalInfo).isEqualTo("le jus de biologique")
+
+        val resultAdjectiveNotAtStart = IngredientParser.parse("2 tomates grosses")
+        assertThat(resultAdjectiveNotAtStart.quantity).isEqualTo(2.0)
+        assertThat(resultAdjectiveNotAtStart.name).isEqualTo("tomates grosses")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testParsedIngredientDataClassAndLoadDefaultUnitsError() {
+        val parsedDefault = IngredientParser.ParsedIngredient(name = "farine")
+        assertThat(parsedDefault.quantity).isNull()
+        assertThat(parsedDefault.unit).isNull()
+        assertThat(parsedDefault.supplementalInfo).isNull()
+
+        // Access defaultUnits while production vocabulary is cached
+        val unitInfo = IngredientParser.findUnit("g de farine")
+        assertThat(unitInfo.unit).isEqualTo("g")
+
+        // Test error handling for isolated directory
+        val isolatedDir = File(System.getProperty("java.io.tmpdir"), "isolated_test_dir_parser_999")
+        isolatedDir.mkdirs()
+        val emptyUnits = IngredientParser.loadDefaultUnits(isolatedDir)
+        assertThat(emptyUnits).isEmpty()
+        isolatedDir.delete()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun `decomposition tests for various ingredients`() {
         assertIngredient("200 g de tomates", "tomates", 200.0, "g", null)
         assertIngredient("le jus de 1/2 citron", "citron", 0.5, null, "le jus de")
@@ -39,6 +109,7 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `parse plant units branches and leaves`() {
         assertIngredient("2 feuilles de laurier", "laurier", 2.0, "feuilles", null)
         assertIngredient("1 branche de thym", "thym", 1.0, "branche", null)
@@ -46,11 +117,13 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `parse vague quantity and adjective extraction`() {
         assertIngredient("des petites feuilles de chicon", "chicon", null, "feuilles", "petites des")
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `defaultUnits should dynamically load essential culinary units from XML resources`() {
         val xmlUnits = vocabulary.culinaryMeasurementUnits
         val defaultUnits = IngredientParser.defaultUnits
@@ -59,6 +132,7 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `preClean basic normalizations`() {
         assertThat(Ocr1Normalizer.normalize("  ± 100 g  ")).isEqualTo("100 g")
         assertThat(Ocr1Normalizer.normalize("200 g +/-")).isEqualTo("200 g")
@@ -67,6 +141,7 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `preClean OCR corrections`() {
         assertThat(Ocr1Normalizer.normalize("| citron")).isEqualTo("1 citron")
         assertThat(Ocr1Normalizer.normalize("l/2")).isEqualTo("1/2")
@@ -75,6 +150,7 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `parse fraction handling`() {
         val result = IngredientParser.parse("1/2 l d'eau")
         assertThat(result.quantity).isEqualTo(0.5)
@@ -83,6 +159,7 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `parse range handling`() {
         val result = IngredientParser.parse("2 à 3 pommes")
         assertThat(result.quantity).isEqualTo(3.0)
@@ -90,6 +167,7 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `parse standard numeric quantity with unit`() {
         val result = IngredientParser.parse("250 g de sucre")
         assertThat(result.quantity).isEqualTo(250.0)
@@ -98,6 +176,7 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `parse unit precedence longest match`() {
         val result = IngredientParser.parse("2 c. à soupe de miel")
         assertThat(result.unit).isEqualTo("c. à soupe")
@@ -105,6 +184,7 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `parse decimal separator`() {
         val result1 = IngredientParser.parse("1,5 kg")
         assertThat(result1.quantity).isEqualTo(1.5)
@@ -113,6 +193,7 @@ class IngredientParserTest {
     }
 
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `parse edge cases`() {
         val resultEmpty = IngredientParser.parse("")
         assertThat(resultEmpty.name).isEmpty()

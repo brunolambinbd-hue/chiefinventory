@@ -93,7 +93,7 @@ object Ocr3InvertedCategorizer {
             val isWineHeader = !containsAction && (lowerLine.contains("conseil vin") || lowerLine.contains("vin conseillé") || lowerLine == "notre" || (Regex("(?i)\\bvin(?:s)?\\b").containsMatchIn(workingLine) && !lowerLine.contains("vinaigre") && !lowerLine.contains("vinaigrette")))
 
             if (isWineHeader) {
-                System.err.println("DEBUG IS_WINE_HEADER MATCHED ON: '$workingLine'")
+                Ocr3CategorizerWine.processWineLine(workingLine, currentSection, false, false, false, vocabulary, wineState)
                 currentSection = Ocr3Categorizer.SECTION_NONE
                 continue
             }

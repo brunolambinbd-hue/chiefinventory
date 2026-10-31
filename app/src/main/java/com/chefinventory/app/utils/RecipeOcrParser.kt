@@ -169,6 +169,8 @@ object RecipeOcrParser {
             vocabulary.culinaryMeasurementUnits,
             vocabulary.ocrSpellingRepairs
         )
+        val finalWines = Ocr5Beautifier.beautifyWines(sections.detectedWineList)
+        val finalSources = Ocr5Beautifier.beautifySources(sections.detectedSourceList)
 
         Log.d(TAG, "[4-5] RÉSULTATS FINAUX (BEAUTIFIED):")
         Log.d(TAG, "    TITRE FINAL: ${sections.detectedTitle}")
@@ -183,8 +185,8 @@ object RecipeOcrParser {
             title = sections.detectedTitle,
             ingredients = finalIngredients.joinToString("\n"),
             instructions = finalInstructions.joinToString("\n"),
-            wine = if (sections.detectedWineList.isNotEmpty()) sections.detectedWineList.joinToString(" ") else null,
-            source = if (sections.detectedSourceList.isNotEmpty()) sections.detectedSourceList.joinToString(", ") else null,
+            wine = if (finalWines.isNotEmpty()) finalWines.joinToString(" ") else null,
+            source = if (finalSources.isNotEmpty()) finalSources.joinToString(", ") else null,
             servings = sections.detectedServings,
             prepTime = sections.detectedPrepTime,
             cookTime = sections.detectedCookTime,
