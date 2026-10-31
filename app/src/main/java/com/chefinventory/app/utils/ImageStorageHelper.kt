@@ -2,14 +2,18 @@ package com.chefinventory.app.utils
 
 import android.content.Context
 import android.net.Uri
+import com.parabd.lib.traceability.utils.LogManager
+import com.parabd.lib.traceability.utils.uException
 import java.io.File
 import java.io.FileOutputStream
 
 /**
- * A utility object for managing the permanent storage of images within the app's internal' files directory.
+ * A utility object for managing the permanent storage of images within the app's internal files directory.
  * This ensures that images captured by the user are not lost when the app's cache is cleared.
  */
 object ImageStorageHelper {
+
+    private const val TAG = "ImageStorageHelper"
 
     /**
      * Saves an image from a temporary URI (e.g., from a camera or cropper)
@@ -34,19 +38,20 @@ object ImageStorageHelper {
         val destinationFile = File(imageDir, "img_${System.currentTimeMillis()}.jpg")
 
         try {
-            // Open an input stream from the temporary URI using safe call on contentResolver.
-            context.contentResolver?.openInputStream(tempUri)?.use { inputStream ->
-                // Open an output stream to the destination file.
-                FileOutputStream(destinationFile).use { outputStream ->
-                    // Copy the data from the input stream to the output stream.
-                    inputStream.copyTo(outputStream)
+            val contentResolver = context.contentResolver
+            if (contentResolver != null) {
+                contentResolver.openInputStream(tempUri)?.use { inputStream ->
+                    FileOutputStream(destinationFile).use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
                 }
+            } else {
+                throw LogManager.uException(TAG, "ContentResolver est nul lors de la sauvegarde d'image")
             }
             // Return the content URI for the new permanent file.
             return Uri.fromFile(destinationFile)
         } catch (e: Exception) {
-            // Log the error and return null if any part of the process fails.
-            e.printStackTrace()
+            LogManager.e(TAG, "Failed to save image to internal storage", e)
             return null
         }
     }

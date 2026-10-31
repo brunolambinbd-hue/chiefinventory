@@ -7,8 +7,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.chefinventory.app.R
 import com.chefinventory.app.databinding.ItemShoppingListBinding
 import com.chefinventory.app.model.Ingredient
+import com.chefinventory.app.model.effectiveMinThreshold
+import com.chefinventory.app.model.effectivePackSize
+import com.chefinventory.app.model.effectiveQuantity
 
 /**
  * Adaptateur de la liste de réassort et de courses.
@@ -28,28 +32,15 @@ class ShoppingListAdapter(
         return ViewHolder(binding)
     }
 
+    @Suppress("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val ingredient = getItem(position)
         val binding = holder.binding
+        val context = binding.root.context
 
-        val currentQty = if (ingredient.quantity != null) {
-            ingredient.quantity
-        } else {
-            0.0
-        }
-
-        val targetThreshold = if (ingredient.minThreshold != null) {
-            ingredient.minThreshold
-        } else {
-            0.0
-        }
-
-        val rawPackSize = ingredient.packSize
-        val packSize = if (rawPackSize > 0.0) {
-            rawPackSize
-        } else {
-            1.0
-        }
+        val currentQty = ingredient.effectiveQuantity
+        val targetThreshold = ingredient.effectiveMinThreshold
+        val packSize = ingredient.effectivePackSize
 
         val netMissing = calculateNetMissing(currentQty, targetThreshold)
         val numPacks = kotlin.math.ceil(netMissing / packSize).toInt().coerceAtLeast(1)
@@ -62,11 +53,11 @@ class ShoppingListAdapter(
             ""
         }
 
-        binding.tvQuantityToBuy.text = "$formattedQty$unitStr"
+        binding.tvQuantityToBuy.text = context.getString(R.string.quantity_unit_format, formattedQty, unitStr)
         binding.tvQuantityToBuy.visibility = View.VISIBLE
 
         val packInfoStr = formatPackInfo(packSize, numPacks)
-        binding.tvItemName.text = " — ${ingredient.name}$packInfoStr"
+        binding.tvItemName.text = context.getString(R.string.shopping_item_name_format, ingredient.name, packInfoStr)
 
         val categoryStr = if (!ingredient.category.isNullOrBlank()) {
             ingredient.category
@@ -96,16 +87,16 @@ class ShoppingListAdapter(
     }
 
     object DiffCallback : DiffUtil.ItemCallback<Ingredient>() {
-        override fun areItemsTheSame(oldItem: Ingredient, newItem: Ingredient) = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: Ingredient, newItem: Ingredient) = oldItem == newItem
+        override fun areItemsTheSame(oldItem: Ingredient, newItem: Ingredient): Boolean = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Ingredient, newItem: Ingredient): Boolean = oldItem == newItem
     }
 
     companion object {
         fun calculateNetMissing(currentQty: Double, targetThreshold: Double): Double {
-            if (targetThreshold > currentQty) {
-                return targetThreshold - currentQty
+            return if (targetThreshold > currentQty) {
+                targetThreshold - currentQty
             } else {
-                return 1.0
+                1.0
             }
         }
 

@@ -21,13 +21,13 @@ import kotlinx.coroutines.launch
  * ViewModel for the location management screen.
  * Supports filtering by [LocationType] to distinguish between Ingredient and Recipe locations.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class LocationViewModel(private val repository: LocationRepository) : ViewModel() {
 
     private val _currentType = MutableStateFlow(LocationType.INGREDIENT)
     val currentType: MutableStateFlow<LocationType> = _currentType
 
     /** A LiveData list of locations filtered by the current type. */
-    @OptIn(ExperimentalCoroutinesApi::class)
     val allLocations: LiveData<List<Location>> = _currentType.flatMapLatest { type ->
         repository.getAllByType(type).asFlow()
     }.asLiveData()

@@ -1,41 +1,43 @@
 package com.chefinventory.app.utils
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import com.chefinventory.app.R
 import com.google.common.truth.Truth.assertThat
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Tests unitaires dédiés (1-à-1) pour [CategoryMapper].
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class CategoryMapperTest {
 
     @Test
-    fun `normalizeRecipeCategory should normalize all category synonyms`() {
-        // Starters
-        assertThat(CategoryMapper.normalizeRecipeCategory("Entrée froide")).isEqualTo(CategoryMapper.CATEGORY_ENTREE)
-        assertThat(CategoryMapper.normalizeRecipeCategory("Starter")).isEqualTo(CategoryMapper.CATEGORY_ENTREE)
-        assertThat(CategoryMapper.normalizeRecipeCategory("Appetizer")).isEqualTo(CategoryMapper.CATEGORY_ENTREE)
+    @CoveredRequirement("6.1.1.9")
+    fun testNormalizeRecipeCategory_WithNullResources_AndWithResources() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.setTheme(R.style.Theme_ChefInventory)
+        val res = context.resources
 
-        // Mains
-        assertThat(CategoryMapper.normalizeRecipeCategory("Plat principal")).isEqualTo(CategoryMapper.CATEGORY_PLAT)
-        assertThat(CategoryMapper.normalizeRecipeCategory("Viande")).isEqualTo(CategoryMapper.CATEGORY_PLAT)
-        assertThat(CategoryMapper.normalizeRecipeCategory("Poisson")).isEqualTo(CategoryMapper.CATEGORY_PLAT)
+        // Null resources (fallback hardcoded keywords)
+        assertThat(CategoryMapper.normalizeRecipeCategory("Entrée froide", null)).isEqualTo(CategoryMapper.CATEGORY_ENTREE)
+        assertThat(CategoryMapper.normalizeRecipeCategory("Plat principal", null)).isEqualTo(CategoryMapper.CATEGORY_PLAT)
+        assertThat(CategoryMapper.normalizeRecipeCategory("Gâteau au chocolat", null)).isEqualTo(CategoryMapper.CATEGORY_DESSERT)
+        assertThat(CategoryMapper.normalizeRecipeCategory("Cocktail", null)).isEqualTo(CategoryMapper.CATEGORY_BOISSON)
+        assertThat(CategoryMapper.normalizeRecipeCategory("Sauce béarnaise", null)).isEqualTo(CategoryMapper.CATEGORY_ACCOMPAGNEMENT)
+        assertThat(CategoryMapper.normalizeRecipeCategory(null, null)).isNull()
+        assertThat(CategoryMapper.normalizeRecipeCategory("   ", null)).isNull()
+        assertThat(CategoryMapper.normalizeRecipeCategory("Inconnu123", null)).isNull()
 
-        // Desserts
-        assertThat(CategoryMapper.normalizeRecipeCategory("Dessert gourmand")).isEqualTo(CategoryMapper.CATEGORY_DESSERT)
-        assertThat(CategoryMapper.normalizeRecipeCategory("Gâteau au chocolat")).isEqualTo(CategoryMapper.CATEGORY_DESSERT)
-        assertThat(CategoryMapper.normalizeRecipeCategory("Pâtisserie")).isEqualTo(CategoryMapper.CATEGORY_DESSERT)
-
-        // Drinks
-        assertThat(CategoryMapper.normalizeRecipeCategory("Cocktail")).isEqualTo(CategoryMapper.CATEGORY_BOISSON)
-        assertThat(CategoryMapper.normalizeRecipeCategory("Apéritif")).isEqualTo(CategoryMapper.CATEGORY_BOISSON)
-
-        // Sides
-        assertThat(CategoryMapper.normalizeRecipeCategory("Sauce béarnaise")).isEqualTo(CategoryMapper.CATEGORY_ACCOMPAGNEMENT)
-        assertThat(CategoryMapper.normalizeRecipeCategory("Purée de pommes de terre")).isEqualTo(CategoryMapper.CATEGORY_ACCOMPAGNEMENT)
-
-        // Null and blank
-        assertThat(CategoryMapper.normalizeRecipeCategory(null)).isNull()
-        assertThat(CategoryMapper.normalizeRecipeCategory("   ")).isNull()
-        assertThat(CategoryMapper.normalizeRecipeCategory("Inconnu")).isNull()
+        // With Android Resources (localizes to string resources)
+        assertThat(CategoryMapper.normalizeRecipeCategory("Cocktail", res)).isEqualTo(context.getString(R.string.category_recipe_boisson))
+        assertThat(CategoryMapper.normalizeRecipeCategory("Sauce", res)).isEqualTo(context.getString(R.string.category_recipe_accompagnement))
+        assertThat(CategoryMapper.normalizeRecipeCategory("Starter", res)).isEqualTo(context.getString(R.string.category_recipe_entree))
+        assertThat(CategoryMapper.normalizeRecipeCategory("Inconnu123", res)).isNull()
     }
 }

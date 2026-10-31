@@ -1,6 +1,7 @@
 package com.chefinventory.app.utils
 
 import com.google.common.truth.Truth.assertThat
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Test
 
 /**
@@ -9,15 +10,16 @@ import org.junit.Test
 class RecipeMetadataParserTest {
 
     @Test
-    fun `extractMetadata check parenthetical weight range`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_ParentheticalWeightRange() {
         val results = RawSections()
         val res = RecipeMetadataParser.extractMetadata("2 ou 3 paquets de jambon de Parme en fines tranches (125 à 180 g)", results)
-        System.err.println("REMAINING LINE = '" + res.remainingLine + "'")
         assertThat(res.remainingLine).contains("(125 à 180 g)")
     }
 
     @Test
-    fun `extractMetadata should eliminate orphaned time headers without digits`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_OrphanedTimeHeadersWithoutDigits() {
         val results = RawSections()
 
         val res1 = RecipeMetadataParser.extractMetadata("Temps de préparation :", results)
@@ -39,11 +41,9 @@ class RecipeMetadataParserTest {
     }
 
     @Test
-    fun `extractMetadata should parse price and budget ratings`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_PriceAndBudgetRatings() {
         val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
-        System.err.println("VOCAB LOW = " + vocabulary.priceCategoriesLow)
-        System.err.println("VOCAB MED = " + vocabulary.priceCategoriesMedium)
-        System.err.println("VOCAB HIGH = " + vocabulary.priceCategoriesHigh)
 
         val results1 = RawSections()
         val res1 = RecipeMetadataParser.extractMetadata("Prix : bon marché", results1, vocabulary)
@@ -52,7 +52,6 @@ class RecipeMetadataParserTest {
 
         val results2 = RawSections()
         val res2 = RecipeMetadataParser.extractMetadata("Coût moyen", results2, vocabulary)
-        System.err.println("RES2 PRICE = " + results2.detectedPriceRating)
         assertThat(results2.detectedPriceRating).isEqualTo("Coût moyen")
         assertThat(res2.isPureMetadata).isTrue()
 
@@ -63,46 +62,42 @@ class RecipeMetadataParserTest {
     }
 
     @Test
-    fun `extractMetadata should preserve time inside instruction sentence like Comptez 10 mn de cuisson`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_PreserveTimeInsideInstructionSentence() {
         val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
         val results = RawSections()
         val res = RecipeMetadataParser.extractMetadata("Comptez 10 mn de cuisson.", results, vocabulary)
-        
+
         assertThat(results.detectedCookTime).isEqualTo("10")
         assertThat(res.isPureMetadata).isFalse()
         assertThat(res.remainingLine).isEqualTo("Comptez 10 mn de cuisson.")
     }
 
     @Test
-    fun `debug user canapes grecs scan`() {
-        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
-        val rawOcr = """
-            Mélangez l'huile d'olive, le piment taillé en fines rondelles, le thym et le romarin effeuillé, une pin-
-            cée de sel et placez-y le fromage découpé en tranches. Laissez mariner au réfrigérateur + 1/2 heures.
-            Découpez la baguette en tranches d'1 cm, faites-les légèrement griller puis frottez-les
-            d'ail, égouttez le fromage et placez-le sur le pain.
-            Décorez d'olives coupées en deux et de romarin.
-            ingrédients pour 4 personnes
-            180 g de feta
-            1/2 verre d'huile d'olive
-            10 olives vertes dénoyautées
-            10 olives noires dénoyautées
-            1 petit piment
-            1 gousse d'ail
-            1 baguette de pain gris
-            du thym et du romarin frais
-            sel et poivre du moulin
-        """.trimIndent()
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_ComplexDurationsAndServingsAndKcalAndDifficulty() {
+        val results1 = RawSections()
+        RecipeMetadataParser.extractMetadata("Préparation : 1h15 - Cuisson : 45 min - Repos : 2 heures", results1)
+        assertThat(results1.detectedPrepTime).isEqualTo("75")
+        assertThat(results1.detectedCookTime).isEqualTo("45")
+        assertThat(results1.detectedRestingTime).isEqualTo("120")
 
-        val result = RecipeOcrParser.parse(rawOcr, vocabulary)
+        val results2 = RawSections()
+        RecipeMetadataParser.extractMetadata("Pour 4 à 6 personnes - 450 kcal/portion - Difficulté : facile", results2)
+        assertThat(results2.detectedServings).isEqualTo("4")
+        assertThat(results2.detectedKcal).isEqualTo("450")
+        assertThat(results2.detectedDifficulty).isEqualTo("facile")
 
-        assertThat(result.servings).isEqualTo("4")
-        assertThat(result.ingredients).contains("Du thym et du romarin frais")
-        assertThat(result.ingredients).contains("Sel et poivre du moulin")
+        val results3 = RawSections()
+        RecipeMetadataParser.extractMetadata("10 personnes - 350 kcal - Diffcile", results3)
+        assertThat(results3.detectedServings).isEqualTo("10")
+        assertThat(results3.detectedKcal).isEqualTo("350")
+        assertThat(results3.detectedDifficulty).isEqualTo("difficile")
     }
 
     @Test
-    fun `extractMetadata should handle OCR variations like A4PERS or 4 PERS`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_OcrVariationsA4PersOr4Pers() {
         val results1 = RawSections()
         RecipeMetadataParser.extractMetadata("A4PERS", results1)
         assertThat(results1.detectedServings).isEqualTo("4")
@@ -117,7 +112,8 @@ class RecipeMetadataParserTest {
     }
 
     @Test
-    fun `extractMetadata should parse nutrition info block per 100g`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_NutritionInfoBlockPer100gAndSugarsWithoutCarbs() {
         val results = RawSections()
 
         val line1 = "VALEURS NUTRITIONNELLES PAR 100G"
@@ -135,10 +131,16 @@ class RecipeMetadataParserTest {
         assertThat(results.detectedNutritionInfo).contains("Glucides: 10.7g")
         assertThat(results.detectedNutritionInfo).contains("Protéines: 8.8g")
         assertThat(results.detectedNutritionInfo).contains("Sel: 0.40g")
+
+        // Test sugar match when carbs is null (sugar appended)
+        val resultsSugars = RawSections()
+        RecipeMetadataParser.extractMetadata("SUCRES 5.0 G | GLUCIDES 20.0 G", resultsSugars)
+        assertThat(resultsSugars.detectedNutritionInfo).contains("Glucides: 20.0g (dont sucres: 5.0g)")
     }
 
     @Test
-    fun `extractMetadata should handle heavily corrupted noisy OCR nutrition block`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_CorruptedNoisyOcrNutritionBlock() {
         val results = RawSections()
 
         val lines = listOf(
@@ -164,9 +166,12 @@ class RecipeMetadataParserTest {
     }
 
     @Test
-    fun `extractMinutes should convert hours and minutes to total minutes`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractMinutes_DurationConversions() {
         assertThat(RecipeMetadataParser.extractMinutes("1 h 30 min")).isEqualTo("90")
         assertThat(RecipeMetadataParser.extractMinutes("2h")).isEqualTo("120")
         assertThat(RecipeMetadataParser.extractMinutes("45 mn")).isEqualTo("45")
+        assertThat(RecipeMetadataParser.extractMinutes("30 sec")).isEqualTo("30")
+        assertThat(RecipeMetadataParser.extractMinutes("45")).isEqualTo("45")
     }
 }

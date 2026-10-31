@@ -4,80 +4,76 @@
     <item
         android:id="@+id/nav_home"
         android:icon="@android:drawable/ic_menu_myplaces"
-        android:title="Accueil" />
+        android:title="@string/menu_nav_home" />
 
-    <item android:title="MON GARDE-MANGER &amp; CUISINE">
+    <item android:title="@string/menu_section_pantry_kitchen">
         <menu>
             <item
                 android:id="@+id/nav_setup_inventory"
                 android:icon="@android:drawable/ic_menu_add"
-                android:title="Initialiser mon Garde-Manger" />
+                android:title="@string/menu_nav_setup_inventory" />
             <item
                 android:id="@+id/nav_update_inventory"
                 android:icon="@android:drawable/ic_menu_edit"
-                android:title="Mettre à jour mon Garde-Manger" />
+                android:title="@string/menu_nav_update_inventory" />
             <item
                 android:id="@+id/nav_all_ingredients"
                 android:icon="@android:drawable/ic_menu_agenda"
-                android:title="Mon Stock d'Ingrédients" />
+                android:title="@string/menu_nav_all_ingredients" />
             <item
                 android:id="@+id/nav_shopping_list"
                 android:icon="@android:drawable/ic_menu_today"
-                android:title="🛒 Liste de Courses &amp; Réassort" />
+                android:title="@string/menu_nav_shopping_list" />
             <item
                 android:id="@+id/nav_match_pantry_recipe"
                 android:icon="@android:drawable/ic_menu_compass"
-                android:title="🍳 Que cuisiner (par mon Garde-Manger)" />
+                android:title="@string/menu_nav_match_pantry_recipe" />
             <item
                 android:id="@+id/nav_ingredients_locations"
                 android:icon="@android:drawable/ic_menu_manage"
-                android:title="Emplacements Cuisine" />
+                android:title="@string/menu_nav_ingredients_locations" />
         </menu>
     </item>
 
-    <item android:title="MES RECETTES">
+    <item android:title="@string/menu_section_my_recipes">
         <menu>
             <item
                 android:id="@+id/nav_all_recipes"
                 android:icon="@android:drawable/ic_menu_agenda"
-                android:title="Toutes les Recettes" />
+                android:title="@string/menu_nav_all_recipes" />
             <item
                 android:id="@+id/nav_search_recipe"
                 android:icon="@android:drawable/ic_menu_search"
-                android:title="🔍 Que cuisiner (par mes Recettes)" />
+                android:title="@string/menu_nav_search_recipe" />
             <item
                 android:id="@+id/nav_recipe_categories"
                 android:icon="@android:drawable/ic_menu_sort_by_size"
-                android:title="Types de Recettes" />
+                android:title="@string/menu_nav_recipe_categories" />
             <item
                 android:id="@+id/nav_add_recipe"
                 android:icon="@android:drawable/ic_menu_add"
-                android:title="Scanner une Recette" />
+                android:title="@string/menu_nav_add_recipe" />
             <item
                 android:id="@+id/nav_import_recipe_packs"
                 android:icon="@android:drawable/ic_menu_save"
-                android:title="📥 Importer un Pack de Recettes (BE / FR / IT)" />
+                android:title="@string/menu_nav_import_recipe_packs" />
             <item
                 android:id="@+id/nav_import_web_recipe"
                 android:icon="@android:drawable/ic_menu_upload"
-                android:title="🌐 Importer une Recette Web" />
+                android:title="@string/menu_nav_import_web_recipe" />
         </menu>
     </item>
 
-    <item android:title="OUTILS &amp; BACKUP">
+    <item android:title="@string/menu_section_tools_backup">
         <menu>
-            <item
-                android:id="@+id/nav_import"
-                android:icon="@android:drawable/ic_menu_upload"
-                android:title="Importer CSV" />
             <item
                 android:id="@+id/nav_backup"
                 android:icon="@android:drawable/ic_menu_save"
-                android:title="Sauvegarde &amp; Restauration" />
+                android:title="@string/menu_nav_backup" />
             <item
                 android:id="@+id/nav_recipe_audit"
                 android:icon="@android:drawable/ic_menu_info_details"
-                android:title="📊 Rapport d'Audit des Recettes" />
+                android:title="@string/menu_nav_recipe_audit" />
         </menu>
     </item>
 

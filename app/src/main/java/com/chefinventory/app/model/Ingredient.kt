@@ -1,7 +1,6 @@
 package com.chefinventory.app.model
 
 import android.os.Parcelable
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -32,12 +31,22 @@ data class Ingredient(
     val description: String? = null,
     val supplementalInfo: String? = null, // Infos extraites des parenthèses (ex: poids alternatif)
     val imageUri: String? = null,
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    val imageEmbedding: ByteArray? = null,
     val ocrText: String? = null,
     val locationId: Long? = null, // ID from the locations table (type INGREDIENT)
     val stockPolicy: String = StockPolicy.PERMANENT, // PERMANENT or ON_DEMAND
     val minThreshold: Double? = null, // Seuil minimum d'alerte non nul
     val packSize: Double = 1.0, // Taille du conditionnement/pack d'achat (ex: 6)
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
 ) : Parcelable
+
+/** Quantité effective en stock (0.0 si nulle). */
+val Ingredient.effectiveQuantity: Double
+    get() = quantity ?: 0.0
+
+/** Seuil d'alerte effectif (0.0 si nul). */
+val Ingredient.effectiveMinThreshold: Double
+    get() = minThreshold ?: 0.0
+
+/** Taille de pack effective (1.0 si <= 0.0). */
+val Ingredient.effectivePackSize: Double
+    get() = if (packSize > 0.0) packSize else 1.0

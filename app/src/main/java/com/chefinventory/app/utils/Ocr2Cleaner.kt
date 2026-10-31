@@ -1,8 +1,7 @@
 package com.chefinventory.app.utils
 
 import android.content.res.Resources
-import android.util.Log
-import com.chefinventory.app.R
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Conteneur du résultat de nettoyage d'Étape 2.
@@ -23,8 +22,9 @@ data class CleaningResult(
  * 2. Passe 1 : Élimination du bruit de scan OCR, codes-barres et scories visuelles (`ocr_step2_noise_exclusions.xml`).
  * 3. Passe 2 : Élimination des bruits publicitaires et mentions de présentoirs (`ocr_step2_ads_exclusions.xml`).
  * 4. Passe 3 : Filtrage des numéros de pages isolés et mots-clés d'exclusion stricte (`ocr_step2_excluded_keywords.xml`).
- * 5. Protection des dimensions techniques (ex: "5 mm sur 5 mm") et consommation du cache memoized [OcrRegexes.getAdPrefixPattern].
+ * 5. Protection des dimensions techniques (ex : "5 mm sur 5 mm") et consommation du cache memoized [OcrRegexes.getAdPrefixPattern].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr2Cleaner {
     private const val TAG = "RecipeOCR"
 
@@ -40,7 +40,7 @@ object Ocr2Cleaner {
     }
 
     /**
-     * Nettoie une liste de lignes de texte OCR en 3 passes de dépollution structurées (utilisé par les tests unitaires TDD).
+     * Nettoie une liste de lignes de texte OCR en trois passes de dépollution structurées (utilisé par les tests unitaires TDD).
      *
      * @param lines La liste des lignes de texte brutes normalisées.
      * @param excludedKeywords Les mots-clés d'exclusion stricte à supprimer.
@@ -54,10 +54,14 @@ object Ocr2Cleaner {
         adExclusions: List<String> = emptyList(),
         ocrNoiseExclusions: List<String> = emptyList()
     ): List<String> {
+        val defaultVocab = OcrVocabularyLoader.loadFromProjectResources()
         val vocab = OcrVocabulary(
             excludedOcrKeywords = excludedKeywords,
             adExclusions = adExclusions,
-            ocrNoiseExclusions = ocrNoiseExclusions
+            ocrNoiseExclusions = ocrNoiseExclusions,
+            protectedSectionHeaders = defaultVocab.protectedSectionHeaders,
+            timeHeaderPrefixes = defaultVocab.timeHeaderPrefixes,
+            timeHeaderKeywords = defaultVocab.timeHeaderKeywords
         )
         return cleanWithVocabulary(lines, vocab).cleanedLines
     }
@@ -76,14 +80,19 @@ object Ocr2Cleaner {
         val cleanedLines = mutableListOf<String>()
         val earlySources = mutableListOf<String>()
 
+        val timePrefixes = vocabulary.timeHeaderPrefixes
+        val timeKeywords = vocabulary.timeHeaderKeywords
+
         val mergedLines = mutableListOf<String>()
         var idx = 0
         while (idx < lines.size) {
             val line = lines[idx].trim()
             val lower = line.lowercase()
-            if ((lower == "temps de" || lower == "durée de" || lower == "temps" || lower == "durée") && idx + 1 < lines.size) {
+            val isTimePrefix = timePrefixes.any { lower == it }
+            if (isTimePrefix && idx + 1 < lines.size) {
                 val nextLower = lines[idx + 1].lowercase().trim()
-                if (nextLower.startsWith("préparation") || nextLower.startsWith("preparation") || nextLower.startsWith("cuisson") || nextLower.startsWith("repos")) {
+                val isTimeSection = timeKeywords.any { nextLower.startsWith(it) }
+                if (isTimeSection) {
                     mergedLines.add("$line ${lines[idx + 1].trim()}")
                     idx += 2
                     continue
@@ -93,6 +102,8 @@ object Ocr2Cleaner {
             idx++
         }
 
+        val protectedHeaders = vocabulary.protectedSectionHeaders
+
         for (line in mergedLines) {
             var trimmed = line.trim()
             if (trimmed.isEmpty()) continue
@@ -101,7 +112,7 @@ object Ocr2Cleaner {
             val extractedSource = SourceParser.extractSourceFromAdLine(trimmed, vocabulary)
             if (extractedSource != null && extractedSource !in earlySources) {
                 earlySources.add(extractedSource)
-                Log.d(TAG, "CLEANER: Source précoce capturée depuis bannière -> $extractedSource")
+                LogManager.d(TAG, "CLEANER: Source précoce capturée depuis bannière -> $extractedSource")
             }
 
             // 1. PASSE 1 : Filtrage du bruit de scan OCR et artefacts d'images (ocr_noise_exclusions.xml)
@@ -109,7 +120,7 @@ object Ocr2Cleaner {
                 noise.isNotBlank() && trimmed.equals(noise.trim(), ignoreCase = true)
             }
             if (isOcrNoise) {
-                Log.d(TAG, "CLEANER: Bruit de scan OCR supprimé -> $trimmed")
+                LogManager.d(TAG, "CLEANER: Bruit de scan OCR supprimé -> $trimmed")
                 continue
             }
 
@@ -128,10 +139,10 @@ object Ocr2Cleaner {
 
                         if (remaining.isEmpty() || remaining.length <= 8) {
                             isFullAdLine = true
-                            Log.d(TAG, "CLEANER: Ligne publicitaire supprimée -> $trimmed")
+                            LogManager.d(TAG, "CLEANER: Ligne publicitaire supprimée -> $trimmed")
                             break
                         } else {
-                            Log.d(TAG, "CLEANER: Préfixe publicitaire effacé de -> $trimmed")
+                            LogManager.d(TAG, "CLEANER: Préfixe publicitaire effacé de -> $trimmed")
                             trimmed = remaining
                         }
                     }
@@ -143,17 +154,15 @@ object Ocr2Cleaner {
                 }
             }
 
-            if (isFullAdLine || trimmed.isEmpty()) continue
+            if (isFullAdLine) continue
 
-            // 3. PASSE 3 : Filtrage des mots-clés d'exclusion stricte (ex: PAGE, SAVEUR), sauf les en-têtes de section
+            // 3. PASSE 3 : Filtrage des mots-clés d'exclusion stricte (ex : PAGE, SAVEUR), sauf les en-têtes de section
             val isProtectedHeader = OcrRegexes.Normalizer.PROTECTED_KEYWORDS.containsMatchIn(trimmed) || 
-                    trimmed.equals("INGRÉDIENTS", ignoreCase = true) || 
-                    trimmed.equals("INSTRUCTIONS", ignoreCase = true) ||
-                    trimmed.equals("PRÉPARATION", ignoreCase = true)
+                    protectedHeaders.any { it.equals(trimmed, ignoreCase = true) }
 
             val isExcluded = !isProtectedHeader && vocabulary.excludedOcrKeywords.any { it.equals(trimmed, ignoreCase = true) }
             if (isExcluded) {
-                Log.d(TAG, "CLEANER: Mot-clé exclu supprimé -> $trimmed")
+                LogManager.d(TAG, "CLEANER: Mot-clé exclu supprimé -> $trimmed")
                 continue
             }
 
@@ -167,7 +176,7 @@ object Ocr2Cleaner {
     }
 
     /**
-     * Détermine si une ligne de texte représente une dimension technique plutôt qu'un ingrédient (ex: "5 mm sur 5 mm").
+     * Détermine si une ligne de texte représente une dimension technique plutôt qu'un ingrédient (ex : "5 mm sur 5 mm").
      *
      * @param line La ligne de texte à analyser.
      * @return `true` si la ligne représente une dimension technique, `false` sinon.

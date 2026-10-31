@@ -1,7 +1,6 @@
 package com.chefinventory.app.ui.actvity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -16,7 +15,6 @@ import com.chefinventory.app.ChefInventoryApplication
 import com.chefinventory.app.R
 import com.chefinventory.app.databinding.ActivityMainBinding
 import com.chefinventory.app.model.LocationType
-import com.chefinventory.app.ui.viewmodel.ImportViewModel
 import com.chefinventory.app.ui.viewmodel.MainViewModel
 import com.chefinventory.app.ui.viewmodel.ViewModelFactory
 import com.google.android.material.navigation.NavigationView
@@ -32,19 +30,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val app = application as ChefInventoryApplication
         @Suppress("VisibleForTests")
         ViewModelFactory(app, app.locationRepository, app.ingredientRepository, app.recipeRepository)
-    }
-
-    private val importViewModel: ImportViewModel by viewModels {
-        val app = application as ChefInventoryApplication
-        @Suppress("VisibleForTests")
-        ViewModelFactory(app, app.locationRepository, app.ingredientRepository, app.recipeRepository)
-    }
-
-    private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri != null) {
-            importViewModel.importCsv(uri)
-            Toast.makeText(this, "Importation en cours...", Toast.LENGTH_SHORT).show()
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,9 +139,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_import_recipe_packs -> {
                 startActivity(Intent(this, ImportRecipePacksActivity::class.java))
-            }
-            R.id.nav_import -> {
-                importCsvLauncher.launch("text/comma-separated-values")
             }
             R.id.nav_backup -> {
                 startActivity(Intent(this, BackupActivity::class.java))

@@ -12,12 +12,11 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Fichier de test spécifique pour [ShoppingListAdapter] et [ShoppingListAdapter.Companion]
- * assurant la couverture à 100% de toutes les branches.
+ * Tests unitaires dédiés (1-à-1) pour [ShoppingListAdapter].
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
-class ShoppingListAdapterTypeBTest {
+class ShoppingListAdapterTest {
 
     private lateinit var context: Context
     private lateinit var parentContainer: FrameLayout
@@ -65,7 +64,7 @@ class ShoppingListAdapterTypeBTest {
     }
 
     @Test
-    fun `ShoppingListAdapter should bind items with unit category and click listeners`() {
+    fun `ShoppingListAdapter should bind items with unit category nulls and click listeners`() {
         var changedItem: Ingredient? = null
         var isBoughtState: Boolean? = null
 
@@ -77,23 +76,56 @@ class ShoppingListAdapterTypeBTest {
         val unbought = Ingredient(id = 1L, name = "Œufs", quantity = 0.0, unit = "pcs", minThreshold = 6.0, packSize = 6.0, category = null)
         val bought = Ingredient(id = 2L, name = "Sucre", quantity = 1.0, unit = null, minThreshold = null, packSize = 1.0, category = "Épicerie")
 
-        adapter.submitList(listOf(unbought, bought))
+        adapter.submitList(listOf(unbought, bought)) {
+            val h0 = adapter.onCreateViewHolder(parentContainer, 0)
+            adapter.onBindViewHolder(h0, 0)
+            assertThat(h0.binding.tvQuantityToBuy.text.toString()).contains("6 pcs")
+            assertThat(h0.binding.tvCategoryAndLocation.text.toString()).isEqualTo("Épicerie") // Null category fallback
 
-        val h0 = adapter.onCreateViewHolder(parentContainer, 0)
-        adapter.onBindViewHolder(h0, 0)
-        assertThat(h0.binding.tvQuantityToBuy.text.toString()).isEqualTo("6 pcs")
-        assertThat(h0.binding.tvCategoryAndLocation.text.toString()).isEqualTo("Épicerie") // Null category fallback
+            val h1 = adapter.onCreateViewHolder(parentContainer, 0)
+            adapter.onBindViewHolder(h1, 1)
+            assertThat(h1.binding.tvQuantityToBuy.text.toString()).contains("1")
 
-        val h1 = adapter.onCreateViewHolder(parentContainer, 0)
-        adapter.onBindViewHolder(h1, 1)
-        assertThat(h1.binding.tvQuantityToBuy.text.toString()).isEqualTo("1")
+            // Clicks
+            h0.binding.cbBought.isChecked = true
+            assertThat(changedItem).isEqualTo(unbought)
+            assertThat(isBoughtState).isTrue()
 
-        // Clicks
-        h0.binding.cbBought.isChecked = true
-        assertThat(changedItem).isEqualTo(unbought)
-        assertThat(isBoughtState).isTrue()
+            h0.binding.cardShoppingItem.performClick()
+            assertThat(changedItem).isEqualTo(unbought)
+        }
+    }
 
-        h0.binding.cardShoppingItem.performClick()
-        assertThat(changedItem).isEqualTo(unbought)
+    @Test
+    fun `ShoppingListAdapter should handle blank unit empty category and card toggle from false to true and true to false`() {
+        var changedItem: Ingredient? = null
+        var isBoughtState: Boolean? = null
+
+        val adapter = ShoppingListAdapter { ingr, bought ->
+            changedItem = ingr
+            isBoughtState = bought
+        }
+
+        val ingrUnbought = Ingredient(id = 3L, name = "Farine", quantity = 0.0, unit = "   ", category = "", minThreshold = 1.0)
+        adapter.submitList(listOf(ingrUnbought)) {
+            val vh = adapter.onCreateViewHolder(parentContainer, 0)
+            adapter.onBindViewHolder(vh, 0)
+
+            assertThat(vh.binding.tvQuantityToBuy.text.toString()).isEqualTo("1")
+            assertThat(vh.binding.tvCategoryAndLocation.text.toString()).isEqualTo("Épicerie")
+            assertThat(vh.binding.cbBought.isChecked).isFalse()
+
+            // Card click toggle 1: isChecked = false -> toggles to true
+            vh.binding.cardShoppingItem.performClick()
+            assertThat(vh.binding.cbBought.isChecked).isTrue()
+            assertThat(isBoughtState).isTrue()
+            assertThat(changedItem).isEqualTo(ingrUnbought)
+
+            // Card click toggle 2: isChecked = true -> toggles to false
+            vh.binding.cardShoppingItem.performClick()
+            assertThat(vh.binding.cbBought.isChecked).isFalse()
+            assertThat(isBoughtState).isFalse()
+            assertThat(changedItem).isEqualTo(ingrUnbought)
+        }
     }
 }

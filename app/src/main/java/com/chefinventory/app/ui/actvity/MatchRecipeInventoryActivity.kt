@@ -12,6 +12,7 @@ import com.chefinventory.app.databinding.ActivityMatchRecipeInventoryBinding
 import com.chefinventory.app.ui.adapter.MatchRecipeAdapter
 import com.chefinventory.app.ui.viewmodel.MatchRecipeViewModel
 import com.chefinventory.app.ui.viewmodel.ViewModelFactory
+import com.chefinventory.app.utils.CategoryMapper
 import com.chefinventory.app.utils.RecipeMatchResult
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers
@@ -140,12 +141,18 @@ class MatchRecipeInventoryActivity : AppCompatActivity() {
                 }
             }
 
+            val locCatName = recipe.locationId?.let { locationNamesMap[it] }
+            val effectiveCourse = CategoryMapper.normalizeRecipeCategory(locCatName)
+                ?: CategoryMapper.normalizeRecipeCategory(recipe.category)
+                ?: CategoryMapper.normalizeRecipeCategory(titleStr)
+                ?: "Plat principal"
+
             val matchesCourse = when (selectedCourseFilter) {
-                "Entrée" -> com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(instStr) == "Entrée" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(sourceStr) == "Entrée" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(titleStr) == "Entrée"
-                "Plat" -> com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(instStr) == "Plat principal" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(sourceStr) == "Plat principal" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(titleStr) == "Plat principal"
-                "Dessert" -> com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(instStr) == "Dessert" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(sourceStr) == "Dessert" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(titleStr) == "Dessert"
-                "Boisson" -> com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(instStr) == "Boisson" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(sourceStr) == "Boisson" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(titleStr) == "Boisson"
-                "Accompagnement" -> com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(instStr) == "Accompagnement" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(sourceStr) == "Accompagnement" || com.chefinventory.app.utils.CategoryMapper.normalizeRecipeCategory(titleStr) == "Accompagnement"
+                "Entrée" -> effectiveCourse == CategoryMapper.CATEGORY_ENTREE
+                "Plat" -> effectiveCourse == CategoryMapper.CATEGORY_PLAT
+                "Dessert" -> effectiveCourse == CategoryMapper.CATEGORY_DESSERT
+                "Boisson" -> effectiveCourse == CategoryMapper.CATEGORY_BOISSON
+                "Accompagnement" -> effectiveCourse == CategoryMapper.CATEGORY_ACCOMPAGNEMENT
                 else -> true
             }
 

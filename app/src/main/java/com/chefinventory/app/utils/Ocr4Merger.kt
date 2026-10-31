@@ -206,7 +206,7 @@ object Ocr4Merger {
      * @param text La ligne d'ingrédient à analyser.
      * @return `true` si la ligne est suspendue et doit être fusionnée avec la suivante, `false` sinon.
      */
-    private fun isHanging(text: String, customConnectors: List<String> = emptyList()): Boolean {
+    internal fun isHanging(text: String, customConnectors: List<String> = emptyList()): Boolean {
         val lower = text.lowercase().trim()
         if (ARTICLES.contains(lower)) return true
 
@@ -232,7 +232,7 @@ object Ocr4Merger {
      * @param text La ligne à analyser.
      * @return `true` si la ligne commence par un connecteur, `false` sinon.
      */
-    private fun startsWithConnector(text: String, customConnectors: List<String> = emptyList()): Boolean {
+    internal fun startsWithConnector(text: String, customConnectors: List<String> = emptyList()): Boolean {
         val connectors = if (customConnectors.isNotEmpty()) customConnectors else DEFAULT_INGREDIENTS_CONNECTORS
         val lower = text.lowercase().trim()
         return connectors.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }

@@ -51,4 +51,24 @@
         <item>€</item>
         <item>\$</item>
     </string-array>
+
+    <string-array name="ocr_protected_section_headers">
+        <item>INGRÉDIENTS</item>
+        <item>INSTRUCTIONS</item>
+        <item>PRÉPARATION</item>
+    </string-array>
+
+    <string-array name="ocr_time_header_prefixes">
+        <item>temps de</item>
+        <item>durée de</item>
+        <item>temps</item>
+        <item>durée</item>
+    </string-array>
+
+    <string-array name="ocr_time_header_keywords">
+        <item>préparation</item>
+        <item>preparation</item>
+        <item>cuisson</item>
+        <item>repos</item>
+    </string-array>
 </resources>

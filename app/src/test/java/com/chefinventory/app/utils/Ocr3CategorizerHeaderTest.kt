@@ -1,6 +1,7 @@
 package com.chefinventory.app.utils
 
 import com.google.common.truth.Truth.assertThat
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
 
@@ -17,11 +18,9 @@ class Ocr3CategorizerHeaderTest {
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
-    /**
-     * Vérifie la détection d'en-tête d'ingrédients complexe ("ingrédients pour 4 personnes").
-     */
     @Test
-    fun `processSectionHeader should detect ingredients header and update state`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessSectionHeader_DetectsIngredientsHeaderAndUpdateState() {
         val state = Ocr3CategorizerHeader.HeaderState()
         val seenKeywords = mutableSetOf("farine", "sucre")
 
@@ -40,11 +39,9 @@ class Ocr3CategorizerHeaderTest {
         assertThat(seenKeywords).isEmpty()
     }
 
-    /**
-     * Vérifie la détection d'en-tête d'instructions ("préparation:").
-     */
     @Test
-    fun `processSectionHeader should detect preparation header and switch to instructions section`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessSectionHeader_DetectsPreparationHeaderAndSwitchToInstructions() {
         val state = Ocr3CategorizerHeader.HeaderState()
         val seenKeywords = mutableSetOf<String>()
 
@@ -59,5 +56,90 @@ class Ocr3CategorizerHeaderTest {
 
         assertThat(isHeader).isTrue()
         assertThat(state.currentSection).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessSectionHeader_ExhaustiveVariantsOfHeaders() {
+        val instructionVariants = listOf(
+            "préparation",
+            "préparation :",
+            "préparation:",
+            "préparation de la pâte",
+            "préparation de la sauce",
+            "temps de préparation : 15 min",
+            "temps de préparation",
+            "preparation :",
+            "instructions :",
+            "consignes :",
+            "étapes :",
+            "méthode de la préparation :",
+            "déroulement :"
+        )
+        instructionVariants.forEach { headerText ->
+            val state = Ocr3CategorizerHeader.HeaderState()
+            val isHeader = Ocr3CategorizerHeader.processSectionHeader(
+                workingLine = headerText,
+                lowerLine = headerText.lowercase(),
+                containsAction = false,
+                vocabulary = vocabulary,
+                state = state,
+                seenIngredientKeywords = mutableSetOf()
+            )
+            assertThat(isHeader).isTrue()
+            assertThat(state.currentSection).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+        }
+
+        val ingredientVariants = listOf(
+            "ingrédients pour 4 personnes",
+            "ingredients :",
+            "composition :",
+            "ngrédients :"
+        )
+        ingredientVariants.forEach { headerText ->
+            val state = Ocr3CategorizerHeader.HeaderState()
+            val isHeader = Ocr3CategorizerHeader.processSectionHeader(
+                workingLine = headerText,
+                lowerLine = headerText.lowercase(),
+                containsAction = false,
+                vocabulary = vocabulary,
+                state = state,
+                seenIngredientKeywords = mutableSetOf()
+            )
+            assertThat(isHeader).isTrue()
+            assertThat(state.currentSection).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessSectionHeader_SubHeaderAndNonHeaderLines() {
+        val vocabSub = OcrVocabulary(ingredientSubHeaders = listOf("pour la sauce"))
+        val stateSub = Ocr3CategorizerHeader.HeaderState()
+
+        val isSubHeader = Ocr3CategorizerHeader.processSectionHeader(
+            workingLine = "Pour la sauce :",
+            lowerLine = "pour la sauce :",
+            containsAction = false,
+            vocabulary = vocabSub,
+            state = stateSub,
+            seenIngredientKeywords = mutableSetOf()
+        )
+
+        assertThat(isSubHeader).isFalse()
+        assertThat(stateSub.currentSection).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        // Non-header normal line
+        val stateNormal = Ocr3CategorizerHeader.HeaderState()
+        val isNormal = Ocr3CategorizerHeader.processSectionHeader(
+            workingLine = "200 g de farine",
+            lowerLine = "200 g de farine",
+            containsAction = false,
+            vocabulary = vocabulary,
+            state = stateNormal,
+            seenIngredientKeywords = mutableSetOf()
+        )
+
+        assertThat(isNormal).isFalse()
     }
 }

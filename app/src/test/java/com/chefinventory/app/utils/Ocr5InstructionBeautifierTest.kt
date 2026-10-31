@@ -1,6 +1,7 @@
 package com.chefinventory.app.utils
 
 import com.google.common.truth.Truth.assertThat
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
 
@@ -17,11 +18,59 @@ class Ocr5InstructionBeautifierTest {
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
-    /**
-     * Vérifie le recollage de phrases d'instructions rompues après une conjonction "et." ("et. Garnissez" -> "et garnissez").
-     */
     @Test
-    fun `beautifyInstructions should merge instruction sentence broken after conjunction et dot`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_ExhaustiveBranchVariations() {
+        val input = listOf(
+            "Ə RECETTES DU CHEF",
+            "consignes",
+            "preparation",
+            "Mélanger les ingrédients ou.",
+            "Ajoutez du sel,.",
+            "Poivrez.",
+            "Servir chaud !",
+            "Déguster chaud ?"
+        )
+
+        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+            input,
+            vocabulary.stepActionKeywords,
+            vocabulary.hangingConnectors,
+            vocabulary.culinaryMeasurementUnits,
+            vocabulary.ocrSpellingRepairs
+        )
+
+        assertThat(result).contains("Mélanger les ingrédients ou ajoutez du sel, poivrez.")
+        assertThat(result).contains("Servir chaud !")
+        assertThat(result).contains("Déguster chaud ?")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_DefaultArgumentsAndBlankLinesAndTrailingPeriod() {
+        val input = listOf(
+            "",
+            "   ",
+            "PRÉPARATION",
+            "INSTRUCTIONS",
+            "CONSIGNES",
+            "FICHE RECETTE",
+            "mélangez l'huile d'olive",
+            "   ",
+            "laissez mariner au réfrigérateur"
+        )
+
+        // Test with default arguments
+        val result = Ocr5InstructionBeautifier.beautifyInstructions(input)
+
+        assertThat(result).contains("Mélangez l'huile d'olive.")
+        assertThat(result).contains("Laissez mariner au réfrigérateur.")
+        assertThat(result).doesNotContain("PRÉPARATION")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_MergeInstructionSentenceBrokenAfterConjunctionEtDot() {
         val input = listOf(
             "Nappez de la sauce au yaourt et à la mayonnaise et.",
             "Garnissez de quelques branches de cerfeuil."
@@ -38,11 +87,9 @@ class Ocr5InstructionBeautifierTest {
         )
     }
 
-    /**
-     * Vérifie le recollage de consignes coupées après une abréviation d'unité ("aux 4 c." + "À soupe" -> "aux 4 c. à soupe").
-     */
     @Test
-    fun `beautifyInstructions should merge instruction sentence broken after unit abbreviation c dot`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_MergeInstructionSentenceBrokenAfterUnitAbbreviationCDot() {
         val input = listOf(
             "Mélangez les légumes, la feta et l'estragon haché aux 4 c.",
             "À soupe de yaourt."
@@ -60,11 +107,9 @@ class Ocr5InstructionBeautifierTest {
         )
     }
 
-    /**
-     * Vérifie le recollage de phrases rompues par une virgule finale (",. Le thym" -> ", le thym").
-     */
     @Test
-    fun `beautifyInstructions should merge instruction sentence broken after comma`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_MergeInstructionSentenceBrokenAfterComma() {
         val input = listOf(
             "Mélangez l'huile d'olive, le piment,",
             "Le thym et le romarin effeuillé."
@@ -81,11 +126,9 @@ class Ocr5InstructionBeautifierTest {
         )
     }
 
-    /**
-     * Vérifie que les consignes déjà complètes se terminant par un point restent séparées.
-     */
     @Test
-    fun `beautifyInstructions should leave complete sentences ending with a period separate`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_LeaveCompleteSentencesEndingWithAPeriodSeparate() {
         val input = listOf(
             "Mélangez l'huile d'olive et le thym.",
             "Laissez mariner au réfrigérateur."

@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel for searching recipes based on available ingredients.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 class SearchRecipeViewModel(
     private val recipeRepository: RecipeRepository,
     private val ingredientRepository: IngredientRepository
@@ -53,7 +54,8 @@ class SearchRecipeViewModel(
     /**
      * Executes the search based on selected ingredients.
      */
-    private fun performSearch() {
+    @androidx.annotation.VisibleForTesting
+    internal fun performSearch() {
         val set = _selectedIngredients.value
         val selected = if (set != null) {
             set.toList()

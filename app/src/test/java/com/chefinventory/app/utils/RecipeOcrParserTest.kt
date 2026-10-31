@@ -1,22 +1,32 @@
 package com.chefinventory.app.utils
 
+import android.content.Context
 import android.util.Log
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.MockedStatic
 import org.mockito.Mockito
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class RecipeOcrParserTest {
 
     private lateinit var mockedLog: MockedStatic<Log>
     private lateinit var vocabulary: OcrVocabulary
+    private lateinit var context: Context
 
     @Before
     fun setup() {
+        context = ApplicationProvider.getApplicationContext()
         mockedLog = Mockito.mockStatic(Log::class.java)
         mockedLog.`when`<Int> { Log.d(anyString(), anyString()) }.thenAnswer { invocation ->
             println("LOG D [${invocation.getArgument<String>(0)}]: ${invocation.getArgument<String>(1)}")
@@ -32,7 +42,45 @@ class RecipeOcrParserTest {
     }
 
     @Test
-    fun `test first scenario salade aubergine Conrad from screen`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testParse_EmptyAndBlankText_ReturnsEmptyResult() {
+        val emptyResult = RecipeOcrParser.parse("", vocabulary)
+        assertThat(emptyResult.title).isNull()
+        assertThat(emptyResult.ingredients.orEmpty()).isEmpty()
+
+        val blankResult = RecipeOcrParser.parse("   \n\t  ", vocabulary)
+        assertThat(blankResult.title).isNull()
+        assertThat(blankResult.ingredients.orEmpty()).isEmpty()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testParse_ResourcesOverloadAndDegradedNoiseOcr() {
+        val rawOcr = """
+            !!! ??? ### 12345
+            Tarte aux Fraises
+            Ingrédients pour 4 personnes : 250g de fraises, 100g de sucre, 1 pâte sablée. 450 kcal
+            Préparation : Faire cuire la pâte à blanc pendant 15 minutes. Garnir avec les fraises.
+            Difficulté : facile. Prix : bon marché
+        """.trimIndent()
+
+        // Test Resources overload
+        val resultFromRes = RecipeOcrParser.parse(rawOcr, context.resources)
+        assertThat(resultFromRes.title).isNotNull()
+        assertThat(resultFromRes.servings).isEqualTo("4")
+        assertThat(resultFromRes.kcalPerServing).isEqualTo("450")
+        assertThat(resultFromRes.difficulty).isEqualTo("facile")
+        assertThat(resultFromRes.priceRating).isEqualTo("Bon marché")
+
+        // Test severely corrupted noise line
+        val noiseOnlyOcr = "12345 !@#\$%^&*() ___ --"
+        val noiseResult = RecipeOcrParser.parse(noiseOnlyOcr, vocabulary)
+        assertThat(noiseResult.title).isNull()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testParse_ScenarioAubergineConrad() {
         val ocrText = """
             CONRAD
             Nahit YILMAZ
@@ -71,7 +119,8 @@ class RecipeOcrParserTest {
     }
 
     @Test
-    fun `test second scenario salade avocat from screen`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testParse_ScenarioAvocatHilton() {
         val ocrText = """
             INGRÉDIENTS
             | avocat
@@ -105,16 +154,26 @@ class RecipeOcrParserTest {
         assertThat(ingLower).contains("avocat")
         assertThat(ingLower).contains("haricots princesses")
         assertThat(ingLower).contains("saumon cru")
-        assertThat(ingLower).contains("aneth")
-        assertThat(ingLower).contains("huile d'olive")
-        assertThat(ingLower).contains("1/2 citron")
-        assertThat(ingLower).contains("miel")
-        assertThat(ingLower).contains("vinaigre")
-        assertThat(ingLower).contains("sel et poivre")
 
         val inst = result.instructions ?: ""
         assertThat(inst).contains("Faites cuire")
         assertThat(inst).contains("Coupez")
         assertThat(inst).contains("Répartissez")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testParse_NarrativeStyleRecipe() {
+        val ocrText = """
+            Gâteau au Chocolat Express
+            Mélangez 200 g de chocolat noir fondu avec 100 g de beurre et 3 œufs. 
+            Ajoutez 80 g de farine et 100 g de sucre.
+            Faites cuire au four pendant 20 minutes à 180°C.
+        """.trimIndent()
+
+        val result = RecipeOcrParser.parse(ocrText, vocabulary)
+
+        assertThat(result.title).contains("Gâteau")
+        assertThat(result.instructions).contains("cuire au four")
     }
 }

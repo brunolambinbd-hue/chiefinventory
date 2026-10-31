@@ -22,7 +22,7 @@ import com.chefinventory.app.model.RecipeIngredient
         Recipe::class,
         RecipeIngredient::class
     ],
-    version = 32,
+    version = 33,
     exportSchema = false
 )
 @TypeConverters(com.chefinventory.app.data.TypeConverters::class)
@@ -32,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
 
     companion object {
-        const val DATABASE_VERSION: Int = 32
+        const val DATABASE_VERSION: Int = 33
         const val DATABASE_NAME: String = "chiefinventory_database"
 
         private val MIGRATION_18_19 = object : Migration(18, 19) {
@@ -78,123 +78,122 @@ abstract class AppDatabase : RoomDatabase() {
                 """.trimIndent())
                 db.execSQL("DROP TABLE recipe_ingredients")
                 db.execSQL("ALTER TABLE recipe_ingredients_new RENAME TO recipe_ingredients")
-                db.execSQL("CREATE INDEX index_recipe_ingredients_recipeId ON recipe_ingredients(recipeId)")
             }
         }
 
         private val MIGRATION_23_24 = object : Migration(23, 24) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE recipes ADD COLUMN restingTimeMinutes INTEGER")
+                db.execSQL("ALTER TABLE ingredients ADD COLUMN minThreshold REAL")
+                db.execSQL("ALTER TABLE ingredients ADD COLUMN packSize REAL NOT NULL DEFAULT 1.0")
             }
         }
 
         private val MIGRATION_24_25 = object : Migration(24, 25) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE recipes ADD COLUMN kcalPerServing INTEGER")
+            }
+        }
+
+        private val MIGRATION_25_26 = object : Migration(25, 26) {
+            override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE recipes ADD COLUMN difficulty TEXT")
             }
         }
 
-        /**
-         * Migration 25 -> 26: Ajout de locationId à recipe_ingredients avec ForeignKey.
-         * SQLite ne supporte pas l'ajout de FK via ALTER TABLE, on doit recréer la table.
-         */
-        private val MIGRATION_25_26 = object : Migration(25, 26) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("""
-                    CREATE TABLE recipe_ingredients_new (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        recipeId INTEGER NOT NULL,
-                        ingredientName TEXT NOT NULL,
-                        quantityRequired REAL,
-                        unit TEXT,
-                        supplementalInfo TEXT,
-                        locationId INTEGER,
-                        FOREIGN KEY(recipeId) REFERENCES recipes(id) ON UPDATE NO ACTION ON DELETE CASCADE,
-                        FOREIGN KEY(locationId) REFERENCES locations(id) ON UPDATE NO ACTION ON DELETE SET_NULL
-                    )
-                """.trimIndent())
-                
-                db.execSQL("""
-                    INSERT INTO recipe_ingredients_new (id, recipeId, ingredientName, quantityRequired, unit, supplementalInfo, locationId)
-                    SELECT id, recipeId, ingredientName, quantityRequired, unit, supplementalInfo, NULL FROM recipe_ingredients
-                """.trimIndent())
-                
-                db.execSQL("DROP TABLE recipe_ingredients")
-                db.execSQL("ALTER TABLE recipe_ingredients_new RENAME TO recipe_ingredients")
-                
-                db.execSQL("CREATE INDEX IF NOT EXISTS index_recipe_ingredients_recipeId ON recipe_ingredients(recipeId)")
-                db.execSQL("CREATE INDEX IF NOT EXISTS index_recipe_ingredients_locationId ON recipe_ingredients(locationId)")
-            }
-        }
-
-        /**
-         * Migration 26 -> 27: Ajout de nutritionInfo à la table recipes.
-         */
         private val MIGRATION_26_27 = object : Migration(26, 27) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE recipes ADD COLUMN nutritionInfo TEXT")
             }
         }
 
-        /**
-         * Migration 27 -> 28: Ajout de priceRating à la table recipes.
-         */
         private val MIGRATION_27_28 = object : Migration(27, 28) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE recipes ADD COLUMN priceRating TEXT")
             }
         }
 
-        /**
-         * Migration 28 -> 29: Ajout de stockPolicy à la table ingredients.
-         */
         private val MIGRATION_28_29 = object : Migration(28, 29) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE ingredients ADD COLUMN stockPolicy TEXT NOT NULL DEFAULT 'PERMANENT'")
+                db.execSQL("ALTER TABLE recipes ADD COLUMN locationId INTEGER")
             }
         }
 
-        /**
-         * Migration 29 -> 30: Ajout de minThreshold à la table ingredients.
-         */
         private val MIGRATION_29_30 = object : Migration(29, 30) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE ingredients ADD COLUMN minThreshold REAL DEFAULT NULL")
+                db.execSQL("ALTER TABLE recipes ADD COLUMN createdAt INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE recipes ADD COLUMN updatedAt INTEGER NOT NULL DEFAULT 0")
             }
         }
 
-        /**
-         * Migration 30 -> 31: Ajout de packSize à la table ingredients.
-         */
         private val MIGRATION_30_31 = object : Migration(30, 31) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE ingredients ADD COLUMN packSize REAL NOT NULL DEFAULT 1.0")
+                // Migration V31
             }
         }
 
-        /**
-         * Migration 31 -> 32: Suppression de la table collection_items (BD ParaBD).
-         */
         private val MIGRATION_31_32 = object : Migration(31, 32) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("DROP TABLE IF EXISTS collection_items")
+                // Migration V32
             }
         }
 
-        private val DB_CALLBACK = object : RoomDatabase.Callback() {
+        private val MIGRATION_32_33 = object : Migration(32, 33) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Migration Pro : Suppression de imageEmbedding sans perte de données utilisateur
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS ingredients_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        name TEXT NOT NULL,
+                        quantity REAL,
+                        unit TEXT,
+                        category TEXT,
+                        expirationDate INTEGER,
+                        description TEXT,
+                        supplementalInfo TEXT,
+                        imageUri TEXT,
+                        ocrText TEXT,
+                        locationId INTEGER,
+                        stockPolicy TEXT NOT NULL,
+                        minThreshold REAL,
+                        packSize REAL NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+
+                db.execSQL("""
+                    INSERT INTO ingredients_new (id, name, quantity, unit, category, expirationDate, description, supplementalInfo, imageUri, ocrText, locationId, stockPolicy, minThreshold, packSize, updatedAt)
+                    SELECT id, name, quantity, unit, category, expirationDate, description, supplementalInfo, imageUri, ocrText, locationId, stockPolicy, minThreshold, packSize, updatedAt FROM ingredients
+                """.trimIndent())
+
+                db.execSQL("DROP TABLE ingredients")
+                db.execSQL("ALTER TABLE ingredients_new RENAME TO ingredients")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ingredients_locationId ON ingredients(locationId)")
+            }
+        }
+
+        private val DB_CALLBACK = object : Callback() {
             override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
-                // 1. Emplacements racine par défaut pour le garde-manger
-                db.execSQL("INSERT OR IGNORE INTO locations (id, name, parentId, type) VALUES (1, 'Frigo', NULL, 'INGREDIENT')")
-                db.execSQL("INSERT OR IGNORE INTO locations (id, name, parentId, type) VALUES (2, 'Placard', NULL, 'INGREDIENT')")
-                db.execSQL("INSERT OR IGNORE INTO locations (id, name, parentId, type) VALUES (3, 'Surgélateur', NULL, 'INGREDIENT')")
-                db.execSQL("INSERT OR IGNORE INTO locations (id, name, parentId, type) VALUES (4, 'Cave', NULL, 'INGREDIENT')")
+                // 1. Initialisation des emplacements par défaut s'ils n'existent pas
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (1, 'Frigo', 'INGREDIENT')")
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (2, 'Placard', 'INGREDIENT')")
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (3, 'Surgélateur', 'INGREDIENT')")
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (4, 'Cave', 'INGREDIENT')")
+
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (5, 'Entrée', 'RECIPE')")
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (6, 'Plat principal', 'RECIPE')")
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (7, 'Dessert', 'RECIPE')")
+                db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (8, 'Boisson', 'RECIPE')")
 
                 // 2. Correction automatique des ingrédients enregistrés avec locationId = 1 (Frigo) ou NULL
                 db.execSQL("UPDATE ingredients SET locationId = 2 WHERE (category LIKE '%épicerie%' OR category LIKE '%epicerie%' OR category LIKE '%féculents%' OR category LIKE '%feculents%' OR category LIKE '%condiments%' OR category LIKE '%légumes%' OR category LIKE '%legumes%' OR category LIKE '%pâtisserie%' OR category LIKE '%patisserie%') AND (locationId = 1 OR locationId IS NULL)")
                 db.execSQL("UPDATE ingredients SET locationId = 3 WHERE (category LIKE '%surgelé%' OR category LIKE '%surgele%' OR category LIKE '%glace%') AND (locationId = 1 OR locationId IS NULL)")
                 db.execSQL("UPDATE ingredients SET locationId = 4 WHERE (category LIKE '%boisson%' OR category LIKE '%cave%' OR category LIKE '%vin%') AND (locationId = 1 OR locationId IS NULL)")
+
+                // 3. Correction automatique des recettes mal attribuées à Boisson (ID 8) ou sans locationId
+                db.execSQL("UPDATE recipes SET locationId = 7 WHERE (title LIKE '%cake%' OR title LIKE '%gâteau%' OR title LIKE '%gateau%' OR title LIKE '%chocolat%' OR title LIKE '%tarte%' OR title LIKE '%mousse%' OR title LIKE '%crêpe%' OR title LIKE '%crepe%' OR title LIKE '%gaufre%' OR title LIKE '%dessert%' OR title LIKE '%pâtisserie%' OR title LIKE '%patisserie%') AND (locationId = 8 OR locationId IS NULL)")
+                db.execSQL("UPDATE recipes SET locationId = 5 WHERE (title LIKE '%entrée%' OR title LIKE '%entree%' OR title LIKE '%salade%' OR title LIKE '%soupe%' OR title LIKE '%velouté%' OR title LIKE '%amuse%') AND (locationId = 8 OR locationId IS NULL)")
+                db.execSQL("UPDATE recipes SET locationId = 6 WHERE (title LIKE '%poulet%' OR title LIKE '%boeuf%' OR title LIKE '%bœuf%' OR title LIKE '%porc%' OR title LIKE '%saumon%' OR title LIKE '%pâte%' OR title LIKE '%pate%' OR title LIKE '%risotto%' OR title LIKE '%lasagne%' OR title LIKE '%rôti%' OR title LIKE '%roti%' OR title LIKE '%plat%') AND (locationId = 8 OR locationId IS NULL)")
             }
         }
 
@@ -213,7 +212,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24, 
                     MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27,
                     MIGRATION_27_28, MIGRATION_28_29, MIGRATION_29_30, 
-                    MIGRATION_30_31, MIGRATION_31_32
+                    MIGRATION_30_31, MIGRATION_31_32, MIGRATION_32_33
                 )
                 .addCallback(DB_CALLBACK)
                 .fallbackToDestructiveMigration()

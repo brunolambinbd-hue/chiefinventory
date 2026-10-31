@@ -1,112 +1,107 @@
 package com.chefinventory.app.utils
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Suite de tests unitaires de Type B vérifiant le comportement et la précision de [SourceParser].
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class SourceParserTest {
 
     private lateinit var vocabulary: OcrVocabulary
 
     @Before
     fun setup() {
-        // Charge le VRAI vocabulaire de production depuis les fichiers XML (app/src/main/res/values/*.xml)
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
-    /**
-     * Vérifie l'identification des numéros de téléphone aux formats nationaux et internationaux.
-     */
     @Test
-    fun `isSourceLine should return true for valid phone numbers`() {
-        assertTrue(SourceParser.isSourceLine("02/542.42.42", vocabulary))
-        assertTrue(SourceParser.isSourceLine("+32 2 542 42 42", vocabulary))
-        assertTrue(SourceParser.isSourceLine("Tel: 01 45 67 89 10", vocabulary))
-        assertTrue(SourceParser.isSourceLine("06.12.34.56.78", vocabulary))
+    @CoveredRequirement("6.1.1.9")
+    fun testLoadResources_LoadsFromAndroidResources() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.setTheme(com.chefinventory.app.R.style.Theme_ChefInventory)
+
+        val sourceRes = SourceParser.loadResources(context.resources)
+        assertThat(sourceRes.sourceKeywords).isNotEmpty()
+        assertThat(sourceRes.phonePrefixes).isNotEmpty()
     }
 
-    /**
-     * Vérifie l'identification des lignes contenant des mots-clés d'établissements ou d'adresses issus de `source_keywords.xml`.
-     */
     @Test
-    fun `isSourceLine should return true for lines with source keywords`() {
-        assertTrue(SourceParser.isSourceLine("Restaurant La Bonne Fourchette", vocabulary))
-        assertTrue(SourceParser.isSourceLine("12 rue des Fleurs", vocabulary))
-        assertTrue(SourceParser.isSourceLine("Hôtel de Ville", vocabulary))
+    @CoveredRequirement("6.1.1.9")
+    fun testIsSourceLine_ValidPhoneNumbers() {
+        assertThat(SourceParser.isSourceLine("02/542.42.42", vocabulary)).isTrue()
+        assertThat(SourceParser.isSourceLine("+32 2 542 42 42", vocabulary)).isTrue()
+        assertThat(SourceParser.isSourceLine("Tel: 01 45 67 89 10", vocabulary)).isTrue()
+        assertThat(SourceParser.isSourceLine("06.12.34.56.78", vocabulary)).isTrue()
     }
 
-    /**
-     * Vérifie l'identification des lignes courtes contenant des codes postaux.
-     */
     @Test
-    fun `isSourceLine should return true for short lines with zip codes`() {
-        assertTrue(SourceParser.isSourceLine("75001 Paris", vocabulary))
-        assertTrue(SourceParser.isSourceLine("CP: 1000", vocabulary))
+    @CoveredRequirement("6.1.1.9")
+    fun testIsSourceLine_SourceKeywords() {
+        assertThat(SourceParser.isSourceLine("Restaurant La Bonne Fourchette", vocabulary)).isTrue()
+        assertThat(SourceParser.isSourceLine("12 rue des Fleurs", vocabulary)).isTrue()
+        assertThat(SourceParser.isSourceLine("Hôtel de Ville", vocabulary)).isTrue()
     }
 
-    /**
-     * Vérifie le rejet des lignes d'instructions ou d'ingrédients ne contenant aucune information de source.
-     */
     @Test
-    fun `isSourceLine should return false for lines without source info`() {
-        assertFalse(SourceParser.isSourceLine("Couper les oignons", vocabulary)) 
-        assertFalse(SourceParser.isSourceLine("Sel et poivre", vocabulary))
-        assertFalse(SourceParser.isSourceLine("Voici une ligne longue de preparation avec un chiffre qui ne devrait pas etre consideree source.", vocabulary))
+    @CoveredRequirement("6.1.1.9")
+    fun testIsSourceLine_ShortZipCodes() {
+        assertThat(SourceParser.isSourceLine("75001 Paris", vocabulary)).isTrue()
+        assertThat(SourceParser.isSourceLine("CP: 1000", vocabulary)).isTrue()
     }
 
-    /**
-     * Vérifie que des titres de recettes en majuscules avec des ingrédients ("RICOTTA ET ÉPINARDS", "CANAPÉS GRECS") ne sont jamais pris pour des sources.
-     */
     @Test
-    fun `isLikelyProperNameOrSource should return false for recipe titles containing food words`() {
-        assertFalse(OcrHelperUtils.isLikelyProperNameOrSource("RICOTTA ET ÉPINARDS", vocabulary))
-        assertFalse(OcrHelperUtils.isLikelyProperNameOrSource("CANAPÉS GRECS", vocabulary))
-
-        assertTrue(OcrHelperUtils.isLikelyProperNameOrSource("MICHEL LAROCHE", vocabulary))
-        assertTrue(OcrHelperUtils.isLikelyProperNameOrSource("HÔTEL CONRAD", vocabulary))
+    @CoveredRequirement("6.1.1.9")
+    fun testIsSourceLine_NonSourceLines() {
+        assertThat(SourceParser.isSourceLine("Couper les oignons", vocabulary)).isFalse()
+        assertThat(SourceParser.isSourceLine("Sel et poivre", vocabulary)).isFalse()
+        assertThat(SourceParser.isSourceLine("Voici une ligne longue de preparation avec un chiffre qui ne devrait pas etre consideree source.", vocabulary)).isFalse()
     }
 
-    /**
-     * Vérifie le nettoyage et la suppression des préfixes téléphoniques ("Tel:", "Tél.", "Fax", "GSM").
-     */
     @Test
-    fun `cleanSourceLine should remove phone prefixes`() {
-        assertEquals("01 23 45 67 89", SourceParser.cleanSourceLine("Tel: 01 23 45 67 89", vocabulary))
-        assertEquals("02 54 88 99", SourceParser.cleanSourceLine("Tél. 02 54 88 99", vocabulary))
-        assertEquals("04 55", SourceParser.cleanSourceLine("Fax 04 55", vocabulary))
-        assertEquals("0612345678", SourceParser.cleanSourceLine("GSM: 0612345678", vocabulary))
+    @CoveredRequirement("6.1.1.9")
+    fun testIsLikelyProperNameOrSource_TitlesWithFood() {
+        assertThat(OcrHelperUtils.isLikelyProperNameOrSource("RICOTTA ET ÉPINARDS", vocabulary)).isFalse()
+        assertThat(OcrHelperUtils.isLikelyProperNameOrSource("CANAPÉS GRECS", vocabulary)).isFalse()
+
+        assertThat(OcrHelperUtils.isLikelyProperNameOrSource("MICHEL LAROCHE", vocabulary)).isTrue()
+        assertThat(OcrHelperUtils.isLikelyProperNameOrSource("HÔTEL CONRAD", vocabulary)).isTrue()
     }
 
-    /**
-     * Vérifie que le nettoyage des préfixes n'altère pas les mots se terminant par les mêmes lettres (ex: "Hôtel").
-     */
     @Test
-    fun `cleanSourceLine should not break words ending with prefix`() {
-        assertEquals("Hôtel 012345", SourceParser.cleanSourceLine("Hôtel 012345", vocabulary))
-        assertEquals("Chantel 012345", SourceParser.cleanSourceLine("Chantel 012345", vocabulary))
+    @CoveredRequirement("6.1.1.9")
+    fun testCleanSourceLine_RemovesPhonePrefixes() {
+        assertThat(SourceParser.cleanSourceLine("Tel: 01 23 45 67 89", vocabulary)).isEqualTo("01 23 45 67 89")
+        assertThat(SourceParser.cleanSourceLine("Tél. 02 54 88 99", vocabulary)).isEqualTo("02 54 88 99")
+        assertThat(SourceParser.cleanSourceLine("Fax 04 55", vocabulary)).isEqualTo("04 55")
+        assertThat(SourceParser.cleanSourceLine("GSM: 0612345678", vocabulary)).isEqualTo("0612345678")
     }
 
-    /**
-     * Vérifie l'extraction précoce des marques/enseignes connues dans les bannières publicitaires.
-     */
     @Test
-    fun `extractSourceFromAdLine should extract known brand Maxi GB from ad line`() {
-        assertEquals("Maxi GB", SourceParser.extractSourceFromAdLine("Assiette de présentation disponible dans les Maxi GB", vocabulary))
-        assertEquals("Delhaize", SourceParser.extractSourceFromAdLine("Recette proposée par les magasins Delhaize", vocabulary))
-        assertEquals("Cuisine Actuelle", SourceParser.extractSourceFromAdLine("Extrait du magazine Cuisine Actuelle n°45", vocabulary))
+    @CoveredRequirement("6.1.1.9")
+    fun testCleanSourceLine_DoesNotBreakWords() {
+        assertThat(SourceParser.cleanSourceLine("Hôtel 012345", vocabulary)).isEqualTo("Hôtel 012345")
+        assertThat(SourceParser.cleanSourceLine("Chantel 012345", vocabulary)).isEqualTo("Chantel 012345")
     }
 
-    /**
-     * Vérifie le retour null (0 faux positif) pour les bannières sans marque de la liste blanche.
-     */
     @Test
-    fun `extractSourceFromAdLine should return null for ad lines without known brand`() {
-        assertEquals(null, SourceParser.extractSourceFromAdLine("Assiette de présentation disponible dans les supermarchés", vocabulary))
-        assertEquals(null, SourceParser.extractSourceFromAdLine("Splat disponible immédiatement", vocabulary))
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractSourceFromAdLine_ExtractsKnownBrandsAndHandlesBlank() {
+        assertThat(SourceParser.extractSourceFromAdLine("Assiette de présentation disponible dans les Maxi GB", vocabulary)).isEqualTo("Maxi GB")
+        assertThat(SourceParser.extractSourceFromAdLine("Recette proposée par les magasins Delhaize", vocabulary)).isEqualTo("Delhaize")
+        assertThat(SourceParser.extractSourceFromAdLine("Extrait du magazine Cuisine Actuelle n°45", vocabulary)).isEqualTo("Cuisine Actuelle")
+
+        assertThat(SourceParser.extractSourceFromAdLine("", vocabulary)).isNull()
+        assertThat(SourceParser.extractSourceFromAdLine("   ", vocabulary)).isNull()
+        assertThat(SourceParser.extractSourceFromAdLine("Assiette disponible dans les supermarchés", vocabulary)).isNull()
     }
 }

@@ -76,6 +76,39 @@
 
     <!-- Menu -->
     <string name="search_no_visual_matches">No visual correspondance</string>
+    <string name="menu_nav_home">Home</string>
+    <string name="menu_section_pantry_kitchen">MY PANTRY &amp; KITCHEN</string>
+    <string name="menu_nav_setup_inventory">Initialize My Pantry</string>
+    <string name="menu_nav_update_inventory">Update My Pantry</string>
+    <string name="menu_nav_all_ingredients">My Ingredient Stock</string>
+    <string name="menu_nav_shopping_list">🛒 Shopping List &amp; Restock</string>
+    <string name="menu_nav_match_pantry_recipe">🍳 What to Cook (by My Pantry)</string>
+    <string name="menu_nav_ingredients_locations">Kitchen Locations</string>
+
+    <string name="menu_section_my_recipes">MY RECIPES</string>
+    <string name="menu_nav_all_recipes">All Recipes</string>
+    <string name="menu_nav_search_recipe">🔍 What to Cook (by My Recipes)</string>
+    <string name="menu_nav_recipe_categories">Recipe Types</string>
+    <string name="menu_nav_add_recipe">Scan a Recipe</string>
+    <string name="menu_nav_import_recipe_packs">📥 Import a Recipe Pack (BE / FR / IT)</string>
+    <string name="menu_nav_import_web_recipe">🌐 Import a Web Recipe</string>
+
+    <string name="menu_section_tools_backup">TOOLS &amp; BACKUP</string>
+    <string name="menu_nav_backup">Backup &amp; Restore</string>
+    <string name="menu_nav_recipe_audit">📊 Recipe Audit Report</string>
+
+    <!-- Log & LogManager Error Strings -->
+    <string name="error_unknown">Unknown error</string>
+    <string name="error_db_file_not_found">Database file not found</string>
+    <string name="error_output_stream_unavailable">Output stream unavailable for backup destination</string>
+    <string name="error_db_path_unavailable">Cannot get database path</string>
+    <string name="error_db_parent_dir_unavailable">Cannot determine parent directory</string>
+    <string name="log_backup_failed_prefix">Backup failed</string>
+    <string name="log_restore_failed_prefix">Restore failed</string>
+    <string name="error_unknown_location_icon">No icon matching location: %1$s</string>
+    <string name="error_null_context_location">Null context during location resolution</string>
+    <string name="error_unknown_location_category">No location matching category: %1$s</string>
+
     <string name="menu_search_title">Search</string>
     <string name="menu_counter_title">Counter</string>
     <string name="menu_home_title">Home</string>
@@ -174,10 +207,11 @@
     <string-array name="keywords_location_frigo">
         <item>frigo</item>
         <item>fridge</item>
-        <item>refrigerator</item>
-        <item>fridgefreezer</item>
-        <item>dairy</item>
+        <item>réfrigérateur</item>
+        <item>refrigerateur</item>
+        <item>crémerie</item>
         <item>cremerie</item>
+        <item>dairy</item>
         <item>milk</item>
         <item>fresh</item>
         <item>cheese</item>
@@ -200,13 +234,16 @@
         <item>surgelateur</item>
         <item>congélateur</item>
         <item>congelateur</item>
+        <item>surgelés</item>
+        <item>surgeles</item>
         <item>frozen</item>
-        <item>surgele</item>
-        <item>ice</item>
         <item>freezer</item>
     </string-array>
 
     <string-array name="keywords_location_cave">
+        <item>cave</item>
+        <item>boisson</item>
+        <item>boissons</item>
         <item>drink</item>
         <item>cellar</item>
         <item>wine</item>
@@ -217,9 +254,6 @@
         <item>vegetables</item>
         <item>legume</item>
         <item>legumes</item>
-        <item>potato</item>
-        <item>onion</item>
-        <item>garlic</item>
     </string-array>
     <string name="erreur_lors_de_l_analyse_de_l_image">Error during analysis of image</string>
     <string name="red_marrer_l_application">Restart application</string>
@@ -290,6 +324,9 @@
     <!-- StandardCatalogAdapter -->
     <string name="catalog_category_location_format">%1$s • %2$s</string>
     <string name="quantity_unit_format">%1$s%2$s</string>
+
+    <!-- ShoppingListAdapter -->
+    <string name="shopping_item_name_format"> — %1$s%2$s</string>
 
     <!-- Strings for EditIngredientActivity -->
     <string name="edit_ingredient_title_new">New Ingredient</string>

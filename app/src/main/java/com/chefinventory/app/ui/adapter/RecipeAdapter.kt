@@ -28,24 +28,30 @@ class RecipeAdapter(private val onRecipeClick: (Recipe) -> Unit) :
         fun bind(recipe: Recipe) {
             val context = binding.root.context
             binding.tvRecipeTitle.text = recipe.title
-            
-            val prep = recipe.preparationTimeMinutes ?: 0
-            val cook = recipe.cookingTimeMinutes ?: 0
-            val kcalStr = recipe.kcalPerServing?.let { context.getString(R.string.recipe_kcal_format, it) } ?: ""
+
+            val prep = if (recipe.preparationTimeMinutes != null) {
+                recipe.preparationTimeMinutes
+            } else {
+                0
+            }
+
+            val cook = if (recipe.cookingTimeMinutes != null) {
+                recipe.cookingTimeMinutes
+            } else {
+                0
+            }
+
+            val kcalStr = if (recipe.kcalPerServing != null) {
+                context.getString(R.string.recipe_kcal_format, recipe.kcalPerServing)
+            } else {
+                ""
+            }
+
             binding.tvRecipeInfo.text = context.getString(R.string.recipe_info_format, prep, cook, kcalStr)
 
-            val categoryStr = if (!recipe.category.isNullOrBlank()) {
-                recipe.category
-            } else {
-                ""
-            }
+            val categoryStr = recipe.category.orEmpty().trim()
+            val nutritionStr = recipe.nutritionInfo.orEmpty().trim()
 
-            val nutritionStr = if (!recipe.nutritionInfo.isNullOrBlank()) {
-                recipe.nutritionInfo
-            } else {
-                ""
-            }
-            
             val displayCategory = when {
                 categoryStr.isNotBlank() && nutritionStr.isNotBlank() -> context.getString(R.string.recipe_category_nutrition_format, categoryStr, nutritionStr)
                 categoryStr.isNotBlank() -> categoryStr

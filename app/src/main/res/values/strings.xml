@@ -93,7 +93,41 @@
     <string name="search_displayed_count"> — %1$d affichés</string>
     <string name="search_no_visual_matches">Aucune correspondance visuelle trouvée pour cette photo</string>
 
-    <!-- Textes pour les menus -->
+    <!-- Textes pour le menu principal (Navigation Drawer) -->
+    <string name="menu_nav_home">Accueil</string>
+    <string name="menu_section_pantry_kitchen">MON GARDE-MANGER &amp; CUISINE</string>
+    <string name="menu_nav_setup_inventory">Initialiser mon Garde-Manger</string>
+    <string name="menu_nav_update_inventory">Mettre à jour mon Garde-Manger</string>
+    <string name="menu_nav_all_ingredients">Mon Stock d\'Ingrédients</string>
+    <string name="menu_nav_shopping_list">🛒 Liste de Courses &amp; Réassort</string>
+    <string name="menu_nav_match_pantry_recipe">🍳 Que cuisiner (par mon Garde-Manger)</string>
+    <string name="menu_nav_ingredients_locations">Emplacements Cuisine</string>
+
+    <string name="menu_section_my_recipes">MES RECETTES</string>
+    <string name="menu_nav_all_recipes">Toutes les Recettes</string>
+    <string name="menu_nav_search_recipe">🔍 Que cuisiner (par mes Recettes)</string>
+    <string name="menu_nav_recipe_categories">Types de Recettes</string>
+    <string name="menu_nav_add_recipe">Scanner une Recette</string>
+    <string name="menu_nav_import_recipe_packs">📥 Importer un Pack de Recettes (BE / FR / IT)</string>
+    <string name="menu_nav_import_web_recipe">🌐 Importer une Recette Web</string>
+
+    <string name="menu_section_tools_backup">OUTILS &amp; BACKUP</string>
+    <string name="menu_nav_backup">Sauvegarde &amp; Restauration</string>
+    <string name="menu_nav_recipe_audit">📊 Rapport d\'Audit des Recettes</string>
+
+    <!-- Log & LogManager Error Strings -->
+    <string name="error_unknown">Erreur inconnue</string>
+    <string name="error_db_file_not_found">Fichier de base de données introuvable</string>
+    <string name="error_output_stream_unavailable">Flux de sortie indisponible pour la destination de sauvegarde</string>
+    <string name="error_db_path_unavailable">Impossible d\'obtenir le chemin de la base de données</string>
+    <string name="error_db_parent_dir_unavailable">Impossible de déterminer le répertoire parent</string>
+    <string name="log_backup_failed_prefix">Échec de la sauvegarde</string>
+    <string name="log_restore_failed_prefix">Échec de la restauration</string>
+    <string name="error_unknown_location_icon">Aucune icône correspondant à l\'emplacement : %1$s</string>
+    <string name="error_null_context_location">Le contexte fourni est nul lors de la résolution de l\'emplacement</string>
+    <string name="error_unknown_location_category">Aucun emplacement correspondant pour la catégorie : %1$s</string>
+
+    <!-- Textes legacy pour les menus -->
     <string name="menu_search_title">Recherche</string>
     <string name="menu_counter_title">Compteur</string>
     <string name="menu_home_title">Accueil</string>
@@ -254,6 +288,9 @@
     <string name="catalog_category_location_format">%1$s • %2$s</string>
     <string name="quantity_unit_format">%1$s%2$s</string>
 
+    <!-- ShoppingListAdapter -->
+    <string name="shopping_item_name_format"> — %1$s%2$s</string>
+
     <!-- Strings pour EditIngredientActivity -->
     <string name="edit_ingredient_title_new">Nouvel ingrédient</string>
     <string name="edit_ingredient_title_edit">Modifier ingrédient</string>
@@ -321,6 +358,7 @@
         <item>fridge</item>
         <item>réfrigérateur</item>
         <item>refrigerateur</item>
+        <item>réfrigération</item>
         <item>crémerie</item>
         <item>cremerie</item>
         <item>lait</item>

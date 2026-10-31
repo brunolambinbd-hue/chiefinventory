@@ -64,6 +64,16 @@ class StandardCatalogAdapterTest {
     }
 
     @Test
+    fun `SelectedCatalogEntry default constructor parameters should use default values`() {
+        val item = StandardCatalogItem(name = "Sel", defaultQuantity = 500.0)
+        val entryDefault = SelectedCatalogEntry(item = item)
+
+        assertThat(entryDefault.item).isEqualTo(item)
+        assertThat(entryDefault.isSelected).isTrue()
+        assertThat(entryDefault.currentQuantity).isEqualTo(500.0)
+    }
+
+    @Test
     fun `CatalogStockState enum entries should be covered`() {
         val entries = CatalogStockState.entries
         assertThat(entries).containsExactly(
@@ -136,9 +146,13 @@ class StandardCatalogAdapterTest {
             val vh = adapter.onCreateViewHolder(parentContainer, 0)
             adapter.onBindViewHolder(vh, 0)
 
-            // Click cardChip -> toggles selection
+            // Click cardChip 1 -> toggles selection true -> false
             vh.binding.cardChip.performClick()
             assertThat(entry.isSelected).isFalse()
+
+            // Click cardChip 2 -> toggles selection false -> true
+            vh.binding.cardChip.performClick()
+            assertThat(entry.isSelected).isTrue()
 
             // Click increment -> increases quantity
             vh.binding.btnIncrement.performClick()
@@ -156,16 +170,23 @@ class StandardCatalogAdapterTest {
     }
 
     @Test
-    fun `StandardCatalogAdapter null edit listener and blank unit should bind gracefully`() {
+    fun `StandardCatalogAdapter null edit listener and null or spaces unit should bind gracefully`() {
         val adapterNoEdit = StandardCatalogAdapter(onSelectionChanged = {}, onEditIngredientClicked = null)
-        val itemBlankUnit = StandardCatalogItem(name = "Œufs", defaultUnit = "")
-        val entry = SelectedCatalogEntry(item = itemBlankUnit, isSelected = true, currentQuantity = 6.0)
+        val itemNullUnit = StandardCatalogItem(name = "Œufs", defaultUnit = null)
+        val itemSpaceUnit = StandardCatalogItem(name = "Lait", defaultUnit = "   ")
 
-        adapterNoEdit.submitList(listOf(entry)) {
-            val vh = adapterNoEdit.onCreateViewHolder(parentContainer, 0)
-            adapterNoEdit.onBindViewHolder(vh, 0)
+        val entryNullUnit = SelectedCatalogEntry(item = itemNullUnit, isSelected = true, currentQuantity = 6.0)
+        val entrySpaceUnit = SelectedCatalogEntry(item = itemSpaceUnit, isSelected = true, currentQuantity = 1.0)
 
-            assertThat(vh.binding.tvQuantity.text.toString()).isEqualTo("6")
+        adapterNoEdit.submitList(listOf(entryNullUnit, entrySpaceUnit)) {
+            val vh0 = adapterNoEdit.onCreateViewHolder(parentContainer, 0)
+            adapterNoEdit.onBindViewHolder(vh0, 0)
+            assertThat(vh0.binding.tvQuantity.text.toString()).isEqualTo("6")
+            vh0.binding.btnEditIngredient.performClick()
+
+            val vh1 = adapterNoEdit.onCreateViewHolder(parentContainer, 0)
+            adapterNoEdit.onBindViewHolder(vh1, 1)
+            assertThat(vh1.binding.tvQuantity.text.toString()).isEqualTo("1")
         }
     }
 

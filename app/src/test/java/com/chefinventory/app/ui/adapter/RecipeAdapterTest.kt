@@ -29,7 +29,7 @@ class RecipeAdapterTest {
     }
 
     @Test
-    fun `RecipeAdapter should bind recipe info and handle click`() {
+    fun `RecipeAdapter should bind recipe info imageUri and handle click`() {
         var clickedRecipe: Recipe? = null
         val adapter = RecipeAdapter { clickedRecipe = it }
 
@@ -41,6 +41,7 @@ class RecipeAdapterTest {
             kcalPerServing = 350,
             category = "Dessert",
             nutritionInfo = "Glucides: 45g",
+            imageUri = "file:///tmp/tarte.jpg",
             updatedAt = 1000L
         )
 
@@ -61,26 +62,29 @@ class RecipeAdapterTest {
     }
 
     @Test
-    fun `RecipeAdapter should bind recipe with blank category and nutritionInfo`() {
+    fun `RecipeAdapter should bind category only or nutritionInfo only or blank category and prep cook elvis`() {
         val adapter = RecipeAdapter {}
-        val recipe = Recipe(
-            id = 20L,
-            title = "Eau",
-            preparationTimeMinutes = null,
-            cookingTimeMinutes = null,
-            kcalPerServing = null,
-            category = null,
-            nutritionInfo = null,
-            updatedAt = 1000L
-        )
 
-        adapter.submitList(listOf(recipe))
+        // 1. Category only, prep only
+        val r1 = Recipe(id = 1L, title = "Soupe", category = "Entrée", nutritionInfo = null, preparationTimeMinutes = 15, cookingTimeMinutes = null)
+        // 2. NutritionInfo only, cook only
+        val r2 = Recipe(id = 2L, title = "Rôti", category = null, nutritionInfo = "Protéines: 30g", preparationTimeMinutes = null, cookingTimeMinutes = 45)
+        // 3. Spaces category and spaces nutritionInfo
+        val r3 = Recipe(id = 3L, title = "Eau", category = "   ", nutritionInfo = "   ", preparationTimeMinutes = null, cookingTimeMinutes = null)
 
-        val viewHolder = adapter.onCreateViewHolder(parentContainer, 0)
-        adapter.onBindViewHolder(viewHolder, 0)
+        adapter.submitList(listOf(r1, r2, r3)) {
+            val vh0 = adapter.onCreateViewHolder(parentContainer, 0)
+            adapter.onBindViewHolder(vh0, 0)
+            assertThat(vh0.binding.tvRecipeCategory.text.toString()).isEqualTo("Entrée")
 
-        assertThat(viewHolder.binding.tvRecipeTitle.text.toString()).isEqualTo("Eau")
-        assertThat(viewHolder.binding.tvRecipeCategory.text.toString()).isEmpty()
+            val vh1 = adapter.onCreateViewHolder(parentContainer, 0)
+            adapter.onBindViewHolder(vh1, 1)
+            assertThat(vh1.binding.tvRecipeCategory.text.toString()).isEqualTo("Protéines: 30g")
+
+            val vh2 = adapter.onCreateViewHolder(parentContainer, 0)
+            adapter.onBindViewHolder(vh2, 2)
+            assertThat(vh2.binding.tvRecipeCategory.text.toString()).isEmpty()
+        }
     }
 
     @Test

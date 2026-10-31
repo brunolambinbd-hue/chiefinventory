@@ -230,7 +230,6 @@ class EditIngredientActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val embedding = currentIngredient?.imageEmbedding
             val qtyVal = binding.etQuantity.text.toString().toDoubleOrNull()
             val thresholdVal = binding.etMinThreshold.text.toString().toDoubleOrNull() ?: (qtyVal ?: 0.0)
             val packVal = binding.etPackSize.text.toString().toDoubleOrNull() ?: 1.0
@@ -245,7 +244,6 @@ class EditIngredientActivity : AppCompatActivity() {
                 minThreshold = thresholdVal,
                 packSize = packVal,
                 imageUri = viewModel.imageUri.value?.toString() ?: currentIngredient?.imageUri,
-                imageEmbedding = embedding,
                 ocrText = extractedOcrText ?: currentIngredient?.ocrText,
                 locationId = selectedLocationId,
                 updatedAt = System.currentTimeMillis()

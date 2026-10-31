@@ -8,6 +8,7 @@ import com.chefinventory.app.model.RecipeIngredient
 import com.chefinventory.app.repo.LocationRepository
 import com.chefinventory.app.repo.RecipeRepository
 import com.google.common.truth.Truth.assertThat
+import com.parabd.lib.traceability.CoveredRequirement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -19,6 +20,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -53,7 +55,8 @@ class EditRecipeViewModelTest {
     }
 
     @Test
-    fun `loadRecipe and getIngredientsForRecipe should query recipeRepository`() = runTest {
+    @CoveredRequirement("6.1.1.9")
+    fun testLoadRecipeAndGetIngredientsForRecipe_QueriesRepository() = runTest {
         val recipe = Recipe(id = 10L, title = "Crêpes")
         whenever(mockRecipeRepo.getRecipeById(10L)).thenReturn(recipe)
 
@@ -68,7 +71,8 @@ class EditRecipeViewModelTest {
     }
 
     @Test
-    fun `setImageUri should update LiveData`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testSetImageUri_UpdatesLiveData() {
         val vm = EditRecipeViewModel(mockRecipeRepo, mockLocRepo)
         val uri = Uri.parse("file:///tmp/recipe.jpg")
 
@@ -77,8 +81,9 @@ class EditRecipeViewModelTest {
     }
 
     @Test
-    fun `insert should set recipeId on ingredients and save to repository`() = runTest {
-        whenever(mockRecipeRepo.insertRecipe(anyRecipe())).thenReturn(50L)
+    @CoveredRequirement("6.1.1.9")
+    fun testInsert_SetsRecipeIdOnIngredientsAndSavesToRepository() = runTest {
+        whenever(mockRecipeRepo.insertRecipe(any())).thenReturn(50L)
 
         val vm = EditRecipeViewModel(mockRecipeRepo, mockLocRepo)
         val recipe = Recipe(title = "Gaufres")
@@ -91,7 +96,8 @@ class EditRecipeViewModelTest {
     }
 
     @Test
-    fun `update should update recipe and ingredients`() = runTest {
+    @CoveredRequirement("6.1.1.9")
+    fun testUpdate_UpdatesRecipeAndIngredients() = runTest {
         val vm = EditRecipeViewModel(mockRecipeRepo, mockLocRepo)
         val recipe = Recipe(id = 30L, title = "Tarte")
         val ingr1 = RecipeIngredient(recipeId = 30L, ingredientName = "Pommes", quantityRequired = 3.0)
@@ -103,7 +109,8 @@ class EditRecipeViewModelTest {
     }
 
     @Test
-    fun `delete should delete recipe and ingredients`() = runTest {
+    @CoveredRequirement("6.1.1.9")
+    fun testDelete_DeletesRecipeAndIngredients() = runTest {
         val vm = EditRecipeViewModel(mockRecipeRepo, mockLocRepo)
         val recipe = Recipe(id = 30L, title = "Tarte")
 
@@ -113,7 +120,8 @@ class EditRecipeViewModelTest {
     }
 
     @Test
-    fun `extractUrlFromSource helper function should extract http and https URLs`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractUrlFromSource_ExtractsHttpAndHttpsUrls() {
         assertThat(com.chefinventory.app.ui.actvity.EditRecipeActivity.extractUrlFromSource(null)).isNull()
         assertThat(com.chefinventory.app.ui.actvity.EditRecipeActivity.extractUrlFromSource("   ")).isNull()
         assertThat(com.chefinventory.app.ui.actvity.EditRecipeActivity.extractUrlFromSource("Livre de Cuisine")).isNull()
@@ -124,6 +132,4 @@ class EditRecipeViewModelTest {
         val urlWithText = "Trouvé sur http://marmiton.org/recette.html par Jean"
         assertThat(com.chefinventory.app.ui.actvity.EditRecipeActivity.extractUrlFromSource(urlWithText)).isEqualTo("http://marmiton.org/recette.html")
     }
-
-    private fun anyRecipe(): Recipe = org.mockito.kotlin.any()
 }

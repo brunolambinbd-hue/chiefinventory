@@ -40,7 +40,6 @@ class FullScreenImageActivityTest {
             putExtra(FullScreenImageActivity.EXTRA_MATERIAL, "Test Material")
             putExtra(FullScreenImageActivity.EXTRA_RUN, "100 ex.")
             putExtra(FullScreenImageActivity.EXTRA_DIMENSIONS, "50x70cm")
-            putExtra(FullScreenImageActivity.EXTRA_IMAGE_SIGNATURE, byteArrayOf(1, 2, 3))
         }
 
         // WHEN: The activity is launched with the intent.
@@ -67,10 +66,6 @@ class FullScreenImageActivityTest {
         val yearText = "${context.getString(R.string.item_year_hint)}: 2024/7"
         Espresso.onView(ViewMatchers.withId(R.id.image_info_year))
             .check(ViewAssertions.matches(ViewMatchers.withText(yearText)))
-
-        // Check that the signature is displayed (as this is a debug/test build)
-        Espresso.onView(ViewMatchers.withId(R.id.debug_signature_info))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
         scenario.close()
     }

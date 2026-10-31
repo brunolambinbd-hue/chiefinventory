@@ -15,24 +15,23 @@ import org.robolectric.annotation.Config
 class IngredientTest {
 
     @Test
-    fun `Ingredient all properties getters componentN equals copy hashCode and toString should reach 100 percent coverage`() {
-        val bytes = byteArrayOf(1, 2)
+    fun testIngredient_AllProperties_GettersComponentNEqualsCopyHashCodeToString() {
         val i1 = Ingredient(
             id = 50L, name = "Beurre", quantity = 250.0, unit = "g", category = "Crémerie",
             expirationDate = 1000L, description = "Doux", supplementalInfo = "Extra",
-            imageUri = "uri", imageEmbedding = bytes, ocrText = "Beurre 250g", locationId = 1L,
+            imageUri = "uri", ocrText = "Beurre 250g", locationId = 1L,
             stockPolicy = "PERMANENT", minThreshold = 100.0, packSize = 1.0, updatedAt = 5000L
         )
         val i1Same = Ingredient(
             id = 50L, name = "Beurre", quantity = 250.0, unit = "g", category = "Crémerie",
             expirationDate = 1000L, description = "Doux", supplementalInfo = "Extra",
-            imageUri = "uri", imageEmbedding = bytes, ocrText = "Beurre 250g", locationId = 1L,
+            imageUri = "uri", ocrText = "Beurre 250g", locationId = 1L,
             stockPolicy = "PERMANENT", minThreshold = 100.0, packSize = 1.0, updatedAt = 5000L
         )
         val iNull = Ingredient(id = 0L, name = "")
 
         // Destructuring / componentN
-        val (id, name, qty, unit, cat, exp, desc, info, uri, emb, ocr) = i1
+        val (id, name, qty, unit, cat, exp, desc, info, uri, ocr) = i1
         assertThat(id).isEqualTo(50L)
         assertThat(name).isEqualTo("Beurre")
         assertThat(qty).isEqualTo(250.0)
@@ -42,15 +41,14 @@ class IngredientTest {
         assertThat(desc).isEqualTo("Doux")
         assertThat(info).isEqualTo("Extra")
         assertThat(uri).isEqualTo("uri")
-        assertThat(emb).isEqualTo(bytes)
         assertThat(ocr).isEqualTo("Beurre 250g")
 
-        // Component 12 to 16
-        assertThat(i1.component12()).isEqualTo(1L)
-        assertThat(i1.component13()).isEqualTo("PERMANENT")
-        assertThat(i1.component14()).isEqualTo(100.0)
-        assertThat(i1.component15()).isEqualTo(1.0)
-        assertThat(i1.component16()).isEqualTo(5000L)
+        // Component 11 to 15
+        assertThat(i1.component11()).isEqualTo(1L)
+        assertThat(i1.component12()).isEqualTo("PERMANENT")
+        assertThat(i1.component13()).isEqualTo(100.0)
+        assertThat(i1.component14()).isEqualTo(1.0)
+        assertThat(i1.component15()).isEqualTo(5000L)
 
         // Equals branches
         assertThat(i1.equals(i1)).isTrue()
@@ -69,7 +67,6 @@ class IngredientTest {
         assertThat(i1.copy(description = "Autre")).isNotEqualTo(i1)
         assertThat(i1.copy(supplementalInfo = "Autre")).isNotEqualTo(i1)
         assertThat(i1.copy(imageUri = "Autre")).isNotEqualTo(i1)
-        assertThat(i1.copy(imageEmbedding = null)).isNotEqualTo(i1)
         assertThat(i1.copy(ocrText = "Autre")).isNotEqualTo(i1)
         assertThat(i1.copy(locationId = 99L)).isNotEqualTo(i1)
         assertThat(i1.copy(stockPolicy = "ON_DEMAND")).isNotEqualTo(i1)
@@ -81,8 +78,7 @@ class IngredientTest {
     }
 
     @Test
-    fun `Ingredient Parcelable with non-null and null fields should cover all writeToParcel and CREATOR branches`() {
-        val bytes = byteArrayOf(1, 2, 3)
+    fun testIngredientParcelable_WithNonNullAndNullFields_CoversWriteToParcelAndCreator() {
         val iFull = Ingredient(
             id = 50L,
             name = "Beurre doux",
@@ -93,7 +89,6 @@ class IngredientTest {
             description = "Beurre AOP Charentes-Poitou",
             supplementalInfo = "Doux 82% MG",
             imageUri = "file:///tmp/beurre.jpg",
-            imageEmbedding = bytes,
             ocrText = "Beurre doux 250g",
             locationId = 1L,
             stockPolicy = "PERMANENT",
@@ -112,7 +107,6 @@ class IngredientTest {
             description = null,
             supplementalInfo = null,
             imageUri = null,
-            imageEmbedding = null,
             ocrText = null,
             locationId = null,
             stockPolicy = "ON_DEMAND",
@@ -143,7 +137,6 @@ class IngredientTest {
         assertThat(createdFull.description).isEqualTo("Beurre AOP Charentes-Poitou")
         assertThat(createdFull.supplementalInfo).isEqualTo("Doux 82% MG")
         assertThat(createdFull.imageUri).isEqualTo("file:///tmp/beurre.jpg")
-        assertThat(createdFull.imageEmbedding).isEqualTo(bytes)
         assertThat(createdFull.ocrText).isEqualTo("Beurre doux 250g")
         assertThat(createdFull.locationId).isEqualTo(1L)
         assertThat(createdFull.stockPolicy).isEqualTo("PERMANENT")
@@ -167,7 +160,6 @@ class IngredientTest {
         assertThat(createdNulls.description).isNull()
         assertThat(createdNulls.supplementalInfo).isNull()
         assertThat(createdNulls.imageUri).isNull()
-        assertThat(createdNulls.imageEmbedding).isNull()
         assertThat(createdNulls.ocrText).isNull()
         assertThat(createdNulls.locationId).isNull()
         assertThat(createdNulls.stockPolicy).isEqualTo("ON_DEMAND")
@@ -182,30 +174,29 @@ class IngredientTest {
     }
 
     @Test
-    fun `Ingredient default parameters equals with null vs non-null ByteArray and copy with nulls`() {
-        // Default constructor parameters (line 37 stockPolicy = "PERMANENT")
+    fun testIngredient_DefaultParametersAndCopyWithNulls() {
+        // Default constructor parameters (stockPolicy = "PERMANENT")
         val iDef = Ingredient(name = "Farine")
         assertThat(iDef.stockPolicy).isEqualTo("PERMANENT")
         assertThat(iDef.packSize).isEqualTo(1.0)
         assertThat(iDef.quantity).isNull()
 
-        val bytes1 = byteArrayOf(1, 2)
-        val bytesDiff = byteArrayOf(9, 9)
-
-        val iWithEmb1 = Ingredient(id = 1L, name = "A", imageEmbedding = bytes1)
-        val iWithEmb1Same = Ingredient(id = 1L, name = "A", imageEmbedding = bytes1) // Same ByteArray reference
-        val iWithEmbDiff = Ingredient(id = 1L, name = "A", imageEmbedding = bytesDiff)
-        val iNullEmb = Ingredient(id = 1L, name = "A", imageEmbedding = null)
-
-        // ByteArray equals branches (line 42)
-        assertThat(iWithEmb1).isEqualTo(iWithEmb1Same)
-        assertThat(iWithEmb1).isNotEqualTo(iWithEmbDiff)
-        assertThat(iWithEmb1).isNotEqualTo(iNullEmb) // non-null vs null
-        assertThat(iNullEmb).isNotEqualTo(iWithEmb1) // null vs non-null
-
-        // Copy with nulls for description and ocrText (lines 31 & 35)
+        // Copy with nulls for description and ocrText
         val iWithTexts = Ingredient(name = "B", description = "Desc", ocrText = "OCR")
         assertThat(iWithTexts.copy(description = null)).isNotEqualTo(iWithTexts)
         assertThat(iWithTexts.copy(ocrText = null)).isNotEqualTo(iWithTexts)
+    }
+
+    @Test
+    fun testIngredient_EffectiveQuantityMinThresholdPackSize_HandlesNullsAndInvalidValues() {
+        val ingrFull = Ingredient(name = "Beurre", quantity = 250.0, minThreshold = 100.0, packSize = 6.0)
+        assertThat(ingrFull.effectiveQuantity).isEqualTo(250.0)
+        assertThat(ingrFull.effectiveMinThreshold).isEqualTo(100.0)
+        assertThat(ingrFull.effectivePackSize).isEqualTo(6.0)
+
+        val ingrNulls = Ingredient(name = "Sel", quantity = null, minThreshold = null, packSize = -1.0)
+        assertThat(ingrNulls.effectiveQuantity).isEqualTo(0.0)
+        assertThat(ingrNulls.effectiveMinThreshold).isEqualTo(0.0)
+        assertThat(ingrNulls.effectivePackSize).isEqualTo(1.0)
     }
 }

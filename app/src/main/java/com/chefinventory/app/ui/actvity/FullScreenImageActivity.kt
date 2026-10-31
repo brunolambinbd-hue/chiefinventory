@@ -1,6 +1,5 @@
 package com.chefinventory.app.ui.actvity
 
-import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -9,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import coil.load
 import com.chefinventory.app.R
 import com.chefinventory.app.databinding.ActivityFullScreenImageBinding
-import com.chefinventory.app.utils.SignatureUtils
 
 /**
  * An activity to display a single image in full-screen, with overlayed item details.
@@ -43,7 +41,6 @@ class FullScreenImageActivity : AppCompatActivity() {
         val run = intent.getStringExtra(EXTRA_RUN)
         val dimensions = intent.getStringExtra(EXTRA_DIMENSIONS)
         val description = intent.getStringExtra(EXTRA_DESCRIPTION)
-        val signature = intent.getByteArrayExtra(EXTRA_IMAGE_SIGNATURE)
 
         // Load the image using Coil
         if (imageUriString != null) {
@@ -55,13 +52,13 @@ class FullScreenImageActivity : AppCompatActivity() {
 
         // Populate the info overlay
         binding.imageInfoTitle.text = title
-        
+
         fun setInfoText(textView: TextView, labelResId: Int, value: String?) {
             if (value.isNullOrBlank()) {
                 textView.visibility = View.GONE
             } else {
-                textView.visibility = View.VISIBLE
                 textView.text = getString(R.string.generic_field_format, getString(labelResId), value)
+                textView.visibility = View.VISIBLE
             }
         }
 
@@ -73,9 +70,9 @@ class FullScreenImageActivity : AppCompatActivity() {
         setInfoText(binding.imageInfoDimensions, R.string.item_dimensions_hint, dimensions)
 
         var yearMonthText = ""
-        if (year != 0) {
+        if (year > 0) {
             yearMonthText += getString(R.string.item_year_hint) + ": " + year.toString()
-            if (month != 0) {
+            if (month in 1..12) {
                 yearMonthText += "/$month"
             }
         }
@@ -85,15 +82,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         binding.imageInfoDescription.text = description
         binding.imageInfoDescription.visibility = if (description.isNullOrBlank()) View.GONE else View.VISIBLE
 
-        // Show debug info only in debug builds
-        val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        if (isDebuggable) {
-            val sigInfo = SignatureUtils.formatSignaturePreview(this, signature)
-            binding.debugSignatureInfo.text = getString(R.string.debug_signature_info_fullscreen, sigInfo)
-            binding.debugSignatureInfo.visibility = View.VISIBLE
-        } else {
-            binding.debugSignatureInfo.visibility = View.GONE
-        }
+        binding.debugSignatureInfo.visibility = View.GONE
 
         // Set up immersive mode toggle
         binding.fullScreenImageView.setOnClickListener {
@@ -108,11 +97,11 @@ class FullScreenImageActivity : AppCompatActivity() {
         if (areSystemBarsVisible) {
             // Hide bars
             binding.toolbar.visibility = View.GONE
-            binding.infoContainer.parent.let { if(it is View) it.visibility = View.GONE }
+            binding.infoContainer.parent.let { if (it is View) it.visibility = View.GONE }
         } else {
             // Show bars
             binding.toolbar.visibility = View.VISIBLE
-            binding.infoContainer.parent.let { if(it is View) it.visibility = View.VISIBLE }
+            binding.infoContainer.parent.let { if (it is View) it.visibility = View.VISIBLE }
         }
         areSystemBarsVisible = !areSystemBarsVisible
     }
@@ -137,7 +126,7 @@ class FullScreenImageActivity : AppCompatActivity() {
         const val EXTRA_EDITOR: String = "editor"
         /** Key for the Int extra that holds the item year. */
         const val EXTRA_YEAR: String = "year"
-        /** Key for the Int extra that holds the item month. */
+        /** Key for the String extra that holds the item month. */
         const val EXTRA_MONTH: String = "month"
         /** Key for the String extra that holds the item super-category. */
         const val EXTRA_SUPER_CATEGORY: String = "super_category"
@@ -151,7 +140,5 @@ class FullScreenImageActivity : AppCompatActivity() {
         const val EXTRA_DIMENSIONS: String = "dimensions"
         /** Key for the String extra that holds the item description. */
         const val EXTRA_DESCRIPTION: String = "description"
-        /** Key for the ByteArray extra that holds the item's image signature. */
-        const val EXTRA_IMAGE_SIGNATURE: String = "image_signature"
     }
 }

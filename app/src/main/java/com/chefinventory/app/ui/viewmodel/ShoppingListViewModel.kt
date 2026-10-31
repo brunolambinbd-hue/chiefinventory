@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class ShoppingListViewModel @JvmOverloads constructor(
+class ShoppingListViewModel(
     application: Application,
     private val ingredientDao: IngredientDao = AppDatabase.getDatabase(application).ingredientDao(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO

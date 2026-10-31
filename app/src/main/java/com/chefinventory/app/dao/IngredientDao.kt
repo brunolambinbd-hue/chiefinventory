@@ -37,9 +37,6 @@ interface IngredientDao {
     """)
     fun searchInLocation(query: String, locationId: Long): LiveData<List<Ingredient>>
 
-    @Query("SELECT * FROM ingredients WHERE imageEmbedding IS NOT NULL")
-    suspend fun getAllWithEmbeddings(): List<Ingredient>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(ingredient: Ingredient): Long
 

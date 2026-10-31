@@ -6,7 +6,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * A utility object for handling [Bitmap] related operations, particularly for use with MediaPipe.
@@ -30,7 +30,12 @@ object BitmapUtils {
     fun getBitmapFromUri(context: Context, uri: Uri): Bitmap? {
         return try {
             val originalBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri))
+                try {
+                    ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri))
+                } catch (_: Exception) {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                }
             } else {
                 @Suppress("DEPRECATION")
                 MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
@@ -43,7 +48,7 @@ object BitmapUtils {
                 originalBitmap.copy(Bitmap.Config.ARGB_8888, true)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to decode bitmap from URI: $uri", e)
+            LogManager.e(TAG, "Failed to decode bitmap from URI: $uri", e)
             null
         }
     }

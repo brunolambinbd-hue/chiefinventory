@@ -1,7 +1,7 @@
 package com.chefinventory.app.utils
 
+import com.parabd.lib.traceability.utils.LogManager
 import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 /**
  * Étape 1 du pipeline OCR : Normalisation des caractères, chiffres, fractions et symboles.
@@ -20,15 +20,31 @@ import java.util.regex.Pattern
  * 11. Nettoyage de la ponctuation finale parasite ([OcrRegexes.Normalizer.TRAILING_PUNCTUATION]).
  * 12. Effondrement des espaces multiples et retrait des espaces de bordure ([OcrRegexes.Normalizer.MULTIPLE_SPACES]).
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr1Normalizer {
 
-    /** Diacritiques et accents parasites par défaut chargés dynamiquement depuis [R.array.ocr_diacritic_repairs] (`ocr_step1_diacritic_repairs.xml`). */
-    internal val defaultDiacriticRepairs: List<String> by lazy {
-        try {
-            OcrVocabularyLoader.loadFromProjectResources().ocrDiacriticRepairs
+    private const val TAG = "Ocr1Normalizer"
+    private const val KEYWORD_INGREDIENTS = "ingrédients"
+    private const val KEYWORD_INSTRUCTIONS = "instructions"
+
+    /**
+     * Charge dynamiquement la liste des paires de réparations diacritiques depuis les ressources du projet.
+     *
+     * @param projectDir Le répertoire racine du projet à partir duquel localiser `res/values`.
+     * @return La liste des paires "fautif|correct", ou une liste vide en cas d'erreur.
+     */
+    internal fun loadDefaultDiacriticRepairs(projectDir: java.io.File = java.io.File(".")): List<String> {
+        return try {
+            OcrVocabularyLoader.loadFromProjectResources(projectDir).ocrDiacriticRepairs
         } catch (e: Exception) {
+            LogManager.e(TAG, "Failed to load default diacritic repairs", e)
             emptyList()
         }
+    }
+
+    /** Diacritiques et accents parasites par défaut chargés dynamiquement depuis `R.array.ocr_diacritic_repairs` (`ocr_step1_diacritic_repairs.xml`). */
+    internal val defaultDiacriticRepairs: List<String> by lazy {
+        loadDefaultDiacriticRepairs()
     }
 
     /**
@@ -44,7 +60,7 @@ object Ocr1Normalizer {
      * 7. **Suppression du bruit publicitaire & devises :** Élimine les dates (`14/12/94`), prix (`209 F`, `15.50 EUR`, `20 €`).
      * 8. **Correction OCR du chiffre '1' :** Restaure le chiffre `1` lorsqu'il est lu comme `|`, `!`, `i` ou `l` devant une lettre.
      * 9. **Fractions & Erreurs de nombres (Garde-fou `isDigit()`) :** Si la ligne contient un chiffre, convertit `I12` -> `1/2`, `112` -> `1/2`, `del` -> `de 1`.
-     * 10. **Conversion des diacritiques parasites (`ocr_step1_diacritic_repairs.xml`) :** Remplace les accents Unicode étrangers/vietnamiens (`ế` -> `é`, `ệ` -> `è`, `š` -> `s`).
+     * 10. **Conversion des diacritiques parasites (`ocr_step1_diacritic_repairs.xml`) :** Remplace les accents Unicode étrangers/vietnamiens (`ế` -> `é`, `ề` -> `è`, `š` -> `s`).
      * 11. **Corrections d'articles & liaisons d'apostrophes :** Normalise `1 e` -> `le`, `T'oignon` -> `l'oignon`, `jauned'oeuf` -> `jaune d'oeuf`.
      * 12. **Normalisation des unités de cuillères (Garde-fou `contains('c')`) :** Si la ligne contient 'c', convertit `cas` -> `c. à soupe`, `cac` -> `c. à café`.
      * 13. **Séparation Chiffre / Unité :** Sépare `500g` -> `500 g`, `1l` -> `1 l`.
@@ -58,11 +74,13 @@ object Ocr1Normalizer {
      */
     fun normalize(input: String, repairs: List<String> = emptyList(), diacriticRepairs: List<String> = emptyList()): String {
         // 1. Garde-fou d'entrée : chaîne vide ou blanche
-        if (input.isBlank()) return ""
+        if (input.isBlank()) {
+            return ""
+        }
         var text = input.trim()
 
         // 2. Sélection de la table de diacritiques (reçue ou par défaut depuis diacritic_repairs.xml)
-        val activeDiacritics = if (diacriticRepairs.isNotEmpty()) diacriticRepairs else defaultDiacriticRepairs
+        val activeDiacritics = diacriticRepairs.ifEmpty { defaultDiacriticRepairs }
 
         // 3. Application des réparations orthographiques issues de ocr_repairs.xml
         text = applySpellingRepairs(text, repairs)
@@ -70,7 +88,11 @@ object Ocr1Normalizer {
         // 4. Protection des mots-clés d'en-tête de section ("INGRÉDIENTS", "INSTRUCTIONS") contre la confusion 'I' -> '1'
         text = text.replace(OcrRegexes.Normalizer.PROTECTED_KEYWORDS) { match ->
             val suffix = match.groupValues[1]
-            if (suffix.lowercase().startsWith("ng")) "ingrédients" else "instructions"
+            if (suffix.lowercase().startsWith("ng")) {
+                KEYWORD_INGREDIENTS
+            } else {
+                KEYWORD_INSTRUCTIONS
+            }
         }
 
         // 5. Suppression du préfixe 't' parasite devant un chiffre (ex: "t 10 min" -> "10 min")
@@ -95,7 +117,7 @@ object Ocr1Normalizer {
 
         // 10. Conversion des diacritiques et accents parasites Unicode (diacritic_repairs.xml)
         text = applyDiacriticRepairs(text, activeDiacritics)
-        
+
         // 11. Corrections des articles ("1 e" -> "le") et liaisons linguistiques ("d' orange" -> "d'orange")
         OcrRegexes.Normalizer.ARTICLE_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         OcrRegexes.Normalizer.LINGUISTIC_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
@@ -126,16 +148,19 @@ object Ocr1Normalizer {
      * @param diacriticRepairs La liste des paires "fautif|correct" (ex: "ế|é").
      * @return Le texte nettoyé de ses diacritiques parasites.
      */
-    private fun applyDiacriticRepairs(text: String, diacriticRepairs: List<String>): String {
-        if (diacriticRepairs.isEmpty()) return text
-        var result = text
-        for (repair in diacriticRepairs) {
-            val parts = repair.split("|")
-            if (parts.size == 2) {
-                result = result.replace(parts[0], parts[1])
+    internal fun applyDiacriticRepairs(text: String, diacriticRepairs: List<String>): String {
+        if (diacriticRepairs.isEmpty()) {
+            return text
+        } else {
+            var result = text
+            for (repair in diacriticRepairs) {
+                val parts = repair.split("|")
+                if (parts.size == 2) {
+                    result = result.replace(parts[0], parts[1])
+                }
             }
+            return result
         }
-        return result
     }
 
     /**
@@ -146,17 +171,20 @@ object Ocr1Normalizer {
      * @return Le texte réparé.
      */
     internal fun applySpellingRepairs(text: String, repairs: List<String>): String {
-        if (!text.any { it.isLetter() }) return text
-        var result = text
-        for (repair in repairs) {
-            val parts = repair.split("|")
-            if (parts.size == 2) {
-                val wrong = parts[0].trim().replace("\\'", "'")
-                val correct = parts[1].trim().replace("\\'", "'")
-                val pattern = OcrRegexes.getSpellingRepairPattern(wrong)
-                result = pattern.matcher(result).replaceAll(Matcher.quoteReplacement(correct))
+        if (!text.any { it.isLetter() }) {
+            return text
+        } else {
+            var result = text
+            for (repair in repairs) {
+                val parts = repair.split("|")
+                if (parts.size == 2) {
+                    val wrong = parts[0].trim().replace("\\'", "'")
+                    val correct = parts[1].trim().replace("\\'", "'")
+                    val pattern = OcrRegexes.getSpellingRepairPattern(wrong)
+                    result = pattern.matcher(result).replaceAll(Matcher.quoteReplacement(correct))
+                }
             }
+            return result
         }
-        return result
     }
 }

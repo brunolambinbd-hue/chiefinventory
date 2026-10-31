@@ -1,39 +1,58 @@
 package com.chefinventory.app.utils
 
-import java.io.File
-import javax.xml.parsers.DocumentBuilderFactory
+import com.parabd.lib.traceability.utils.LogManager
+import com.parabd.lib.traceability.utils.uException
 import org.w3c.dom.Element
 import org.w3c.dom.Node
+import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
 
 /**
- * Utility to load production [OcrVocabulary] directly from the Android XML resource files (in `res/values/`).
+ * Utility responsible for loading all vocabulary dictionaries from XML files in `src/main/res/values/`.
  * This enables local JVM unit tests to run as true non-regression tests using the real production data files
  * without requiring an Android emulator or Mockito mocks.
  */
-@Suppress("IfThenToElvis", "FoldInitializerAndIfNull", "kotlin:S6529")
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object OcrVocabularyLoader {
 
-    private fun getList(map: Map<String, List<String>>, key: String): List<String> {
+    private const val TAG = "OcrVocabularyLoader"
+
+    @Volatile
+    private var cachedDefaultVocabulary: OcrVocabulary? = null
+
+    internal fun getList(map: Map<String, List<String>>, key: String): List<String> {
         val list = map[key]
-        return if (list != null) list else emptyList()
+        if (list != null) {
+            return list
+        }
+        return emptyList()
     }
 
-    private fun getStringVal(map: Map<String, String>, key: String): String {
+    internal fun getStringVal(map: Map<String, String>, key: String): String {
         val str = map[key]
-        return if (str != null) str else ""
+        if (str != null) {
+            return str
+        }
+        return ""
     }
 
     /**
      * Finds and parses all XML resource files in `src/main/res/values/` starting from [projectDir].
+     * Uses in-memory caching for default project root calls.
+     *
+     * @param projectDir The root project directory from which to locate `res/values`.
      * @return An [OcrVocabulary] populated with the actual production resource data.
      * @throws IllegalStateException If the 'res/values' directory cannot be located.
      */
     fun loadFromProjectResources(projectDir: File = File(".")): OcrVocabulary {
+        if ((projectDir.path == ".") && (cachedDefaultVocabulary != null)) {
+            return cachedDefaultVocabulary!!
+        }
+
         val resDir = findResValuesDir(projectDir)
         if (resDir == null) {
             val errorMsg = "Could not locate 'res/values' directory from: ${projectDir.absolutePath}"
-            com.parabd.lib.traceability.utils.LogManager.e("OcrVocabularyLoader", errorMsg)
-            throw IllegalStateException(errorMsg)
+            throw LogManager.uException(TAG, errorMsg)
         }
 
         val stringArrays = mutableMapOf<String, List<String>>()
@@ -46,7 +65,7 @@ object OcrVocabularyLoader {
             }
         }
 
-        return OcrVocabulary(
+        val vocabulary = OcrVocabulary(
             stepActionKeywords = getList(stringArrays, "step_action_keywords"),
             commonIngredientsNoQty = getList(stringArrays, "common_ingredients_no_qty"),
             excludedOcrKeywords = getList(stringArrays, "excluded_ocr_keywords"),
@@ -81,8 +100,24 @@ object OcrVocabularyLoader {
             priceCategoriesLow = getList(stringArrays, "price_categories_low"),
             priceCategoriesMedium = getList(stringArrays, "price_categories_medium"),
             priceCategoriesHigh = getList(stringArrays, "price_categories_high"),
-            ingredientConnectors = getList(stringArrays, "ingredient_connectors")
+            ingredientConnectors = getList(stringArrays, "ingredient_connectors"),
+            protectedSectionHeaders = getList(stringArrays, "ocr_protected_section_headers"),
+            timeHeaderPrefixes = getList(stringArrays, "ocr_time_header_prefixes"),
+            timeHeaderKeywords = getList(stringArrays, "ocr_time_header_keywords"),
         )
+
+        if (projectDir.path == ".") {
+            cachedDefaultVocabulary = vocabulary
+        }
+
+        return vocabulary
+    }
+
+    /**
+     * Resets the internal vocabulary cache (used for unit testing).
+     */
+    internal fun clearCache() {
+        cachedDefaultVocabulary = null
     }
 
     private fun findResValuesDir(startDir: File): File? {
@@ -90,22 +125,15 @@ object OcrVocabularyLoader {
             File(startDir, "src/main/res/values"),
             File(startDir, "app/src/main/res/values"),
             File(startDir, "../app/src/main/res/values"),
-            File(startDir, "../../app/src/main/res/values")
+            File(startDir, "../../app/src/main/res/values"),
         )
-        for (dir in candidates) {
-            if (dir.exists()) {
-                if (dir.isDirectory) {
-                    return dir
-                }
-            }
-        }
-        return null
+        return candidates.firstOrNull { it.isDirectory }
     }
 
     internal fun parseXmlResourceFile(
         file: File,
         stringArrays: MutableMap<String, List<String>>,
-        strings: MutableMap<String, String>
+        strings: MutableMap<String, String>,
     ) {
         try {
             val dbFactory = DocumentBuilderFactory.newInstance()
@@ -139,7 +167,7 @@ object OcrVocabularyLoader {
                 }
             }
         } catch (e: Exception) {
-            com.parabd.lib.traceability.utils.LogManager.e("OcrVocabularyLoader", "Error parsing XML resource file ${file.name}: ${e.message}", e)
+            LogManager.e(TAG, "Error parsing XML resource file ${file.name}: ${e.message}", e)
         }
     }
 }

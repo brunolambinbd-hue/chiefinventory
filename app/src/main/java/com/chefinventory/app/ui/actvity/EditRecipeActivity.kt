@@ -93,6 +93,17 @@ class EditRecipeActivity : AppCompatActivity() {
         binding.btnScanOcr.setOnClickListener { runOcr() }
         binding.btnSave.setOnClickListener { saveRecipe() }
         binding.btnDelete.setOnClickListener { showDeleteConfirmation() }
+        binding.ivRecipe.setOnClickListener {
+            val uriStr = lastImageUri?.toString() ?: currentRecipe?.imageUri
+            if (!uriStr.isNullOrBlank()) {
+                val intent = Intent(this, FullScreenImageActivity::class.java).apply {
+                    putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, uriStr)
+                    putExtra(FullScreenImageActivity.EXTRA_TITLE, binding.etTitle.text.toString().ifBlank { currentRecipe?.title ?: "" })
+                    putExtra(FullScreenImageActivity.EXTRA_DESCRIPTION, binding.etInstructions.text.toString().ifBlank { currentRecipe?.instructions ?: "" })
+                }
+                startActivity(intent)
+            }
+        }
     }
 
     private fun imageGallery() {

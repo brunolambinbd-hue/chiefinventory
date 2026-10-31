@@ -124,9 +124,7 @@ class StandardCatalogAdapter(
         }
 
         if (onEditIngredientClicked != null) {
-            binding.btnEditIngredient.setOnClickListener {
-                onEditIngredientClicked.invoke(entry.item)
-            }
+            binding.btnEditIngredient.setOnClickListener { onEditIngredientClicked.invoke(entry.item) }
         } else {
             binding.btnEditIngredient.setOnClickListener(null)
         }

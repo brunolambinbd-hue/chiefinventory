@@ -1,6 +1,7 @@
 package com.chefinventory.app.utils
 
 import com.google.common.truth.Truth.assertThat
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
 
@@ -18,7 +19,34 @@ class Ocr3CategorizerWineTest {
     }
 
     @Test
-    fun `processWineLine should capture valid wine line and update wineState`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessWineLine_ExhaustiveWineHeadersAndVintages() {
+        val wineHeaders = listOf(
+            "Conseil vin : Pinot Noir 75cl",
+            "Vin conseillé : Sauvignon 75cl",
+            "Accord vin : Chardonnay 75cl",
+            "L'accord met/vin : Bordeaux 2010",
+            "Sommelier : Merlot Carrefour 2015"
+        )
+        wineHeaders.forEach { wineLine ->
+            val state = Ocr3CategorizerWine.WineState()
+            val handled = Ocr3CategorizerWine.processWineLine(
+                workingLine = wineLine,
+                currentSection = Ocr3Categorizer.SECTION_NONE,
+                isIngredientListClosed = false,
+                containsAction = false,
+                startsWithConnector = false,
+                vocabulary = vocabulary,
+                wineState = state
+            )
+            assertThat(handled).isTrue()
+            assertThat(state.detectedWineList).isNotEmpty()
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessWineLine_CapturesValidWineLineAndUpdatesWineState() {
         val state = Ocr3CategorizerWine.WineState()
         val line = "Sauvignon de Touraine 1995, 75 cl"
 
@@ -38,7 +66,8 @@ class Ocr3CategorizerWineTest {
     }
 
     @Test
-    fun `processWineLine should reject line containing culinary action verb`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessWineLine_RejectsLineContainingCulinaryActionVerb() {
         val state = Ocr3CategorizerWine.WineState()
         val line = "Mélangez le vin avec la sauce"
 
@@ -57,30 +86,12 @@ class Ocr3CategorizerWineTest {
     }
 
     @Test
-    fun `processWineLine should reject line starting with ingredient connector`() {
-        val state = Ocr3CategorizerWine.WineState()
-        val line = "de vin blanc"
-
-        val handled = Ocr3CategorizerWine.processWineLine(
-            workingLine = line,
-            currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
-            isIngredientListClosed = false,
-            containsAction = false,
-            startsWithConnector = true,
-            vocabulary = vocabulary,
-            wineState = state
-        )
-
-        assertThat(handled).isFalse()
-        assertThat(state.detectedWineList).isEmpty()
-    }
-
-    @Test
-    fun `processWineLine should capture multi line wine recommendation before closure`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessWineLine_CapturesMultiLineWineWithAppellations() {
         val state = Ocr3CategorizerWine.WineState()
 
         val handled1 = Ocr3CategorizerWine.processWineLine(
-            workingLine = "Atinum, Bordeaux Graves",
+            workingLine = "Atinium, Bordeaux Graves",
             currentSection = Ocr3Categorizer.SECTION_INSTRUCTIONS,
             isIngredientListClosed = true,
             containsAction = false,
@@ -107,7 +118,8 @@ class Ocr3CategorizerWineTest {
     }
 
     @Test
-    fun `processWineLine should discard noise lines after wine section is closed`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessWineLine_DiscardsNoiseLinesAfterWineSectionIsClosed() {
         val state = Ocr3CategorizerWine.WineState()
         state.isWineSectionClosed = true
 

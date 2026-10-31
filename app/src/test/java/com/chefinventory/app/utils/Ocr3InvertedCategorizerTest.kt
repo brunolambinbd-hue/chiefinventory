@@ -1,6 +1,7 @@
 package com.chefinventory.app.utils
 
 import com.google.common.truth.Truth.assertThat
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
 
@@ -16,12 +17,82 @@ class Ocr3InvertedCategorizerTest {
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
-    /**
-     * Vérifie que le détecteur identifie le scan de Chits de concombre comme une recette inversée (Type 3)
-     * et retourne le titre factice "Recette avec instructions en premier" pour la phase 1.
-     */
     @Test
-    fun `isInvertedRecipe should return true and categorizeInvertedRecipe should return dummy title for Chits de concombre`() {
+    @CoveredRequirement("6.1.1.9")
+    fun testIsInvertedRecipe_EmptyInput_ReturnsFalse() {
+        assertThat(Ocr3InvertedCategorizer.isInvertedRecipe(emptyList(), vocabulary)).isFalse()
+        assertThat(Ocr3InvertedCategorizer.isInvertedRecipe(listOf("   "), vocabulary)).isFalse()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testCategorizeInvertedRecipe_DefaultParametersAndSourceExtraction() {
+        val lines = listOf(
+            "Tarte aux Fraises",
+            "1) Cuire la pâte à blanc pendant 15 minutes.",
+            "POUR 4 PERSONNES",
+            "250 g de fraises",
+            "Hôtel Hilton",
+            "Bordeaux 75cl"
+        )
+
+        val result = Ocr3InvertedCategorizer.categorizeInvertedRecipe(lines, vocabulary)
+        assertThat(result.rawIngredientsList).contains("250 g de fraises")
+        assertThat(result.detectedSourceList).contains("Hôtel Hilton")
+        assertThat(result.detectedWineList).contains("Bordeaux 75cl")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testCategorizeInvertedRecipe_TwoLineWineHeader_WorkingScenario() {
+        val lines = listOf(
+            "1. Mélanger la pâte.",
+            "4 portions",
+            "200 g de sucre",
+            "Vin conseillé :",
+            "Pinot Noir 75cl"
+        )
+
+        val result = Ocr3InvertedCategorizer.categorizeInvertedRecipe(lines, vocabulary)
+        assertThat(result.rawIngredientsList).contains("200 g de sucre")
+        assertThat(result.detectedWineList).contains("Pinot Noir 75cl")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testSingleLineWineHeaderDropBug_ReproducesFailure() {
+        val lines = listOf(
+            "1. Mélanger la farine avec les oeufs.",
+            "POUR 4 PERSONNES",
+            "200 g de farine",
+            "3 oeufs",
+            "Vin conseillé : Bordeaux 75cl"
+        )
+
+        val result = Ocr3InvertedCategorizer.categorizeInvertedRecipe(lines, vocabulary)
+
+        // Single-line wine recommendation "Vin conseillé : Bordeaux 75cl"
+        assertThat(result.detectedWineList).contains("Bordeaux 75cl")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testCategorizeInvertedRecipe_SectionResetOnHeader() {
+        val lines = listOf(
+            "• Couper les pommes.",
+            "POUR 4 PERSONNES",
+            "3 pommes",
+            "COMPOSITION :",
+            "100 g de sucre"
+        )
+
+        val result = Ocr3InvertedCategorizer.categorizeInvertedRecipe(lines, vocabulary)
+        assertThat(result.rawIngredientsList).contains("3 pommes")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testIsInvertedRecipe_ChitsDeConcombre() {
         val ocrText = """
             Chits de concombre au: eus de truite
             1) Découpez deux grands Çons de 1/2 cm dans le concombre.
@@ -44,30 +115,29 @@ class Ocr3InvertedCategorizerTest {
         """.trimIndent()
 
         val isInv = Ocr3InvertedCategorizer.isInvertedRecipe(ocrText.lines(), vocabulary)
-        System.err.println("DEBUG IS_INVERTED = " + Ocr3InvertedCategorizer.isInvertedRecipe(ocrText.lines(), vocabulary))
-        val result = RecipeOcrParser.parse(ocrText, vocabulary)
-        System.err.println("DEBUG RESULT TITLE = " + result.title)
+        assertThat(isInv).isTrue()
 
-        // Validation de l'aiguillage du Type 3 et du titre réel extrait
-        System.err.println("=== TEST INSTRUCTIONS RESULT ===\n" + result.instructions)
+        val result = RecipeOcrParser.parse(ocrText, vocabulary)
         assertThat(result.title).ignoringCase().contains("Puits de concombre aux œufs de truite")
         assertThat(result.ingredients).ignoringCase().contains("1 grand concombre")
         assertThat(result.instructions).ignoringCase().contains("Découpez deux grands")
     }
 
-    /**
-     * Vérifie que le détecteur renvoie false pour une recette classique de Type 1 (ingrédients en premier).
-     */
     @Test
-    fun `isInvertedRecipe should return false for classic Type 1 recipe`() {
-        val lines = listOf(
+    @CoveredRequirement("6.1.1.9")
+    fun testIsInvertedRecipe_ReturnsFalseForExplicitHeaders() {
+        val lines1 = listOf(
             "INGRÉDIENTS",
             "200 g de farine",
-            "100 g de beurre",
-            "INSTRUCTIONS",
-            "Mélanger la farine."
+            "100 g de beurre"
         )
+        assertThat(Ocr3InvertedCategorizer.isInvertedRecipe(lines1, vocabulary)).isFalse()
 
-        assertThat(Ocr3InvertedCategorizer.isInvertedRecipe(lines, vocabulary)).isFalse()
+        val lines2 = listOf(
+            "COMPOSITION",
+            "200 g de farine",
+            "100 g de beurre"
+        )
+        assertThat(Ocr3InvertedCategorizer.isInvertedRecipe(lines2, vocabulary)).isFalse()
     }
 }
