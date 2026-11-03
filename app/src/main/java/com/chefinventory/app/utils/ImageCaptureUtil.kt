@@ -6,6 +6,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -24,28 +25,29 @@ import java.io.File
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 open class ImageCaptureUtil(
     private val activity: AppCompatActivity,
+    registry: ActivityResultRegistry = activity.activityResultRegistry,
     private val onImageReady: (Uri?) -> Unit
 ) {
 
     internal var photoUri: Uri? = null
 
     // 1. Cropping Launcher
-    private val cropImageLauncher = activity.registerForActivityResult(CropImageContract()) { result ->
+    private val cropImageLauncher = registry.register("crop_image_key", activity, CropImageContract()) { result ->
         handleCropResult(result)
     }
 
     // 2. Camera Launcher
-    private val takePictureLauncher = activity.registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+    private val takePictureLauncher = registry.register("take_picture_key", activity, ActivityResultContracts.TakePicture()) { success ->
         handleCameraResult(success)
     }
 
     // 3. File Picker Launcher (Using OpenDocument for better access to Downloads)
-    private val pickFileLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+    private val pickFileLauncher = registry.register("pick_file_key", activity, ActivityResultContracts.OpenDocument()) { uri ->
         handlePickFileResult(uri)
     }
 
     // 4. Permission Launcher
-    private val requestPermissionLauncher = activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+    private val requestPermissionLauncher = registry.register("request_permission_key", activity, ActivityResultContracts.RequestPermission()) { isGranted ->
         handlePermissionResult(isGranted)
     }
 
@@ -118,9 +120,14 @@ open class ImageCaptureUtil(
     /** Legacy entry point. */
     fun start(): Unit = startCamera()
 
+    internal open fun getUriForFileSafely(activity: AppCompatActivity, authority: String, file: File): Uri {
+        return FileProvider.getUriForFile(activity, authority, file)
+    }
+
     internal open fun getFileProviderUri(file: File): Uri {
+        val authority = "${activity.applicationContext.packageName}.fileprovider"
         return try {
-            FileProvider.getUriForFile(activity, "${activity.applicationContext.packageName}.fileprovider", file)
+            getUriForFileSafely(activity, authority, file)
         } catch (_: Exception) {
             Uri.fromFile(file)
         }

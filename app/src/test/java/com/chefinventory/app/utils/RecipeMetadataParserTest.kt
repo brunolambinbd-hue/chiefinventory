@@ -42,6 +42,25 @@ class RecipeMetadataParserTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_CuissonAndReposOrphanHeaders() {
+        val results1 = RawSections()
+        val resCuisson = RecipeMetadataParser.extractMetadata("Cuisson :", results1)
+        assertThat(resCuisson.isPureMetadata).isTrue()
+        assertThat(resCuisson.remainingLine).isEmpty()
+
+        val results2 = RawSections()
+        val resRepos = RecipeMetadataParser.extractMetadata("Repos :", results2)
+        assertThat(resRepos.isPureMetadata).isTrue()
+        assertThat(resRepos.remainingLine).isEmpty()
+
+        val results3 = RawSections()
+        val resPour = RecipeMetadataParser.extractMetadata("Pour", results3)
+        assertThat(resPour.isPureMetadata).isTrue()
+        assertThat(resPour.remainingLine).isEmpty()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testExtractMetadata_PriceAndBudgetRatings() {
         val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
 

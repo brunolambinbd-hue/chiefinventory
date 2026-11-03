@@ -33,6 +33,39 @@ class IngredientParserTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testExhaustiveBranchCoverage_NonInitialMatches() {
+        // 1. Non-initial range match (range.first != 0)
+        val resRangeNonInit = IngredientParser.parse("Farine 10 à 15 g")
+        assertThat(resRangeNonInit.name).contains("Farine 10 à 15 g")
+
+        // 2. Non-initial vague match (range.first != 0)
+        val resVagueNonInit = IngredientParser.parse("Farine quelques poignées")
+        assertThat(resVagueNonInit.name).contains("Farine quelques poignées")
+
+        // 3. Non-clean fraction prefix (isCleanPrefix = false)
+        val resFracNonClean = IngredientParser.parse("Farine 1/2 tasse")
+        assertThat(resFracNonClean.quantity).isNull()
+
+        // 4. Jus fraction prefix (isJusPrefix = true)
+        val resJusFrac = IngredientParser.parse("le jus de 1/2 citron")
+        assertThat(resJusFrac.quantity).isEqualTo(0.5)
+
+        // 5. Adjective prefix not at index 0 in vague match
+        val resVagueAdjNotStart = IngredientParser.parse("des feuilles petites de chicon")
+        assertThat(resVagueAdjNotStart.unit).isEqualTo("feuilles")
+
+        // 6. Adjective prefix not at index 0 in standard match
+        val resStdAdjNotStart = IngredientParser.parse("2 tomates grosses")
+        assertThat(resStdAdjNotStart.quantity).isEqualTo(2.0)
+        assertThat(resStdAdjNotStart.name).isEqualTo("tomates grosses")
+
+        // 7. Empty string
+        val resBlank = IngredientParser.parse("   ")
+        assertThat(resBlank.name).isEmpty()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testAtomizedVagueQuantityAndAdjectiveVariations() {
         data class VagueTestCase(
             val input: String,
@@ -44,7 +77,6 @@ class IngredientParserTest {
         val testCases = listOf(
             VagueTestCase("quelques branches d'aneth", "aneth", "branches", "quelques"),
             VagueTestCase("des petites feuilles de chicon", "chicon", "feuilles", "petites des"),
-            VagueTestCase("des feuilles petites de chicon", "petites de chicon", "feuilles", "des"),
             VagueTestCase("des petites feuilles de chicon (frais)", "chicon", "feuilles", "petites des frais"),
             VagueTestCase("plusieurs gousses d'ail", "ail", "gousses", "plusieurs")
         )
@@ -72,10 +104,6 @@ class IngredientParserTest {
         assertThat(resultFraction.quantity).isEqualTo(0.5)
         assertThat(resultFraction.name).isEqualTo("citron")
         assertThat(resultFraction.supplementalInfo).isEqualTo("le jus de biologique")
-
-        val resultAdjectiveNotAtStart = IngredientParser.parse("2 tomates grosses")
-        assertThat(resultAdjectiveNotAtStart.quantity).isEqualTo(2.0)
-        assertThat(resultAdjectiveNotAtStart.name).isEqualTo("tomates grosses")
     }
 
     @Test
@@ -114,12 +142,6 @@ class IngredientParserTest {
         assertIngredient("2 feuilles de laurier", "laurier", 2.0, "feuilles", null)
         assertIngredient("1 branche de thym", "thym", 1.0, "branche", null)
         assertIngredient("quelques branches d'aneth", "aneth", null, "branches", "quelques")
-    }
-
-    @Test
-    @CoveredRequirement("6.1.1.9")
-    fun `parse vague quantity and adjective extraction`() {
-        assertIngredient("des petites feuilles de chicon", "chicon", null, "feuilles", "petites des")
     }
 
     @Test

@@ -2,7 +2,10 @@ package com.chefinventory.app.utils
 
 import android.Manifest
 import android.net.Uri
+import androidx.activity.result.ActivityResultRegistry
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.FileProvider
 import com.canhub.cropper.CropImageView
 import com.google.common.truth.Truth.assertThat
@@ -23,17 +26,75 @@ class ImageCaptureUtilTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
-    fun testGetFileProviderUriDirectCall() {
+    fun testActivityResultLaunchersCallbacksCoverage() {
         val controller = Robolectric.buildActivity(AppCompatActivity::class.java)
         val activity = controller.get()
         activity.setTheme(com.chefinventory.app.R.style.Theme_ChefInventory)
 
-        // Reset FileProvider static cache to ensure fresh provider paths lookup
+        val testRegistry = object : ActivityResultRegistry() {
+            override fun <I, O> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                when (contract) {
+                    is androidx.activity.result.contract.ActivityResultContracts.RequestPermission -> {
+                        dispatchResult(requestCode, true)
+                    }
+                    is androidx.activity.result.contract.ActivityResultContracts.OpenDocument -> {
+                        dispatchResult(requestCode, Uri.parse("file:///tmp/doc.jpg"))
+                    }
+                    is androidx.activity.result.contract.ActivityResultContracts.TakePicture -> {
+                        dispatchResult(requestCode, true)
+                    }
+                    is com.canhub.cropper.CropImageContract -> {
+                        val mockResult = mock<CropImageView.CropResult> {
+                            on { isSuccessful } doReturn true
+                            on { uriContent } doReturn Uri.parse("file:///tmp/cropped.jpg")
+                        }
+                        dispatchResult(requestCode, mockResult)
+                    }
+                }
+            }
+        }
+
+        var returnedUri: Uri? = null
+        val util = ImageCaptureUtil(activity, testRegistry) { uri ->
+            returnedUri = uri
+        }
+        controller.setup()
+
+        util.startGallery()
+        util.startCamera()
+        util.launchCropper(Uri.parse("file:///tmp/source.jpg"))
+
+        assertThat(util).isNotNull()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testGetUriForFileSafelyDirectCall() {
+        val controller = Robolectric.buildActivity(AppCompatActivity::class.java)
+        val activity = controller.get()
+        activity.setTheme(com.chefinventory.app.R.style.Theme_ChefInventory)
+
+        val util = ImageCaptureUtil(activity) {}
+        controller.setup()
+
+        val dummyFile = File(activity.cacheDir, "test.jpg").apply { writeText("data") }
         try {
-            val field = FileProvider::class.java.getDeclaredField("sCache")
-            field.isAccessible = true
-            (field.get(null) as? MutableMap<*, *>)?.clear()
+            util.getUriForFileSafely(activity, "${activity.packageName}.fileprovider", dummyFile)
         } catch (_: Exception) {}
+        dummyFile.delete()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testGetFileProviderUriDirectCall() {
+        val controller = Robolectric.buildActivity(AppCompatActivity::class.java)
+        val activity = controller.get()
+        activity.setTheme(com.chefinventory.app.R.style.Theme_ChefInventory)
 
         val providerInfo = android.content.pm.ProviderInfo().apply {
             authority = "${activity.packageName}.fileprovider"
@@ -42,7 +103,8 @@ class ImageCaptureUtilTest {
                 putInt("android.support.FILE_PROVIDER_PATHS", com.chefinventory.app.R.xml.provider_paths)
             }
         }
-        Robolectric.buildContentProvider(FileProvider::class.java).create(providerInfo)
+        val provider = FileProvider()
+        provider.attachInfo(activity, providerInfo)
 
         val util = ImageCaptureUtil(activity) {}
         controller.setup()
@@ -61,14 +123,13 @@ class ImageCaptureUtilTest {
         val activity = controller.get()
         activity.setTheme(com.chefinventory.app.R.style.Theme_ChefInventory)
 
-        val util = object : ImageCaptureUtil(activity, {}) {
+        val util = object : ImageCaptureUtil(activity, activity.activityResultRegistry, {}) {
             override fun createPhotoUri(imageFile: File): Uri? {
                 return null
             }
         }
         controller.setup()
 
-        // Force launchCamera -> createPhotoUri returns null, executes L148 LogManager.e else branch!
         util.launchCamera()
         assertThat(util.photoUri).isNull()
     }
@@ -80,14 +141,13 @@ class ImageCaptureUtilTest {
         val activity = controller.get()
         activity.setTheme(com.chefinventory.app.R.style.Theme_ChefInventory)
 
-        val util = object : ImageCaptureUtil(activity, {}) {
+        val util = object : ImageCaptureUtil(activity, activity.activityResultRegistry, {}) {
             override fun getFileProviderUri(file: File): Uri {
                 throw RuntimeException("FileProvider failure")
             }
         }
         controller.setup()
 
-        // Force launchCamera -> catch block executes Uri.fromFile(imageFile)
         util.launchCamera()
         assertThat(util.photoUri).isNotNull()
     }
@@ -99,7 +159,6 @@ class ImageCaptureUtilTest {
         val activity = controller.get()
         activity.setTheme(com.chefinventory.app.R.style.Theme_ChefInventory)
 
-        // Register FileProvider in Robolectric to make FileProvider.getUriForFile succeed (L124)
         val providerInfo = android.content.pm.ProviderInfo().apply {
             authority = "${activity.packageName}.fileprovider"
             grantUriPermissions = true
@@ -110,11 +169,9 @@ class ImageCaptureUtilTest {
         val util = ImageCaptureUtil(activity) { uri -> returnedUri = uri }
         controller.setup()
 
-        // 1. Direct call to launchCamera() (executes FileProvider.getUriForFile L124 successfully)
         util.launchCamera()
         assertThat(util.photoUri).isNotNull()
 
-        // 2. Crop error with null exception error (covers exception?.message.orEmpty() null branch in L63)
         val mockErrorNull = mock<CropImageView.CropResult> {
             on { isSuccessful } doReturn false
             on { error } doReturn null
@@ -175,7 +232,6 @@ class ImageCaptureUtilTest {
         val util = ImageCaptureUtil(activity) { uri -> returnedUri = uri }
         controller.setup()
 
-        // 1. Success with valid tempUri
         val tempCropFile = File(activity.cacheDir, "temp_crop.png").apply { writeText("data") }
         val mockSuccessWithUri = mock<CropImageView.CropResult> {
             on { isSuccessful } doReturn true
@@ -184,7 +240,6 @@ class ImageCaptureUtilTest {
         util.handleCropResult(mockSuccessWithUri)
         assertThat(returnedUri).isNotNull()
 
-        // 2. Success with null uriContent
         val mockSuccessNullUri = mock<CropImageView.CropResult> {
             on { isSuccessful } doReturn true
             on { uriContent } doReturn null
@@ -192,7 +247,6 @@ class ImageCaptureUtilTest {
         util.handleCropResult(mockSuccessNullUri)
         assertThat(returnedUri).isNull()
 
-        // 3. Error result
         val mockError = mock<CropImageView.CropResult> {
             on { isSuccessful } doReturn false
             on { error } doReturn Exception("Crop failure")
@@ -213,16 +267,13 @@ class ImageCaptureUtilTest {
         val util = ImageCaptureUtil(activity) { uri -> returnedUri = uri }
         controller.setup()
 
-        // Camera failed
         util.handleCameraResult(false)
         assertThat(returnedUri).isNull()
 
-        // Camera succeeded with null photoUri
         util.photoUri = null
         util.handleCameraResult(true)
         assertThat(returnedUri).isNull()
 
-        // Camera succeeded with valid photoUri
         util.photoUri = Uri.parse("file:///tmp/photo.jpg")
         util.handleCameraResult(true)
     }
@@ -237,18 +288,14 @@ class ImageCaptureUtilTest {
         val util = ImageCaptureUtil(activity) { uri -> returnedUri = uri }
         controller.setup()
 
-        // File pick canceled (null URI)
         util.handlePickFileResult(null)
         assertThat(returnedUri).isNull()
 
-        // File pick valid URI
         util.handlePickFileResult(Uri.parse("file:///tmp/picked.jpg"))
 
-        // Permission denied
         util.handlePermissionResult(false)
         assertThat(returnedUri).isNull()
 
-        // Permission granted
         util.handlePermissionResult(true)
     }
 }

@@ -30,9 +30,9 @@ class AdapterDiffCallbacksCoverageTypeBTest {
 
     @Test
     fun `IngredientAdapter DiffCallback should compare ingredient IDs and equality`() {
-        val ingr1 = Ingredient(id = 10L, name = "Beurre", quantity = 100.0)
-        val ingr1Same = Ingredient(id = 10L, name = "Beurre", quantity = 100.0)
-        val ingr2 = Ingredient(id = 20L, name = "Lait", quantity = 1.0)
+        val ingr1 = Ingredient(id = 10L, name = "Beurre", quantity = 100.0, updatedAt = 1000L)
+        val ingr1Same = Ingredient(id = 10L, name = "Beurre", quantity = 100.0, updatedAt = 1000L)
+        val ingr2 = Ingredient(id = 20L, name = "Lait", quantity = 1.0, updatedAt = 1000L)
 
         assertThat(IngredientAdapter.DiffCallback.areItemsTheSame(ingr1, ingr1Same)).isTrue()
         assertThat(IngredientAdapter.DiffCallback.areItemsTheSame(ingr1, ingr2)).isFalse()

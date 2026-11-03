@@ -83,15 +83,15 @@ class OcrTitleExtractorTest {
     @CoveredRequirement("6.1.1.9")
     fun testFindFirstIngredientWord_DirectAndDefaultParameterOverloads() {
         // 1. Default parameter overload (vocabulary = null)
-        val word1 = OcrTitleExtractor.findFirstIngredientWord(listOf("250 g de farine"))
+        val word1 = OcrTitleExtractor0_Context.findFirstIngredientWord(listOf("250 g de farine"))
         assertThat(word1).isEqualTo("farine")
 
         // 2. Explicit vocabulary overload
-        val word2 = OcrTitleExtractor.findFirstIngredientWord(listOf("1/2 l d'eau"), vocabulary)
+        val word2 = OcrTitleExtractor0_Context.findFirstIngredientWord(listOf("1/2 l d'eau"), vocabulary)
         assertThat(word2).isEqualTo("eau")
 
         // 3. Empty list -> returns null
-        val word3 = OcrTitleExtractor.findFirstIngredientWord(emptyList())
+        val word3 = OcrTitleExtractor0_Context.findFirstIngredientWord(emptyList(), vocabulary)
         assertThat(word3).isNull()
     }
 
@@ -146,6 +146,24 @@ class OcrTitleExtractorTest {
         val result = OcrTitleExtractor.extractTitle(lines, emptyConnectorsVocab)
 
         assertThat(result.title).isEqualTo("Salade de fruits au sirop d'érable")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractTitle_EmptyLinesAndNoValidCandidates() {
+        // 1. List with empty strings
+        val linesWithEmpty = listOf("", "Salade de tomates", "")
+        val resEmpty = OcrTitleExtractor.extractTitle(linesWithEmpty, vocabulary)
+        assertThat(resEmpty.title).isEqualTo("Salade de tomates")
+
+        // 2. Candidates with score <= 0
+        val linesLowScore = listOf("10. Etape 1")
+        val resLowScore = OcrTitleExtractor.extractTitle(linesLowScore, vocabulary)
+        assertThat(resLowScore.title).isNull()
+
+        // 3. Completely empty list
+        val resNoCandidates = OcrTitleExtractor.extractTitle(emptyList(), vocabulary)
+        assertThat(resNoCandidates.title).isNull()
     }
 
     /**

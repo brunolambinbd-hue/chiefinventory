@@ -65,6 +65,15 @@ class Ocr3CategorizerTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testCategorize_EmptyLinesHandledCleanly() {
+        val input = listOf("   ", "", "INGRÉDIENTS", "200 g de farine", "   ")
+        val result = Ocr3Categorizer.categorize(input, vocabulary)
+
+        assertThat(result.rawIngredientsList).contains("200 g de farine")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testCategorize_WithAndroidResources_CategorizesSuccessfully() {
         val input = listOf("INGRÉDIENTS", "200 g de farine", "INSTRUCTIONS", "Faire cuire au four pendant 15 min.")
         val result = Ocr3Categorizer.categorize(input, context.resources)

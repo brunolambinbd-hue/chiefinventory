@@ -77,7 +77,17 @@ object IngredientParser {
         val fractionMatch = OcrRegexes.Quantities.FRACTION.find(workingText)
         if (fractionMatch != null) {
             val prefixBeforeFraction = workingText.substring(0, fractionMatch.range.first).trim()
-            val isCleanPrefix = prefixBeforeFraction.isEmpty() || OcrRegexes.Ingredients.VAGUE_QUANTITY.containsMatchIn(prefixBeforeFraction) || prefixBeforeFraction.lowercase().startsWith("le jus")
+            val isPrefixEmpty = prefixBeforeFraction.isEmpty()
+            val isVaguePrefix = OcrRegexes.Ingredients.VAGUE_QUANTITY.containsMatchIn(prefixBeforeFraction)
+            val isJusPrefix = prefixBeforeFraction.lowercase().startsWith("le jus")
+            val isCleanPrefix = if (isPrefixEmpty) {
+                true
+            } else if (isVaguePrefix) {
+                true
+            } else {
+                isJusPrefix
+            }
+
             if (isCleanPrefix) {
                 val denominator = fractionMatch.groupValues[2].toDouble()
                 if (denominator == 0.0) {
@@ -107,46 +117,54 @@ object IngredientParser {
 
         // 3. Traiter le cas des plages numériques (ex: "10 à 15 min", "1 ou 2 gousses")
         val rangeMatch = OcrRegexes.Quantities.RANGE.find(workingText)
-        if (rangeMatch != null && rangeMatch.range.first == 0) {
-            val high = rangeMatch.groupValues[2].toDouble()
+        if (rangeMatch != null) {
+            if (rangeMatch.range.first == 0) {
+                val high = rangeMatch.groupValues[2].toDouble()
 
-            val restText = workingText.substring(rangeMatch.range.last + 1).trim()
-            val unitInfo = findUnit(restText, activeUnits)
+                val restText = workingText.substring(rangeMatch.range.last + 1).trim()
+                val unitInfo = findUnit(restText, activeUnits)
 
-            return createParsedIngredient(
-                name = unitInfo.remainingText,
-                quantity = high,
-                unit = unitInfo.unit,
-                supplementalInfo = supplementalInfo,
-            )
+                return createParsedIngredient(
+                    name = unitInfo.remainingText,
+                    quantity = high,
+                    unit = unitInfo.unit,
+                    supplementalInfo = supplementalInfo,
+                )
+            }
         }
 
         // 3.5. Traiter les quantificateurs vagues (ex: "quelques branches d'aneth", "des petites feuilles de chicon")
         val vagueMatch = OcrRegexes.Ingredients.VAGUE_QUANTITY.find(workingText)
-        if (vagueMatch != null && vagueMatch.range.first == 0) {
-            val vagueWord = vagueMatch.groupValues[1].trim()
-            var restText = workingText.substring(vagueMatch.range.last + 1).trim()
+        if (vagueMatch != null) {
+            if (vagueMatch.range.first == 0) {
+                val vagueWord = vagueMatch.groupValues[1].trim()
+                var restText = workingText.substring(vagueMatch.range.last + 1).trim()
 
-            val extraInfo: String?
-            val adjMatch = OcrRegexes.Ingredients.ADJECTIVE_PREFIX.find(restText)
-            if (adjMatch != null && adjMatch.range.first == 0) {
-                extraInfo = adjMatch.groupValues[1].trim()
-                restText = restText.substring(adjMatch.range.last + 1).trim()
-            } else {
-                extraInfo = null
+                val extraInfo: String?
+                val adjMatch = OcrRegexes.Ingredients.ADJECTIVE_PREFIX.find(restText)
+                if (adjMatch != null) {
+                    if (adjMatch.range.first == 0) {
+                        extraInfo = adjMatch.groupValues[1].trim()
+                        restText = restText.substring(adjMatch.range.last + 1).trim()
+                    } else {
+                        extraInfo = null
+                    }
+                } else {
+                    extraInfo = null
+                }
+
+                val unitInfo = findUnit(restText, activeUnits)
+
+                val combinedInfoList = listOfNotNull(extraInfo, vagueWord, supplementalInfo)
+                val finalInfo = combinedInfoList.joinToString(" ")
+
+                return createParsedIngredient(
+                    name = unitInfo.remainingText,
+                    quantity = null,
+                    unit = unitInfo.unit,
+                    supplementalInfo = finalInfo,
+                )
             }
-
-            val unitInfo = findUnit(restText, activeUnits)
-
-            val combinedInfoList = listOfNotNull(extraInfo, vagueWord, supplementalInfo)
-            val finalInfo = combinedInfoList.joinToString(" ")
-
-            return createParsedIngredient(
-                name = unitInfo.remainingText,
-                quantity = null,
-                unit = unitInfo.unit,
-                supplementalInfo = finalInfo,
-            )
         }
 
         // 4. Traitement standard des quantités numériques (ex: "250 g de farine", "2 grosses tomates")
@@ -224,18 +242,21 @@ object IngredientParser {
     private fun parseStandardQuantity(input: String, activeUnits: List<String>): ParsedIngredient {
         val matcher = OcrRegexes.Quantities.STANDARD.matcher(input)
         if (matcher.find()) {
-            val rawGroup1 = matcher.group(1)
-            val qtyStr = if (rawGroup1 != null) rawGroup1 else ""
-            val qty = qtyStr.replace(',', '.').toDoubleOrNull()
+            val qtyStr = matcher.group(1)
+            val qty = qtyStr?.replace(',', '.')?.toDoubleOrNull()
 
             val rawGroup2 = matcher.group(2)
             var restText = if (rawGroup2 != null) rawGroup2.trim() else ""
 
             val extraInfo: String?
             val adjMatch = OcrRegexes.Ingredients.ADJECTIVE_PREFIX.find(restText)
-            if (adjMatch != null && adjMatch.range.first == 0) {
-                extraInfo = adjMatch.groupValues[1].trim()
-                restText = restText.substring(adjMatch.range.last + 1).trim()
+            if (adjMatch != null) {
+                if (adjMatch.range.first == 0) {
+                    extraInfo = adjMatch.groupValues[1].trim()
+                    restText = restText.substring(adjMatch.range.last + 1).trim()
+                } else {
+                    extraInfo = null
+                }
             } else {
                 extraInfo = null
             }

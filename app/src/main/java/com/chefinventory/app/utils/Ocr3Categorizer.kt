@@ -62,7 +62,12 @@ object Ocr3Categorizer {
 
         for (line in lines) {
             var workingLine = line.trim()
-            if (workingLine.isEmpty()) continue
+            val isEmptyWorkingLine = workingLine.isEmpty()
+            if (isEmptyWorkingLine) {
+                continue
+            } else {
+                Log.d(TAG, "  [LIGNE TRAITÉE] '$workingLine'")
+            }
 
             // === DEBUT BLOC A : Méta-données & Continuation de phrase suspendue ===
             val blockA = Ocr3Categorizer1_BlockA_Metadata.processBlockA_MetadataAndHangingLine(
