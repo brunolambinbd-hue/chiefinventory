@@ -51,6 +51,20 @@ object IngredientParser {
         get() = loadDefaultUnits()
 
     /**
+     * Nettoie et extrait le texte restant après la quantité numérique.
+     */
+    internal fun extractRestText(rawGroup2: String?): String {
+        if (rawGroup2 == null) {
+            return ""
+        }
+        val trimmed = rawGroup2.trim()
+        if (trimmed.isEmpty()) {
+            return ""
+        }
+        return trimmed
+    }
+
+    /**
      * Décompose une chaîne de texte d'ingrédient brute en un objet structuré [ParsedIngredient].
      *
      * @param input La ligne de texte d'ingrédient brute (ex: "2 c. à soupe de mayonnaise").
@@ -118,53 +132,45 @@ object IngredientParser {
         // 3. Traiter le cas des plages numériques (ex: "10 à 15 min", "1 ou 2 gousses")
         val rangeMatch = OcrRegexes.Quantities.RANGE.find(workingText)
         if (rangeMatch != null) {
-            if (rangeMatch.range.first == 0) {
-                val high = rangeMatch.groupValues[2].toDouble()
+            val high = rangeMatch.groupValues[2].toDouble()
 
-                val restText = workingText.substring(rangeMatch.range.last + 1).trim()
-                val unitInfo = findUnit(restText, activeUnits)
+            val restText = workingText.substring(rangeMatch.range.last + 1).trim()
+            val unitInfo = findUnit(restText, activeUnits)
 
-                return createParsedIngredient(
-                    name = unitInfo.remainingText,
-                    quantity = high,
-                    unit = unitInfo.unit,
-                    supplementalInfo = supplementalInfo,
-                )
-            }
+            return createParsedIngredient(
+                name = unitInfo.remainingText,
+                quantity = high,
+                unit = unitInfo.unit,
+                supplementalInfo = supplementalInfo,
+            )
         }
 
         // 3.5. Traiter les quantificateurs vagues (ex: "quelques branches d'aneth", "des petites feuilles de chicon")
         val vagueMatch = OcrRegexes.Ingredients.VAGUE_QUANTITY.find(workingText)
         if (vagueMatch != null) {
-            if (vagueMatch.range.first == 0) {
-                val vagueWord = vagueMatch.groupValues[1].trim()
-                var restText = workingText.substring(vagueMatch.range.last + 1).trim()
+            val vagueWord = vagueMatch.groupValues[1].trim()
+            var restText = workingText.substring(vagueMatch.range.last + 1).trim()
 
-                val extraInfo: String?
-                val adjMatch = OcrRegexes.Ingredients.ADJECTIVE_PREFIX.find(restText)
-                if (adjMatch != null) {
-                    if (adjMatch.range.first == 0) {
-                        extraInfo = adjMatch.groupValues[1].trim()
-                        restText = restText.substring(adjMatch.range.last + 1).trim()
-                    } else {
-                        extraInfo = null
-                    }
-                } else {
-                    extraInfo = null
-                }
-
-                val unitInfo = findUnit(restText, activeUnits)
-
-                val combinedInfoList = listOfNotNull(extraInfo, vagueWord, supplementalInfo)
-                val finalInfo = combinedInfoList.joinToString(" ")
-
-                return createParsedIngredient(
-                    name = unitInfo.remainingText,
-                    quantity = null,
-                    unit = unitInfo.unit,
-                    supplementalInfo = finalInfo,
-                )
+            val extraInfo: String?
+            val adjMatch = OcrRegexes.Ingredients.ADJECTIVE_PREFIX.find(restText)
+            if (adjMatch != null) {
+                extraInfo = adjMatch.groupValues[1].trim()
+                restText = restText.substring(adjMatch.range.last + 1).trim()
+            } else {
+                extraInfo = null
             }
+
+            val unitInfo = findUnit(restText, activeUnits)
+
+            val combinedInfoList = listOfNotNull(extraInfo, vagueWord, supplementalInfo)
+            val finalInfo = combinedInfoList.joinToString(" ")
+
+            return createParsedIngredient(
+                name = unitInfo.remainingText,
+                quantity = null,
+                unit = unitInfo.unit,
+                supplementalInfo = finalInfo,
+            )
         }
 
         // 4. Traitement standard des quantités numériques (ex: "250 g de farine", "2 grosses tomates")
@@ -243,20 +249,16 @@ object IngredientParser {
         val matcher = OcrRegexes.Quantities.STANDARD.matcher(input)
         if (matcher.find()) {
             val qtyStr = matcher.group(1)
-            val qty = qtyStr?.replace(',', '.')?.toDoubleOrNull()
+            val qty = qtyStr!!.replace(',', '.').toDoubleOrNull()
 
             val rawGroup2 = matcher.group(2)
-            var restText = if (rawGroup2 != null) rawGroup2.trim() else ""
+            var restText = extractRestText(rawGroup2)
 
             val extraInfo: String?
             val adjMatch = OcrRegexes.Ingredients.ADJECTIVE_PREFIX.find(restText)
             if (adjMatch != null) {
-                if (adjMatch.range.first == 0) {
-                    extraInfo = adjMatch.groupValues[1].trim()
-                    restText = restText.substring(adjMatch.range.last + 1).trim()
-                } else {
-                    extraInfo = null
-                }
+                extraInfo = adjMatch.groupValues[1].trim()
+                restText = restText.substring(adjMatch.range.last + 1).trim()
             } else {
                 extraInfo = null
             }

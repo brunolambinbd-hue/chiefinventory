@@ -13,11 +13,24 @@ object WebRecipeImporter {
 
     private const val TAG = "WebRecipeImporter"
 
-    internal var fetchHtmlDocumentImpl: (String) -> org.jsoup.nodes.Document = { url ->
+    /**
+     * Télécharge un document HTML JSoup par défaut via une requête HTTP réseau.
+     *
+     * @param url L'URL Web de la page de recette à télécharger.
+     * @return Le document HTML [org.jsoup.nodes.Document] téléchargé.
+     */
+    internal var fetchDefaultHtmlDocumentImpl: (String) -> org.jsoup.nodes.Document = { url ->
         Jsoup.connect(url)
             .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
             .timeout(10000)
             .get()
+    }
+
+    /**
+     * Implémentation modifiable de téléchargement HTML permettant l'injection de mocks en tests unitaires.
+     */
+    internal var fetchHtmlDocumentImpl: (String) -> org.jsoup.nodes.Document = { url ->
+        fetchDefaultHtmlDocumentImpl(url)
     }
 
     /**
@@ -45,6 +58,12 @@ object WebRecipeImporter {
         val sourceUrl: String
     )
 
+    /**
+     * Vérifie si le résultat d'importation d'une recette Web contient au moins un titre valide non vide.
+     *
+     * @param result Le résultat d'importation [WebRecipeResult] à évaluer.
+     * @return `true` si le résultat est non nul et contient un titre non blanc, `false` sinon.
+     */
     internal fun isRecipeResultValid(result: WebRecipeResult?): Boolean {
         if (result == null) return false
         val title = result.title ?: return false
@@ -53,6 +72,10 @@ object WebRecipeImporter {
 
     /**
      * Analyse un document HTML JSoup et extrait la recette depuis ses balises script JSON-LD ou ses balises meta.
+     *
+     * @param doc Le document HTML JSoup à analyser.
+     * @param url L'URL Web source de la recette.
+     * @return L'objet [WebRecipeResult] contenant la recette extraite ou le résultat de fallback.
      */
     fun parseHtmlDocument(doc: org.jsoup.nodes.Document, url: String): WebRecipeResult {
         LogManager.d(TAG, "Analyse du document HTML pour URL: $url")
@@ -88,8 +111,8 @@ object WebRecipeImporter {
     /**
      * Télécharge la page Web via JSoup et extrait le bloc JSON-LD Schema.org Recipe.
      *
-     * @param url L'URL de la recette Web.
-     * @return L'objet [WebRecipeResult] structuré.
+     * @param url L'URL de la recette Web à importer.
+     * @return L'objet [WebRecipeResult] structuré contenant la recette Web.
      */
     fun importFromUrl(url: String): WebRecipeResult {
         return try {
@@ -114,7 +137,11 @@ object WebRecipeImporter {
     }
 
     /**
-     * Parse une chaîne de script JSON-LD et cherche un objet de type "Recipe".
+     * Parse une chaîne de script JSON-LD et cherche un objet de type Schema.org "Recipe".
+     *
+     * @param jsonStr Le contenu JSON-LD sous forme de chaîne brute.
+     * @param sourceUrl L'URL Web source de la recette.
+     * @return Le [WebRecipeResult] extrait ou null si aucun objet Recipe valide n'a été trouvé.
      */
     fun parseJsonLdScript(jsonStr: String, sourceUrl: String = ""): WebRecipeResult? {
         try {
@@ -146,6 +173,13 @@ object WebRecipeImporter {
         return null
     }
 
+    /**
+     * Analyser un objet JSON unique pour vérifier s'il s'agit d'un objet Schema.org "Recipe" et en extraire les champs.
+     *
+     * @param obj L'objet [JSONObject] JSON-LD à analyser.
+     * @param sourceUrl L'URL Web source de la recette.
+     * @return Le [WebRecipeResult] extrait si l'objet est un Recipe valide, ou null sinon.
+     */
     private fun parseRecipeJsonObject(obj: JSONObject, sourceUrl: String): WebRecipeResult? {
         val isRecipe = if (obj.has("@type")) {
             val typeVal = obj.get("@type")
@@ -194,6 +228,9 @@ object WebRecipeImporter {
                         }
                     }
                 }
+                else -> {
+                    LogManager.d(TAG, "  [INFO] Type de recipeInstructions non géré")
+                }
             }
         }
 
@@ -217,11 +254,18 @@ object WebRecipeImporter {
                 is JSONArray -> imgVal.optString(0, "")
                 is JSONObject -> imgVal.optString("url", "")
                 is String -> imgVal
-                else -> null
+                else -> {
+                    LogManager.d(TAG, "  [INFO] Type d'image non géré")
+                    null
+                }
             }
             val cleanImg = imgUrl
-            imgUrl = if (cleanImg != null && cleanImg.isNotBlank()) {
-                cleanImg
+            imgUrl = if (cleanImg != null) {
+                if (cleanImg.isNotBlank()) {
+                    cleanImg
+                } else {
+                    null
+                }
             } else {
                 null
             }
@@ -251,6 +295,12 @@ object WebRecipeImporter {
         )
     }
 
+    /**
+     * Normalise la catégorie brute d'une recette Web vers une catégorie canonique.
+     *
+     * @param rawCategory Le libellé brut de la catégorie (ex: "Entrée froide", "Desserts").
+     * @return La catégorie normalisée (ex: "Entrée", "Dessert") ou le libellé brut si non répertorié.
+     */
     fun normalizeRecipeCategory(rawCategory: String?): String? {
         if (rawCategory == null || rawCategory.isBlank()) {
             return null
@@ -263,6 +313,9 @@ object WebRecipeImporter {
 
     /**
      * Convertit une durée ISO 8601 (ex : "PT15M", "PT1H30M") en nombre de minutes sous forme de texte.
+     *
+     * @param isoStr La chaîne de durée ISO 8601 brute.
+     * @return Le nombre de minutes sous forme de texte ou null si la chaîne est vide/invalide.
      */
     fun parseIsoDurationToMinutes(isoStr: String): String? {
         if (isoStr.isBlank()) return null

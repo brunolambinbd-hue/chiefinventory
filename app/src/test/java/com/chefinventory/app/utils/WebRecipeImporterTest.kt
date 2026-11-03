@@ -5,6 +5,8 @@ import com.parabd.lib.traceability.CoveredRequirement
 import org.jsoup.Jsoup
 import org.junit.Test
 import java.io.File
+import java.net.InetAddress
+import java.net.ServerSocket
 
 /**
  * Tests unitaires dédiés (1-à-1) pour [WebRecipeImporter].
@@ -29,9 +31,74 @@ class WebRecipeImporterTest {
     @Test
     @CoveredRequirement("6.3.2.9")
     fun testFetchHtmlDocumentImpl_DefaultLambdaFlow() {
+        val originalDefault = WebRecipeImporter.fetchDefaultHtmlDocumentImpl
+        val originalImpl = WebRecipeImporter.fetchHtmlDocumentImpl
+
         try {
-            WebRecipeImporter.fetchHtmlDocumentImpl("http://127.0.0.1:65534/test")
-        } catch (_: Exception) {}
+            val html = "<html><head><title>Tarte Aux Fraises</title></head><body></body></html>"
+            WebRecipeImporter.fetchDefaultHtmlDocumentImpl = { Jsoup.parse(html) }
+
+            val doc = WebRecipeImporter.fetchHtmlDocumentImpl("https://example.com/tarte")
+            assertThat(doc.title()).isEqualTo("Tarte Aux Fraises")
+        } finally {
+            WebRecipeImporter.fetchDefaultHtmlDocumentImpl = originalDefault
+            WebRecipeImporter.fetchHtmlDocumentImpl = originalImpl
+        }
+
+        // Start local in-memory ServerSocket to test Jsoup.connect().get() nominal flow
+        val serverSocket = ServerSocket(0, 10, InetAddress.getByName("127.0.0.1"))
+        val port = serverSocket.localPort
+
+        val thread = Thread {
+            try {
+                while (!serverSocket.isClosed) {
+                    val socket = try { serverSocket.accept() } catch (_: Exception) { break }
+                    val reader = socket.getInputStream().bufferedReader()
+                    while (true) {
+                        val line = reader.readLine()
+                        if (line.isNullOrBlank()) break
+                    }
+                    val responseHtml = "<html><head><title>Tarte Aux Pommes Web</title></head><body></body></html>"
+                    val bytes = responseHtml.toByteArray(Charsets.UTF_8)
+                    val httpResponse = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: ${bytes.size}\r\nConnection: close\r\n\r\n$responseHtml"
+                    socket.getOutputStream().write(httpResponse.toByteArray(Charsets.UTF_8))
+                    socket.getOutputStream().flush()
+                    socket.close()
+                }
+            } catch (_: Exception) {}
+        }
+        thread.start()
+
+        try {
+            val url = "http://127.0.0.1:$port/test"
+            val doc = WebRecipeImporter.fetchDefaultHtmlDocumentImpl(url)
+            assertThat(doc.title()).isEqualTo("Tarte Aux Pommes Web")
+
+            val docImpl = WebRecipeImporter.fetchHtmlDocumentImpl(url)
+            assertThat(docImpl.title()).isEqualTo("Tarte Aux Pommes Web")
+        } finally {
+            try { serverSocket.close() } catch (_: Exception) {}
+            try { thread.join(1000) } catch (_: Exception) {}
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testParseJsonLdScript_UnsupportedImageAndInstructionsType() {
+        // Image is a number 123 and recipeInstructions is a number 123
+        val json = """
+            {
+              "@type": "Recipe",
+              "name": "Recette spéciale",
+              "image": 123,
+              "recipeInstructions": 123
+            }
+        """.trimIndent()
+
+        val result = WebRecipeImporter.parseJsonLdScript(json)
+        assertThat(result).isNotNull()
+        assertThat(result?.imageUrl).isNull()
+        assertThat(result?.instructions).isEmpty()
     }
 
     @Test

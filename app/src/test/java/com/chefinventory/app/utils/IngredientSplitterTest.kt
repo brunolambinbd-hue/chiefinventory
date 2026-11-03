@@ -8,6 +8,33 @@ class IngredientSplitterTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testIsValidSplitPrefix_AllBranches() {
+        // 1. Prefix in ARTICLES -> false
+        assertThat(IngredientSplitter.isValidSplitPrefix("de")).isFalse()
+        assertThat(IngredientSplitter.isValidSplitPrefix("du")).isFalse()
+
+        // 2. Prefix matches SIZE_PREFIX_REGEX -> false
+        assertThat(IngredientSplitter.isValidSplitPrefix("1 petite")).isFalse()
+        assertThat(IngredientSplitter.isValidSplitPrefix("1/2 grand")).isFalse()
+
+        // 3. Prefix ends with connector -> false
+        assertThat(IngredientSplitter.isValidSplitPrefix("gousses de")).isFalse()
+        assertThat(IngredientSplitter.isValidSplitPrefix("gousses d'")).isFalse()
+        assertThat(IngredientSplitter.isValidSplitPrefix("gousses du")).isFalse()
+        assertThat(IngredientSplitter.isValidSplitPrefix("gousses des")).isFalse()
+        assertThat(IngredientSplitter.isValidSplitPrefix("gousses au")).isFalse()
+        assertThat(IngredientSplitter.isValidSplitPrefix("gousses aux")).isFalse()
+
+        // 4. Prefix ends with modifier -> false
+        assertThat(IngredientSplitter.isValidSplitPrefix("haché petit")).isFalse()
+        assertThat(IngredientSplitter.isValidSplitPrefix("haché grande")).isFalse()
+
+        // 5. Valid prefix -> true
+        assertThat(IngredientSplitter.isValidSplitPrefix("2 gousses d'ail")).isTrue()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testSplit_CommonItemsExactMatchBypass() {
         val result = IngredientSplitter.splitCombinedIngredients("sel et poivre", listOf("sel et poivre"))
         assertThat(result).containsExactly("sel et poivre")
@@ -21,6 +48,16 @@ class IngredientSplitterTest {
             val result = IngredientSplitter.splitCombinedIngredients("$prefix citron et fraises", listOf("citron", "fraises"))
             assertThat(result).isNotEmpty()
         }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testSplit_TrailingDelimiterAndDuplicates() {
+        val result1 = IngredientSplitter.splitCombinedIngredients("sel, poivre,", emptyList())
+        assertThat(result1).containsExactly("sel", "poivre")
+
+        val result2 = IngredientSplitter.splitCombinedIngredients("sel, sel", emptyList())
+        assertThat(result2).containsExactly("sel")
     }
 
     @Test

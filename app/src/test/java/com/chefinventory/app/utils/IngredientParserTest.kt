@@ -33,6 +33,19 @@ class IngredientParserTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testExtractRestText_DirectCallAllBranches() {
+        // 1. null -> empty string
+        assertThat(IngredientParser.extractRestText(null)).isEmpty()
+
+        // 2. whitespace string -> empty string
+        assertThat(IngredientParser.extractRestText("   ")).isEmpty()
+
+        // 3. valid string -> trimmed string
+        assertThat(IngredientParser.extractRestText(" g de farine ")).isEqualTo("g de farine")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testExhaustiveBranchCoverage_NonInitialMatches() {
         // 1. Non-initial range match (range.first != 0)
         val resRangeNonInit = IngredientParser.parse("Farine 10 à 15 g")
@@ -59,7 +72,12 @@ class IngredientParserTest {
         assertThat(resStdAdjNotStart.quantity).isEqualTo(2.0)
         assertThat(resStdAdjNotStart.name).isEqualTo("tomates grosses")
 
-        // 7. Empty string
+        // 7. Quantity without unit or text (rawGroup2 == null)
+        val resNoRest = IngredientParser.parse("250")
+        assertThat(resNoRest.quantity).isEqualTo(250.0)
+        assertThat(resNoRest.name).isEmpty()
+
+        // 8. Empty string
         val resBlank = IngredientParser.parse("   ")
         assertThat(resBlank.name).isEmpty()
     }
