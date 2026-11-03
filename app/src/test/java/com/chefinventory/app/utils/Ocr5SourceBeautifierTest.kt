@@ -19,6 +19,23 @@ class Ocr5SourceBeautifierTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testBeautifySources_PunctuationOnlyAndAlreadyCapitalizedAndDigitStarts() {
+        val input = listOf(
+            ": : .",
+            "Hôtel Hilton",
+            "02/542.42.42"
+        )
+
+        val result = Ocr5SourceBeautifier.beautifySources(input)
+
+        assertThat(result).containsExactly(
+            "Hôtel Hilton",
+            "02/542.42.42"
+        ).inOrder()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testBeautifySources_CapitalizationAndPunctuationAndDeduplication() {
         val input = listOf(
             "hôtel hilton, place rogier",

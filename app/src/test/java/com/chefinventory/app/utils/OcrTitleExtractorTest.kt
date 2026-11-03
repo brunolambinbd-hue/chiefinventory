@@ -1,11 +1,13 @@
 package com.chefinventory.app.utils
 
 import com.google.common.truth.Truth.assertThat
+import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
 
 /**
- * Suite de tests unitaires de Type B vérifiant le scoring, la détection multi-lignes et la réparation de lettrines de [OcrTitleExtractor].
+ * Suite de tests unitaires de Type B vérifiant le comportement, le scoring et l'extraction
+ * du titre principal des recettes par [OcrTitleExtractor].
  */
 class OcrTitleExtractorTest {
 
@@ -16,40 +18,141 @@ class OcrTitleExtractorTest {
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
-    /**
-     * Vérifie l'identification des connecteurs et prépositions de suite de titre multi-lignes.
-     */
     @Test
-    fun `isMultiLineTitleConnector should return true for title connector prepositions`() {
-        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("au jambon italien et au porto")).isTrue()
-        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("aux échalotes")).isTrue()
-        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("et aux crevettes")).isTrue()
-        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("à la crème")).isTrue()
-        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("de campagne")).isTrue()
+    @CoveredRequirement("6.1.1.9")
+    fun testExhaustiveOcrTitleExtractorBranchCoverage() {
+        // 1. Empty stepActionKeywords and no-ingredient lines (L59, L63)
+        val emptyActionsVocab = vocabulary.copy(stepActionKeywords = emptyList())
+        val noIngLines = listOf("Salade grecque aux olives", "Mélanger et servir")
+        val resNoIng = OcrTitleExtractor.extractTitle(noIngLines, emptyActionsVocab)
+        assertThat(resNoIng.title).contains("Salade grecque aux olives")
 
-        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("1 melon Galia")).isFalse()
-        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("INGRÉDIENTS")).isFalse()
+        // 2. Attached title after "sel et poivre" with connector " de" (L80)
+        val attachedTitleLines = listOf(
+            "1 oignon sel et poivre Tarte de",
+            "pommes fraîches"
+        )
+        val resAttached = OcrTitleExtractor.extractTitle(attachedTitleLines, vocabulary)
+        assertThat(resAttached.title).contains("Tarte de pommes fraîches")
+
+        // 3. Orphan noun completions with "petite", "grande", "façon" (L165-174)
+        val fasonLines = listOf("Poissons façon", "meunière", "200 g de poisson")
+        val resFason = OcrTitleExtractor.extractTitle(fasonLines, vocabulary)
+        assertThat(resFason.title).contains("meunière")
+
+        // 4. Score penalty for ending period (L366-367)
+        val periodLines = listOf("Tarte aux pommes.", "Tarte aux pommes fraîches")
+        val resPeriod = OcrTitleExtractor.extractTitle(periodLines, vocabulary)
+        assertThat(resPeriod.title).isEqualTo("Tarte aux pommes fraîches")
+
+        // 5. Disqualifying guards: "portions", trailing stop words, digit limits (L472, L478, L480)
+        val disqLines = listOf(
+            "Pour 4 portions",
+            "Tarte de",
+            "Recette 123456",
+            "Tarte Tatin"
+        )
+        val resDisq = OcrTitleExtractor.extractTitle(disqLines, vocabulary)
+        assertThat(resDisq.title).isEqualTo("Tarte Tatin")
     }
 
-    /**
-     * Vérifie le post-traitement et la réparation des lettrines et fautes de débuts de titres via `title_repairs.xml`.
-     */
     @Test
-    fun `postProcessTitle should repair title OCR typos like Toocktail to Cocktail and Buchettes to Buchettes`() {
-        assertThat(OcrTitleExtractor.postProcessTitle("Toocktail de crevettes aux concombres", vocabulary))
-            .isEqualTo("Cocktail de crevettes aux concombres")
+    @CoveredRequirement("6.1.1.9")
+    fun testOrphanNounCompletion_FeminineAndMasculineVariations() {
+        // 1. Feminine adjective + orphan noun
+        val linesFeminine = listOf(
+            "Tarte aux pommes et sa grande",
+            "salade",
+            "200 g de farine"
+        )
+        val resultFem = OcrTitleExtractor.extractTitle(linesFeminine, vocabulary)
+        assertThat(resultFem.title).contains("salade")
 
-        assertThat(OcrTitleExtractor.postProcessTitle("Büchettes de melon au jambon italien", vocabulary))
-            .isEqualTo("Bûchettes de melon au jambon italien")
+        // 2. Disqualified lines with parentheses or bullets
+        val linesDisqualified = listOf(
+            "Salade (4 personnes)",
+            "• Salade grecque",
+            "- Soupe à l'oignon",
+            "Tarte aux cerises"
+        )
+        val resultDisq = OcrTitleExtractor.extractTitle(linesDisqualified, vocabulary)
+        assertThat(resultDisq.title).isEqualTo("Tarte aux cerises")
+    }
 
-        assertThat(OcrTitleExtractor.postProcessTitle("Salade de Drabe", vocabulary))
-            .isEqualTo("Salade de Crabe")
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFindFirstIngredientWord_DirectAndDefaultParameterOverloads() {
+        // 1. Default parameter overload (vocabulary = null)
+        val word1 = OcrTitleExtractor.findFirstIngredientWord(listOf("250 g de farine"))
+        assertThat(word1).isEqualTo("farine")
+
+        // 2. Explicit vocabulary overload
+        val word2 = OcrTitleExtractor.findFirstIngredientWord(listOf("1/2 l d'eau"), vocabulary)
+        assertThat(word2).isEqualTo("eau")
+
+        // 3. Empty list -> returns null
+        val word3 = OcrTitleExtractor.findFirstIngredientWord(emptyList())
+        assertThat(word3).isNull()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testIsMultiLineTitleConnector_ExhaustiveOverloads() {
+        // 1. Default parameter overload (vocabulary = null)
+        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("au jambon")).isTrue()
+        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("salade verte")).isFalse()
+
+        // 2. Explicit vocabulary overload
+        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("aux crevettes", vocabulary)).isTrue()
+        assertThat(OcrTitleExtractor.isMultiLineTitleConnector("soupe à l'oignon", vocabulary)).isFalse()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractTitle_AttachedTitleAfterSelEtPoivreMultiLine() {
+        val lines = listOf(
+            "2 gousses d'ail sel et poivre Salade d'avocat et",
+            "princesses aux crevettes"
+        )
+
+        val result = OcrTitleExtractor.extractTitle(lines, vocabulary)
+
+        assertThat(result.title).contains("Salade d'avocat et princesses aux crevettes")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractTitle_TitleWithEndingPeriodScorePenalty() {
+        val lines = listOf(
+            "Salade de crevettes.",
+            "200 g de crevettes"
+        )
+
+        val result = OcrTitleExtractor.extractTitle(lines, vocabulary)
+
+        assertThat(result.title).isNull()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractTitle_EmptyMultilineConnectorsFallback() {
+        val emptyConnectorsVocab = vocabulary.copy(titleMultilineConnectors = emptyList())
+        val lines = listOf(
+            "Salade de fruits",
+            "au sirop d'érable",
+            "100 g de pommes"
+        )
+
+        val result = OcrTitleExtractor.extractTitle(lines, emptyConnectorsVocab)
+
+        assertThat(result.title).isEqualTo("Salade de fruits au sirop d'érable")
     }
 
     /**
      * Vérifie l'extraction complète d'un titre multi-lignes relié par une préposition et réparé orthographiquement.
      */
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `extractTitle should extract two line title connected by au and post process spelling repairs`() {
         val lines = listOf(
             "INGRÉDIENTS",
@@ -70,6 +173,7 @@ class OcrTitleExtractorTest {
      * Vérifie que les lignes de consignes d'instructions contenant des verbes d'action ou se terminant par des connecteurs suspendus (ex: "Maintenez... puis") sont disqualifiées.
      */
     @Test
+    @CoveredRequirement("6.1.1.9")
     fun `extractTitle should disqualify lines containing action verbs or ending with hanging connectors like puis`() {
         val lines = listOf(
             "Maintenez une petite ébullition pendant 3 mn puis",

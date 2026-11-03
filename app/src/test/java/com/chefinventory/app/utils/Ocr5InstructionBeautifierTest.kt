@@ -20,9 +20,69 @@ class Ocr5InstructionBeautifierTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_ActionVerbWithRecetteWordAndFinalStandaloneTrashFilter() {
+        val input = listOf(
+            "Incorporez les oeufs selon la recette.",
+            "Servir chaud."
+        )
+
+        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+            input,
+            vocabulary.stepActionKeywords,
+            vocabulary.hangingConnectors
+        )
+
+        assertThat(result).contains("Incorporez les oeufs selon la recette.")
+        assertThat(result).contains("Servir chaud.")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_UncapitalizedNextAndStandaloneTrashFinalFilter() {
+        val input = listOf(
+            "Mélangez le sucre et.",
+            "ajoutez la farine",
+            "pour."
+        )
+
+        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+            input,
+            vocabulary.stepActionKeywords,
+            vocabulary.hangingConnectors
+        )
+
+        assertThat(result).containsExactly("Mélangez le sucre et ajoutez la farine.")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_ConjunctionWithoutDotAndPluralRecettesHeader() {
+        val input = listOf(
+            "FICHE RECETTES",
+            "mélangez le sucre et",
+            "ajoutez la farine",
+            "faire revenir ou",
+            "faire mijoter à feu doux"
+        )
+
+        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+            input,
+            vocabulary.stepActionKeywords,
+            vocabulary.hangingConnectors,
+            vocabulary.culinaryMeasurementUnits
+        )
+
+        assertThat(result).contains("Mélangez le sucre et ajoutez la farine.")
+        assertThat(result).contains("Faire revenir ou faire mijoter à feu doux.")
+        assertThat(result).doesNotContain("FICHE RECETTES")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testBeautifyInstructions_ExhaustiveBranchVariations() {
         val input = listOf(
             "Ə RECETTES DU CHEF",
+            "Ə Fiche du chef",
             "consignes",
             "preparation",
             "Mélanger les ingrédients ou.",

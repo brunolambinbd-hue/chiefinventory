@@ -47,7 +47,14 @@ object Ocr3CategorizerHeader {
     ): Boolean {
         val cleanLower = lowerLine.trimEnd('.').trim()
         val instructionHeaders = listOf("préparation", "preparation", "instructions", "consignes", "etapes", "étapes", "méthode", "methode", "déroulement", "deroulement")
-        val isInstrHeader = (instructionHeaders.any { cleanLower == it || cleanLower.startsWith("$it :") || cleanLower.startsWith("$it:") || cleanLower.startsWith("$it de la") || cleanLower.startsWith("$it de ") || cleanLower.startsWith("temps de $it") || cleanLower == "temps de $it" }) && workingLine.length < 40 && !containsAction
+        val isInstrHeader = (instructionHeaders.any { 
+            cleanLower == it || 
+            cleanLower.startsWith("$it :") || 
+            cleanLower.startsWith("$it:") || 
+            cleanLower.startsWith("$it de ") || 
+            cleanLower.startsWith("$it d'") || 
+            cleanLower.startsWith("temps de $it")
+        }) && workingLine.length < 40 && !containsAction
 
         val isIngrHeader = (cleanLower.startsWith("ingrédients") || cleanLower.startsWith("ingredients") || cleanLower.startsWith("composition") || cleanLower.startsWith("ngrédients")) && workingLine.length < 35 && !containsAction
         val isSubHeader = vocabulary.ingredientSubHeaders.any { lowerLine.startsWith(it.lowercase()) }

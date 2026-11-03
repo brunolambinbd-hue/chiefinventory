@@ -35,7 +35,12 @@ object Ocr5WineBeautifier {
             if (cleaned.isBlank()) continue
 
             // Majusculation initiale
-            cleaned = cleaned.replaceFirstChar { it.titlecase() }
+            val first = cleaned[0]
+            if (first.isLowerCase()) {
+                cleaned = first.titlecase() + cleaned.substring(1)
+            } else {
+                // Le premier caractère est déjà une majuscule ou un chiffre
+            }
 
             if (cleaned !in beautifiedList) {
                 beautifiedList.add(cleaned)

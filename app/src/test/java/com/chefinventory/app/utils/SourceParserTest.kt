@@ -26,6 +26,29 @@ class SourceParserTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testIsSourceLine_ZipCodeOnlyAndLongLines() {
+        // Zip code without source keywords or phone number -> L62 term 3
+        assertThat(SourceParser.isSourceLine("1050 BRUXELLES", vocabulary)).isTrue()
+
+        // Long instruction line >= 50 chars with 4-digit number -> L62 term 3 length >= 50 branch
+        val longLineWithDigits = "Mélanger la préparation au four pendant 1050 secondes très longue phrase de recette"
+        assertThat(SourceParser.isSourceLine(longLineWithDigits, vocabulary)).isFalse()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractSourceFromAdLine_EmptyKnownBrandsAndNullGuards() {
+        val customVocab = vocabulary.copy(knownSourceBrands = listOf("", "   ", "Delhaize", "Maxi GB"))
+        val result = SourceParser.extractSourceFromAdLine("Assiette de présentation Maxi GB", customVocab)
+        assertThat(result).isEqualTo("Maxi GB")
+
+        val emptyBrandsVocab = vocabulary.copy(knownSourceBrands = emptyList())
+        assertThat(SourceParser.extractSourceFromAdLine("Assiette Carrefour", emptyBrandsVocab)).isNull()
+        assertThat(SourceParser.extractSourceFromAdLine("   ", vocabulary)).isNull()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testLoadResources_LoadsFromAndroidResources() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         context.setTheme(com.chefinventory.app.R.style.Theme_ChefInventory)

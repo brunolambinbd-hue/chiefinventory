@@ -19,6 +19,31 @@ class WineParserTest {
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
+    @Test
+    fun `isWineLine titleKeywords only match`() {
+        // Line matching titleKeywords ("notre vin") when appellations, producers, and keywords match false -> L95 4th term
+        assertTrue(WineParser.isWineLine("notre vin", vocabulary))
+    }
+
+    @Test
+    fun `hasWineVolume standard bottle format without space`() {
+        // Bottle format without space ("37.5cl") -> L113 2nd term (STANDARD_BOTTLE)
+        assertTrue(WineParser.hasWineVolume("bouteille 37.5cl"))
+    }
+
+    @Test
+    fun `cleanWineLine blank removePattern else branch`() {
+        val emptyRemovePatternRes = WineParser.WineResources(
+            appellations = emptyList(),
+            producers = emptyList(),
+            keywords = emptyList(),
+            titleKeywords = emptyList(),
+            removePattern = ""
+        )
+        val cleaned = WineParser.cleanWineLine("Bordeaux 1996", emptyRemovePatternRes)
+        assertEquals("Bordeaux 1996", cleaned)
+    }
+
     /**
      * Vérifie l'exclusion des ingrédients culinaires ("vinaigre", "huile") qui contiennent le mot "vin".
      */
@@ -369,15 +394,30 @@ class WineParserTest {
     }
 
     @Test
+    fun `isWineLine should match keywords branch`() {
+        val line = "Cuvée spéciale 1996"
+        assertTrue("Mot-clé œnologique 'Cuvée' doit être reconnu", WineParser.isWineLine(line, vocabulary))
+    }
+
+    @Test
     fun `isWineLine should return true for short single year line`() {
         assertTrue("Ligne courte avec année seule doit être détectée comme vin", WineParser.isWineLine("2015", vocabulary))
     }
 
     @Test
+    fun `containsWholeWord should return false for blank text or blank word`() {
+        assertFalse(WineParser.containsWholeWord("   ", "Bordeaux"))
+        assertFalse(WineParser.containsWholeWord("Bordeaux 1996", "   "))
+        assertTrue(WineParser.containsWholeWord("Bordeaux 1996", "Bordeaux"))
+    }
+
+    @Test
     fun `hasWineVolume should return true when volume or bottle format is detected`() {
         assertTrue(WineParser.hasWineVolume("75 cl"))
+        assertTrue(WineParser.hasWineVolume("37.5cl"))
         assertTrue(WineParser.hasWineVolume("1.5 l"))
         assertFalse(WineParser.hasWineVolume("Sans volume"))
+        assertFalse(WineParser.hasWineVolume("Bordeaux 2015"))
     }
 
     @Test

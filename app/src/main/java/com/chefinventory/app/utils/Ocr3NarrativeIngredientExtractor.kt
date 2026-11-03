@@ -11,6 +11,7 @@ import android.util.Log
  * - Parser et formater proprement les ingrédients quantifiés pour alimenter [RawSections.rawIngredientsList] afin d'indexer la recette dans la base de données du garde-manger.
  * - Filtrer rigoureusement les durées de temps ("5 mn", "3 h") et températures ("200°C") via [isDurationOrTime].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3NarrativeIngredientExtractor {
     private const val TAG = "Ocr3NarrativeExt"
 
@@ -25,7 +26,11 @@ object Ocr3NarrativeIngredientExtractor {
      */
     fun isDurationOrTime(text: String, parsedUnit: String?, parsedName: String): Boolean {
         val lowerText = text.lowercase().trim()
-        val lowerUnit = parsedUnit?.lowercase()?.trim() ?: ""
+        val lowerUnit = if (parsedUnit != null) {
+            parsedUnit.lowercase().trim()
+        } else {
+            ""
+        }
         val lowerName = parsedName.lowercase().trim()
 
         val durationKeywords = setOf("mn", "min", "mins", "minute", "minutes", "sec", "secondes", "h", "hr", "hrs", "heure", "heures")
@@ -41,6 +46,45 @@ object Ocr3NarrativeIngredientExtractor {
         if (lowerText.contains("°c") || lowerText.contains("°")) return true
 
         return false
+    }
+
+    /**
+     * Formate un ingrédient quantifié extrait d'une recette narrative.
+     *
+     * @param parsed L'ingrédient décomposé par [IngredientParser].
+     * @param actionVerbs Ensemble des verbes d'action culinaires.
+     * @return La chaîne d'ingrédient formatée, ou null si l'ingrédient est invalide/trop court.
+     */
+    internal fun formatImpliedIngredient(
+        parsed: IngredientParser.ParsedIngredient,
+        actionVerbs: Set<String>
+    ): String? {
+        val qty = parsed.quantity ?: return null
+        if (parsed.name.isBlank()) return null
+
+        val narrativeStopWords = setOf("vous", "nous", "dans", "feu", "moyen", "temps", "que", "pour", "pendant", "bon", "soupe", "glacée", "savoir")
+        val cleanNameWords = parsed.name.split(Regex("\\s+"))
+            .map { it.trim().replace(Regex("[^\\p{L}]"), "") }
+            .filter { word ->
+                val lowerWord = word.lowercase()
+                if (lowerWord.length < 2) return@filter false
+                if (lowerWord in actionVerbs) return@filter false
+                if (lowerWord in narrativeStopWords) return@filter false
+                true
+            }
+        var cleanName = cleanNameWords.joinToString(" ").trim()
+        cleanName = cleanName.replace(Regex("(?i)\\s+(?:et|ou|de|d')$"), "").trim()
+
+        if (cleanName.length < 2) return null
+
+        val qtyStr = if (qty % 1.0 == 0.0) qty.toInt().toString() else qty.toString()
+        val currentUnit = parsed.unit
+        val unitStr = if (currentUnit != null) {
+            "$currentUnit "
+        } else {
+            ""
+        }
+        return "$qtyStr $unitStr$cleanName".replace(Regex("\\s+"), " ").trim()
     }
 
     /**
@@ -80,30 +124,31 @@ object Ocr3NarrativeIngredientExtractor {
             }
 
             val parsed = IngredientParser.parse(rawSegment, vocabulary.culinaryMeasurementUnits)
-            if (isDurationOrTime(rawSegment, parsed.unit, parsed.name) || Ocr2Cleaner.isTechnicalDimension(rawSegment) || Ocr2Cleaner.isTechnicalDimension(parsed.name)) continue
+            if (isDurationOrTime(rawSegment, parsed.unit, parsed.name)) continue
+            if (Ocr2Cleaner.isTechnicalDimension(rawSegment)) continue
 
-            if (parsed.quantity != null && parsed.name.isNotBlank()) {
-                val cleanNameWords = parsed.name.split(Regex("\\s+"))
-                    .map { it.trim().replace(Regex("[^\\p{L}]"), "") }
-                    .filter { word ->
-                        val lowerWord = word.lowercase()
-                        lowerWord.length >= 2 && lowerWord !in actionVerbs && lowerWord !in listOf("vous", "nous", "dans", "feu", "moyen", "temps", "que", "pour", "pendant", "bon", "soupe", "glacée", "savoir")
-                    }
-                var cleanName = cleanNameWords.joinToString(" ").trim()
-                cleanName = cleanName.replace(Regex("(?i)\\s+(?:et|ou|de|d')$"), "").trim()
+            val formattedIng = formatImpliedIngredient(parsed, actionVerbs) ?: continue
 
-                if (cleanName.length >= 2) {
-                    val qtyStr = if (parsed.quantity % 1.0 == 0.0) parsed.quantity.toInt().toString() else parsed.quantity.toString()
-                    val unitStr = if (!parsed.unit.isNullOrEmpty()) "${parsed.unit} " else ""
-                    val formattedIng = "$qtyStr $unitStr$cleanName".replace(Regex("\\s+"), " ").trim()
-
-                    val primaryKeyword = cleanNameWords.firstOrNull { it.length >= 3 }?.lowercase() ?: cleanName.lowercase()
-                    if (primaryKeyword !in seenKeywords) {
-                        seenKeywords.add(primaryKeyword)
-                        results.rawIngredientsList.add(formattedIng)
-                        Log.d(TAG, "  [INGRÉDIENT IMPLICITE EXTRAIT] -> '$formattedIng'")
-                    }
+            val cleanNameWords = parsed.name.split(Regex("\\s+"))
+                .map { it.trim().replace(Regex("[^\\p{L}]"), "") }
+                .filter { word ->
+                    val lowerWord = word.lowercase()
+                    if (lowerWord.length < 2) return@filter false
+                    if (lowerWord in actionVerbs) return@filter false
+                    true
                 }
+
+            val longWord = cleanNameWords.firstOrNull { it.length >= 3 }
+            val primaryKeyword = if (longWord != null) {
+                longWord.lowercase()
+            } else {
+                formattedIng.lowercase()
+            }
+
+            if (primaryKeyword !in seenKeywords) {
+                seenKeywords.add(primaryKeyword)
+                results.rawIngredientsList.add(formattedIng)
+                Log.d(TAG, "  [INGRÉDIENT IMPLICITE EXTRAIT] -> '$formattedIng'")
             }
         }
 
@@ -112,13 +157,15 @@ object Ocr3NarrativeIngredientExtractor {
         val seasoningList = listOf("sel et poivre", "sel, poivre", "sel", "poivre")
         for (seasoning in seasoningList) {
             if (OcrRegexes.getWholeWordPattern(seasoning).containsMatchIn(lowerFullText)) {
-                val formattedSeasoning = seasoning.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                val formattedSeasoning = seasoning[0].titlecase() + seasoning.substring(1)
                 if ("sel" !in seenKeywords && "poivre" !in seenKeywords) {
                     seenKeywords.add("sel")
                     seenKeywords.add("poivre")
                     results.rawIngredientsList.add(formattedSeasoning)
                     Log.d(TAG, "  [ASSAISONNEMENT IMPLICITE EXTRAIT] -> '$formattedSeasoning'")
                     break
+                } else {
+                    Log.d(TAG, "  [ASSAISONNEMENT IMPLICITE] Sel ou poivre déjà présent dans la recette")
                 }
             }
         }

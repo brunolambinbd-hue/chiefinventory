@@ -8,6 +8,7 @@ package com.chefinventory.app.utils
  * - Forcer la majuscule initiale sur chaque nom d'ingrédient.
  * - Supprimer les en-têtes de section résiduels ("INGRÉDIENTS:", "Composition:").
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr5IngredientBeautifier {
 
     /**
@@ -31,7 +32,12 @@ object Ocr5IngredientBeautifier {
         return mergedVarieties.map { line ->
             var cleaned = line.trim()
             if (cleaned.isNotEmpty()) {
-                cleaned = cleaned.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                val first = cleaned[0]
+                if (first.isLowerCase()) {
+                    cleaned = first.titlecase() + cleaned.substring(1)
+                } else {
+                    // Le premier caractère est déjà une majuscule ou un chiffre (ex: "250 g de farine")
+                }
             }
             cleaned
         }.filter { line ->

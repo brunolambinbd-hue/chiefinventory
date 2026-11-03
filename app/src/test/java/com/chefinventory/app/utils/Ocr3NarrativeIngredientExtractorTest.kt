@@ -19,6 +19,59 @@ class Ocr3NarrativeIngredientExtractorTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testFormatImpliedIngredient_NullQuantityAndShortName_ReturnsNull() {
+        val parsedNullQty = IngredientParser.ParsedIngredient(name = "farine", quantity = null)
+        val resNull = Ocr3NarrativeIngredientExtractor.formatImpliedIngredient(parsedNullQty, emptySet())
+        assertThat(resNull).isNull()
+
+        val parsedBlankName = IngredientParser.ParsedIngredient(name = "  ", quantity = 1.0)
+        val resBlank = Ocr3NarrativeIngredientExtractor.formatImpliedIngredient(parsedBlankName, emptySet())
+        assertThat(resBlank).isNull()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractImpliedIngredients_ShortActionVerbsTechnicalDimensionsInNameAndPartialSeasoning() {
+        // 1. Short action verb of length 2 ("va") in vocabulary (covers lowerWord in actionVerbs == true)
+        val vocabShortAction = vocabulary.copy(stepActionKeywords = listOf("va", "couper", "mélanger"))
+        val results1 = RawSections()
+        Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(listOf("Incorporez 2 g de va farine."), vocabShortAction, results1)
+        assertThat(results1.rawIngredientsList).contains("2 g farine")
+
+        // 2. Technical dimension in parsed.name (covers isTechName == true, L129)
+        val results2 = RawSections()
+        Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(listOf("Ajoutez 10 5cm x 10cm de beurre."), vocabulary, results2)
+
+        // 3. Partial seasoning where "poivre" is already in seenKeywords from Step 2
+        val results3 = RawSections()
+        Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(listOf("Ajoutez 2 g de poivre.", "Assaisonnez avec du sel et du poivre."), vocabulary, results3)
+        assertThat(results3.rawIngredientsList).contains("2 g poivre")
+        assertThat(results3.rawIngredientsList).doesNotContain("Sel et poivre")
+
+        // 4. Partial seasoning where "sel" is already in seenKeywords from Step 2
+        val results4 = RawSections()
+        Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(listOf("Ajoutez 2 g de sel.", "Assaisonnez avec du sel et du poivre."), vocabulary, results4)
+        assertThat(results4.rawIngredientsList).contains("2 g sel")
+        assertThat(results4.rawIngredientsList).doesNotContain("Sel et poivre")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractImpliedIngredients_BlankParsedNameSegmentAndShortName() {
+        val results = RawSections()
+        val instructions = listOf(
+            "Incorporez 1 c. à soupe.",
+            "Ajoutez 250 g puis 1 g et 2 g d'a.",
+            "Incorporez 2 g de farine de blé."
+        )
+
+        Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(instructions, vocabulary, results)
+
+        assertThat(results.rawIngredientsList).contains("2 g farine de blé")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testIsDurationOrTime_DetectsDurationsAndTemperaturesAndRejectsFood() {
         assertThat(Ocr3NarrativeIngredientExtractor.isDurationOrTime("15 min", "min", "minutes")).isTrue()
         assertThat(Ocr3NarrativeIngredientExtractor.isDurationOrTime("20 mn", "mn", "mn")).isTrue()

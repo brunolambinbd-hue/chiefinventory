@@ -22,7 +22,7 @@ import java.io.File
  * A utility class to handle image acquisition (Capture or Pick) and cropping workflow.
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-class ImageCaptureUtil(
+open class ImageCaptureUtil(
     private val activity: AppCompatActivity,
     private val onImageReady: (Uri?) -> Unit
 ) {
@@ -118,14 +118,32 @@ class ImageCaptureUtil(
     /** Legacy entry point. */
     fun start(): Unit = startCamera()
 
-    internal fun launchCamera() {
-        val imageFile = File(activity.filesDir, "images/capture_${System.currentTimeMillis()}.jpg").apply { parentFile?.mkdirs() }
-        photoUri = try {
-            FileProvider.getUriForFile(activity, "${activity.applicationContext.packageName}.fileprovider", imageFile)
+    internal open fun getFileProviderUri(file: File): Uri {
+        return try {
+            FileProvider.getUriForFile(activity, "${activity.applicationContext.packageName}.fileprovider", file)
+        } catch (_: Exception) {
+            Uri.fromFile(file)
+        }
+    }
+
+    internal open fun createPhotoUri(imageFile: File): Uri? {
+        return try {
+            getFileProviderUri(imageFile)
         } catch (e: Exception) {
             LogManager.e("ImageCaptureUtil", "Failed to get FileProvider URI for file: ${imageFile.absolutePath}", e)
             Uri.fromFile(imageFile)
         }
-        photoUri?.let { takePictureLauncher.launch(it) }
+    }
+
+    internal fun launchCamera() {
+        val imagesDir = File(activity.filesDir, "images").apply { mkdirs() }
+        val imageFile = File(imagesDir, "capture_${System.currentTimeMillis()}.jpg")
+        photoUri = createPhotoUri(imageFile)
+        val uriToLaunch = photoUri
+        if (uriToLaunch != null) {
+            takePictureLauncher.launch(uriToLaunch)
+        } else {
+            LogManager.e("ImageCaptureUtil", "photoUri est nul lors du lancement de la caméra")
+        }
     }
 }

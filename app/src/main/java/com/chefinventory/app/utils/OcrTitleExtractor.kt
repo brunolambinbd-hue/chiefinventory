@@ -42,6 +42,7 @@ private data class ScoredTitleCandidate(
  * - Sélectionner le candidat ayant le score le plus élevé et retourner la liste des lignes restantes.
  * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Titles].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object OcrTitleExtractor {
     private const val TAG = "RecipeOCR"
 
@@ -163,12 +164,12 @@ object OcrTitleExtractor {
             if (trailingAdjRegex.containsMatchIn(lowerTitle)) {
                 val isFeminineAdj = lowerTitle.endsWith("petite") || lowerTitle.endsWith("petite s") || lowerTitle.endsWith("grande") || lowerTitle.endsWith("belle")
                 val numberWords = setOf("un", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix")
+                val stopInOrphanNoun = setOf("les", "des", "pour", "dans", "sur", "avec", "par", "tout", "melon")
                 val orphanNounIdx = remainingLines.indexOfFirst { l ->
                     val cleanL = l.lowercase().trim().removeSuffix(".")
                     val matchesGender = if (isFeminineAdj) (cleanL.endsWith("e") || cleanL == "salade") else true
                     cleanL.length in 3..20 && !cleanL.contains(" ") && matchesGender && cleanL !in numberWords &&
-                    !OcrInstructionUtils.hasActionVerb(cleanL, vocabulary.stepActionKeywords) &&
-                    cleanL !in listOf("les", "des", "pour", "dans", "sur", "avec", "par", "tout", "melon")
+                    !OcrInstructionUtils.hasActionVerb(cleanL, vocabulary.stepActionKeywords) && cleanL !in stopInOrphanNoun
                 }
                 if (orphanNounIdx != -1) {
                     val orphanNoun = remainingLines[orphanNounIdx].trim().removeSuffix(".")
@@ -201,7 +202,7 @@ object OcrTitleExtractor {
                 if (parsed.name.isNotBlank()) {
                     val words = parsed.name.split(OcrRegexes.Titles.PUNCTUATION_SPLIT)
                         .map { it.lowercase().trim() }
-                        .filter { it.length >= 3 && !it.any { c -> c.isDigit() } && it !in ignoreWords }
+                        .filter { it.length >= 3 && it !in ignoreWords }
                     ingredientNameWords.addAll(words)
                     words.forEach { w ->
                         if (w.endsWith("s") || w.endsWith("x")) {
@@ -240,13 +241,17 @@ object OcrTitleExtractor {
      *
      * @param line La ligne secondaire à analyser.
      * @param vocabulary Le vocabulaire métier data-driven (`ocr_step25_title_repairs.xml`).
-     * @return `true` si la ligne commence par un connecteur de titre (ex: "au jambon", "aux crevettes"), `false` sinon.
+     * @return `true` if la ligne commence par un connecteur de titre (ex: "au jambon", "aux crevettes"), `false` sinon.
      */
     fun isMultiLineTitleConnector(line: String, vocabulary: OcrVocabulary? = null): Boolean {
         val lower = line.lowercase().trim()
         val defaultConnectors = listOf("au ", "aux ", "et ", "à la ", "a la ", "à ", "de ", "d'", "du ", "des ", "avec ", "sur ")
-        val connectors = vocabulary?.titleMultilineConnectors?.map { " ${it.trim().lowercase()} " }
-            ?: defaultConnectors
+        val rawConnectors = vocabulary?.titleMultilineConnectors
+        val connectors = if (rawConnectors.isNullOrEmpty()) {
+            defaultConnectors
+        } else {
+            rawConnectors.map { " ${it.trim().lowercase()} " }
+        }
         return connectors.any { lower.startsWith(it.trimStart()) || lower.startsWith(it.trim()) }
     }
 
@@ -286,7 +291,7 @@ object OcrTitleExtractor {
         }
 
         if (matchedIngredient != null) {
-            val repairedFirstWord = matchedIngredient.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            val repairedFirstWord = matchedIngredient.replaceFirstChar { it.titlecase() }
             val repairedText = (listOf(repairedFirstWord) + words.drop(1)).joinToString(" ")
             Log.d(TAG, "TITLE EXTRACTOR: Lettrine réparée -> '$titleCandidate' devenant '$repairedText' (via '$matchedIngredient')")
             return repairedText
@@ -301,7 +306,7 @@ object OcrTitleExtractor {
      * @param lines La liste des lignes brutes de la recette.
      * @return Le premier mot d'ingrédient significatif trouvé, ou null.
      */
-    private fun findFirstIngredientWord(lines: List<String>, vocabulary: OcrVocabulary? = null): String? {
+    internal fun findFirstIngredientWord(lines: List<String>, vocabulary: OcrVocabulary? = null): String? {
         val stopWords = (vocabulary?.standaloneArticles ?: listOf("de", "du", "des", "d'", "la", "le", "les", "pour")).map { it.trim().lowercase() }
         for (line in lines) {
             val trimmed = line.trim()
@@ -333,11 +338,9 @@ object OcrTitleExtractor {
      *   Présence de prépositions de liaison culinaire (*" et "*, *" aux "*, *" à la "*, *" au "*, *" d'"*, *" de "*).
      * - **Critère 4 : Longueur minimale en mots (+10 pts)**  
      *   Bonus si le candidat comporte au moins 2 mots (évite les mots isolés).
-     * - **Critère 5 : Pénalité de préposition d'ingrédient initiale (-25 pts)**  
-     *   Pénalise un titre commençant par *"d'"*, *"de "*, *"du "* ou *"des "* (caractéristique d'une ligne d'ingrédient tronquée).
-     * - **Critère 6 : Mots d'ingrédients de la fiche scannée (+15 pts par ingrédient)**  
+     * - **Critère 5 : Mots d'ingrédients de la fiche scannée (+15 pts par ingrédient)**  
      *   Bonus si le titre contient des mots d'ingrédients inventoriés dans la recette (ex: *"mangue"*, *"crabe"*, *"aubergines"*).
-     * - **Critère 7 : Départage par le premier ingrédient (+30 pts)**  
+     * - **Critère 6 : Départage par le premier ingrédient (+30 pts)**  
      *   Bonus si le titre contient le nom du tout premier ingrédient de la liste.
      *
      * @param candidate Le texte du candidat titre à évaluer.
@@ -379,11 +382,7 @@ object OcrTitleExtractor {
 
         // Critère 3 : Connecteurs de titre (et, aux, à la, au)
         val defaultConnectors = listOf(" et ", " aux ", " à la ", " au ", " d'", " de ")
-        val connectors = if (vocabulary.titleMultilineConnectors.isNotEmpty()) {
-            vocabulary.titleMultilineConnectors.map { " ${it.trim()} " }
-        } else {
-            defaultConnectors
-        }
+        val connectors = vocabulary.titleMultilineConnectors.ifEmpty { defaultConnectors }.map { " ${it.trim()} " }
         val matchedConnectors = connectors.filter { lower.contains(it) }
         if (matchedConnectors.isNotEmpty()) {
             val pts = matchedConnectors.size * 10
@@ -398,13 +397,7 @@ object OcrTitleExtractor {
             details.add("plus_de_2_mots:+10")
         }
 
-        // Critère 5 : Préposition d'ingrédient au début (ex: "d'huile", "de farine")
-        if (lower.startsWith("d'") || lower.startsWith("de ") || lower.startsWith("du ") || lower.startsWith("des ")) {
-            score -= 25
-            details.add("debut_preposition_ingr:-25")
-        }
-
-        // Critère 6 : Mots d'ingrédients présents sur la fiche scannée de la recette (+15 pts par ingrédient)
+        // Critère 5 : Mots d'ingrédients présents sur la fiche scannée de la recette (+15 pts par ingrédient)
         val matchedRecipeIngredients = recipeIngredientWords.filter { ingWord ->
             val stem = ingWord.removeSuffix("s").removeSuffix("x")
             OcrRegexes.getStemWordPattern(stem).containsMatchIn(trimmed)
@@ -415,7 +408,7 @@ object OcrTitleExtractor {
             details.add("ingrédient_fiche_recette($matchedRecipeIngredients):+$pts")
         }
 
-        // Critère 7 : Départage par le premier ingrédient de la recette (+30 pts)
+        // Critère 6 : Départage par le premier ingrédient de la recette (+30 pts)
         if (firstIngredientWord != null) {
             val stem = firstIngredientWord.removeSuffix("s").removeSuffix("x")
             if (OcrRegexes.getStemWordPattern(stem).containsMatchIn(trimmed)) {
@@ -448,12 +441,16 @@ object OcrTitleExtractor {
         if (wordList.size < 2 && vocabulary.titleKeywords.none { it.equals(trimmed, ignoreCase = true) }) return false
         if (trimmed.endsWith(".") || trimmed.endsWith("!") || trimmed.endsWith("?")) return false
         if (OcrRegexes.Titles.DISQUALIFYING_NUMBER_START.containsMatchIn(line.trim())) return false
-        if (trimmed.contains("(") || trimmed.contains(")") || trimmed.contains("[")) return false
+        
+        val invalidChars = setOf("(", ")", "[")
+        if (invalidChars.any { trimmed.contains(it) }) return false
         if (OcrRegexes.Titles.HAS_QUANTITY.containsMatchIn(trimmed)) return false
         if (OcrRegexes.Titles.DISQUALIFYING_FRACTION.containsMatchIn(trimmed)) return false
         if (OcrRegexes.Titles.DISQUALIFYING_SPOON.containsMatchIn(trimmed)) return false
         if (OcrInstructionUtils.hasActionVerb(trimmed, vocabulary.stepActionKeywords)) return false
-        if (trimmed.startsWith("•") || trimmed.startsWith("-") || trimmed.startsWith("*")) return false
+        
+        val invalidBullets = setOf("•", "-", "*")
+        if (invalidBullets.any { trimmed.startsWith(it) }) return false
 
         if (vocabulary.excludedOcrKeywords.any { it.equals(trimmed, ignoreCase = true) }) return false
 
@@ -466,8 +463,12 @@ object OcrTitleExtractor {
         if (OcrHelperUtils.isLikelyProperNameOrSource(trimmed, vocabulary) || SourceParser.isSourceLine(trimmed, vocabulary)) return false
         if (WineParser.isWineLine(trimmed, vocabulary)) return false
 
-        if (lower.startsWith("d'") || lower.startsWith("l'") || lower.startsWith("de ") || lower.startsWith("du ") || lower.startsWith("des ") || lower.startsWith("de la ") || lower.startsWith("de l'") || lower.startsWith("ou ") || lower.startsWith("à ") || lower.startsWith("a ") || lower.startsWith("tranches de ") || lower.startsWith("tranche de ")) return false
-        if (lower.startsWith("quelques ") || lower.startsWith("plusieurs ") || lower.startsWith("ingrédients") || lower.startsWith("ingredients") || lower.startsWith("préparation") || lower.startsWith("cuisson") || lower.startsWith("repos") || lower.startsWith("pour ") || lower.startsWith("le jus") || lower.startsWith("jus de")) return false
+        val invalidPrefixes = setOf(
+            "d'", "l'", "de ", "du ", "des ", "de la ", "de l'", "ou ", "à ", "a ",
+            "tranches de ", "tranche de ", "quelques ", "plusieurs ", "ingrédients",
+            "ingredients", "préparation", "cuisson", "repos", "pour ", "le jus", "jus de"
+        )
+        if (invalidPrefixes.any { lower.startsWith(it) }) return false
         if (lower.contains("personnes") || lower.contains("portions")) return false
 
         val lastWord = lower.split(Regex("\\s+")).lastOrNull() ?: ""
@@ -489,7 +490,7 @@ object OcrTitleExtractor {
         var cleaned = text.trim()
         cleaned = cleaned.replace(OcrRegexes.Titles.RECIPE_NUMBER_PREFIX, "")
         if (cleaned.isNotEmpty()) {
-            cleaned = cleaned.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            cleaned = cleaned.replaceFirstChar { it.titlecase() }
         }
         return cleaned
     }

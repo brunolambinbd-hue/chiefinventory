@@ -1,48 +1,34 @@
 package com.chefinventory.app.utils
 
 import com.parabd.lib.traceability.utils.LogManager
-import com.parabd.lib.traceability.utils.uException
+import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
 /**
- * Utility responsible for loading all vocabulary dictionaries from XML files in `src/main/res/values/`.
- * This enables local JVM unit tests to run as true non-regression tests using the real production data files
- * without requiring an Android emulator or Mockito mocks.
+ * Chargeur data-driven responsable de l'ingestion, du parsing XML et de la mise en cache
+ * du vocabulaire métier de l'application [OcrVocabulary].
+ *
+ * Responsabilités :
+ * - Localiser et lire le répertoire `res/values` du projet depuis le disque (mode TDD/JVM) ou les ressources Android.
+ * - Parser les fichiers XML (`ocr_*.xml`, `step_keywords.xml`, `ingredients.xml`, `wine_arrays.xml`) sans dépendance Android Framework.
+ * - Effectuer la mise en cache de l'instance [OcrVocabulary] par défaut pour accélérer l'exécution des tests.
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object OcrVocabularyLoader {
-
     private const val TAG = "OcrVocabularyLoader"
 
     @Volatile
     private var cachedDefaultVocabulary: OcrVocabulary? = null
 
-    internal fun getList(map: Map<String, List<String>>, key: String): List<String> {
-        val list = map[key]
-        if (list != null) {
-            return list
-        }
-        return emptyList()
-    }
-
-    internal fun getStringVal(map: Map<String, String>, key: String): String {
-        val str = map[key]
-        if (str != null) {
-            return str
-        }
-        return ""
-    }
-
     /**
-     * Finds and parses all XML resource files in `src/main/res/values/` starting from [projectDir].
-     * Uses in-memory caching for default project root calls.
+     * Charge le vocabulaire métier complet depuis les fichiers XML du répertoire `res/values`.
      *
-     * @param projectDir The root project directory from which to locate `res/values`.
-     * @return An [OcrVocabulary] populated with the actual production resource data.
-     * @throws IllegalStateException If the 'res/values' directory cannot be located.
+     * @param projectDir Répertoire racine du projet (par défaut : dossier courant `"."`).
+     * @return L'objet [OcrVocabulary] alimenté.
+     * @throws IllegalStateException si le répertoire `res/values` est introuvable.
      */
     fun loadFromProjectResources(projectDir: File = File(".")): OcrVocabulary {
         if ((projectDir.path == ".") && (cachedDefaultVocabulary != null)) {
@@ -52,18 +38,14 @@ object OcrVocabularyLoader {
         val resDir = findResValuesDir(projectDir)
         if (resDir == null) {
             val errorMsg = "Could not locate 'res/values' directory from: ${projectDir.absolutePath}"
-            throw LogManager.uException(TAG, errorMsg)
+            LogManager.e(TAG, errorMsg)
+            throw IllegalStateException(errorMsg)
         }
 
         val stringArrays = mutableMapOf<String, List<String>>()
         val strings = mutableMapOf<String, String>()
 
-        val xmlFiles = resDir.listFiles { _, name -> name.endsWith(".xml") }
-        if (xmlFiles != null) {
-            for (xmlFile in xmlFiles) {
-                parseXmlResourceFile(xmlFile, stringArrays, strings)
-            }
-        }
+        parseResDirectory(resDir, stringArrays, strings)
 
         val vocabulary = OcrVocabulary(
             stepActionKeywords = getList(stringArrays, "step_action_keywords"),
@@ -81,6 +63,7 @@ object OcrVocabularyLoader {
             wineProducers = getList(stringArrays, "wine_producers"),
             wineKeywords = getList(stringArrays, "wine_keywords"),
             wineTitleKeywords = getList(stringArrays, "wine_title_keywords"),
+            ocr3ExplicitWineHeaders = getList(stringArrays, "ocr3_explicit_wine_headers"),
             wineRemovePattern = getStringVal(strings, "wine_remove_pattern"),
             ocrSpellingRepairs = getList(stringArrays, "ocr_spelling_repairs"),
             adExclusions = getList(stringArrays, "advertisement_exclusions"),
@@ -106,11 +89,16 @@ object OcrVocabularyLoader {
             timeHeaderKeywords = getList(stringArrays, "ocr_time_header_keywords"),
         )
 
+        cacheVocabularyIfNeeded(projectDir, vocabulary)
+        return vocabulary
+    }
+
+    internal fun cacheVocabularyIfNeeded(projectDir: File, vocabulary: OcrVocabulary) {
         if (projectDir.path == ".") {
             cachedDefaultVocabulary = vocabulary
+        } else {
+            LogManager.d(TAG, "Repertoire personnalise '${projectDir.path}', non mis en cache")
         }
-
-        return vocabulary
     }
 
     /**
@@ -130,6 +118,21 @@ object OcrVocabularyLoader {
         return candidates.firstOrNull { it.isDirectory }
     }
 
+    internal fun parseResDirectory(
+        resDir: File,
+        stringArrays: MutableMap<String, List<String>>,
+        strings: MutableMap<String, String>
+    ) {
+        val xmlFiles = resDir.listFiles { _, name -> name.endsWith(".xml") }
+        if (xmlFiles != null) {
+            for (xmlFile in xmlFiles) {
+                parseXmlResourceFile(xmlFile, stringArrays, strings)
+            }
+        } else {
+            LogManager.w(TAG, "No XML files found in directory: ${resDir.absolutePath}")
+        }
+    }
+
     internal fun parseXmlResourceFile(
         file: File,
         stringArrays: MutableMap<String, List<String>>,
@@ -139,35 +142,55 @@ object OcrVocabularyLoader {
             val dbFactory = DocumentBuilderFactory.newInstance()
             val dBuilder = dbFactory.newDocumentBuilder()
             val doc = dBuilder.parse(file)
-            doc.documentElement.normalize()
-
-            val arrayNodes = doc.getElementsByTagName("string-array")
-            for (i in 0 until arrayNodes.length) {
-                val node = arrayNodes.item(i)
-                if (node.nodeType == Node.ELEMENT_NODE) {
-                    val elem = node as Element
-                    val arrayName = elem.getAttribute("name")
-                    val items = mutableListOf<String>()
-                    val itemNodes = elem.getElementsByTagName("item")
-                    for (j in 0 until itemNodes.length) {
-                        items.add(itemNodes.item(j).textContent.trim().replace("\\'", "'"))
-                    }
-                    stringArrays[arrayName] = items
-                }
-            }
-
-            val stringNodes = doc.getElementsByTagName("string")
-            for (i in 0 until stringNodes.length) {
-                val node = stringNodes.item(i)
-                if (node.nodeType == Node.ELEMENT_NODE) {
-                    val elem = node as Element
-                    val stringName = elem.getAttribute("name")
-                    val rawText = elem.textContent.trim()
-                    strings[stringName] = rawText.replace("\\\\", "\\")
-                }
-            }
+            parseXmlDocument(doc, stringArrays, strings)
         } catch (e: Exception) {
             LogManager.e(TAG, "Error parsing XML resource file ${file.name}: ${e.message}", e)
         }
+    }
+
+    internal fun parseXmlDocument(
+        doc: Document,
+        stringArrays: MutableMap<String, List<String>>,
+        strings: MutableMap<String, String>,
+    ) {
+        doc.documentElement.normalize()
+
+        val arrayNodes = doc.getElementsByTagName("string-array")
+        for (i in 0 until arrayNodes.length) {
+            val node = arrayNodes.item(i)
+            if (node.nodeType == Node.ELEMENT_NODE) {
+                val elem = node as Element
+                val arrayName = elem.getAttribute("name")
+                val items = mutableListOf<String>()
+                val itemNodes = elem.getElementsByTagName("item")
+                for (j in 0 until itemNodes.length) {
+                    items.add(itemNodes.item(j).textContent.trim().replace("\\'", "'"))
+                }
+                stringArrays[arrayName] = items
+            } else {
+                LogManager.w(TAG, "Skipping non-element string-array node")
+            }
+        }
+
+        val stringNodes = doc.getElementsByTagName("string")
+        for (i in 0 until stringNodes.length) {
+            val node = stringNodes.item(i)
+            if (node.nodeType == Node.ELEMENT_NODE) {
+                val elem = node as Element
+                val stringName = elem.getAttribute("name")
+                val rawText = elem.textContent.trim()
+                strings[stringName] = rawText.replace("\\\\", "\\")
+            } else {
+                LogManager.w(TAG, "Skipping non-element string node")
+            }
+        }
+    }
+
+    internal fun getList(map: Map<String, List<String>>, key: String): List<String> {
+        return map[key] ?: emptyList()
+    }
+
+    internal fun getStringVal(map: Map<String, String>, key: String): String {
+        return map[key] ?: ""
     }
 }

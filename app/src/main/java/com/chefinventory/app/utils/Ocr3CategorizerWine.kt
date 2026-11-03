@@ -8,6 +8,7 @@ import android.util.Log
  * Cet objet sous-composant isole la logique d'identification des vins, le nettoyage des appellations/châteaux/millésimes
  * et la gestion de la fermeture de la section vin du catégoriseur principal [Ocr3Categorizer].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3CategorizerWine {
     private const val TAG = "RecipeOCR"
 
@@ -50,42 +51,73 @@ object Ocr3CategorizerWine {
         if (containsAction || startsWithConnector) return false
 
         val lower = workingLine.lowercase().trim()
-        val isExplicitWineHeader = lower.contains("conseil vin") || lower.contains("vin conseillé") || lower.contains("accord vin") || lower.startsWith("l'accord") || lower.startsWith("sommelier")
+        val isExplicitWineHeader = vocabulary.ocr3ExplicitWineHeaders.any { keyword ->
+            lower.contains(keyword.lowercase())
+        }
 
         if (isExplicitWineHeader) {
             wineState.isWineHeaderActive = true
+        } else {
+            // Aucun en-tête de vin explicite détecté sur cette ligne
         }
 
         if (wineState.isWineHeaderActive) {
             if (!wineState.isWineSectionClosed) {
                 val cleanedWine = WineParser.cleanWineLine(workingLine, vocabulary)
-                if (cleanedWine.isNotBlank() && wineState.detectedWineList.none { it.equals(cleanedWine, ignoreCase = true) }) {
-                    wineState.detectedWineList.add(cleanedWine)
+                if (cleanedWine.isNotBlank()) {
+                    val isAlreadyAdded = wineState.detectedWineList.any { it.equals(cleanedWine, ignoreCase = true) }
+                    if (!isAlreadyAdded) {
+                        wineState.detectedWineList.add(cleanedWine)
+                    } else {
+                        Log.d(TAG, "  [!] Ligne de vin ignorée (doublon déjà enregistré)")
+                    }
+                } else {
+                    Log.d(TAG, "  [!] Ligne de vin ignorée (nom vide)")
                 }
-                if (WineParser.hasWineVolume(workingLine) || lower.contains("carrefour") || lower.contains("2010") || lower.contains("2015")) {
+                val hasVolume = WineParser.hasWineVolume(workingLine)
+                val hasVintageYear = OcrRegexes.Wines.YEAR.containsMatchIn(workingLine)
+                val hasKnownBrand = vocabulary.knownSourceBrands.any { brand -> brand.isNotBlank() && lower.contains(brand.lowercase()) }
+
+                if (hasVolume || hasVintageYear || hasKnownBrand) {
                     wineState.isWineSectionClosed = true
                     wineState.isWineHeaderActive = false
                     Log.d(TAG, "  [!] SECTION VIN FERMÉE (Volume/Millésime/Enseigne vin détectée)")
+                } else {
+                    Log.d(TAG, "  [!] Section vin maintenue active (en attente du volume/millésime final)")
                 }
+            } else {
+                Log.d(TAG, "  [!] Ligne de vin ignorée (section vin déjà fermée)")
             }
             return true
         }
 
-        val allowWineDetection = currentSection != Ocr3Categorizer.SECTION_INGREDIENTS || isIngredientListClosed || WineParser.hasWineVolume(workingLine)
+        val isNotInIngredientsSection = currentSection != Ocr3Categorizer.SECTION_INGREDIENTS
+        val hasExplicitVolume = WineParser.hasWineVolume(workingLine)
+        val allowWineDetection = isNotInIngredientsSection || isIngredientListClosed || hasExplicitVolume
 
         if (allowWineDetection && WineParser.isWineLine(workingLine, vocabulary)) {
             if (!wineState.isWineSectionClosed) {
                 val cleanedWine = WineParser.cleanWineLine(workingLine, vocabulary)
-                if (cleanedWine.isNotBlank() && wineState.detectedWineList.none { it.equals(cleanedWine, ignoreCase = true) }) {
-                    wineState.detectedWineList.add(cleanedWine)
-                    if (WineParser.hasWineVolume(workingLine)) {
-                        wineState.isWineSectionClosed = true
-                        Log.d(TAG, "  [!] SECTION VIN FERMÉE (Volume/Millésime détecté)")
+                if (cleanedWine.isNotBlank()) {
+                    val isAlreadyAdded = wineState.detectedWineList.any { it.equals(cleanedWine, ignoreCase = true) }
+                    if (!isAlreadyAdded) {
+                        wineState.detectedWineList.add(cleanedWine)
+                        if (WineParser.hasWineVolume(workingLine)) {
+                            wineState.isWineSectionClosed = true
+                            Log.d(TAG, "  [!] SECTION VIN FERMÉE (Volume/Millésime détecté)")
+                        } else {
+                            Log.d(TAG, "  [!] Vin implicite capturé sans volume (section vin reste ouverte)")
+                        }
+                    } else {
+                        Log.d(TAG, "  [!] Ligne de vin implicite ignorée (doublon déjà enregistré)")
                     }
+                } else {
+                    Log.d(TAG, "  [!] Ligne de vin implicite ignorée (nom vide)")
                 }
             }
             return true
+        } else {
+            return false
         }
-        return false
     }
 }

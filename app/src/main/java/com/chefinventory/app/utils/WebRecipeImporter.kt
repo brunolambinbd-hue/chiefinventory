@@ -8,9 +8,17 @@ import org.jsoup.Jsoup
 /**
  * Moteur d'importation universelle de recettes Web basé sur le standard international Schema.org / JSON-LD Recipe.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object WebRecipeImporter {
 
     private const val TAG = "WebRecipeImporter"
+
+    internal var fetchHtmlDocumentImpl: (String) -> org.jsoup.nodes.Document = { url ->
+        Jsoup.connect(url)
+            .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+            .timeout(10000)
+            .get()
+    }
 
     /**
      * Résultat d'importation d'une recette Web.
@@ -37,6 +45,12 @@ object WebRecipeImporter {
         val sourceUrl: String
     )
 
+    internal fun isRecipeResultValid(result: WebRecipeResult?): Boolean {
+        if (result == null) return false
+        val title = result.title ?: return false
+        return title.isNotBlank()
+    }
+
     /**
      * Analyse un document HTML JSoup et extrait la recette depuis ses balises script JSON-LD ou ses balises meta.
      */
@@ -48,9 +62,11 @@ object WebRecipeImporter {
             if (html.isBlank()) continue
 
             val result = parseJsonLdScript(html, url)
-            if (result != null && !result.title.isNullOrBlank()) {
-                LogManager.d(TAG, "Recette JSON-LD extraite avec succès pour '$url': ${result.title}")
+            if (isRecipeResultValid(result)) {
+                LogManager.d(TAG, "Recette JSON-LD extraite avec succès pour '$url': ${result!!.title}")
                 return result
+            } else {
+                LogManager.d(TAG, "Recette JSON-LD ignorée ou sans titre pour '$url'")
             }
         }
 
@@ -78,10 +94,7 @@ object WebRecipeImporter {
     fun importFromUrl(url: String): WebRecipeResult {
         return try {
             LogManager.d(TAG, "Début de l'importation Web depuis l'URL: $url")
-            val doc = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-                .timeout(10000)
-                .get()
+            val doc = fetchHtmlDocumentImpl(url)
             val result = parseHtmlDocument(doc, url)
             LogManager.d(TAG, "Importation Web terminée avec succès pour '$url'")
             result
@@ -156,19 +169,31 @@ object WebRecipeImporter {
 
         val instructionsList = mutableListOf<String>()
         if (obj.has("recipeInstructions")) {
-            val instVal = obj.get("recipeInstructions")
-            if (instVal is JSONArray) {
-                for (i in 0 until instVal.length()) {
-                    val item = instVal.get(i)
-                    if (item is JSONObject) {
-                        val text = item.optString("text", "").trim()
-                        if (text.isNotBlank()) instructionsList.add(text)
-                    } else if (item is String) {
-                        if (item.isNotBlank()) instructionsList.add(item.trim())
+            when (val instVal = obj.get("recipeInstructions")) {
+                is JSONArray -> {
+                    for (i in 0 until instVal.length()) {
+                        when (val item = instVal.get(i)) {
+                            is JSONObject -> {
+                                val text = item.optString("text", "").trim()
+                                if (text.isNotBlank()) instructionsList.add(text)
+                            }
+                            is String -> {
+                                if (item.isNotBlank()) instructionsList.add(item.trim())
+                            }
+                        }
                     }
                 }
-            } else if (instVal is String) {
-                instVal.split("\n").map { it.trim() }.filter { it.isNotBlank() }.forEach { instructionsList.add(it) }
+                is String -> {
+                    val rawLines = instVal.split("\n")
+                    for (rawLine in rawLines) {
+                        val cleanLine = rawLine.trim()
+                        if (cleanLine.isNotBlank()) {
+                            instructionsList.add(cleanLine)
+                        } else {
+                            // Ligne vide ignorée
+                        }
+                    }
+                }
             }
         }
 
@@ -188,15 +213,18 @@ object WebRecipeImporter {
 
         var imgUrl: String? = null
         if (obj.has("image")) {
-            val imgVal = obj.get("image")
-            if (imgVal is JSONArray) {
-                imgUrl = imgVal.optString(0, "")
-            } else if (imgVal is JSONObject) {
-                imgUrl = imgVal.optString("url", "")
-            } else if (imgVal is String) {
-                imgUrl = imgVal
+            imgUrl = when (val imgVal = obj.get("image")) {
+                is JSONArray -> imgVal.optString(0, "")
+                is JSONObject -> imgVal.optString("url", "")
+                is String -> imgVal
+                else -> null
             }
-            if (imgUrl.isNullOrBlank()) imgUrl = null
+            val cleanImg = imgUrl
+            imgUrl = if (cleanImg != null && cleanImg.isNotBlank()) {
+                cleanImg
+            } else {
+                null
+            }
         }
 
         var rawCategory: String? = null
@@ -224,8 +252,13 @@ object WebRecipeImporter {
     }
 
     fun normalizeRecipeCategory(rawCategory: String?): String? {
-        if (rawCategory.isNullOrBlank()) return null
-        return CategoryMapper.normalizeRecipeCategory(rawCategory) ?: rawCategory.trim().ifBlank { null }
+        if (rawCategory == null || rawCategory.isBlank()) {
+            return null
+        } else {
+            val trimmed = rawCategory.trim()
+            val normalized = CategoryMapper.normalizeRecipeCategory(trimmed)
+            return if (normalized != null) normalized else trimmed
+        }
     }
 
     /**

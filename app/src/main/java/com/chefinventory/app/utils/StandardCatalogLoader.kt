@@ -58,8 +58,6 @@ object StandardCatalogLoader {
         if (trimmed.isBlank()) return null
 
         val parts = trimmed.split("|")
-        if (parts.isEmpty()) return null
-
         val name = parts[0].trim()
         if (name.isBlank()) return null
 

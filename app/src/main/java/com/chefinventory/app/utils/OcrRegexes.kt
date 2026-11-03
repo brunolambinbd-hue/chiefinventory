@@ -306,8 +306,8 @@ object OcrRegexes {
         /** Supprime les titres et en-têtes de section Vin (ex: "Notre vin conseillé :", "Vin suggéré :", "Conseil vin :"). */
         val REMOVE_HEADER_PATTERN: Regex = Regex("(?iu)^(?:notre\\s+)?vin\\s+(?:conseill[éÉėeèÈ]|sugg[éÉėeèÈ]r[éÉėeèÈ]|recommand[éÉėeèÈ])?\\s*:?|^conseil\\s+vin\\s*:?")
 
-        /** Disqualifie une ligne de vin si elle contient des aliments liquides/culinaires. */
-        val CULINARY_EXCLUSIONS: Regex = Regex("(?i)\\b(huile|vinaigre|beurre|crème|creme|lait|bouillon|eau|jus|sirop)\\b")
+        /** Disqualifie une ligne de vin si elle contient des aliments liquides/culinaires ou plats préparés. */
+        val CULINARY_EXCLUSIONS: Regex = Regex("(?i)\\b(huile|vinaigre|beurre|crème|creme|lait|bouillon|eau|jus|sirop|tarte|gâteau|gateau|poulet|veau|bœuf|boeuf|porc|poisson|soupe|salade|bûchettes|buchettes|jambon|melon|aubergine|aubergines|avocat|pâté|pate)\\b")
 
         /** Disqualifie une ligne de vin si elle contient des unités purement culinaires. */
         val CULINARY_UNITS: Regex = Regex("(?i)\\b(\\d+\\s*(?:dl|g|mg|kg)|c\\.?\\s*[àa]\\s*(?:soupe|caf[eé]|dessert))\\b")
@@ -473,10 +473,11 @@ object OcrRegexes {
     fun getInstructionPrefixPattern(stepActionKeywords: List<String>): Regex {
         val cacheKey = stepActionKeywords.joinToString(",")
         return instructionPrefixCache.getOrPut(cacheKey) {
+            val timeExclusions = setOf("minutes", "heures", "secondes", "environ")
             val actionVerbsRegex = if (stepActionKeywords.isNotEmpty()) {
                 val distinctKeywords = stepActionKeywords
                     .map { it.replace(Beautifier.BRACKET_COMMENT, "") }
-                    .filter { it.length >= 3 && it.lowercase() !in listOf("minutes", "heures", "secondes", "environ") }
+                    .filter { it.length >= 3 && it.lowercase() !in timeExclusions }
                 distinctKeywords.joinToString("|") { Regex.escape(it) }
             } else {
                 "(?!minutes\\b|heures\\b)[\\p{Lu}][\\p{Ll}]+"

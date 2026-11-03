@@ -6,6 +6,7 @@ import com.chefinventory.app.R
 /**
  * A singleton object that normalizes raw recipe category names to canonical meal categories.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object CategoryMapper {
 
     const val CATEGORY_ENTREE: String = "Entrée"
@@ -26,26 +27,26 @@ object CategoryMapper {
         if (rawCategory.isNullOrBlank()) return null
         val lower = rawCategory.lowercase().trim()
 
-        val boissonKeywords = res?.getStringArray(R.array.keywords_recipe_boisson)
+        val boissonKeywords = try { res?.getStringArray(R.array.keywords_recipe_boisson) } catch (_: Exception) { null }
             ?: arrayOf("boisson", "cocktail", "jus", "sirop", "apéritif", "aperitif")
 
-        val accompagnementKeywords = res?.getStringArray(R.array.keywords_recipe_accompagnement)
+        val accompagnementKeywords = try { res?.getStringArray(R.array.keywords_recipe_accompagnement) } catch (_: Exception) { null }
             ?: arrayOf("accompagnement", "sauce", "garniture", "purée", "puree")
 
-        val entreeKeywords = res?.getStringArray(R.array.keywords_recipe_entree)
+        val entreeKeywords = try { res?.getStringArray(R.array.keywords_recipe_entree) } catch (_: Exception) { null }
             ?: arrayOf("entrée", "entree", "starter", "appetizer", "amuse-bouche", "hors d'œuvre")
 
-        val platKeywords = res?.getStringArray(R.array.keywords_recipe_plat)
+        val platKeywords = try { res?.getStringArray(R.array.keywords_recipe_plat) } catch (_: Exception) { null }
             ?: arrayOf("plat", "main", "dinner", "viande", "poisson")
 
-        val dessertKeywords = res?.getStringArray(R.array.keywords_recipe_dessert)
+        val dessertKeywords = try { res?.getStringArray(R.array.keywords_recipe_dessert) } catch (_: Exception) { null }
             ?: arrayOf("dessert", "gâteau", "gateau", "patisserie", "pâtisserie", "douceur")
 
-        val labelBoisson = res?.getString(R.string.category_recipe_boisson) ?: CATEGORY_BOISSON
-        val labelAccompagnement = res?.getString(R.string.category_recipe_accompagnement) ?: CATEGORY_ACCOMPAGNEMENT
-        val labelEntree = res?.getString(R.string.category_recipe_entree) ?: CATEGORY_ENTREE
-        val labelPlat = res?.getString(R.string.category_recipe_plat) ?: CATEGORY_PLAT
-        val labelDessert = res?.getString(R.string.category_recipe_dessert) ?: CATEGORY_DESSERT
+        val labelBoisson = try { res?.getString(R.string.category_recipe_boisson) } catch (_: Exception) { null } ?: CATEGORY_BOISSON
+        val labelAccompagnement = try { res?.getString(R.string.category_recipe_accompagnement) } catch (_: Exception) { null } ?: CATEGORY_ACCOMPAGNEMENT
+        val labelEntree = try { res?.getString(R.string.category_recipe_entree) } catch (_: Exception) { null } ?: CATEGORY_ENTREE
+        val labelPlat = try { res?.getString(R.string.category_recipe_plat) } catch (_: Exception) { null } ?: CATEGORY_PLAT
+        val labelDessert = try { res?.getString(R.string.category_recipe_dessert) } catch (_: Exception) { null } ?: CATEGORY_DESSERT
 
         return when {
             boissonKeywords.any { it in lower } -> labelBoisson

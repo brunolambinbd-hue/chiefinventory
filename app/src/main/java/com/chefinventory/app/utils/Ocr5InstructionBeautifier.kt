@@ -45,6 +45,7 @@ object Ocr5InstructionBeautifier {
         val standaloneTrashWords = setOf(
             "les", "le", "la", "des", "du", "de", "d'", "un", "une", "et", "ou", "pour", "sur", "avec", "dans", "par", "ce", "ces", "cette", "salade"
         )
+        val headerTrashWords = setOf("préparation", "preparation", "instructions", "consignes")
 
         // 1. Nettoyage initial de chaque ligne
         val cleanedLines = instructions.map { line ->
@@ -60,8 +61,12 @@ object Ocr5InstructionBeautifier {
         }.filter { line ->
             val lower = line.lowercase().trim().removeSuffix(".")
             val hasAction = OcrInstructionUtils.hasActionVerb(line, stepActionKeywords)
-            val isRecipeHeaderTrash = !hasAction && (lower.contains("recette") || lower.contains("recettes") || line.contains("Ə"))
-            line.isNotBlank() && lower != "préparation" && lower != "preparation" && lower != "instructions" && lower != "consignes" && lower !in standaloneTrashWords && !isRecipeHeaderTrash
+            val isRecipeHeaderTrash = if (!hasAction) {
+                lower.contains("recette") || line.contains("Ə")
+            } else {
+                false
+            }
+            line.isNotEmpty() && lower !in headerTrashWords && lower !in standaloneTrashWords && !isRecipeHeaderTrash
         }
 
         // 2. Fusion des phrases se terminant par une conjonction (" et.", " ou.", ",.") ou une unité isolée
@@ -88,7 +93,12 @@ object Ocr5InstructionBeautifier {
                         unit.endsWith(".") && currentLower.endsWith(" $unit")
                     }
                     val currentNoDot = if (isAbbrevDot) currentClean else currentClean.removeSuffix(".").trim()
-                    val uncapitalizedNext = nextLine.replaceFirstChar { it.lowercase() }
+                    val firstChar = nextLine[0]
+                    val uncapitalizedNext = if (firstChar.isUpperCase()) {
+                        firstChar.lowercase() + nextLine.substring(1)
+                    } else {
+                        nextLine
+                    }
                     current = "$currentNoDot $uncapitalizedNext"
                     Log.d(TAG, "INSTRUCTION BEAUTIFIER: Merged '$currentNoDot' with '$nextLine'")
                     i++
@@ -98,10 +108,15 @@ object Ocr5InstructionBeautifier {
             }
 
             // Capitalisation initiale et ponctuation finale
-            if (current.isNotEmpty()) {
-                current = current.replaceFirstChar { it.titlecase() }
+            val first = current[0]
+            if (first.isLowerCase()) {
+                current = first.titlecase() + current.substring(1)
+            } else {
+                // Le premier caractère est déjà une majuscule
             }
-            if (current.isNotEmpty() && !current.endsWith(".") && !current.endsWith("!") && !current.endsWith("?")) {
+
+            val lastChar = current.last()
+            if (lastChar != '.' && lastChar != '!' && lastChar != '?') {
                 current += "."
             }
 
@@ -109,9 +124,6 @@ object Ocr5InstructionBeautifier {
             i++
         }
 
-        return mergedInstructions.filter { line ->
-            val lower = line.lowercase().trim().removeSuffix(".")
-            line.isNotBlank() && lower !in standaloneTrashWords
-        }
+        return mergedInstructions
     }
 }

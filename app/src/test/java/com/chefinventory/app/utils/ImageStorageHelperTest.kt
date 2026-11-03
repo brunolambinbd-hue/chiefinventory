@@ -9,6 +9,7 @@ import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
@@ -24,6 +25,20 @@ class ImageStorageHelperTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+    }
+
+    @Test
+    @CoveredRequirement("6.3.2.9")
+    fun testSaveImageToInternalStorage_NullInputStreamReturnsNull() {
+        val mockContentResolver = mock<ContentResolver> {
+            on { openInputStream(any()) } doReturn null
+        }
+        val mockContext = mock<Context> {
+            on { contentResolver } doReturn mockContentResolver
+            on { filesDir } doReturn context.filesDir
+        }
+        val savedUri = ImageStorageHelper.saveImageToInternalStorage(mockContext, Uri.parse("content://sample/uri"))
+        assertThat(savedUri).isNull()
     }
 
     @Test

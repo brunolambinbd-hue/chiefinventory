@@ -19,6 +19,23 @@ class Ocr5WineBeautifierTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testBeautifyWines_PunctuationOnlyAndAlreadyCapitalizedAndDigitStarts() {
+        val input = listOf(
+            ": : .",
+            "Bordeaux 1996 75 cl",
+            "2015 Château Margaux"
+        )
+
+        val result = Ocr5WineBeautifier.beautifyWines(input)
+
+        assertThat(result).containsExactly(
+            "Bordeaux 1996 75 cl",
+            "2015 Château Margaux"
+        ).inOrder()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testBeautifyWines_CapitalizationAndPunctuationAndDeduplication() {
         val input = listOf(
             "bordeaux 1996 75 cl",

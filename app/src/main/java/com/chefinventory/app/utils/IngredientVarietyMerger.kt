@@ -20,7 +20,7 @@ object IngredientVarietyMerger {
     fun isBaseExpectingVariety(text: String, baseIngredients: List<String>): Boolean {
         val lower = text.lowercase().trim()
         val words = lower.split(Regex("\\s+"))
-        val lastWord = words.lastOrNull() ?: ""
+        val lastWord = words.last()
         return baseIngredients.any { base ->
             val lowerBase = base.lowercase().trim()
             lowerBase.equals(lastWord, ignoreCase = true) || lower.endsWith(" $lowerBase")
@@ -66,7 +66,12 @@ object IngredientVarietyMerger {
                 val isCurrentBase = isBaseExpectingVariety(currentLine, baseIngredients)
 
                 if (isNextVariety && isCurrentBase) {
-                    val uncapitalizedNext = nextLine.replaceFirstChar { if (it.isUpperCase()) it.lowercase() else it.toString() }
+                    val firstChar = nextLine[0]
+                    val uncapitalizedNext = if (firstChar.isUpperCase()) {
+                        firstChar.lowercase() + nextLine.substring(1)
+                    } else {
+                        nextLine
+                    }
                     val merged = "$currentLine $uncapitalizedNext"
                     result.add(merged)
                     Log.d(TAG, "VARIETY MERGER: Fusion de la variété '$nextLine' avec '$currentLine' -> '$merged'")

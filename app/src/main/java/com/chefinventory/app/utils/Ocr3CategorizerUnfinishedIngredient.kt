@@ -9,6 +9,7 @@ import android.util.Log
  *
  * Ce sous-composant permet de maintenir la charge cognitive minimale dans [Ocr3Categorizer].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3CategorizerUnfinishedIngredient {
     private const val TAG = "RecipeOCR"
 
@@ -63,7 +64,17 @@ object Ocr3CategorizerUnfinishedIngredient {
         val isBlankName = parsedLast.quantity != null && (parsedLast.name.isBlank() || parsedLast.name.matches(Regex("(?i)^(?:soupe|café|cafe|c\\.?\\s*[àa]\\s*(?:soupe|café)|cuillère|cuillère\\s+à\\s+soupe|cuillère\\s+à\\s+café|g|kg|cl|ml|l)$")))
 
         // Test 2 : Adjectif de taille/modificateur seul avec quantité (ex: "1 petite")
-        val isModifierName = parsedLast.quantity != null && vocabulary.ingredientPreparationModifiers.any { mod -> parsedLast.name.equals(mod, ignoreCase = true) || lastLower.endsWith(" $mod") }
+        val isModifierName = if (parsedLast.quantity != null) {
+            vocabulary.ingredientPreparationModifiers.any { mod ->
+                if (parsedLast.name.equals(mod, ignoreCase = true)) {
+                    true
+                } else {
+                    lastLower.endsWith(" $mod")
+                }
+            }
+        } else {
+            false
+        }
 
         // Test 3 : Se termine par une unité culinaire isolée
         val baseUnits = listOf("soupe", "café", "cafe", "c. à soupe", "c. à café", "cuillère à soupe", "cuillère à café", "cuillere a soupe", "cuillere a cafe", "c.", "c", "cuillère", "cuillères", "cuillere", "cuilleres", "g.", "g", "kg", "cl", "ml", "dl", "l.", "l", "pincée", "gousse", "gousses", "botte", "sachet", "sachets", "bocal", "bocaux", "tranche", "tranches", "branche", "branches")
@@ -71,7 +82,7 @@ object Ocr3CategorizerUnfinishedIngredient {
 
         val endsWithUnit = allUnits.any { unit ->
             val cleanUnit = unit.trim().lowercase()
-            lastLower.endsWith(" $cleanUnit") || lastLower.endsWith(cleanUnit) || lastLower == cleanUnit
+            lastLower.endsWith(" $cleanUnit") || lastLower == cleanUnit
         }
 
         if (isBlankName || endsWithUnit || isModifierName) {
@@ -79,9 +90,17 @@ object Ocr3CategorizerUnfinishedIngredient {
             rawIngredientsList[lastIdx] = "$lastRawIng $workingLine"
             val parsedNew = IngredientParser.parse(rawIngredientsList[lastIdx])
             if (parsedNew.name.isNotBlank()) {
-                val keywords = parsedNew.name.split(Regex("[\\s,.'’()\\-*•/0-9]+"))
-                    .filter { it.length >= 3 && vocabulary.ingredientPreparationModifiers.none { mod -> mod.equals(it, ignoreCase = true) } }
+                val rawWords = parsedNew.name.split(Regex("[\\s,.'’()\\-*•/0-9]+"))
+                val keywords = rawWords.filter { word ->
+                    if (word.length < 3) return@filter false
+                    val isModifier = vocabulary.ingredientPreparationModifiers.any { mod ->
+                        mod.equals(word, ignoreCase = true)
+                    }
+                    !isModifier
+                }
                 seenIngredientKeywords.addAll(keywords)
+            } else {
+                Log.d(TAG, "  [FUSION UNITÉ INCOMPLÈTE] Nom d'ingrédient toujours vide après fusion ('${rawIngredientsList[lastIdx]}')")
             }
             Log.d(TAG, "  [FUSION UNITE INCOMPLÈTE] Appended: '$workingLine' -> New line: '${rawIngredientsList[lastIdx]}'")
             return true

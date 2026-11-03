@@ -11,6 +11,32 @@ class RecipeAuditEngineTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testAuditRecipes_SourceCategoryAndNullInstructions() {
+        val recipeNullInst = Recipe(id = 6L, title = "Tarte", instructions = null, locationId = null, source = "Dessert (Grand-mère)")
+        val itemNullInst = RecipeWithIngredients(recipe = recipeNullInst, ingredients = listOf(RecipeIngredient(recipeId = 6L, ingredientName = "Pommes")))
+
+        val report = RecipeAuditEngine.auditRecipes(listOf(itemNullInst))
+
+        assertThat(report.totalRecipes).isEqualTo(1)
+        assertThat(report.missingInstructionsList).containsExactly(itemNullInst)
+        assertThat(report.missingCategoryList).isEmpty()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testAuditRecipes_DefaultLocationNamesMapOverload() {
+        val recipe = Recipe(id = 10L, title = "Cocktail Mojito", instructions = "Chauffer")
+        val item = RecipeWithIngredients(recipe = recipe, ingredients = listOf(RecipeIngredient(recipeId = 10L, ingredientName = "Vin")))
+
+        // Call auditRecipes with 1 argument (uses default parameter locationNamesMap = emptyMap())
+        val report = RecipeAuditEngine.auditRecipes(listOf(item))
+
+        assertThat(report.totalRecipes).isEqualTo(1)
+        assertThat(report.drinkRecipesList).containsExactly(item)
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testAuditRecipes_FullCoverageOfCategoriesAndMissingFields() {
         val recipeValid = Recipe(id = 1L, title = "Crêpes", instructions = "Cuire à la poêle", locationId = 10L)
         val ingrValid = listOf(RecipeIngredient(recipeId = 1L, ingredientName = "Farine", quantityRequired = 250.0))

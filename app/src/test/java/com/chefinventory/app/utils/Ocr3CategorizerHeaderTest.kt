@@ -20,6 +20,60 @@ class Ocr3CategorizerHeaderTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testProcessSectionHeader_ExhaustiveLengthAndActionGuards() {
+        val state = Ocr3CategorizerHeader.HeaderState()
+
+        // 1. Ingredients header too long (length >= 35) -> returns false
+        val longIngr = "Ingrédients pour 4 personnes et leurs accompagnements de saison"
+        val isLongIngr = Ocr3CategorizerHeader.processSectionHeader(
+            workingLine = longIngr,
+            lowerLine = longIngr.lowercase(),
+            containsAction = false,
+            vocabulary = vocabulary,
+            state = state,
+            seenIngredientKeywords = mutableSetOf()
+        )
+        assertThat(isLongIngr).isFalse()
+
+        // 2. Ingredients header containing action verb -> returns false
+        val actionIngr = "Ingrédients : épluchez les légumes"
+        val isActionIngr = Ocr3CategorizerHeader.processSectionHeader(
+            workingLine = actionIngr,
+            lowerLine = actionIngr.lowercase(),
+            containsAction = true,
+            vocabulary = vocabulary,
+            state = state,
+            seenIngredientKeywords = mutableSetOf()
+        )
+        assertThat(isActionIngr).isFalse()
+
+        // 3. Instruction header too long (length >= 40) -> returns false
+        val longInstr = "Préparation de la pâte à tarte aux pommes de terre et aux légumes d'été"
+        val isLongInstr = Ocr3CategorizerHeader.processSectionHeader(
+            workingLine = longInstr,
+            lowerLine = longInstr.lowercase(),
+            containsAction = false,
+            vocabulary = vocabulary,
+            state = state,
+            seenIngredientKeywords = mutableSetOf()
+        )
+        assertThat(isLongInstr).isFalse()
+
+        // 4. Instruction header containing action verb -> returns false
+        val actionInstr = "Préparation de la sauce en mélangeant"
+        val isActionInstr = Ocr3CategorizerHeader.processSectionHeader(
+            workingLine = actionInstr,
+            lowerLine = actionInstr.lowercase(),
+            containsAction = true,
+            vocabulary = vocabulary,
+            state = state,
+            seenIngredientKeywords = mutableSetOf()
+        )
+        assertThat(isActionInstr).isFalse()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testProcessSectionHeader_DetectsIngredientsHeaderAndUpdateState() {
         val state = Ocr3CategorizerHeader.HeaderState()
         val seenKeywords = mutableSetOf("farine", "sucre")
@@ -74,6 +128,8 @@ class Ocr3CategorizerHeaderTest {
             "consignes :",
             "étapes :",
             "méthode de la préparation :",
+            "méthode de cuisson",
+            "consignes d'assemblage",
             "déroulement :"
         )
         instructionVariants.forEach { headerText ->

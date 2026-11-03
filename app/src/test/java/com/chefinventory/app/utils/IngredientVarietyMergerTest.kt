@@ -19,6 +19,20 @@ class IngredientVarietyMergerTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testBeautifyIngredientVarieties_NextIsVarietyButCurrentIsNotBase_DoesNotMerge() {
+        val baseIngredients = vocabulary.baseIngredientsExpectingVariety
+        val qualifiers = vocabulary.ingredientVarietyQualifiers
+
+        // "princesses" is a variety (isNextVariety = true), but "200 g de farine" is not a base (isCurrentBase = false)
+        val input = listOf("200 g de farine", "princesses")
+
+        val result = IngredientVarietyMerger.beautifyIngredientVarieties(input, baseIngredients, qualifiers)
+
+        assertThat(result).containsExactly("200 g de farine", "princesses").inOrder()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testBeautifyIngredientVarieties_UppercaseAndBaseEndings() {
         val baseIngredients = listOf("Haricots", "Pomme de terre")
         val qualifiers = listOf("Princesses", "Rissolées")

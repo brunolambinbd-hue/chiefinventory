@@ -10,6 +10,22 @@ import org.junit.Test
 class OcrRegexesTest {
 
     @Test
+    fun testNormalizerOcrOneCorrection() {
+        val replaced1 = "| citron".replace(OcrRegexes.Normalizer.OCR_ONE_CORRECTION, "$1 1")
+        assertThat(replaced1).contains("1")
+
+        val replaced2 = "(l ail".replace(OcrRegexes.Normalizer.OCR_ONE_CORRECTION, "$1 1")
+        assertThat(replaced2).contains("1")
+    }
+
+    @Test
+    fun testGetInstructionPrefixPattern_ExcludesTimeKeywordsAndShortWords() {
+        val keywordsWithTime = listOf("couper", "minutes", "heures", "de")
+        val pattern = OcrRegexes.getInstructionPrefixPattern(keywordsWithTime)
+        assertThat(pattern).isNotNull()
+    }
+
+    @Test
     fun `Quantities FRACTION should match fractional quantities`() {
         val match = OcrRegexes.Quantities.FRACTION.find("1/2 verre d'eau")
 

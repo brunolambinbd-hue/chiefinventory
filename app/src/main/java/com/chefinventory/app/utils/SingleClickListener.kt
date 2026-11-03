@@ -6,6 +6,7 @@ import android.view.View
 /**
  * An OnClickListener that prevents rapid double-clicks within [debounceIntervalMs] milliseconds.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 class SingleClickListener(
     private val debounceIntervalMs: Long = 600L,
     private val onSingleClick: (View) -> Unit
@@ -15,7 +16,9 @@ class SingleClickListener(
 
     override fun onClick(v: View) {
         val currentTime = SystemClock.elapsedRealtime()
-        if (lastClickTime < 0L || currentTime <= 0L || currentTime - lastClickTime >= debounceIntervalMs) {
+        val isFirstClick = lastClickTime < 0L
+        val isDebounced = currentTime - lastClickTime >= debounceIntervalMs
+        if (isFirstClick || isDebounced) {
             lastClickTime = currentTime
             onSingleClick(v)
         }

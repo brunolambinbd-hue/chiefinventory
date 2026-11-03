@@ -11,6 +11,7 @@ import java.io.FileOutputStream
  * A utility object for managing the permanent storage of images within the app's internal files directory.
  * This ensures that images captured by the user are not lost when the app's cache is cleared.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object ImageStorageHelper {
 
     private const val TAG = "ImageStorageHelper"
@@ -40,10 +41,16 @@ object ImageStorageHelper {
         try {
             val contentResolver = context.contentResolver
             if (contentResolver != null) {
-                contentResolver.openInputStream(tempUri)?.use { inputStream ->
-                    FileOutputStream(destinationFile).use { outputStream ->
-                        inputStream.copyTo(outputStream)
+                val inputStream = contentResolver.openInputStream(tempUri)
+                if (inputStream != null) {
+                    inputStream.use { stream ->
+                        FileOutputStream(destinationFile).use { outputStream ->
+                            stream.copyTo(outputStream)
+                        }
                     }
+                } else {
+                    LogManager.e(TAG, "Impossible d'ouvrir le flux d'entrée pour l'URI: $tempUri")
+                    return null
                 }
             } else {
                 throw LogManager.uException(TAG, "ContentResolver est nul lors de la sauvegarde d'image")

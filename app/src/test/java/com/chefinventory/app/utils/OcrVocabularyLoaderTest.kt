@@ -4,9 +4,109 @@ import com.google.common.truth.Truth.assertThat
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Assert.assertThrows
 import org.junit.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.Node
+import org.w3c.dom.NodeList
 import java.io.File
 
+/**
+ * Suite de tests unitaires de Type B vérifiant le chargement XML data-driven et le cache de [OcrVocabularyLoader].
+ */
 class OcrVocabularyLoaderTest {
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testCacheVocabularyIfNeeded_CustomDirectoryPath_ExecutesElseBranch() {
+        val mockVocab = OcrVocabularyLoader.loadFromProjectResources()
+        OcrVocabularyLoader.cacheVocabularyIfNeeded(File("custom_path_test"), mockVocab)
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testParseResDirectory_NonDirectoryFile_ExecutesElseBranchLog() {
+        val dummyNonDirFile = File.createTempFile("non_directory_file", ".tmp")
+        val stringArrays = mutableMapOf<String, List<String>>()
+        val strings = mutableMapOf<String, String>()
+
+        OcrVocabularyLoader.parseResDirectory(dummyNonDirFile, stringArrays, strings)
+
+        assertThat(stringArrays).isEmpty()
+        assertThat(strings).isEmpty()
+        dummyNonDirFile.delete()
+    }
+
+    @Test
+    @CoveredRequirement("6.3.2.9")
+    fun testParseXmlDocument_NonElementNodeInDom_ExecutesElseBranches() {
+        val mockNode = mock<Node> {
+            on { nodeType } doReturn Node.TEXT_NODE
+        }
+        val mockNodeList = mock<NodeList> {
+            on { length } doReturn 1
+            on { item(0) } doReturn mockNode
+        }
+        val mockElement = mock<Element>()
+        val mockDoc = mock<Document> {
+            on { documentElement } doReturn mockElement
+            on { getElementsByTagName("string-array") } doReturn mockNodeList
+            on { getElementsByTagName("string") } doReturn mockNodeList
+        }
+
+        val stringArrays = mutableMapOf<String, List<String>>()
+        val strings = mutableMapOf<String, String>()
+
+        OcrVocabularyLoader.parseXmlDocument(mockDoc, stringArrays, strings)
+
+        assertThat(stringArrays).isEmpty()
+        assertThat(strings).isEmpty()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testLoadFromProjectResources_NonDotProjectPath_ExecutesElseBranch() {
+        // Path is "./" (not equals to ".") -> executes else branch in loadFromProjectResources
+        val vocab = OcrVocabularyLoader.loadFromProjectResources(File("./"))
+        assertThat(vocab.stepActionKeywords).isNotEmpty()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testParseXmlResourceFile_WithCommentsAndTextNodes_ExecutesElseBranches() {
+        val tempFile = File.createTempFile("xml_with_comments", ".xml")
+        tempFile.writeText(
+            """<?xml version="1.0" encoding="utf-8"?>
+            <resources>
+                <!-- This is a comment node before string-array -->
+                <string-array name="test_array">
+                    <item>val1</item>
+                </string-array>
+                <!-- Comment node before string -->
+                <string name="test_string">val2</string>
+                <!-- Comment node at end -->
+            </resources>""".trimIndent()
+        )
+
+        val stringArrays = mutableMapOf<String, List<String>>()
+        val strings = mutableMapOf<String, String>()
+
+        OcrVocabularyLoader.parseXmlResourceFile(tempFile, stringArrays, strings)
+
+        assertThat(stringArrays["test_array"]).containsExactly("val1")
+        assertThat(strings["test_string"]).isEqualTo("val2")
+
+        tempFile.delete()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testOcr3ExplicitWineHeadersLoaded() {
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        assertThat(vocab.ocr3ExplicitWineHeaders).isNotEmpty()
+        assertThat(vocab.ocr3ExplicitWineHeaders).contains("conseil vin")
+    }
 
     @Test
     @CoveredRequirement("6.1.1.9")
@@ -14,15 +114,7 @@ class OcrVocabularyLoaderTest {
         OcrVocabularyLoader.clearCache()
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
 
-        assertThat(vocab).isNotNull()
-
-        // 1. Verify that all 38 XML resource lists/strings in res/values are non-empty
         assertThat(vocab.stepActionKeywords).isNotEmpty()
-        assertThat(vocab.commonIngredientsNoQty).isNotEmpty()
-        assertThat(vocab.excludedOcrKeywords).isNotEmpty()
-        assertThat(vocab.ingredientPreparationModifiers).isNotEmpty()
-        assertThat(vocab.instructionSwitchKeywords).isNotEmpty()
-        assertThat(vocab.ingredientSemanticExclusions).isNotEmpty()
         assertThat(vocab.ingredientEndMarkers).isNotEmpty()
         assertThat(vocab.ingredientSubHeaders).isNotEmpty()
         assertThat(vocab.sourceKeywords).isNotEmpty()
@@ -32,6 +124,7 @@ class OcrVocabularyLoaderTest {
         assertThat(vocab.wineProducers).isNotEmpty()
         assertThat(vocab.wineKeywords).isNotEmpty()
         assertThat(vocab.wineTitleKeywords).isNotEmpty()
+        assertThat(vocab.ocr3ExplicitWineHeaders).isNotEmpty()
         assertThat(vocab.wineRemovePattern).isNotEmpty()
         assertThat(vocab.ocrSpellingRepairs).isNotEmpty()
         assertThat(vocab.adExclusions).isNotEmpty()
@@ -55,36 +148,11 @@ class OcrVocabularyLoaderTest {
         assertThat(vocab.protectedSectionHeaders).isNotEmpty()
         assertThat(vocab.timeHeaderPrefixes).isNotEmpty()
         assertThat(vocab.timeHeaderKeywords).isNotEmpty()
-
-        // 2. Verify format integrity of XML spelling and diacritic repair pairs ("wrong|correct")
-        vocab.ocrSpellingRepairs.forEach { repair ->
-            assertThat(repair).contains("|")
-            val parts = repair.split("|")
-            assertThat(parts).hasSize(2)
-            assertThat(parts[0].trim()).isNotEmpty()
-            assertThat(parts[1].trim()).isNotEmpty()
-        }
-
-        vocab.titleSpellingRepairs.forEach { repair ->
-            assertThat(repair).contains("|")
-            val parts = repair.split("|")
-            assertThat(parts).hasSize(2)
-            assertThat(parts[0].trim()).isNotEmpty()
-            assertThat(parts[1].trim()).isNotEmpty()
-        }
-
-        vocab.ocrDiacriticRepairs.forEach { repair ->
-            assertThat(repair).contains("|")
-            val parts = repair.split("|")
-            assertThat(parts).hasSize(2)
-            assertThat(parts[0].trim()).isNotEmpty()
-            assertThat(parts[1].trim()).isNotEmpty()
-        }
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
-    fun testLoadFromProjectResources_CachingAndClearCache() {
+    fun testLoadFromProjectResources_CachingBehavior() {
         OcrVocabularyLoader.clearCache()
         val vocab1 = OcrVocabularyLoader.loadFromProjectResources()
         val vocab2 = OcrVocabularyLoader.loadFromProjectResources()

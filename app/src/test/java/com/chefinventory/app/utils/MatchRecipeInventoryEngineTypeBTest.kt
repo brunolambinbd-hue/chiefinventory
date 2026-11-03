@@ -16,6 +16,67 @@ import org.junit.Test
 class MatchRecipeInventoryEngineTypeBTest {
 
     @Test
+    fun `loadVocabSafely with throwing loader should return null`() {
+        val result = MatchRecipeInventoryEngine.loadVocabSafely { throw RuntimeException("Resource exception") }
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun `buildUnitPrefixPattern with null vocabulary should return valid regex`() {
+        val regexNull = MatchRecipeInventoryEngine.buildUnitPrefixPattern(null)
+        assertThat(regexNull.pattern).contains("cuillère")
+
+        val mockVocab = OcrVocabularyLoader.loadFromProjectResources().copy(culinaryMeasurementUnits = listOf("g", "   ", "cl"))
+        val regexWithBlank = MatchRecipeInventoryEngine.buildUnitPrefixPattern(mockVocab)
+        assertThat(regexWithBlank.pattern).contains("g")
+    }
+
+    @Test
+    fun `evaluateRecipesFeasibility should match pepper only seasoning and recipe contains pantry`() {
+        // Pepper only seasoning (isSel = false, isPoivre = true L135)
+        val recipe1 = Recipe(id = 70L, title = "Poivre seul")
+        val recipeIngr1 = listOf(RecipeIngredient(recipeId = 70L, ingredientName = "Poivre noir", quantityRequired = null))
+        val pantry1 = listOf(Ingredient(id = 1L, name = "Poivre vert", quantity = 1.0))
+
+        val matches1 = MatchRecipeInventoryEngine.evaluateRecipesFeasibility(listOf(recipe1), mapOf(70L to recipeIngr1), pantry1)
+        assertThat(matches1.first().totalInStock).isEqualTo(1)
+
+        // CleanReq contains CleanPantry (recipe: "Farine de blé T55", pantry: "Farine" L142)
+        val recipe2 = Recipe(id = 71L, title = "Farine spéciale")
+        val recipeIngr2 = listOf(RecipeIngredient(recipeId = 71L, ingredientName = "Farine de blé T55", quantityRequired = 250.0))
+        val pantry2 = listOf(Ingredient(id = 2L, name = "Farine", quantity = 1.0))
+
+        val matches2 = MatchRecipeInventoryEngine.evaluateRecipesFeasibility(listOf(recipe2), mapOf(71L to recipeIngr2), pantry2)
+        assertThat(matches2.first().totalInStock).isEqualTo(1)
+
+        // Seasoning pepper requirement with sel in pantry (covers cleanPantry.contains("sel") L148)
+        val recipe3 = Recipe(id = 90L, title = "Poivre seul")
+        val recipeIngr3 = listOf(RecipeIngredient(recipeId = 90L, ingredientName = "Poivre noir", quantityRequired = null))
+        val pantry3 = listOf(Ingredient(id = 3L, name = "Sel fin", quantity = 1.0))
+
+        val matches3 = MatchRecipeInventoryEngine.evaluateRecipesFeasibility(listOf(recipe3), mapOf(90L to recipeIngr3), pantry3)
+        assertThat(matches3.first().totalInStock).isEqualTo(1)
+
+        // Seasoning requirement with unrelated item in pantry (covers cleanPantry.contains("poivre") == false L148 and supplementalInfo.isBlank() L106)
+        val recipe4 = Recipe(id = 91L, title = "Poivre seul 2")
+        val recipeIngr4 = listOf(RecipeIngredient(recipeId = 91L, ingredientName = "Poivre noir", quantityRequired = 1.0, unit = "g", supplementalInfo = "   "))
+        val pantry4 = listOf(Ingredient(id = 4L, name = "Farine de blé", quantity = 1.0))
+
+        val matches4 = MatchRecipeInventoryEngine.evaluateRecipesFeasibility(listOf(recipe4), mapOf(91L to recipeIngr4), pantry4)
+        assertThat(matches4.first().totalInStock).isEqualTo(0)
+        assertThat(matches4.first().missingIngredients.first()).contains("1 g Poivre noir")
+    }
+
+    @Test
+    fun `evaluateRecipesFeasibility should handle empty formatted missing ingredient string`() {
+        val recipe = Recipe(id = 80L, title = "Recette nom vide")
+        val recipeIngr = listOf(RecipeIngredient(recipeId = 80L, ingredientName = "", quantityRequired = null, unit = null, supplementalInfo = null))
+
+        val matches = MatchRecipeInventoryEngine.evaluateRecipesFeasibility(listOf(recipe), mapOf(80L to recipeIngr), emptyList())
+        assertThat(matches.first().missingIngredients).contains("")
+    }
+
+    @Test
     fun `evaluateRecipesFeasibility should match oil and vinegar ingredients using pure lowercase substring matching`() {
         val recipe = Recipe(id = 10L, title = "Roulade de jambon de Parme")
         val recipeIngredients = listOf(

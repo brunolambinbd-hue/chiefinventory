@@ -31,14 +31,9 @@ public data class RecipeMatchResult(
 @Suppress("IfThenToElvis", "FoldInitializerAndIfNull", "kotlin:S6529", "RedundantVisibilityModifier")
 public object MatchRecipeInventoryEngine {
 
-    private val unitPrefixPattern: Regex by lazy {
-        val vocab = try {
-            OcrVocabularyLoader.loadFromProjectResources()
-        } catch (_: Exception) {
-            null
-        }
-        val loadedUnits = vocab?.culinaryMeasurementUnits ?: emptyList()
-        val loadedConnectors = vocab?.ingredientConnectors ?: emptyList()
+    internal fun buildUnitPrefixPattern(vocab: OcrVocabulary?): Regex {
+        val loadedUnits = if (vocab != null) vocab.culinaryMeasurementUnits else emptyList()
+        val loadedConnectors = if (vocab != null) vocab.ingredientConnectors else emptyList()
 
         val extraWords = listOf(
             "c. à soupe", "c. à café", "c à soupe", "c à café", "cuillère", "cuillere",
@@ -53,7 +48,20 @@ public object MatchRecipeInventoryEngine {
             .sortedByDescending { it.length }
             .joinToString("|") { Regex.escape(it) }
 
-        Regex("(?i)\\b($allWords)\\b")
+        return Regex("(?i)\\b($allWords)\\b")
+    }
+
+    internal fun loadVocabSafely(loader: () -> OcrVocabulary = { OcrVocabularyLoader.loadFromProjectResources() }): OcrVocabulary? {
+        return try {
+            loader()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private val unitPrefixPattern: Regex by lazy {
+        val vocab = loadVocabSafely()
+        buildUnitPrefixPattern(vocab)
     }
 
     /**
@@ -99,8 +107,8 @@ public object MatchRecipeInventoryEngine {
      * @return The formatted supplemental info string.
      */
     private fun formatSupplementalInfo(info: String?): String {
-        if (info.isNullOrBlank()) return ""
-        return " ($info)"
+        if (info == null || info.isBlank()) return ""
+        return " (${info.trim()})"
     }
 
     /**
@@ -132,7 +140,7 @@ public object MatchRecipeInventoryEngine {
                 val cleanReq = cleanNameForMatching(req.ingredientName)
                 val isSel = cleanReq.contains("sel")
                 val isPoivre = cleanReq.contains("poivre")
-                val isSeasoningReq = isSel || isPoivre
+                val isSeasoningReq = if (isSel) true else isPoivre
 
                 val isPresent = inStockMap.entries.any { (cleanPantry, inStock) ->
                     if (!inStock) {
@@ -156,7 +164,7 @@ public object MatchRecipeInventoryEngine {
                     val infoStr = formatSupplementalInfo(req.supplementalInfo)
                     val fullFormatted = "$formattedQty $unitStr${req.ingredientName}$infoStr".replace(Regex("\\s+"), " ").trim()
 
-                    missing.add(if (!fullFormatted.isBlank()) fullFormatted else req.ingredientName)
+                    missing.add(if (fullFormatted.isNotBlank()) fullFormatted else req.ingredientName)
                 }
             }
 

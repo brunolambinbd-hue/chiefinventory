@@ -8,6 +8,7 @@ package com.chefinventory.app.utils
  * - Vérifier l'exclusion stricte de mots-clés (`isExcluded`).
  * - Identifier si une ligne ressemble à un nom propre de chef ou d'établissement de provenance (`isLikelyProperNameOrSource`).
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object OcrTextUtils {
 
     /**
@@ -19,11 +20,10 @@ object OcrTextUtils {
      */
     fun isInsideParentheses(text: String, position: Int): Boolean {
         var openCount = 0
-        for (i in 0 until position) {
-            if (i < text.length) {
-                if (text[i] == '(') openCount++
-                if (text[i] == ')') openCount--
-            }
+        val maxPos = minOf(position, text.length)
+        for (i in 0 until maxPos) {
+            if (text[i] == '(') openCount++
+            if (text[i] == ')') openCount--
         }
         return openCount > 0
     }
@@ -68,6 +68,6 @@ object OcrTextUtils {
             if (containsFoodWord) return false
         }
 
-        return words.all { word -> word.isNotEmpty() && (word[0].isUpperCase() || word.all { it.isUpperCase() }) }
+        return words.all { word -> word[0].isUpperCase() }
     }
 }

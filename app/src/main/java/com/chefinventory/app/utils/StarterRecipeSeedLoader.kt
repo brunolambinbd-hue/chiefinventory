@@ -15,6 +15,7 @@ import org.json.JSONObject
  * @see REQ-4.8.1.1 Carnet de 58 recettes de départ libres de droits.
  * @see REQ-4.8.1.2 Importation sur demande via le menu latéral.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object StarterRecipeSeedLoader {
 
     private const val TAG = "StarterRecipeSeedLoader"
@@ -50,14 +51,30 @@ object StarterRecipeSeedLoader {
     fun loadSeedRecipesFromAssetFile(context: Context, assetPath: String): List<SeedRecipe> {
         val recipes = mutableListOf<SeedRecipe>()
         try {
-            val jsonStr = context.assets.open(assetPath).bufferedReader().use { it.readText() }
+            val assetStream = context.assets.open(assetPath)
+            val jsonStr = try {
+                val reader = java.io.BufferedReader(java.io.InputStreamReader(assetStream, Charsets.UTF_8))
+                val sb = java.lang.StringBuilder()
+                var line = reader.readLine()
+                while (line != null) {
+                    sb.append(line).append("\n")
+                    line = reader.readLine()
+                }
+                sb.toString()
+            } finally {
+                assetStream.close()
+            }
             val array = JSONArray(jsonStr)
 
             for (i in 0 until array.length()) {
-                val obj = array.optJSONObject(i) ?: continue
+                val obj = array.optJSONObject(i)
+                if (obj == null) continue
+
                 val parsed = parseSeedRecipeJsonObject(obj)
                 if (parsed != null) {
                     recipes.add(parsed)
+                } else {
+                    Log.d(TAG, "  [SEED DISQUALIFIÉ] Recette avec titre vide dans $assetPath")
                 }
             }
         } catch (e: Exception) {
@@ -155,7 +172,7 @@ object StarterRecipeSeedLoader {
         var recipeLocations = locationDao.getAllSync().filter { it.type == LocationType.RECIPE }
 
         for (catName in standardRecipeCategoryNames) {
-            val normalizedCatName = CategoryMapper.normalizeRecipeCategory(catName) ?: catName
+            val normalizedCatName = CategoryMapper.normalizeRecipeCategory(catName)!!
             if (recipeLocations.none { CategoryMapper.normalizeRecipeCategory(it.name) == normalizedCatName }) {
                 locationDao.insert(com.chefinventory.app.model.Location(name = normalizedCatName, parentId = null, type = LocationType.RECIPE))
             }
@@ -167,17 +184,44 @@ object StarterRecipeSeedLoader {
 
         for (seed in seedRecipes) {
             val cleanTitle = seed.title.lowercase().trim()
-            val normalizedSeedCat = CategoryMapper.normalizeRecipeCategory(seed.category) ?: seed.category
+            val normSeedCat = CategoryMapper.normalizeRecipeCategory(seed.category)
+            val normalizedSeedCat = if (normSeedCat != null) normSeedCat else seed.category
             val matchedCat = recipeLocations.find { CategoryMapper.normalizeRecipeCategory(it.name) == normalizedSeedCat }
             val fullSource = listOfNotNull(seed.cuisineOrigin, seed.sourceUrl).filter { it.isNotBlank() }.joinToString(" | ")
 
             val existing = existingMap[cleanTitle]
             if (existing != null) {
+                val currentInstr = existing.recipe.instructions ?: ""
+                val updatedInstr = if (currentInstr.isBlank()) {
+                    if (seed.instructions.isNotEmpty()) {
+                        seed.instructions.joinToString("\n\n")
+                    } else {
+                        currentInstr
+                    }
+                } else {
+                    currentInstr
+                }
+
+                val updatedSource = if (fullSource.isNotBlank()) fullSource else existing.recipe.source
+
+                val updatedLocId = if (matchedCat != null) {
+                    matchedCat.id
+                } else {
+                    existing.recipe.locationId
+                }
+
+                val seedImage = seed.imageUrl
+                val updatedImageUri = if (seedImage != null && seedImage.isNotBlank()) {
+                    seedImage
+                } else {
+                    existing.recipe.imageUri
+                }
+
                 val updatedRecipe = existing.recipe.copy(
-                    instructions = if (existing.recipe.instructions.isNullOrBlank() && seed.instructions.isNotEmpty()) seed.instructions.joinToString("\n\n") else existing.recipe.instructions,
-                    source = if (fullSource.isNotBlank()) fullSource else existing.recipe.source,
-                    locationId = if (existing.recipe.locationId == null || existing.recipe.locationId == -1L) matchedCat?.id else existing.recipe.locationId,
-                    imageUri = if (!seed.imageUrl.isNullOrBlank()) seed.imageUrl else existing.recipe.imageUri
+                    instructions = updatedInstr,
+                    source = updatedSource,
+                    locationId = updatedLocId,
+                    imageUri = updatedImageUri
                 )
                 recipeDao.updateRecipe(updatedRecipe)
 
@@ -204,7 +248,7 @@ object StarterRecipeSeedLoader {
                     preparationTimeMinutes = seed.prepTimeMinutes,
                     cookingTimeMinutes = seed.cookTimeMinutes,
                     servings = seed.servings,
-                    source = fullSource.ifBlank { null },
+                    source = if (fullSource.isNotBlank()) fullSource else null,
                     imageUri = seed.imageUrl,
                     locationId = matchedCat?.id
                 )

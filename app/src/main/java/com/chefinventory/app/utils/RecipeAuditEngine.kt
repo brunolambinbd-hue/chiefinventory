@@ -24,6 +24,7 @@ data class RecipeAuditReport(
 /**
  * Moteur d'audit de qualité et de conformité des recettes du carnet.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object RecipeAuditEngine {
 
     /**
@@ -53,20 +54,29 @@ object RecipeAuditEngine {
                 isValid = false
             }
 
-            if (item.recipe.instructions.isNullOrBlank()) {
+            val inst = item.recipe.instructions
+            val isBlankInst = inst == null || inst.isBlank()
+            if (isBlankInst) {
                 noInst.add(item)
                 isValid = false
             }
 
             val locName = item.recipe.locationId?.let { locationNamesMap[it] }
-            val sourceText = item.recipe.source ?: ""
+            val sourceRaw = item.recipe.source
+            val sourceText = if (sourceRaw != null) sourceRaw else ""
             val titleText = item.recipe.title
 
             val catFromLoc = CategoryMapper.normalizeRecipeCategory(locName)
             val catFromSource = CategoryMapper.normalizeRecipeCategory(sourceText)
             val catFromTitle = CategoryMapper.normalizeRecipeCategory(titleText)
 
-            val effectiveCategory = catFromLoc ?: catFromSource ?: catFromTitle
+            val effectiveCategory = if (catFromLoc != null) {
+                catFromLoc
+            } else if (catFromSource != null) {
+                catFromSource
+            } else {
+                catFromTitle
+            }
 
             if (effectiveCategory == null) {
                 noCat.add(item)

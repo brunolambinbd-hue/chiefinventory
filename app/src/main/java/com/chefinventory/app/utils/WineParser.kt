@@ -4,25 +4,26 @@ import android.content.res.Resources
 import com.chefinventory.app.R
 
 /**
- * Analyseur et extracteur des recommandations de vins et accords mets-vins.
+ * Analyseur et extracteur spécialisé pour la détection et le nettoyage des lignes de recommandations de vins.
  *
  * Responsabilités :
- * - Détecter si une ligne de texte représente une recommandation de vin (`isWineLine`).
- * - Disqualifier les lignes contenant des aliments liquides culinaires (ex: *"huile"*, *"vinaigre"*) ou des unités de recettes.
- * - Identifier les millésimes, volumes de bouteilles et appellations (`wine_arrays.xml`).
- * - Nettoyer et réparer les erreurs orthographiques et typographiques des lignes de vins (`cleanWineLine`).
+ * - Détecter si une ligne correspond à une recommandation d'accord met-vin (`isWineLine`).
+ * - Valider les appellations, châteaux et producteurs de vins contre les dictionnaires métier XML (`wine_arrays.xml`).
+ * - Exclure rigoureusement les ingrédients culinaires (ex: "vinaigre de vin", "huile") pour éviter les fausses détections.
+ * - Supprimer les préfixes d'en-tête et corriger les fautes d'orthographe OCR (`cleanWineLine`).
  * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Wines].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object WineParser {
 
     /**
-     * Conteneur des listes de ressources de vins (appellations, producteurs, mots-clés).
+     * Conteneur des listes de ressources de vins (appellations, producteurs, mots-clés, en-têtes et motif de suppression).
      *
-     * @property appellations Liste des appellations et cépages (ex: "Bordeaux", "Chianti", "Rioja").
-     * @property producers Liste des producteurs et domaines (ex: "Château", "Domaine", "Pfaffenheim").
-     * @property keywords Liste des mots-clés généraux d'œnologie.
-     * @property titleKeywords Liste des en-têtes de recommandation (ex: "vin conseillé", "accord").
-     * @property removePattern Motif Regex d'effacement de préfixe de titre de section vin.
+     * @property appellations Liste des appellations et cépages de vins (ex: "Bordeaux", "Chardonnay").
+     * @property producers Liste des châteaux, domaines et maisons de vins (ex: "Château", "Domaine").
+     * @property keywords Liste des mots-clés d'œnologie (ex: "cuvée", "millesime", "grand cru").
+     * @property titleKeywords Liste des expressions d'en-têtes de section vin (ex: "conseil vin", "accord").
+     * @property removePattern Expression régulière de suppression de l'en-tête de section vin.
      */
     data class WineResources(
         val appellations: List<String>,
@@ -49,11 +50,11 @@ object WineParser {
     }
 
     /**
-     * Détermine si la ligne [line] représente une recommandation de vin en utilisant [vocabulary].
+     * Détermine si la ligne [line] correspond à une recommandation de vin en utilisant [vocabulary].
      *
      * @param line La ligne de texte à analyser.
      * @param vocabulary Le vocabulaire métier OCR.
-     * @return `true` si la ligne est identifiée comme une recommandation de vin, `false` sinon.
+     * @return `true` si la ligne correspond à un vin, `false` sinon.
      */
     fun isWineLine(line: String, vocabulary: OcrVocabulary): Boolean {
         return isWineLine(
@@ -69,7 +70,7 @@ object WineParser {
     }
 
     /**
-     * Détermine si la ligne [line] représente une recommandation de vin en utilisant [resources].
+     * Détermine si la ligne [line] correspond à une recommandation de vin en utilisant [resources].
      *
      * @param line La ligne de texte à analyser.
      * @param resources Les ressources de vins contenant appellations et mots-clés.
@@ -77,7 +78,8 @@ object WineParser {
      */
     fun isWineLine(line: String, resources: WineResources): Boolean {
         val lower = line.lowercase().trim()
-        if (lower == "vin" || lower == "vin blanc" || lower == "vin rouge" || lower == "du vin blanc" || lower == "du vin rouge") return false
+        val genericWineWords = setOf("vin", "vin blanc", "vin rouge", "du vin blanc", "du vin rouge")
+        if (lower in genericWineWords) return false
 
         // 1. Exclusion si contient un ingrédient culinaire ou une unité culinaire
         if (OcrRegexes.Wines.CULINARY_EXCLUSIONS.containsMatchIn(line)) return false
@@ -90,10 +92,15 @@ object WineParser {
         if (OcrRegexes.Wines.STANDARD_BOTTLE.containsMatchIn(line)) return true
 
         // 4. Match contre les listes de ressources
-        val matchesResource = resources.appellations.any { containsWholeWord(line, it) } ||
-                resources.producers.any { containsWholeWord(line, it) } ||
-                resources.keywords.any { containsWholeWord(line, it) } ||
-                resources.titleKeywords.any { containsWholeWord(line, it) }
+        val matchesResource = if (resources.appellations.any { containsWholeWord(line, it) }) {
+            true
+        } else if (resources.producers.any { containsWholeWord(line, it) }) {
+            true
+        } else if (resources.keywords.any { containsWholeWord(line, it) }) {
+            true
+        } else {
+            resources.titleKeywords.any { containsWholeWord(line, it) }
+        }
         
         if (matchesResource) return true
         
@@ -110,7 +117,12 @@ object WineParser {
      * @return `true` si un volume de bouteille est détecté, `false` sinon.
      */
     fun hasWineVolume(line: String): Boolean {
-        return OcrRegexes.Wines.VOLUME.containsMatchIn(line) || OcrRegexes.Wines.STANDARD_BOTTLE.containsMatchIn(line)
+        val hasVolume = OcrRegexes.Wines.VOLUME.containsMatchIn(line)
+        if (hasVolume) {
+            return true
+        } else {
+            return OcrRegexes.Wines.STANDARD_BOTTLE.containsMatchIn(line)
+        }
     }
 
     /**
@@ -148,6 +160,8 @@ object WineParser {
             try {
                 cleaned = cleaned.replace(Regex(resources.removePattern, RegexOption.IGNORE_CASE), "").trim()
             } catch (_: Exception) {}
+        } else {
+            // Aucun motif d'effacement spécifique configuré
         }
 
         cleaned = cleaned.replace(OcrRegexes.Wines.HEADER_PREFIX, "").trim()
@@ -159,25 +173,27 @@ object WineParser {
     /**
      * Vérifie la présence d'un mot entier dans une chaîne de texte (délimiteur Unicode aware).
      *
-     * @param text Le texte hôte dans lequel chercher.
-     * @param keyword Le mot-clé à rechercher.
-     * @return `true` si le mot-clé entier est trouvé, `false` sinon.
+     * @param text Le texte source à analyser.
+     * @param word Le mot à rechercher.
+     * @return `true` si le mot entier est présent dans le texte, `false` sinon.
      */
-    private fun containsWholeWord(text: String, keyword: String): Boolean {
-        return OcrRegexes.getWholeWordPattern(keyword).containsMatchIn(text)
+    fun containsWholeWord(text: String, word: String): Boolean {
+        if (text.isBlank() || word.isBlank()) return false
+        val pattern = OcrRegexes.getWholeWordPattern(word)
+        return pattern.containsMatchIn(text)
     }
 
     /**
-     * Applique les corrections orthographiques et typographiques œnologiques de [OcrRegexes.Wines.SPELLING_CORRECTIONS].
+     * Applique la liste des règles de correction orthographique sur les appellations et châteaux de vins.
      *
-     * @param text Le texte de vin à corriger.
-     * @return Le texte après corrections orthographiques.
+     * @param text Le texte brut à corriger.
+     * @return Le texte après remplacement des fautes de frappe récurrentes.
      */
-    private fun applySpellingCorrections(text: String): String {
-        var corrected = text
-        for ((regex, replacement) in OcrRegexes.Wines.SPELLING_CORRECTIONS) {
-            corrected = corrected.replace(regex, replacement)
+    fun applySpellingCorrections(text: String): String {
+        var result = text
+        for ((pattern, replacement) in OcrRegexes.Wines.SPELLING_CORRECTIONS) {
+            result = pattern.replace(result, replacement)
         }
-        return corrected
+        return result
     }
 }

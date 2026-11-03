@@ -19,12 +19,12 @@ class Ocr3CategorizerUnfinishedIngredientTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
-    fun testTryMergeUnfinishedQuantityLine_QuantityUnitOnly_MergesNextLine() {
-        val rawList = mutableListOf("1 cuillère à soupe")
+    fun testTryMergeUnfinishedQuantityLine_ModifierEndsWithSuffixBranch() {
+        val rawList = mutableListOf("200 g de frais")
         val keywords = mutableSetOf<String>()
 
         val merged = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
-            workingLine = "de moutarde",
+            workingLine = "haché",
             currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
             containsAction = false,
             startsWithBullet = false,
@@ -34,14 +34,73 @@ class Ocr3CategorizerUnfinishedIngredientTest {
         )
 
         assertThat(merged).isTrue()
-        assertThat(rawList).containsExactly("1 cuillère à soupe de moutarde")
-        assertThat(keywords).contains("moutarde")
+        assertThat(rawList).containsExactly("200 g de frais haché")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testTryMergeUnfinishedQuantityLine_PluralModifierAndBlankParsedNameAfterMerge() {
+        // 1. Plural modifier "2 petites" matching lastLower.endsWith(" $mod")
+        val rawList1 = mutableListOf("2 petites")
+        val keywords1 = mutableSetOf<String>()
+
+        val merged1 = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
+            workingLine = "feuilles de chicon",
+            currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
+            containsAction = false,
+            startsWithBullet = false,
+            vocabulary = vocabulary,
+            rawIngredientsList = rawList1,
+            seenIngredientKeywords = keywords1
+        )
+
+        assertThat(merged1).isTrue()
+        assertThat(rawList1).containsExactly("2 petites feuilles de chicon")
+
+        // 2. Quantity merge with blank line producing blank parsed name ("1" + "   " -> "1   ")
+        val rawList2 = mutableListOf("1")
+        val keywords2 = mutableSetOf<String>()
+
+        val merged2 = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
+            workingLine = "   ",
+            currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
+            containsAction = false,
+            startsWithBullet = false,
+            vocabulary = vocabulary,
+            rawIngredientsList = rawList2,
+            seenIngredientKeywords = keywords2
+        )
+
+        assertThat(merged2).isTrue()
+        assertThat(keywords2).isEmpty()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testTryMergeUnfinishedQuantityLine_QuantityUnitOnly_MergesNextLine() {
+        val rawList = mutableListOf("1 cuillère à soupe")
+        val keywords = mutableSetOf<String>()
+
+        val merged = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
+            workingLine = "de farine de blé",
+            currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
+            containsAction = false,
+            startsWithBullet = false,
+            vocabulary = vocabulary,
+            rawIngredientsList = rawList,
+            seenIngredientKeywords = keywords
+        )
+
+        assertThat(merged).isTrue()
+        assertThat(rawList).containsExactly("1 cuillère à soupe de farine de blé")
+        assertThat(keywords).contains("farine")
+        assertThat(keywords).contains("blé")
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testTryMergeUnfinishedQuantityLine_ExhaustiveUnitsAndModifiers() {
-        val testUnits = listOf("1 g", "2 kg", "25 cl", "100 ml", "1 l", "1 cuillère à soupe", "2 c. à café", "1 gousse")
+        val testUnits = listOf("1 g", "2 kg", "25 cl", "100 ml", "1 l", "1 cuillère à soupe", "2 c. à café", "1 gousse", "gousse")
 
         testUnits.forEach { unfinishedLine ->
             val rawList = mutableListOf(unfinishedLine)

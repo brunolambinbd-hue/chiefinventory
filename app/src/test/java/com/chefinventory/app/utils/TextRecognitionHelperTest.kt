@@ -2,6 +2,7 @@ package com.chefinventory.app.utils
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.test.core.app.ApplicationProvider
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
@@ -11,14 +12,19 @@ import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognizer
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Suite de tests unitaires de Type B vérifiant la reconnaissance OCR
  * et la couverture de 100% des méthodes de [TextRecognitionHelper].
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class TextRecognitionHelperTest {
 
     private fun createTestHelper(
@@ -29,6 +35,29 @@ class TextRecognitionHelperTest {
         return object : TextRecognitionHelper(mockContext, mockRecognizer) {
             override fun createInputImage(bitmap: Bitmap): InputImage = mockImage
         }
+    }
+
+    @Test
+    fun testConstructor_DefaultRecognizerOverload() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        com.google.mlkit.common.sdkinternal.MlKitContext.initializeIfNeeded(context)
+
+        val helper = TextRecognitionHelper(context)
+        assertThat(helper).isNotNull()
+    }
+
+    @Test
+    fun testCreateInputImage_RealImplementation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        com.google.mlkit.common.sdkinternal.MlKitContext.initializeIfNeeded(context)
+
+        val mockRecognizer = mock<TextRecognizer>()
+        val helper = TextRecognitionHelper(context, mockRecognizer)
+
+        val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+        val inputImage = helper.createInputImage(bitmap)
+
+        assertThat(inputImage).isNotNull()
     }
 
     @Test
