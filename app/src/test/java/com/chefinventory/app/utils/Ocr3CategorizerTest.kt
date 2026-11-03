@@ -30,6 +30,41 @@ class Ocr3CategorizerTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testProcessBlock0_CategorizationContext_WithEmptyActionVerbs() {
+        // Test with empty actionVerbs (covers containsActionRegex == null branch)
+        val emptyActionVocab = vocabulary.copy(stepActionKeywords = emptyList())
+        val ctxEmpty = Ocr3Categorizer0_Context.processBlock0_CategorizationContext(emptyActionVocab)
+        assertThat(ctxEmpty.containsActionRegex).isNull()
+
+        // Test with non-empty actionVerbs (covers containsActionRegex != null branch)
+        val ctxLoaded = Ocr3Categorizer0_Context.processBlock0_CategorizationContext(vocabulary)
+        assertThat(ctxLoaded.containsActionRegex).isNotNull()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractKeywordsFromText_DirectCallAllBranches() {
+        // 1. With non-null supplementalInfo
+        val keywords1 = Ocr3Categorizer.extractKeywordsFromText("Farine", "tamisée hachée")
+        assertThat(keywords1).contains("farine")
+
+        // 2. With null supplementalInfo
+        val keywords2 = Ocr3Categorizer.extractKeywordsFromText("Beurre", null)
+        assertThat(keywords2).contains("beurre")
+
+        // 3. Stop words, fillers, units, and short words filtered out
+        val keywords3 = Ocr3Categorizer.extractKeywordsFromText("100 grammes de farine pour faire 2 morceaux de sucre", "dans un pot de verre")
+        assertThat(keywords3).contains("farine")
+        assertThat(keywords3).contains("sucre")
+        assertThat(keywords3).doesNotContain("grammes")
+        assertThat(keywords3).doesNotContain("pour")
+        assertThat(keywords3).doesNotContain("faire")
+        assertThat(keywords3).doesNotContain("morceaux")
+        assertThat(keywords3).doesNotContain("pot")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testCategorize_WithAndroidResources_CategorizesSuccessfully() {
         val input = listOf("INGRÉDIENTS", "200 g de farine", "INSTRUCTIONS", "Faire cuire au four pendant 15 min.")
         val result = Ocr3Categorizer.categorize(input, context.resources)

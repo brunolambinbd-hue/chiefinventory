@@ -2,52 +2,15 @@ package com.chefinventory.app.utils
 
 import android.content.res.Resources
 import android.util.Log
-import java.util.regex.Pattern
 
 /**
- * Conteneur de données regroupant les sections brutes catégorisées et méta-données extraites lors de l'Étape 3.
- *
- * @property rawIngredientsList Liste mutable des lignes catégorisées comme ingrédients bruts.
- * @property rawInstructionsList Liste mutable des lignes catégorisées comme consignes d'instructions brutes.
- * @property detectedWineList Liste mutable des recommandations de vins extraites.
- * @property detectedSourceList Liste mutable des provenances/sources extraites.
- * @property detectedTitle Le titre de la recette s'il est détecté à cette étape, ou null.
- * @property detectedServings Le nombre de personnes/portions extrait (ex: "4").
- * @property detectedPrepTime Le temps de préparation extrait en minutes (ex: "15").
- * @property detectedCookTime Le temps de cuisson extrait en minutes (ex: "45").
- * @property detectedRestingTime Le temps de repos extrait en minutes (ex: "30").
- * @property detectedKcal Les kilocalories par portion extraites (ex: "250").
- * @property detectedDifficulty La difficulté extraite (ex: "Facile").
- * @property ingredientKeywords L'ensemble des mots-clés d'ingrédients inventoriés pour le suivi des réapparitions.
- */
-data class RawSections(
-    val rawIngredientsList: MutableList<String> = mutableListOf(),
-    val rawInstructionsList: MutableList<String> = mutableListOf(),
-    val detectedWineList: MutableList<String> = mutableListOf(),
-    val detectedSourceList: MutableList<String> = mutableListOf(),
-    var detectedTitle: String? = null,
-    var detectedServings: String? = null,
-    var detectedPrepTime: String? = null,
-    var detectedCookTime: String? = null,
-    var detectedRestingTime: String? = null,
-    var detectedKcal: String? = null,
-    var detectedDifficulty: String? = null,
-    var detectedPriceRating: String? = null,
-    var detectedNutritionInfo: String? = null,
-    var ingredientKeywords: Set<String> = emptySet()
-)
-
-/**
- * Étape 3 du pipeline OCR : Catégorisation intelligente et Machine à États.
+ * Étape 3 du pipeline OCR : Catégorisation intelligente et Machine à États (Orchestrateur Principal).
  *
  * Responsabilités :
  * - Répartir les lignes de texte nettoyées dans leurs sections respectives (Ingrédients, Instructions, Vin, Méta-données).
- * - Basculer dynamiquement l'état de section via [Ocr3CategorizerHeader].
- * - Extraire automatiquement les méta-données (Portions, Temps, Kcal, Difficulté).
- * - Détecter et isoler la section vin via [Ocr3CategorizerWine].
- * - Fusionner à la volée les quantités/unités inachevées via [Ocr3CategorizerUnfinishedIngredient].
- * - Verrouiller la section ingrédients lors de la rencontre du marqueur fin (ex: "sel et poivre").
+ * - Déléguer la sous-analyse séquentielle aux processeurs assistants numérotés [Ocr3Categorizer0_Context] à [Ocr3Categorizer5_BlockE_Dispatch].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3Categorizer {
     private const val TAG = "Ocr3Categorizer"
 
@@ -89,223 +52,77 @@ object Ocr3Categorizer {
 
         Log.d(TAG, "--- DÉBUT CATÉGORISATION ---")
 
-        val actionVerbs = vocabulary.stepActionKeywords.distinct()
-        val commonIngredients = vocabulary.commonIngredientsNoQty
-        val excludedKeywords = vocabulary.excludedOcrKeywords
-        val preparationModifiers = vocabulary.ingredientPreparationModifiers
-        val instructionTriggers = vocabulary.instructionSwitchKeywords
-        val semanticExclusions = vocabulary.ingredientSemanticExclusions
-        val endMarkers = vocabulary.ingredientEndMarkers
-        val subHeaders = vocabulary.ingredientSubHeaders
-
-        val ingredientHeaders = listOf("ingrédients", "ingredients", "composition", "ngrédients")
-        val instructionHeaders = listOf("préparation", "preparation", "instructions", "nstructions", "étapes", "réalisation", "méthode", "progression", "cuisson")
-
-        val hardQtyRegex = Regex("^[\\d¼½¾]|[|Il!](?=[\\s\\d])|\\d+/\\d+", RegexOption.IGNORE_CASE)
-        val qtyRegex = Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|des\\b|du\\b|de la\\b|de l'|le\\b|la\\b|les\\b|l['’]|quelques\\b|plusieurs\\b|un\\s+peu\\b)", RegexOption.IGNORE_CASE)
-
-        val containsActionRegex = if (actionVerbs.isEmpty()) null else Regex("(?i)\\b(?:${actionVerbs.joinToString("|")})\\b")
-        val ingredientConnectors = listOf("de", "du", "des", "d'", "au", "aux", "à")
+        // === DEBUT BLOC 0 : Dictionnaires & Compilations Regex ===
+        val ctx = Ocr3Categorizer0_Context.processBlock0_CategorizationContext(vocabulary)
+        val hardQtyRegex = ctx.hardQtyRegex
+        val qtyRegex = ctx.qtyRegex
+        val containsActionRegex = ctx.containsActionRegex
+        val ingredientConnectors = ctx.ingredientConnectors
+        // === FIN BLOC 0 ===
 
         for (line in lines) {
             var workingLine = line.trim()
             if (workingLine.isEmpty()) continue
 
-            if (Ocr2Cleaner.isTechnicalDimension(workingLine)) {
-                results.rawInstructionsList.add(workingLine)
-                continue
-            }
+            // === DEBUT BLOC A : Méta-données & Continuation de phrase suspendue ===
+            val blockA = Ocr3Categorizer1_BlockA_Metadata.processBlockA_MetadataAndHangingLine(
+                workingLine, results, vocabulary, containsActionRegex,
+                ingredientConnectors, currentSection, seenIngredientKeywords
+            )
+            if (blockA.shouldContinue) continue
 
-            // 1. DÉTECTION ET EXTRACTION DES MÉTA-DONNÉES (RecipeMetadataParser)
-            val metaResult = RecipeMetadataParser.extractMetadata(workingLine, results, vocabulary)
-            workingLine = metaResult.remainingLine
-            if (metaResult.isPureMetadata) continue
+            workingLine = blockA.workingLine
+            var lowerLine = blockA.lowerLine
+            var containsAction = blockA.containsAction
+            var startsWithBullet = blockA.startsWithBullet
+            val startsWithConnector = blockA.startsWithConnector
+            // === FIN BLOC A ===
 
-            var lowerLine = workingLine.lowercase()
-            var containsAction = containsActionRegex?.containsMatchIn(workingLine) ?: false
-            var startsWithBullet = workingLine.startsWith("•") || workingLine.startsWith("-") || workingLine.startsWith("*")
-            val startsWithConnector = ingredientConnectors.any { lowerLine.startsWith("$it ") || (it.endsWith("'") && lowerLine.startsWith(it)) }
+            // === DEBUT BLOC B : Ingrédient inachevé, Vin, Source & Purge Mots Exclus ===
+            val blockB = Ocr3Categorizer2_BlockB_WineSource.processBlockB_UnfinishedWineAndExcludedKeywords(
+                workingLine, currentSection, containsAction, startsWithBullet, startsWithConnector,
+                isIngredientListClosed, vocabulary, results, seenIngredientKeywords, wineState
+            )
+            if (blockB.shouldContinue) continue
+            workingLine = blockB.workingLine
+            // === FIN BLOC B ===
 
-            // 8.5 RATTRAPAGE IMMÉDIAT DE CONTINUATION DE PHRASE SUSPENDUE (Ingrédients ou Instructions)
-            val baseConnectors = listOf(" de", " d'", " du", " des", " ou", " au", " aux", " avec", " dans", " pour", " sur", " en", " par", " la", " le", " les")
-            val allConnectorsEnding = (baseConnectors + vocabulary.hangingConnectors.map { " ${it.trim().lowercase()}" }).distinct()
+            // === DEBUT BLOC C : Analyse Réapparition, Modificateurs & En-têtes ===
+            val blockC = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
+                workingLine, currentSection, isIngredientListClosed, startsWithConnector,
+                containsActionRegex, hardQtyRegex, qtyRegex, vocabulary, results, seenIngredientKeywords
+            )
+            lowerLine = blockC.lowerLine
+            containsAction = blockC.containsAction
+            startsWithBullet = blockC.startsWithBullet
+            val hasWeight = blockC.hasWeight
+            val hasHardQuantity = blockC.hasHardQuantity
+            val isReappearance = blockC.isReappearance
+            val hasInstructionTrigger = blockC.hasInstructionTrigger
+            val looksLikeIngredient = blockC.looksLikeIngredient
+            currentSection = blockC.updatedSection
+            isIngredientListClosed = blockC.updatedIngredientListClosed
+            // === FIN BLOC C ===
 
-            val targetListForContinuation = if (currentSection == SECTION_INGREDIENTS) results.rawIngredientsList else results.rawInstructionsList
-            val lastRawLine = targetListForContinuation.lastOrNull()?.lowercase()?.trim() ?: ""
-            val isContinuationOfHangingLine = targetListForContinuation.isNotEmpty() && allConnectorsEnding.any { lastRawLine.endsWith(it) }
+            // === DEBUT BLOC D : Bruit de pied de page, Signaux d'instructions & Classification de section ===
+            val blockD = Ocr3Categorizer4_BlockD_Classification.processBlockD_SectionClassification(
+                workingLine, currentSection, isIngredientListClosed, containsAction,
+                startsWithBullet, startsWithConnector, hasWeight, hasHardQuantity,
+                isReappearance, hasInstructionTrigger, looksLikeIngredient, wineState, vocabulary, results
+            )
+            if (blockD.shouldContinue) continue
+            workingLine = blockD.workingLine
+            currentSection = blockD.updatedSection
+            // === FIN BLOC D ===
 
-            if (isContinuationOfHangingLine && !containsAction && !startsWithBullet) {
-                val lastIdx = targetListForContinuation.lastIndex
-                targetListForContinuation[lastIdx] = "${targetListForContinuation[lastIdx].trim()} $workingLine"
-                if (currentSection == SECTION_INGREDIENTS) {
-                    val keywords = extractKeywordsFromText(workingLine, null)
-                    seenIngredientKeywords.addAll(keywords)
-                }
-                Log.d(TAG, "  [FUSION CONTINUATION] Appended: '$workingLine' -> New line: '${targetListForContinuation[lastIdx]}'")
-                continue
-            }
-
-            // 8.6 RATTRAPAGE IMMÉDIAT D'UNITÉ D'INGRÉDIENT INCOMPLÈTE (ex: "1 cuillère à soupe" + "de moutarde")
-            if (Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
-                    workingLine, currentSection, containsAction, startsWithBullet, vocabulary,
-                    results.rawIngredientsList, seenIngredientKeywords
-                )) {
-                continue
-            }
-
-            // DÉTECTION VIN
-            if (Ocr3CategorizerWine.processWineLine(
-                    workingLine, currentSection, isIngredientListClosed,
-                    containsAction, startsWithConnector, vocabulary, wineState
-                )) {
-                continue
-            }
-
-            if (!containsAction && !startsWithConnector) {
-                if (OcrHelperUtils.isLikelyProperNameOrSource(workingLine, vocabulary) || SourceParser.isSourceLine(workingLine, vocabulary)) {
-                    results.detectedSourceList.add(SourceParser.cleanSourceLine(workingLine, vocabulary))
-                    continue
-                }
-            }
-
-            for (word in excludedKeywords) {
-                val pattern = Regex("(?i)(?<!\\p{L})${Pattern.quote(word)}(?!\\p{L})")
-                workingLine = pattern.replace(workingLine, "").trim()
-            }
-            workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
-            if (workingLine.isEmpty()) continue
-
-            lowerLine = workingLine.lowercase()
-            containsAction = containsActionRegex?.containsMatchIn(workingLine) ?: false
-            startsWithBullet = workingLine.startsWith("•") || workingLine.startsWith("-") || workingLine.startsWith("*")
-
-            val weightRegex = Regex("(?i)\\(\\d+\\s*(?:g|kg|ml|cl|l|oz|lb|pcs|pce|un|une)\\)")
-            val hasWeight = OcrIngredientUtils.hasExplicitWeight(workingLine) || weightRegex.containsMatchIn(workingLine)
-            val hasHardQuantity = hardQtyRegex.containsMatchIn(workingLine) || OcrHelperUtils.countIngredientSequences(workingLine) > 0
-            val hasQuantity = qtyRegex.containsMatchIn(workingLine) || hasHardQuantity
-
-            // --- ANALYSE RÉAPPARITION AVEC LOGS DÉTAILLÉS ---
-            var matchedKeyword: String? = null
-            Log.d(TAG, "LIGNE: '$workingLine' | Déjà inventorisés: $seenIngredientKeywords")
-            val isReappearance = !startsWithConnector && seenIngredientKeywords.any { keyword ->
-                val pattern = Regex("(?<!\\p{L})${Regex.escape(keyword)}(?!\\p{L})", RegexOption.IGNORE_CASE)
-                val match = pattern.containsMatchIn(workingLine)
-                if (match) {
-                    matchedKeyword = keyword
-                    val finalDecision = isIngredientListClosed || (!hasHardQuantity && !hasWeight)
-                    Log.d(TAG, "  ? Comparaison: '$keyword' -> MATCH=true | hardQty=$hasHardQuantity | weight=$hasWeight | closed=$isIngredientListClosed | final=$finalDecision")
-                }
-                val allowWithQty = isIngredientListClosed
-                match && (allowWithQty || (!hasHardQuantity && !hasWeight))
-            }
-            if (workingLine.contains("sucre") || workingLine.contains("beurre")) {
-                System.err.println("DEBUG LINE: '$workingLine' | seen=$seenIngredientKeywords | isReappearance=$isReappearance | hasWeight=$hasWeight | hasHardQty=$hasHardQuantity")
-            }
-
-            val isIsolatedModifier = preparationModifiers.any { mod ->
-                val lowerMod = mod.lowercase()
-                lowerLine == lowerMod ||
-                        lowerLine.startsWith("$lowerMod ") ||
-                        lowerLine.startsWith("${lowerMod}d'") ||
-                        lowerLine.startsWith("${lowerMod}de") ||
-                        lowerLine.startsWith("${lowerMod}du") ||
-                        lowerLine.startsWith("${lowerMod}des")
-            }
-            val hasInstructionTrigger = instructionTriggers.any { Regex("(?i)\\b${Pattern.quote(it)}\\b").containsMatchIn(workingLine) }
-            val isSubHeader = subHeaders.any { it.equals(workingLine, ignoreCase = true) }
-
-            val looksLikeIngredient = (hasQuantity || hasWeight || isIsolatedModifier ||
-                    commonIngredients.any { lowerLine.startsWith(it.lowercase()) }) && !hasInstructionTrigger && !isReappearance
-
-            val isInstrHeader = (instructionHeaders.any { lowerLine.contains(it) } || instructionTriggers.any { lowerLine == it.lowercase() }) && workingLine.length < 35 && !containsAction
-            val isIngrHeader = (lowerLine.contains("ingrédients") || lowerLine.contains("composition")) && workingLine.length < 35 && !containsAction
-
-            when {
-                isInstrHeader -> currentSection = SECTION_INSTRUCTIONS
-                isIngrHeader || isSubHeader -> {
-                    currentSection = SECTION_INGREDIENTS
-                    isIngredientListClosed = false
-                    if (isIngrHeader) {
-                        seenIngredientKeywords.clear()
-                        val hasRealInstructionStep = results.rawInstructionsList.any { OcrInstructionUtils.hasActionVerb(it, vocabulary.stepActionKeywords) }
-                        if (!hasRealInstructionStep) {
-                            results.rawInstructionsList.clear()
-                        }
-                    }
-                }
-            }
-            workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
-
-            workingLine = OcrHelperUtils.cleanIngredientSemantics(workingLine, excludedKeywords, semanticExclusions)
-            if (workingLine.isEmpty() || !workingLine.any { it.isLetter() }) continue
-
-            // Ignorer le bruit de pied de page / étiquette de bouteille après fermeture de la section vin
-            if (wineState.isWineSectionClosed && !containsAction && !startsWithBullet) continue
-
-            val lastRawIng = results.rawIngredientsList.lastOrNull() ?: ""
-            val hasUnclosedParenthesis = currentSection == SECTION_INGREDIENTS && (lastRawIng.count { it == '(' } > lastRawIng.count { it == ')' })
-
-            val isStepNumber = Regex("^\\d{1,2}[.)\\-]\\s*").containsMatchIn(workingLine)
-            val isInstructionSignal = !hasUnclosedParenthesis && (hasInstructionTrigger || isReappearance || isStepNumber || (containsAction && (workingLine.length > 25 || startsWithBullet)))
-
-            Log.d(TAG, "  => BILAN: reappear=$isReappearance | instrSignal=$isInstructionSignal | currentSec=$currentSection")
-
-            // 9. CLASSIFICATION FINALE
-            when {
-                isInstructionSignal || (isIngredientListClosed && !hasHardQuantity && !hasWeight) -> currentSection = SECTION_INSTRUCTIONS
-                currentSection == SECTION_NONE && (looksLikeIngredient || startsWithConnector) -> currentSection = SECTION_INGREDIENTS
-            }
-
-            val parsed = IngredientParser.parse(workingLine)
-
-            when (currentSection) {
-                SECTION_INGREDIENTS -> {
-                    if (Ocr2Cleaner.isTechnicalDimension(workingLine)) continue
-                    if (!containsAction && ((lowerLine.contains("sel") && lowerLine.contains("poivre")) || lowerLine.contains("sel, poivre") || lowerLine.contains("sel et poivre"))) {
-                        isIngredientListClosed = true
-                        Log.d(TAG, "  [!] VERROU ACTIVÉ (Marqueur de fin sel/poivre détecté)")
-                    }
-                    results.rawIngredientsList.add(workingLine)
-                    val keywords = extractKeywordsFromText(parsed.name, parsed.supplementalInfo)
-                        .filter { kw -> preparationModifiers.none { mod -> mod.equals(kw, ignoreCase = true) } }
-                    seenIngredientKeywords.addAll(keywords)
-                    Log.d(TAG, "  [INGR] Split: Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}', Info='${parsed.supplementalInfo}' | Keywords added: $keywords")
-                }
-                SECTION_INSTRUCTIONS -> {
-                    val isStrictIngredient = (looksLikeIngredient || startsWithConnector) && !containsAction && !Ocr2Cleaner.isTechnicalDimension(workingLine) && !hasInstructionTrigger
-                    val isEndMarkerLine = (lowerLine.contains("sel") && lowerLine.contains("poivre")) || lowerLine == "sel, poivre" || lowerLine == "sel et poivre" || lowerLine == "sel" || lowerLine == "poivre"
-                    val isCommonIngredient = commonIngredients.any { lowerLine.contains(it.lowercase()) }
-                    val isHyphenatedInstruction = workingLine.trimEnd().endsWith("-") || lowerLine.trimEnd().endsWith(" et") || lowerLine.trimEnd().endsWith(" ou")
-                    val shouldPullBack = when {
-                        isReappearance -> false
-                        isHyphenatedInstruction -> false
-                        isEndMarkerLine && !containsAction -> true
-                        isIngredientListClosed -> (isStrictIngredient && (hasHardQuantity || hasWeight)) || (isCommonIngredient && !containsAction && !startsWithBullet)
-                        else -> isStrictIngredient && (hasHardQuantity || hasWeight)
-                    }
-
-                    if (shouldPullBack) {
-                        if (isEndMarkerLine && !containsAction) {
-                            isIngredientListClosed = true
-                            Log.d(TAG, "  [!] VERROU ACTIVÉ DEPUIS RATTRAPAGE (Marqueur de fin détecté)")
-                        }
-                        results.rawIngredientsList.add(workingLine)
-                        seenIngredientKeywords.addAll(extractKeywordsFromText(parsed.name, parsed.supplementalInfo))
-                        Log.d(TAG, "  [RATTRAPAGE] Split: Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}', Info='${parsed.supplementalInfo}'")
-                    } else {
-                        results.rawInstructionsList.add(workingLine.replace(OcrRegexes.Beautifier.BULLET_PREFIX, "").trim())
-                    }
-                }
-                else -> {
-                    if (looksLikeIngredient || startsWithConnector) {
-                        results.rawIngredientsList.add(workingLine)
-                        seenIngredientKeywords.addAll(extractKeywordsFromText(parsed.name, parsed.supplementalInfo))
-                        Log.d(TAG, "  [DEFAUT] Split: Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}', Info='${parsed.supplementalInfo}'")
-                    } else {
-                        results.rawInstructionsList.add(workingLine.replace(OcrRegexes.Beautifier.BULLET_PREFIX, "").trim())
-                    }
-                }
-            }
+            // === DEBUT BLOC E : Aiguillage de section (Ingrédients, Instructions, Rattrapage) ===
+            isIngredientListClosed = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
+                workingLine, lowerLine, currentSection, isIngredientListClosed, containsAction,
+                startsWithBullet, startsWithConnector, hasWeight, hasHardQuantity,
+                isReappearance, hasInstructionTrigger, looksLikeIngredient,
+                vocabulary, results, seenIngredientKeywords
+            )
+            // === FIN BLOC E ===
         }
         results.detectedWineList.addAll(wineState.detectedWineList)
         results.ingredientKeywords = seenIngredientKeywords
@@ -320,7 +137,7 @@ object Ocr3Categorizer {
      * @param supplementalInfo L'information supplémentaire associée.
      * @return La liste des mots-clés significatifs de longueur >= 3.
      */
-    private fun extractKeywordsFromText(name: String, supplementalInfo: String?): List<String> {
+    internal fun extractKeywordsFromText(name: String, supplementalInfo: String?): List<String> {
         val stopWords = setOf("dans", "avec", "pour", "plus", "moins", "vers", "sous", "sur", "chez", "entre", "faire", "faites", "votre", "quelques", "plusieurs")
         val fillers = setOf("morceau", "morceaux", "tranche", "tranches", "de", "le", "la", "les", "des", "du", "un", "une")
         val units = setOf("grammes", "kilos", "litres", "centilitres", "millilitres", "cuillere", "soupe", "cafe", "pincee", "gousse", "boite", "boites", "pot", "pots", "cl", "ml", "kg")
