@@ -1,10 +1,10 @@
 package com.chefinventory.app.utils
 
 /**
- * Sous-composant du Bloc 0 de l'Étape 2.5 : Extraie les mots-clés d'ingrédients et recherche le premier ingrédient de la recette pour [OcrTitleExtractor].
+ * Sous-composant du Bloc 0 de l'Étape 2.5 : Extraie les mots-clés d'ingrédients et recherche le premier ingrédient de la recette pour [Ocr2_5CleanerTitleExtractor].
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object OcrTitleExtractor0_Context {
+object Ocr2_5CleanerTitleExtractor0_Context {
 
     /**
      * Extraie les mots des noms d'ingrédients présents sur la fiche scannée de la recette.

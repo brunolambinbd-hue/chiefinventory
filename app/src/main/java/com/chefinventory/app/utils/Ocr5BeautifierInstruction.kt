@@ -3,7 +3,7 @@ package com.chefinventory.app.utils
 import android.util.Log
 
 /**
- * Assistant dédié à la beautification et au recollage sémantique final des consignes d'instructions lors de l'Étape 5.
+ * Assistant de l'Étape 5 (Embellissement) dédié à la beautification et au recollage sémantique final des consignes d'instructions.
  *
  * Responsabilités :
  * - Empêcher la terminaison artificielle d'une consigne par une conjonction (" et.", " ou.", ",.").
@@ -14,7 +14,7 @@ import android.util.Log
  * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Beautifier].
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object Ocr5InstructionBeautifier {
+object Ocr5BeautifierInstruction {
     private const val TAG = "RecipeOCR"
 
     /**

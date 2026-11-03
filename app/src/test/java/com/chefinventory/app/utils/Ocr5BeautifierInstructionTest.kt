@@ -7,9 +7,9 @@ import org.junit.Test
 
 /**
  * Suite de tests unitaires de Type B vérifiant la beautification, la ponctuation et le recollage de consignes
- * suspendues par [Ocr5InstructionBeautifier].
+ * suspendues par [Ocr5BeautifierInstruction].
  */
-class Ocr5InstructionBeautifierTest {
+class Ocr5BeautifierInstructionTest {
 
     private lateinit var vocabulary: OcrVocabulary
 
@@ -26,7 +26,7 @@ class Ocr5InstructionBeautifierTest {
             "Servir chaud."
         )
 
-        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
             input,
             vocabulary.stepActionKeywords,
             vocabulary.hangingConnectors
@@ -45,7 +45,7 @@ class Ocr5InstructionBeautifierTest {
             "pour."
         )
 
-        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
             input,
             vocabulary.stepActionKeywords,
             vocabulary.hangingConnectors
@@ -65,7 +65,7 @@ class Ocr5InstructionBeautifierTest {
             "faire mijoter à feu doux"
         )
 
-        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
             input,
             vocabulary.stepActionKeywords,
             vocabulary.hangingConnectors,
@@ -92,7 +92,7 @@ class Ocr5InstructionBeautifierTest {
             "Déguster chaud ?"
         )
 
-        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
             input,
             vocabulary.stepActionKeywords,
             vocabulary.hangingConnectors,
@@ -121,7 +121,7 @@ class Ocr5InstructionBeautifierTest {
         )
 
         // Test with default arguments
-        val result = Ocr5InstructionBeautifier.beautifyInstructions(input)
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(input)
 
         assertThat(result).contains("Mélangez l'huile d'olive.")
         assertThat(result).contains("Laissez mariner au réfrigérateur.")
@@ -136,7 +136,7 @@ class Ocr5InstructionBeautifierTest {
             "Garnissez de quelques branches de cerfeuil."
         )
 
-        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
             input,
             vocabulary.stepActionKeywords,
             vocabulary.hangingConnectors
@@ -155,7 +155,7 @@ class Ocr5InstructionBeautifierTest {
             "À soupe de yaourt."
         )
 
-        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
             input,
             vocabulary.stepActionKeywords,
             vocabulary.hangingConnectors,
@@ -175,7 +175,7 @@ class Ocr5InstructionBeautifierTest {
             "Le thym et le romarin effeuillé."
         )
 
-        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
             input,
             vocabulary.stepActionKeywords,
             vocabulary.hangingConnectors
@@ -194,7 +194,7 @@ class Ocr5InstructionBeautifierTest {
             "Laissez mariner au réfrigérateur."
         )
 
-        val result = Ocr5InstructionBeautifier.beautifyInstructions(
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
             input,
             vocabulary.stepActionKeywords,
             vocabulary.hangingConnectors

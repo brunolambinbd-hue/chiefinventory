@@ -6,15 +6,15 @@ import org.junit.Test
 
 /**
  * Suite de tests unitaires de Type B vérifiant la beautification, la majusculation et le dé-doublonnage
- * des vins par [Ocr5WineBeautifier].
+ * des vins par [Ocr5BeautifierWine].
  */
-class Ocr5WineBeautifierTest {
+class Ocr5BeautifierWineTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testBeautifyWines_EmptyList_ReturnsEmpty() {
-        assertThat(Ocr5WineBeautifier.beautifyWines(emptyList())).isEmpty()
-        assertThat(Ocr5WineBeautifier.beautifyWines(listOf("  ", ""))).isEmpty()
+        assertThat(Ocr5BeautifierWine.beautifyWines(emptyList())).isEmpty()
+        assertThat(Ocr5BeautifierWine.beautifyWines(listOf("  ", ""))).isEmpty()
     }
 
     @Test
@@ -26,7 +26,7 @@ class Ocr5WineBeautifierTest {
             "2015 Château Margaux"
         )
 
-        val result = Ocr5WineBeautifier.beautifyWines(input)
+        val result = Ocr5BeautifierWine.beautifyWines(input)
 
         assertThat(result).containsExactly(
             "Bordeaux 1996 75 cl",
@@ -43,7 +43,7 @@ class Ocr5WineBeautifierTest {
             "  château margaux 2015  "
         )
 
-        val result = Ocr5WineBeautifier.beautifyWines(input)
+        val result = Ocr5BeautifierWine.beautifyWines(input)
 
         assertThat(result).containsExactly(
             "Bordeaux 1996 75 cl",

@@ -6,21 +6,16 @@ import java.util.regex.Pattern
  * Fonctions utilitaires dédiées à l'analyse et au traitement des consignes d'instructions du pipeline OCR.
  *
  * Responsabilités :
- * - Détecter la présence d'un déclencheur de consignes d'instructions (`hasInstructionTrigger`).
+ * - Déléguer la détection de déclencheurs d'instructions à [Ocr3CategorizerInstructionTriggerDetector].
  * - Déterminer si une ligne contient un verbe d'action culinaire à l'impératif (`hasActionVerb`).
  */
 object OcrInstructionUtils {
 
     /**
      * Détermine si une ligne contient un mot-clé de déclenchement d'instructions (`instruction_triggers.xml`).
-     *
-     * @param line La ligne de texte à évaluer.
-     * @param instructionTriggers Liste des déclencheurs d'instructions.
-     * @return `true` si la ligne contient un déclencheur d'instruction, `false` sinon.
      */
     fun hasInstructionTrigger(line: String, instructionTriggers: List<String>): Boolean {
-        if (line.isBlank() || instructionTriggers.isEmpty()) return false
-        return instructionTriggers.any { Regex("(?i)\\b${Pattern.quote(it)}\\b").containsMatchIn(line) }
+        return Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger(line, instructionTriggers)
     }
 
     /**

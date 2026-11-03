@@ -8,9 +8,11 @@ import com.chefinventory.app.R
  *
  * Responsabilités :
  * - Détecter si une ligne contient des coordonnées ou références de provenance (`isSourceLine`).
- * - Nettoyer les lignes de sources en supprimant les préfixes téléphoniques ("Tel:", "Fax:") et ponctuations parasites (`cleanSourceLine`).
- * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Sources] et le cache memoized de préfixes [OcrRegexes.getPhonePrefixPattern].
+ * - Déléguer l'extraction de marque publicitaire à [Ocr2CleanerAdSourceExtractor].
+ * - Déléguer le nettoyage de préfixe de source à [Ocr3CategorizerSourceCleaner].
+ * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Sources].
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object SourceParser {
 
     /**
@@ -64,43 +66,22 @@ object SourceParser {
 
     /**
      * Nettoie une ligne de source en supprimant les préfixes téléphoniques parasites en utilisant [vocabulary].
-     *
-     * @param line La ligne de source brute.
-     * @param vocabulary Le vocabulaire métier OCR.
-     * @return La ligne de source nettoyée.
      */
     fun cleanSourceLine(line: String, vocabulary: OcrVocabulary): String {
-        return cleanSourceLine(line, SourceResources(vocabulary.sourceKeywords, vocabulary.phonePrefixes))
+        return Ocr3CategorizerSourceCleaner.cleanSourceLine(line, vocabulary)
     }
 
     /**
      * Nettoie une ligne de source en supprimant les préfixes téléphoniques parasites en utilisant [resources].
-     *
-     * @param line La ligne de source brute (ex: "Tel: 01 23 45 67 89").
-     * @param resources Les ressources de sources contenant les préfixes.
-     * @return La ligne nettoyée (ex: "01 23 45 67 89").
      */
     fun cleanSourceLine(line: String, resources: SourceResources): String {
-        var cleaned = line
-        resources.phonePrefixes.forEach { prefix ->
-            val prefixRegex = OcrRegexes.getPhonePrefixPattern(prefix)
-            cleaned = cleaned.replace(prefixRegex, "").trim()
-        }
-        // Supprime toute ponctuation résiduelle en début de ligne (ex: ": 02/542.42.42" -> "02/542.42.42")
-        return cleaned.replace(OcrRegexes.Sources.LEADING_PUNCTUATION, "").trim()
+        return Ocr3CategorizerSourceCleaner.cleanSourceLine(line, resources.phonePrefixes)
     }
 
     /**
      * Inspecte une ligne publicitaire ou marketing et en extrait la marque ou l'enseigne culinaire connue ([OcrVocabulary.knownSourceBrands]).
-     *
-     * @param line La ligne publicitaire à analyser (ex: "Assiette de présentation disponible dans les Maxi GB").
-     * @param vocabulary Le vocabulaire métier OCR contenant la liste blanche des enseignes.
-     * @return Le nom exact de l'enseigne/marque trouvée (ex: "Maxi GB"), ou `null` si aucune marque de la liste n'est présente.
      */
     fun extractSourceFromAdLine(line: String, vocabulary: OcrVocabulary): String? {
-        if (line.isBlank() || vocabulary.knownSourceBrands.isEmpty()) return null
-        return vocabulary.knownSourceBrands.firstOrNull { brand ->
-            brand.isNotBlank() && Regex("(?i)(?<![\\p{L}\\p{N}])${Regex.escape(brand)}(?![\\p{L}\\p{N}])").containsMatchIn(line)
-        }
+        return Ocr2CleanerAdSourceExtractor.extractSourceFromAdLine(line, vocabulary)
     }
 }

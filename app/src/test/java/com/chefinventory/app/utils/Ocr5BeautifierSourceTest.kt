@@ -6,15 +6,15 @@ import org.junit.Test
 
 /**
  * Suite de tests unitaires de Type B vérifiant la beautification, la majusculation et le dé-doublonnage
- * des sources par [Ocr5SourceBeautifier].
+ * des sources par [Ocr5BeautifierSource].
  */
-class Ocr5SourceBeautifierTest {
+class Ocr5BeautifierSourceTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testBeautifySources_EmptyList_ReturnsEmpty() {
-        assertThat(Ocr5SourceBeautifier.beautifySources(emptyList())).isEmpty()
-        assertThat(Ocr5SourceBeautifier.beautifySources(listOf("  ", ""))).isEmpty()
+        assertThat(Ocr5BeautifierSource.beautifySources(emptyList())).isEmpty()
+        assertThat(Ocr5BeautifierSource.beautifySources(listOf("  ", ""))).isEmpty()
     }
 
     @Test
@@ -26,7 +26,7 @@ class Ocr5SourceBeautifierTest {
             "02/542.42.42"
         )
 
-        val result = Ocr5SourceBeautifier.beautifySources(input)
+        val result = Ocr5BeautifierSource.beautifySources(input)
 
         assertThat(result).containsExactly(
             "Hôtel Hilton",
@@ -43,7 +43,7 @@ class Ocr5SourceBeautifierTest {
             "  02/542.42.42  "
         )
 
-        val result = Ocr5SourceBeautifier.beautifySources(input)
+        val result = Ocr5BeautifierSource.beautifySources(input)
 
         assertThat(result).containsExactly(
             "Hôtel hilton, place rogier",

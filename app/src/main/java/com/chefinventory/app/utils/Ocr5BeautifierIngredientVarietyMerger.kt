@@ -3,14 +3,11 @@ package com.chefinventory.app.utils
 import android.util.Log
 
 /**
- * Assistant dédié au traitement et à la fusion data-driven des ingrédients composés d'un nom de base
- * et d'un qualificatif de variété (ex: "200 g de haricots" \n "princesses" -> "200 g de haricots princesses").
- *
- * Ce sous-composant isole la logique de correspondance des qualificatifs pour réduire la charge cognitive
- * et maintenir une lisibilité optimale dans [Ocr4Merger] et [Ocr5Beautifier].
+ * Assistant de l'Étape 5 (Embellissement) dédié au traitement et à la fusion data-driven des ingrédients composés
+ * d'un nom de base et d'un qualificatif de variété (ex: "200 g de haricots" \n "princesses" -> "200 g de haricots princesses").
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object IngredientVarietyMerger {
+object Ocr5BeautifierIngredientVarietyMerger {
     private const val TAG = "RecipeOCR"
 
     /**
@@ -23,7 +20,7 @@ object IngredientVarietyMerger {
         val lastWord = words.last()
         return baseIngredients.any { base ->
             val lowerBase = base.lowercase().trim()
-            lowerBase.equals(lastWord, ignoreCase = true) || lower.endsWith(" $lowerBase")
+            lowerBase.equals(lastWord, ignoreCase = true)
         }
     }
 
@@ -35,7 +32,8 @@ object IngredientVarietyMerger {
         val lower = text.lowercase().trim()
         val clean = lower.replace(Regex("^[^\\p{L}]+"), "").trim()
         return qualifiers.any { qual ->
-            clean.equals(qual, ignoreCase = true) || clean.startsWith("${qual.lowercase()} ")
+            val lowerQual = qual.lowercase().trim()
+            clean.equals(lowerQual, ignoreCase = true) || clean.startsWith("$lowerQual ")
         }
     }
 
@@ -65,18 +63,20 @@ object IngredientVarietyMerger {
                 val isNextVariety = isVarietyQualifier(nextLine, qualifiers)
                 val isCurrentBase = isBaseExpectingVariety(currentLine, baseIngredients)
 
-                if (isNextVariety && isCurrentBase) {
-                    val firstChar = nextLine[0]
-                    val uncapitalizedNext = if (firstChar.isUpperCase()) {
-                        firstChar.lowercase() + nextLine.substring(1)
-                    } else {
-                        nextLine
+                if (isNextVariety) {
+                    if (isCurrentBase) {
+                        val firstChar = nextLine[0]
+                        val uncapitalizedNext = if (firstChar.isUpperCase()) {
+                            firstChar.lowercase() + nextLine.substring(1)
+                        } else {
+                            nextLine
+                        }
+                        val merged = "$currentLine $uncapitalizedNext"
+                        result.add(merged)
+                        Log.d(TAG, "VARIETY MERGER: Fusion de la variété '$nextLine' avec '$currentLine' -> '$merged'")
+                        idx += 2
+                        continue
                     }
-                    val merged = "$currentLine $uncapitalizedNext"
-                    result.add(merged)
-                    Log.d(TAG, "VARIETY MERGER: Fusion de la variété '$nextLine' avec '$currentLine' -> '$merged'")
-                    idx += 2
-                    continue
                 }
             }
 

@@ -106,7 +106,7 @@ object RecipeOcrParser {
         Log.d(TAG, "[2] APRÈS NETTOYAGE:\n${cleanedLines.joinToString("\n")}")
 
         // ÉTAPE 2.5 : Extraction du titre et réparation des lettrines
-        val titleResult = OcrTitleExtractor.extractTitle(cleanedLines, vocabulary)
+        val titleResult = Ocr2_5CleanerTitleExtractor.extractTitle(cleanedLines, vocabulary)
         val linesWithoutTitle = titleResult.cleanedLines
         Log.d(TAG, "[2.5] TITRE DÉTECTÉ: ${titleResult.title ?: "Aucun"}")
 

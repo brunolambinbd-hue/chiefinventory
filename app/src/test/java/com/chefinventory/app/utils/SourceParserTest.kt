@@ -56,6 +56,9 @@ class SourceParserTest {
         val sourceRes = SourceParser.loadResources(context.resources)
         assertThat(sourceRes.sourceKeywords).isNotEmpty()
         assertThat(sourceRes.phonePrefixes).isNotEmpty()
+
+        val cleanedWithRes = SourceParser.cleanSourceLine("Tel: 01 23 45 67 89", sourceRes)
+        assertThat(cleanedWithRes).isEqualTo("01 23 45 67 89")
     }
 
     @Test

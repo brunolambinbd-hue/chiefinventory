@@ -433,5 +433,8 @@ class WineParserTest {
         val cleaned = WineParser.cleanWineLine("Un Bordeau 1996", invalidRegexResources)
 
         assertEquals("Un Bordeaux 1996", cleaned)
+
+        val corrected = WineParser.applySpellingCorrections("Un Bordeau Atinum")
+        assertEquals("Un Bordeaux Atinium", corrected)
     }
 }

@@ -3,11 +3,11 @@ package com.chefinventory.app.utils
 import android.util.Log
 
 /**
- * Sous-composant du Bloc B de l'Étape 2.5 : Filtrage (`isBaseCandidate`) et Scoring (`evaluateScore`) des candidats titres pour [OcrTitleExtractor].
+ * Sous-composant du Bloc B de l'Étape 2.5 : Filtrage (`isBaseCandidate`) et Scoring (`evaluateScore`) des candidats titres pour [Ocr2_5CleanerTitleExtractor].
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object OcrTitleExtractor2_BlockB_Scoring {
-    private const val TAG = "OcrTitleExtractor2_BlockB"
+object Ocr2_5CleanerTitleExtractor2_BlockB_Scoring {
+    private const val TAG = "Ocr2_5TitleExtractor2_BlockB"
 
     /**
      * Détermine si la ligne constitue une ébauche de candidat titre valide d'après les critères fondamentaux.

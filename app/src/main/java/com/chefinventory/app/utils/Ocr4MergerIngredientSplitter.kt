@@ -1,10 +1,10 @@
 package com.chefinventory.app.utils
 
 /**
- * Utility to split combined ingredient lines into separate items.
+ * Sous-composant de l'Étape 4 (Fusion & Découpage) : Scinde les lignes d'ingrédients combinées en éléments distincts.
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object IngredientSplitter {
+object Ocr4MergerIngredientSplitter {
 
     private val ARTICLES = setOf("le", "la", "les", "un", "une", "des", "du", "de", "d'", "d")
     private val SIZE_PREFIX_REGEX = Regex("^(?:\\d+|1/2|1/4|un|une)\\s+(?:petit|petite|petits|petites|grand|grande|grands|grandes|moyen|moyenne|moyens|moyennes|beau|beaux|belle|belles)$", RegexOption.IGNORE_CASE)
@@ -34,9 +34,9 @@ object IngredientSplitter {
     }
 
     /**
-     * Divides a line if it contains multiple ingredients.
-     * Example: "2 gousses d'ail sel, poivre" -> ["2 gousses d'ail", "sel", "poivre"]
-     * Example: "1 piment rouge persil haché" -> ["1 piment rouge", "persil haché"]
+     * Divise une ligne d'ingrédients combinée si elle contient plusieurs aliments distincts.
+     * Exemple : "2 gousses d'ail sel, poivre" -> ["2 gousses d'ail", "sel", "poivre"]
+     * Exemple : "1 piment rouge persil haché" -> ["1 piment rouge", "persil haché"]
      */
     fun splitCombinedIngredients(line: String, commonItems: List<String>): List<String> {
         val lower = line.lowercase().trim()

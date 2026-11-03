@@ -10,7 +10,7 @@ import com.chefinventory.app.R
  * - Détecter si une ligne correspond à une recommandation d'accord met-vin (`isWineLine`).
  * - Valider les appellations, châteaux et producteurs de vins contre les dictionnaires métier XML (`wine_arrays.xml`).
  * - Exclure rigoureusement les ingrédients culinaires (ex: "vinaigre de vin", "huile") pour éviter les fausses détections.
- * - Supprimer les préfixes d'en-tête et corriger les fautes d'orthographe OCR (`cleanWineLine`).
+ * - Déléguer la détection de volume et le nettoyage d'en-tête de vin à [Ocr3CategorizerWineCleaner].
  * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Wines].
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
@@ -112,62 +112,23 @@ object WineParser {
 
     /**
      * Détermine si une ligne contient un volume explicite de bouteille de vin (ex: "75 cl", "1.5 l", "magnum").
-     *
-     * @param line La ligne à analyser.
-     * @return `true` si un volume de bouteille est détecté, `false` sinon.
      */
     fun hasWineVolume(line: String): Boolean {
-        val hasVolume = OcrRegexes.Wines.VOLUME.containsMatchIn(line)
-        if (hasVolume) {
-            return true
-        } else {
-            return OcrRegexes.Wines.STANDARD_BOTTLE.containsMatchIn(line)
-        }
+        return Ocr3CategorizerWineCleaner.hasWineVolume(line)
     }
 
     /**
      * Nettoie une ligne de recommandation de vin en utilisant [vocabulary].
-     *
-     * @param line La ligne de vin brute.
-     * @param vocabulary Le vocabulaire métier OCR.
-     * @return La ligne de vin nettoyée et corrigée.
      */
     fun cleanWineLine(line: String, vocabulary: OcrVocabulary): String {
-        return cleanWineLine(
-            line,
-            WineResources(
-                appellations = vocabulary.wineAppellations,
-                producers = vocabulary.wineProducers,
-                keywords = vocabulary.wineKeywords,
-                titleKeywords = vocabulary.wineTitleKeywords,
-                removePattern = vocabulary.wineRemovePattern
-            )
-        )
+        return Ocr3CategorizerWineCleaner.cleanWineLine(line, vocabulary)
     }
 
     /**
-     * Nettoie une ligne de recommandation de vin en supprimant les en-têtes parasites et en appliquant les corrections orthographiques.
-     *
-     * @param line La ligne de vin brute (ex: "Notre vin conseillé: Un Bordeau 1996 75 cl").
-     * @param resources Les ressources de vins.
-     * @return La ligne nettoyée (ex: "Un Bordeaux 1996 75 cl").
+     * Nettoie une ligne de recommandation de vin en utilisant [resources].
      */
     fun cleanWineLine(line: String, resources: WineResources): String {
-        var cleaned = line
-        cleaned = cleaned.replace(OcrRegexes.Wines.REMOVE_HEADER_PATTERN, "").trim()
-
-        if (resources.removePattern.isNotBlank()) {
-            try {
-                cleaned = cleaned.replace(Regex(resources.removePattern, RegexOption.IGNORE_CASE), "").trim()
-            } catch (_: Exception) {}
-        } else {
-            // Aucun motif d'effacement spécifique configuré
-        }
-
-        cleaned = cleaned.replace(OcrRegexes.Wines.HEADER_PREFIX, "").trim()
-        cleaned = cleaned.replace(OcrRegexes.Wines.LEADING_PUNCTUATION, "").trim()
-
-        return applySpellingCorrections(cleaned)
+        return Ocr3CategorizerWineCleaner.cleanWineLine(line, resources)
     }
 
     /**
@@ -185,15 +146,8 @@ object WineParser {
 
     /**
      * Applique la liste des règles de correction orthographique sur les appellations et châteaux de vins.
-     *
-     * @param text Le texte brut à corriger.
-     * @return Le texte après remplacement des fautes de frappe récurrentes.
      */
     fun applySpellingCorrections(text: String): String {
-        var result = text
-        for ((pattern, replacement) in OcrRegexes.Wines.SPELLING_CORRECTIONS) {
-            result = pattern.replace(result, replacement)
-        }
-        return result
+        return Ocr3CategorizerWineCleaner.applySpellingCorrections(text)
     }
 }

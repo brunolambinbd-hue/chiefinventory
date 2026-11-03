@@ -4,12 +4,12 @@ package com.chefinventory.app.utils
  * Assistant dédié à la beautification et au nettoyage final des lignes d'ingrédients lors de l'Étape 5.
  *
  * Responsabilités :
- * - Regrouper les qualificatifs de variétés d'ingrédients orphelines réparties sur 2 lignes ([IngredientVarietyMerger]).
+ * - Regrouper les qualificatifs de variétés d'ingrédients orphelines réparties sur 2 lignes ([Ocr5BeautifierIngredientVarietyMerger]).
  * - Forcer la majuscule initiale sur chaque nom d'ingrédient.
  * - Supprimer les en-têtes de section résiduels ("INGRÉDIENTS:", "Composition:").
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object Ocr5IngredientBeautifier {
+object Ocr5BeautifierIngredient {
 
     /**
      * Effectue la beautification et le regroupement des qualificatifs de variétés d'ingrédients orphelins.
@@ -28,7 +28,7 @@ object Ocr5IngredientBeautifier {
             "les", "le", "la", "des", "du", "de", "d'", "un", "une", "et", "ou", "pour", "sur", "avec", "dans", "par", "ce", "ces", "cette", "notre", "conseil", "prix"
         )
 
-        val mergedVarieties = IngredientVarietyMerger.beautifyIngredientVarieties(ingredients, baseIngredients, varietyQualifiers)
+        val mergedVarieties = Ocr5BeautifierIngredientVarietyMerger.beautifyIngredientVarieties(ingredients, baseIngredients, varietyQualifiers)
         return mergedVarieties.map { line ->
             var cleaned = line.trim()
             if (cleaned.isNotEmpty()) {

@@ -6,7 +6,7 @@ package com.chefinventory.app.utils
  * Responsabilités :
  * - Déterminer si un caractère se trouve entre parenthèses (`isInsideParentheses`).
  * - Vérifier l'exclusion stricte de mots-clés (`isExcluded`).
- * - Identifier si une ligne ressemble à un nom propre de chef ou d'établissement de provenance (`isLikelyProperNameOrSource`).
+ * - Déléguer la détection des noms propres à [Ocr3CategorizerProperNameDetector].
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object OcrTextUtils {
@@ -43,31 +43,8 @@ object OcrTextUtils {
 
     /**
      * Détermine si une ligne courte sans chiffres (2 à 4 mots majuscules) ressemble à un nom propre d'auteur ou d'établissement.
-     * Rejette automatiquement les lignes contenant des mots culinaires ou connecteurs d'ingrédients (ex: *"RICOTTA ET ÉPINARDS"*).
-     *
-     * @param line La ligne de texte à évaluer.
-     * @param vocabulary Le vocabulaire métier OCR permettant de vérifier les mots d'ingrédients et de titres.
-     * @return `true` si la ligne est probablement un nom propre de source/chef, `false` sinon.
      */
     fun isLikelyProperNameOrSource(line: String, vocabulary: OcrVocabulary? = null): Boolean {
-        val trimmed = line.trim()
-        val lower = trimmed.lowercase()
-        val words = trimmed.split(Regex("\\s+"))
-        if (words.size !in 2..4) return false
-        if (trimmed.any { it.isDigit() }) return false
-
-        if (vocabulary != null) {
-            val foodConnectors = listOf(" et ", " ou ", " au ", " aux ", " avec ", " de ", " d'", " à ")
-            val containsConnector = foodConnectors.any { lower.contains(it) }
-
-            val containsFoodWord = containsConnector ||
-                    vocabulary.commonIngredientsNoQty.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) } ||
-                    vocabulary.titleKeywords.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) } ||
-                    vocabulary.baseIngredientsExpectingVariety.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) }
-
-            if (containsFoodWord) return false
-        }
-
-        return words.all { word -> word[0].isUpperCase() }
+        return Ocr3CategorizerProperNameDetector.isLikelyProperNameOrSource(line, vocabulary)
     }
 }

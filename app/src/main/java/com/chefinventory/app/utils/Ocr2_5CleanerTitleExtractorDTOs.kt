@@ -1,7 +1,7 @@
 package com.chefinventory.app.utils
 
 /**
- * Conteneur du résultat d'extraction du titre d'une recette.
+ * Conteneur du résultat d'extraction du titre d'une recette (Étape 2.5).
  *
  * @property title Le titre extrait et nettoyé de la recette, ou null si aucun titre valide n'est trouvé.
  * @property cleanedLines Les lignes de texte restantes après extraction du titre.
@@ -12,7 +12,7 @@ data class TitleExtractionResult(
 )
 
 /**
- * Conteneur interne représentant un candidat titre évalué avec son score et le détail du calcul.
+ * Conteneur interne représentant un candidat titre évalué avec son score et le détail du calcul (Étape 2.5).
  *
  * @property candidateText Le texte nettoyé du candidat titre.
  * @property originalLineIndex L'index de ligne d'origine.

@@ -4,10 +4,10 @@ package com.chefinventory.app.utils
  * Étape 5 du pipeline OCR : Façade Orchestratrice de Beautification et Présentation Finale à l'Écran.
  *
  * Responsabilités :
- * - Déléguer la beautification des consignes d'instructions à [Ocr5InstructionBeautifier].
- * - Déléguer la beautification des ingrédients à [Ocr5IngredientBeautifier].
- * - Déléguer la beautification des recommandations de vins à [Ocr5WineBeautifier].
- * - Déléguer la beautification des sources et coordonnées d'établissements à [Ocr5SourceBeautifier].
+ * - Déléguer la beautification des consignes d'instructions à [Ocr5BeautifierInstruction].
+ * - Déléguer la beautification des ingrédients à [Ocr5BeautifierIngredient].
+ * - Déléguer la beautification des recommandations de vins à [Ocr5BeautifierWine].
+ * - Déléguer la beautification des sources et coordonnées d'établissements à [Ocr5BeautifierSource].
  */
 object Ocr5Beautifier {
 
@@ -27,7 +27,7 @@ object Ocr5Beautifier {
         culinaryUnits: List<String> = emptyList(),
         spellingRepairs: List<String> = emptyList()
     ): List<String> {
-        return Ocr5InstructionBeautifier.beautifyInstructions(
+        return Ocr5BeautifierInstruction.beautifyInstructions(
             instructions,
             stepActionKeywords,
             hangingConnectors,
@@ -49,7 +49,7 @@ object Ocr5Beautifier {
         baseIngredients: List<String> = emptyList(),
         varietyQualifiers: List<String> = emptyList()
     ): List<String> {
-        return Ocr5IngredientBeautifier.beautifyIngredients(
+        return Ocr5BeautifierIngredient.beautifyIngredients(
             ingredients,
             baseIngredients,
             varietyQualifiers
@@ -63,7 +63,7 @@ object Ocr5Beautifier {
      * @return La liste finale nettoyée, majusculée et sans doublons des vins recommandés.
      */
     fun beautifyWines(wines: List<String>): List<String> {
-        return Ocr5WineBeautifier.beautifyWines(wines)
+        return Ocr5BeautifierWine.beautifyWines(wines)
     }
 
     /**
@@ -73,6 +73,6 @@ object Ocr5Beautifier {
      * @return La liste finale nettoyée, majusculée et sans doublons des sources d'origine.
      */
     fun beautifySources(sources: List<String>): List<String> {
-        return Ocr5SourceBeautifier.beautifySources(sources)
+        return Ocr5BeautifierSource.beautifySources(sources)
     }
 }

@@ -152,7 +152,7 @@ object Ocr3InvertedCategorizer {
 
         // PASSE 2 : Extraction et réparation du Titre en utilisant les mots-clés d'ingrédients du bas
         val titleLines = if (originalCleanedLines.isNotEmpty()) originalCleanedLines else lines
-        val titleResult = OcrTitleExtractor.extractTitle(titleLines, vocabulary)
+        val titleResult = Ocr2_5CleanerTitleExtractor.extractTitle(titleLines, vocabulary)
         if (titleResult.title != null) {
             results.detectedTitle = titleResult.title
         }

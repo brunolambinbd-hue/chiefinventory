@@ -5,9 +5,9 @@ import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Test
 
 /**
- * Suite de tests unitaires de Type B vérifiant le comportement et les règles de beautification d'ingrédients de [Ocr5IngredientBeautifier].
+ * Suite de tests unitaires de Type B vérifiant le comportement et les règles de beautification d'ingrédients de [Ocr5BeautifierIngredient].
  */
-class Ocr5IngredientBeautifierTest {
+class Ocr5BeautifierIngredientTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
@@ -15,7 +15,7 @@ class Ocr5IngredientBeautifierTest {
         val input = listOf("sel", "poivre du moulin", "2 carottes", "Farine", "", "   ")
         val expected = listOf("Sel", "Poivre du moulin", "2 carottes", "Farine")
 
-        val result = Ocr5IngredientBeautifier.beautifyIngredients(input)
+        val result = Ocr5BeautifierIngredient.beautifyIngredients(input)
         assertThat(result).containsExactlyElementsIn(expected).inOrder()
     }
 
@@ -25,7 +25,7 @@ class Ocr5IngredientBeautifierTest {
         val input = listOf("INGRÉDIENTS:", "ingredients:", "composition:", "ngrédients:", "les", "du", "200 g de farine")
         val expected = listOf("200 g de farine")
 
-        val result = Ocr5IngredientBeautifier.beautifyIngredients(input)
+        val result = Ocr5BeautifierIngredient.beautifyIngredients(input)
         assertThat(result).containsExactlyElementsIn(expected)
     }
 
@@ -35,7 +35,7 @@ class Ocr5IngredientBeautifierTest {
         val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
         val input = listOf("200 g de haricots", "princesses")
 
-        val result = Ocr5IngredientBeautifier.beautifyIngredients(
+        val result = Ocr5BeautifierIngredient.beautifyIngredients(
             input,
             vocabulary.baseIngredientsExpectingVariety,
             vocabulary.ingredientVarietyQualifiers

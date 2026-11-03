@@ -3,7 +3,7 @@ package com.chefinventory.app.utils
 import android.util.Log
 
 /**
- * Assistant dédié à la beautification et à la présentation finale des recommandations de vins lors de l'Étape 5.
+ * Assistant de l'Étape 5 (Embellissement) dédié à la beautification et à la présentation finale des recommandations de vins.
  *
  * Responsabilités :
  * - Normaliser la majusculation initiale des appellations et châteaux de vins (ex: "bordeaux 1996" -> "Bordeaux 1996").
@@ -11,7 +11,7 @@ import android.util.Log
  * - Supprimer les doublons d'appellations identiques de manière déterministe.
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object Ocr5WineBeautifier {
+object Ocr5BeautifierWine {
     private const val TAG = "RecipeOCR"
 
     /**

@@ -69,7 +69,7 @@ object Ocr3NarrativeCategorizer {
             val isMetaHeader = META_HEADER_PREFIXES.any { lower.startsWith(it) } || lower == "pour"
             val isHeader = isMetaHeader || lower.startsWith("réalisation") || lower.startsWith("instructions")
 
-            if (hasAction || (OcrInstructionUtils.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) && !isMetaHeader)) {
+            if (hasAction || (Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) && !isMetaHeader)) {
                 hasInstructionStarted = true
             }
 
@@ -92,7 +92,7 @@ object Ocr3NarrativeCategorizer {
             val isBullet = line.startsWith("•") || line.startsWith("-")
 
             OcrInstructionUtils.hasActionVerb(line, vocabulary.stepActionKeywords) ||
-                    OcrInstructionUtils.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) ||
+                    Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) ||
                     isStepNumber || isBullet
         }
 

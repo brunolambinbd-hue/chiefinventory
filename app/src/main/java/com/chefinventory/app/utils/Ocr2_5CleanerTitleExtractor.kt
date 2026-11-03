@@ -7,11 +7,11 @@ import android.util.Log
  *
  * Responsabilités :
  * - Évaluer et scorer tous les candidats titres possibles d'une fiche de recette.
- * - Déléguer la sous-analyse séquentielle aux processeurs assistants [OcrTitleExtractor0_Context] à [OcrTitleExtractor3_BlockC_PostProcess].
+ * - Déléguer la sous-analyse séquentielle aux processeurs assistants [Ocr2_5CleanerTitleExtractor0_Context] à [Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess].
  * - Sélectionner le candidat ayant le score le plus élevé et retourner la liste des lignes restantes.
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object OcrTitleExtractor {
+object Ocr2_5CleanerTitleExtractor {
     private const val TAG = "RecipeOCR"
 
     /**
@@ -26,8 +26,8 @@ object OcrTitleExtractor {
         val actionVerbs = vocabulary.stepActionKeywords.distinct()
         val containsActionRegex = if (actionVerbs.isEmpty()) null else OcrRegexes.getInstructionPrefixPattern(actionVerbs)
 
-        val recipeIngredientWords = OcrTitleExtractor0_Context.extractRecipeIngredientWords(lines)
-        val firstIngredientWord = OcrTitleExtractor0_Context.findFirstIngredientWord(lines, vocabulary)
+        val recipeIngredientWords = Ocr2_5CleanerTitleExtractor0_Context.extractRecipeIngredientWords(lines)
+        val firstIngredientWord = Ocr2_5CleanerTitleExtractor0_Context.findFirstIngredientWord(lines, vocabulary)
         if (recipeIngredientWords.isNotEmpty()) {
             Log.d(TAG, "TITLE EXTRACTOR: Ingrédients détectés sur la fiche pour scoring -> $recipeIngredientWords")
         } else {
@@ -45,7 +45,7 @@ object OcrTitleExtractor {
             }
 
             // 1. Détection de titre collé après "sel et poivre"
-            val processedSelPoivre = OcrTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
+            val processedSelPoivre = Ocr2_5CleanerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
                 workingLine, i, lines, vocabulary, recipeIngredientWords, containsActionRegex, firstIngredientWord, candidates
             )
             if (processedSelPoivre) continue
@@ -53,12 +53,12 @@ object OcrTitleExtractor {
             // 2. Détection de titre sur 2 lignes (ex: "Büchettes de melon" \n "au jambon italien et au porto")
             if (i + 1 < lines.size) {
                 val nextLine = lines[i + 1].trim()
-                if (OcrTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(nextLine, vocabulary) && !OcrInstructionUtils.hasActionVerb(nextLine, vocabulary.stepActionKeywords)) {
+                if (Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(nextLine, vocabulary) && !OcrInstructionUtils.hasActionVerb(nextLine, vocabulary.stepActionKeywords)) {
                     val combined = "$workingLine $nextLine"
-                    val cleanCombined = OcrTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(OcrTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(combined), recipeIngredientWords, vocabulary)
-                    val baseCand = OcrTitleExtractor2_BlockB_Scoring.isBaseCandidate(cleanCombined, vocabulary, containsActionRegex)
+                    val cleanCombined = Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(combined), recipeIngredientWords, vocabulary)
+                    val baseCand = Ocr2_5CleanerTitleExtractor2_BlockB_Scoring.isBaseCandidate(cleanCombined, vocabulary, containsActionRegex)
                     if (baseCand) {
-                        val (score, details) = OcrTitleExtractor2_BlockB_Scoring.evaluateScore(cleanCombined, vocabulary, recipeIngredientWords, firstIngredientWord)
+                        val (score, details) = Ocr2_5CleanerTitleExtractor2_BlockB_Scoring.evaluateScore(cleanCombined, vocabulary, recipeIngredientWords, firstIngredientWord)
                         candidates.add(ScoredTitleCandidate(cleanCombined, i, 1, score, details))
                     }
                 }
@@ -70,10 +70,10 @@ object OcrTitleExtractor {
                     (parsedRawLine.unit != null || parsedRawLine.quantity!! < 50.0)
 
             if (!isIngredientQuantityLine) {
-                val cleanLine = OcrTitleExtractor3_BlockC_PostProcess.postProcessTitle(OcrTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(workingLine), vocabulary).replace(Regex("\\s+[a-zA-Z]$"), "").trim()
-                val repairedCandidate = OcrTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(cleanLine, recipeIngredientWords, vocabulary)
-                if (OcrTitleExtractor2_BlockB_Scoring.isBaseCandidate(repairedCandidate, vocabulary, containsActionRegex)) {
-                    val (score, details) = OcrTitleExtractor2_BlockB_Scoring.evaluateScore(repairedCandidate, vocabulary, recipeIngredientWords, firstIngredientWord)
+                val cleanLine = Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess.postProcessTitle(Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(workingLine), vocabulary).replace(Regex("\\s+[a-zA-Z]$"), "").trim()
+                val repairedCandidate = Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(cleanLine, recipeIngredientWords, vocabulary)
+                if (Ocr2_5CleanerTitleExtractor2_BlockB_Scoring.isBaseCandidate(repairedCandidate, vocabulary, containsActionRegex)) {
+                    val (score, details) = Ocr2_5CleanerTitleExtractor2_BlockB_Scoring.evaluateScore(repairedCandidate, vocabulary, recipeIngredientWords, firstIngredientWord)
                     candidates.add(ScoredTitleCandidate(repairedCandidate, i, 0, score, details))
                 }
             }
@@ -91,7 +91,7 @@ object OcrTitleExtractor {
         val remainingLines = mutableListOf<String>()
 
         if (bestCandidate != null) {
-            extractedTitle = OcrTitleExtractor3_BlockC_PostProcess.postProcessTitle(bestCandidate.candidateText, vocabulary)
+            extractedTitle = Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess.postProcessTitle(bestCandidate.candidateText, vocabulary)
             Log.d(TAG, ">>> TITRE RETENU INITIALEMENT: '$extractedTitle' avec SCORE MAX: ${bestCandidate.score}")
         } else {
             Log.d(TAG, ">>> AUCUN TITRE VALIDE RETENU")
@@ -123,7 +123,7 @@ object OcrTitleExtractor {
         }
 
         // Complétion grammaticale du titre si le titre se termine par un adjectif/déterminant suspendu
-        extractedTitle = OcrTitleExtractor3_BlockC_PostProcess.recoverOrphanNoun(extractedTitle, remainingLines, vocabulary)
+        extractedTitle = Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess.recoverOrphanNoun(extractedTitle, remainingLines, vocabulary)
 
         Log.d(TAG, "=== FIN EXTRACTION DU TITRE PAR SCORING ===")
         return TitleExtractionResult(extractedTitle, remainingLines)
@@ -133,6 +133,6 @@ object OcrTitleExtractor {
      * Vérifie si une ligne secondaire commence par un connecteur ou une préposition de suite de titre multi-lignes.
      */
     fun isMultiLineTitleConnector(line: String, vocabulary: OcrVocabulary? = null): Boolean {
-        return OcrTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(line, vocabulary)
+        return Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(line, vocabulary)
     }
 }

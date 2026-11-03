@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils.rules
 
-import com.chefinventory.app.utils.OcrTitleExtractor
+import com.chefinventory.app.utils.Ocr2_5CleanerTitleExtractor
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.google.common.truth.Truth.assertThat
@@ -19,7 +19,7 @@ class OcrTitleExtractionRuleTest {
     @Test
     fun `extractTitle should extract title for scenario artichauts`() {
         val input = listOf("4 artichauts", "o/rtichauts et vinaigrette aux échalotes")
-        val result = OcrTitleExtractor.extractTitle(input, baseVocabulary)
+        val result = Ocr2_5CleanerTitleExtractor.extractTitle(input, baseVocabulary)
 
         assertThat(result.title).ignoringCase().contains("rtichauts et vinaigrette aux échalotes")
     }

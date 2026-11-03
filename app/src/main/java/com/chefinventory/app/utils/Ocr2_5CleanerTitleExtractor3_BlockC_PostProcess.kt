@@ -4,11 +4,11 @@ import android.util.Log
 import java.util.regex.Matcher
 
 /**
- * Sous-composant du Bloc C de l'Étape 2.5 : Post-traitement, réparation de lettrine et nettoyage du titre pour [OcrTitleExtractor].
+ * Sous-composant du Bloc C de l'Étape 2.5 : Post-traitement, réparation de lettrine et nettoyage du titre pour [Ocr2_5CleanerTitleExtractor].
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object OcrTitleExtractor3_BlockC_PostProcess {
-    private const val TAG = "OcrTitleExtractor3_BlockC"
+object Ocr2_5CleanerTitleExtractor3_BlockC_PostProcess {
+    private const val TAG = "Ocr2_5TitleExtractor3_BlockC"
 
     /**
      * Post-traite et applique les réparations orthographiques du dictionnaire XML [vocabulary.titleSpellingRepairs] au titre retenu.

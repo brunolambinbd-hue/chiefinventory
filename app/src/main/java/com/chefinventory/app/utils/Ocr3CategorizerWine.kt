@@ -63,7 +63,7 @@ object Ocr3CategorizerWine {
 
         if (wineState.isWineHeaderActive) {
             if (!wineState.isWineSectionClosed) {
-                val cleanedWine = WineParser.cleanWineLine(workingLine, vocabulary)
+                val cleanedWine = Ocr3CategorizerWineCleaner.cleanWineLine(workingLine, vocabulary)
                 if (cleanedWine.isNotBlank()) {
                     val isAlreadyAdded = wineState.detectedWineList.any { it.equals(cleanedWine, ignoreCase = true) }
                     if (!isAlreadyAdded) {
@@ -74,7 +74,7 @@ object Ocr3CategorizerWine {
                 } else {
                     Log.d(TAG, "  [!] Ligne de vin ignorée (nom vide)")
                 }
-                val hasVolume = WineParser.hasWineVolume(workingLine)
+                val hasVolume = Ocr3CategorizerWineCleaner.hasWineVolume(workingLine)
                 val hasVintageYear = OcrRegexes.Wines.YEAR.containsMatchIn(workingLine)
                 val hasKnownBrand = vocabulary.knownSourceBrands.any { brand -> brand.isNotBlank() && lower.contains(brand.lowercase()) }
 
@@ -92,17 +92,17 @@ object Ocr3CategorizerWine {
         }
 
         val isNotInIngredientsSection = currentSection != Ocr3Categorizer.SECTION_INGREDIENTS
-        val hasExplicitVolume = WineParser.hasWineVolume(workingLine)
+        val hasExplicitVolume = Ocr3CategorizerWineCleaner.hasWineVolume(workingLine)
         val allowWineDetection = isNotInIngredientsSection || isIngredientListClosed || hasExplicitVolume
 
         if (allowWineDetection && WineParser.isWineLine(workingLine, vocabulary)) {
             if (!wineState.isWineSectionClosed) {
-                val cleanedWine = WineParser.cleanWineLine(workingLine, vocabulary)
+                val cleanedWine = Ocr3CategorizerWineCleaner.cleanWineLine(workingLine, vocabulary)
                 if (cleanedWine.isNotBlank()) {
                     val isAlreadyAdded = wineState.detectedWineList.any { it.equals(cleanedWine, ignoreCase = true) }
                     if (!isAlreadyAdded) {
                         wineState.detectedWineList.add(cleanedWine)
-                        if (WineParser.hasWineVolume(workingLine)) {
+                        if (Ocr3CategorizerWineCleaner.hasWineVolume(workingLine)) {
                             wineState.isWineSectionClosed = true
                             Log.d(TAG, "  [!] SECTION VIN FERMÉE (Volume/Millésime détecté)")
                         } else {
