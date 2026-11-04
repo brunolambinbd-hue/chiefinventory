@@ -119,8 +119,8 @@ object Ocr3InvertedCategorizer {
             }
 
             // 4. Traitement des sources/établissements
-            if (!OcrInstructionUtils.hasActionVerb(workingLine, vocabulary.stepActionKeywords) && SourceParser.isSourceLine(workingLine, vocabulary)) {
-                val cleanedSource = SourceParser.cleanSourceLine(workingLine, vocabulary)
+            if (!OcrInstructionUtils.hasActionVerb(workingLine, vocabulary.stepActionKeywords) && Ocr3CategorizerSource.isSourceLine(workingLine, vocabulary)) {
+                val cleanedSource = Ocr3CategorizerSource.cleanSourceLine(workingLine, vocabulary)
                 if (cleanedSource.isNotBlank() && cleanedSource !in results.detectedSourceList) {
                     results.detectedSourceList.add(cleanedSource)
                 }
@@ -152,7 +152,7 @@ object Ocr3InvertedCategorizer {
 
         // PASSE 2 : Extraction et réparation du Titre en utilisant les mots-clés d'ingrédients du bas
         val titleLines = if (originalCleanedLines.isNotEmpty()) originalCleanedLines else lines
-        val titleResult = Ocr2_5CleanerTitleExtractor.extractTitle(titleLines, vocabulary)
+        val titleResult = Ocr3CategorizerTitleExtractor.extractTitle(titleLines, vocabulary)
         if (titleResult.title != null) {
             results.detectedTitle = titleResult.title
         }

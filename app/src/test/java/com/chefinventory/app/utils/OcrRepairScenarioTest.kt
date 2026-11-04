@@ -28,7 +28,7 @@ class OcrRepairScenarioTest {
                 val wrong = parts[0].trim().replace("\\'", "'")
                 val expected = parts[1].trim().replace("\\'", "'")
 
-                val normalized = Ocr1Normalizer.normalize("200 g de $wrong", vocabulary.ocrSpellingRepairs)
+                val normalized = Ocr1Corrector.normalize("200 g de $wrong", vocabulary.ocrSpellingRepairs)
                 assertThat(normalized).ignoringCase().contains(expected.lowercase())
             }
         }

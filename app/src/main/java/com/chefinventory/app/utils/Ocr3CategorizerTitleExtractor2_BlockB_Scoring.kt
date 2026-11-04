@@ -3,11 +3,11 @@ package com.chefinventory.app.utils
 import android.util.Log
 
 /**
- * Sous-composant du Bloc B de l'Étape 2.5 : Filtrage (`isBaseCandidate`) et Scoring (`evaluateScore`) des candidats titres pour [Ocr2_5CleanerTitleExtractor].
+ * Sous-composant du Bloc B de l'Étape 3 : Filtrage (`isBaseCandidate`) et Scoring (`evaluateScore`) des candidats titres pour [Ocr3CategorizerTitleExtractor].
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object Ocr2_5CleanerTitleExtractor2_BlockB_Scoring {
-    private const val TAG = "Ocr2_5TitleExtractor2_BlockB"
+object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
+    private const val TAG = "Ocr3TitleExtractor2_BlockB"
 
     /**
      * Détermine si la ligne constitue une ébauche de candidat titre valide d'après les critères fondamentaux.
@@ -67,10 +67,10 @@ object Ocr2_5CleanerTitleExtractor2_BlockB_Scoring {
         val isModifierOnly = vocabulary.ingredientPreparationModifiers.any { OcrRegexes.getSpellingRepairPattern(it).matcher(trimmed).find() }
         if (!hasTitleKeyword && isModifierOnly) return false
 
-        val isSource = OcrHelperUtils.isLikelyProperNameOrSource(trimmed, vocabulary) || SourceParser.isSourceLine(trimmed, vocabulary)
+        val isSource = Ocr3CategorizerProperNameDetector.isLikelyProperNameOrSource(trimmed, vocabulary) || Ocr3CategorizerSource.isSourceLine(trimmed, vocabulary)
         if (isSource) return false
 
-        if (WineParser.isWineLine(trimmed, vocabulary)) return false
+        if (Ocr3CategorizerWine.isWineLine(trimmed, vocabulary)) return false
 
         val invalidPrefixes = setOf(
             "d'", "l'", "de ", "du ", "des ", "de la ", "de l'", "ou ", "à ", "a ",

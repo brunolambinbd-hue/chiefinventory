@@ -64,8 +64,8 @@ object Ocr3Categorizer2_BlockB_WineSource {
         }
 
         if (!containsAction && !startsWithConnector) {
-            if (OcrHelperUtils.isLikelyProperNameOrSource(workingLine, vocabulary) || SourceParser.isSourceLine(workingLine, vocabulary)) {
-                results.detectedSourceList.add(SourceParser.cleanSourceLine(workingLine, vocabulary))
+            if (Ocr3CategorizerProperNameDetector.isLikelyProperNameOrSource(workingLine, vocabulary) || Ocr3CategorizerSource.isSourceLine(workingLine, vocabulary)) {
+                results.detectedSourceList.add(Ocr3CategorizerSource.cleanSourceLine(workingLine, vocabulary))
                 return BlockBResult(true, workingLine)
             }
         }

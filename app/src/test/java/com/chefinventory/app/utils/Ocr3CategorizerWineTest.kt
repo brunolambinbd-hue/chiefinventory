@@ -1,14 +1,24 @@
 package com.chefinventory.app.utils
 
+import android.content.Context
+import android.content.res.Resources
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Suite de tests unitaires de Type B vérifiant l'extraction et la gestion de la section Vin
  * par le sous-composant [Ocr3CategorizerWine].
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class Ocr3CategorizerWineTest {
 
     private lateinit var vocabulary: OcrVocabulary
@@ -16,6 +26,52 @@ class Ocr3CategorizerWineTest {
     @Before
     fun setUp() {
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testIsWineLineAndContainsWholeWordAndLoadResources() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.setTheme(com.chefinventory.app.R.style.Theme_ChefInventory)
+
+        val wineRes = Ocr3CategorizerWine.loadResources(context.resources)
+        assertThat(wineRes.appellations).isNotEmpty()
+        assertThat(wineRes.producers).isNotEmpty()
+
+        // generic wine words -> false
+        assertThat(Ocr3CategorizerWine.isWineLine("vin", vocabulary)).isFalse()
+
+        // contains whole word edge cases
+        assertThat(Ocr3CategorizerWine.containsWholeWord("   ", "Bordeaux")).isFalse()
+        assertThat(Ocr3CategorizerWine.containsWholeWord("Bordeaux 1996", "   ")).isFalse()
+        assertThat(Ocr3CategorizerWine.containsWholeWord("Bordeaux 1996", "Bordeaux")).isTrue()
+
+        // Short vintage year line (<15)
+        assertThat(Ocr3CategorizerWine.isWineLine("2015", vocabulary)).isTrue()
+
+        // Wine producer match
+        assertThat(Ocr3CategorizerWine.isWineLine("Château Margaux 2015", vocabulary)).isTrue()
+
+        // Test loadResources exception and keyword match
+        val mockRes = mock<Resources> {
+            on { getStringArray(com.chefinventory.app.R.array.wine_appellations) } doThrow Resources.NotFoundException()
+            on { getStringArray(com.chefinventory.app.R.array.wine_producers) } doThrow Resources.NotFoundException()
+            on { getStringArray(com.chefinventory.app.R.array.wine_keywords) } doThrow Resources.NotFoundException()
+            on { getStringArray(com.chefinventory.app.R.array.wine_title_keywords) } doThrow Resources.NotFoundException()
+            on { getString(com.chefinventory.app.R.string.wine_remove_pattern) } doThrow Resources.NotFoundException()
+        }
+
+        val emptyRes = Ocr3CategorizerWine.loadResources(mockRes)
+        assertThat(emptyRes.removePattern).isEmpty()
+
+        val keywordRes = Ocr3CategorizerWine.WineResources(
+            appellations = emptyList(),
+            producers = emptyList(),
+            keywords = listOf("cuvée", "millesime"),
+            titleKeywords = emptyList(),
+            removePattern = ""
+        )
+        assertThat(Ocr3CategorizerWine.isWineLine("Une belle cuvée 2018", keywordRes)).isTrue()
     }
 
     @Test
@@ -211,7 +267,7 @@ class Ocr3CategorizerWineTest {
         assertThat(state.detectedWineList).contains("Château Margaux")
         assertThat(state.isWineSectionClosed).isFalse()
 
-        // Line 3: Bottle volume line "75 cl" -> L68 evaluated true, section closed
+        // Line 3: Bottle volume line "75 cl" -> L68 evaluated false, section closed
         val handled3 = Ocr3CategorizerWine.processWineLine(
             workingLine = "75 cl",
             currentSection = Ocr3Categorizer.SECTION_NONE,

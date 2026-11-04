@@ -44,7 +44,7 @@ class Ocr3CategorizerWineCleanerTest {
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testCleanWineLine_WithEmptyRemovePatternInResources() {
-        val emptyRemovePatternRes = WineParser.WineResources(
+        val emptyRemovePatternRes = Ocr3CategorizerWine.WineResources(
             appellations = vocabulary.wineAppellations,
             producers = vocabulary.wineProducers,
             keywords = vocabulary.wineKeywords,

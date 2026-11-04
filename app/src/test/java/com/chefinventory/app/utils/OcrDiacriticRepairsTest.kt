@@ -20,7 +20,7 @@ class OcrDiacriticRepairsTest {
     @Test
     fun `normalize should convert vietnamese and eastern european ocr diacritic accents from XML`() {
         val input = "200 g d'ếpinards frais, 1/2 cuillệre à café"
-        val normalized = Ocr1Normalizer.normalize(input, vocabulary.ocrSpellingRepairs, vocabulary.ocrDiacriticRepairs)
+        val normalized = Ocr1Corrector.normalize(input, vocabulary.ocrSpellingRepairs, vocabulary.ocrDiacriticRepairs)
 
         assertThat(normalized).contains("d'épinards")
         assertThat(normalized).contains("cuillère")

@@ -96,8 +96,8 @@ object RecipeOcrParser {
         val commonIngredients = vocabulary.commonIngredientsNoQty
         val repairs = vocabulary.ocrSpellingRepairs
 
-        // ÉTAPE 1 : Normalisation
-        val normalizedLines = rawLines.map { Ocr1Normalizer.normalize(it, repairs) }
+        // ÉTAPE 1 : Correction et Normalisation
+        val normalizedLines = rawLines.map { Ocr1Corrector.normalize(it, repairs) }
         Log.d(TAG, "[1] APRÈS NORMALISATION:\n${normalizedLines.joinToString("\n")}")
 
         // ÉTAPE 2 : Nettoyage (Suppression du bruit de scan, pubs et mots exclus + capture précoce des sources)
@@ -105,8 +105,8 @@ object RecipeOcrParser {
         val cleanedLines = cleaningResult.cleanedLines
         Log.d(TAG, "[2] APRÈS NETTOYAGE:\n${cleanedLines.joinToString("\n")}")
 
-        // ÉTAPE 2.5 : Extraction du titre et réparation des lettrines
-        val titleResult = Ocr2_5CleanerTitleExtractor.extractTitle(cleanedLines, vocabulary)
+        // ÉTAPE 3 : Extraction du Titre et Catégorisation
+        val titleResult = Ocr3CategorizerTitleExtractor.extractTitle(cleanedLines, vocabulary)
         val linesWithoutTitle = titleResult.cleanedLines
         Log.d(TAG, "[2.5] TITRE DÉTECTÉ: ${titleResult.title ?: "Aucun"}")
 

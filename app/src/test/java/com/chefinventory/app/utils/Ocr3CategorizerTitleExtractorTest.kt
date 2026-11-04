@@ -7,9 +7,9 @@ import org.junit.Test
 
 /**
  * Suite de tests unitaires de Type B vérifiant le comportement, le scoring et l'extraction
- * du titre principal des recettes par [Ocr2_5CleanerTitleExtractor].
+ * du titre principal des recettes par [Ocr3CategorizerTitleExtractor].
  */
-class Ocr2_5CleanerTitleExtractorTest {
+class Ocr3CategorizerTitleExtractorTest {
 
     private lateinit var vocabulary: OcrVocabulary
 
@@ -24,7 +24,7 @@ class Ocr2_5CleanerTitleExtractorTest {
         // 1. Empty stepActionKeywords and no-ingredient lines (L59, L63)
         val emptyActionsVocab = vocabulary.copy(stepActionKeywords = emptyList())
         val noIngLines = listOf("Salade grecque aux olives", "Mélanger et servir")
-        val resNoIng = Ocr2_5CleanerTitleExtractor.extractTitle(noIngLines, emptyActionsVocab)
+        val resNoIng = Ocr3CategorizerTitleExtractor.extractTitle(noIngLines, emptyActionsVocab)
         assertThat(resNoIng.title).contains("Salade grecque aux olives")
 
         // 2. Attached title after "sel et poivre" with connector " de" (L80)
@@ -32,17 +32,17 @@ class Ocr2_5CleanerTitleExtractorTest {
             "1 oignon sel et poivre Tarte de",
             "pommes fraîches"
         )
-        val resAttached = Ocr2_5CleanerTitleExtractor.extractTitle(attachedTitleLines, vocabulary)
+        val resAttached = Ocr3CategorizerTitleExtractor.extractTitle(attachedTitleLines, vocabulary)
         assertThat(resAttached.title).contains("Tarte de pommes fraîches")
 
         // 3. Orphan noun completions with "petite", "grande", "façon" (L165-174)
         val fasonLines = listOf("Poissons façon", "meunière", "200 g de poisson")
-        val resFason = Ocr2_5CleanerTitleExtractor.extractTitle(fasonLines, vocabulary)
+        val resFason = Ocr3CategorizerTitleExtractor.extractTitle(fasonLines, vocabulary)
         assertThat(resFason.title).contains("meunière")
 
         // 4. Score penalty for ending period (L366-367)
         val periodLines = listOf("Tarte aux pommes.", "Tarte aux pommes fraîches")
-        val resPeriod = Ocr2_5CleanerTitleExtractor.extractTitle(periodLines, vocabulary)
+        val resPeriod = Ocr3CategorizerTitleExtractor.extractTitle(periodLines, vocabulary)
         assertThat(resPeriod.title).isEqualTo("Tarte aux pommes fraîches")
 
         // 5. Disqualifying guards: "portions", trailing stop words, digit limits (L472, L478, L480)
@@ -52,7 +52,7 @@ class Ocr2_5CleanerTitleExtractorTest {
             "Recette 123456",
             "Tarte Tatin"
         )
-        val resDisq = Ocr2_5CleanerTitleExtractor.extractTitle(disqLines, vocabulary)
+        val resDisq = Ocr3CategorizerTitleExtractor.extractTitle(disqLines, vocabulary)
         assertThat(resDisq.title).isEqualTo("Tarte Tatin")
     }
 
@@ -65,7 +65,7 @@ class Ocr2_5CleanerTitleExtractorTest {
             "salade",
             "200 g de farine"
         )
-        val resultFem = Ocr2_5CleanerTitleExtractor.extractTitle(linesFeminine, vocabulary)
+        val resultFem = Ocr3CategorizerTitleExtractor.extractTitle(linesFeminine, vocabulary)
         assertThat(resultFem.title).contains("salade")
 
         // 2. Disqualified lines with parentheses or bullets
@@ -75,7 +75,7 @@ class Ocr2_5CleanerTitleExtractorTest {
             "- Soupe à l'oignon",
             "Tarte aux cerises"
         )
-        val resultDisq = Ocr2_5CleanerTitleExtractor.extractTitle(linesDisqualified, vocabulary)
+        val resultDisq = Ocr3CategorizerTitleExtractor.extractTitle(linesDisqualified, vocabulary)
         assertThat(resultDisq.title).isEqualTo("Tarte aux cerises")
     }
 
@@ -83,15 +83,15 @@ class Ocr2_5CleanerTitleExtractorTest {
     @CoveredRequirement("6.1.1.9")
     fun testFindFirstIngredientWord_DirectAndDefaultParameterOverloads() {
         // 1. Default parameter overload (vocabulary = null)
-        val word1 = Ocr2_5CleanerTitleExtractor0_Context.findFirstIngredientWord(listOf("250 g de farine"))
+        val word1 = Ocr3CategorizerTitleExtractor0_Context.findFirstIngredientWord(listOf("250 g de farine"))
         assertThat(word1).isEqualTo("farine")
 
         // 2. Explicit vocabulary overload
-        val word2 = Ocr2_5CleanerTitleExtractor0_Context.findFirstIngredientWord(listOf("1/2 l d'eau"), vocabulary)
+        val word2 = Ocr3CategorizerTitleExtractor0_Context.findFirstIngredientWord(listOf("1/2 l d'eau"), vocabulary)
         assertThat(word2).isEqualTo("eau")
 
         // 3. Empty list -> returns null
-        val word3 = Ocr2_5CleanerTitleExtractor0_Context.findFirstIngredientWord(emptyList(), vocabulary)
+        val word3 = Ocr3CategorizerTitleExtractor0_Context.findFirstIngredientWord(emptyList(), vocabulary)
         assertThat(word3).isNull()
     }
 
@@ -99,12 +99,12 @@ class Ocr2_5CleanerTitleExtractorTest {
     @CoveredRequirement("6.1.1.9")
     fun testIsMultiLineTitleConnector_ExhaustiveOverloads() {
         // 1. Default parameter overload (vocabulary = null)
-        assertThat(Ocr2_5CleanerTitleExtractor.isMultiLineTitleConnector("au jambon")).isTrue()
-        assertThat(Ocr2_5CleanerTitleExtractor.isMultiLineTitleConnector("salade verte")).isFalse()
+        assertThat(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("au jambon")).isTrue()
+        assertThat(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("salade verte")).isFalse()
 
         // 2. Explicit vocabulary overload
-        assertThat(Ocr2_5CleanerTitleExtractor.isMultiLineTitleConnector("aux crevettes", vocabulary)).isTrue()
-        assertThat(Ocr2_5CleanerTitleExtractor.isMultiLineTitleConnector("soupe à l'oignon", vocabulary)).isFalse()
+        assertThat(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("aux crevettes", vocabulary)).isTrue()
+        assertThat(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("soupe à l'oignon", vocabulary)).isFalse()
     }
 
     @Test
@@ -115,7 +115,7 @@ class Ocr2_5CleanerTitleExtractorTest {
             "princesses aux crevettes"
         )
 
-        val result = Ocr2_5CleanerTitleExtractor.extractTitle(lines, vocabulary)
+        val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, vocabulary)
 
         assertThat(result.title).contains("Salade d'avocat et princesses aux crevettes")
     }
@@ -128,7 +128,7 @@ class Ocr2_5CleanerTitleExtractorTest {
             "200 g de crevettes"
         )
 
-        val result = Ocr2_5CleanerTitleExtractor.extractTitle(lines, vocabulary)
+        val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, vocabulary)
 
         assertThat(result.title).isNull()
     }
@@ -143,7 +143,7 @@ class Ocr2_5CleanerTitleExtractorTest {
             "100 g de pommes"
         )
 
-        val result = Ocr2_5CleanerTitleExtractor.extractTitle(lines, emptyConnectorsVocab)
+        val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, emptyConnectorsVocab)
 
         assertThat(result.title).isEqualTo("Salade de fruits au sirop d'érable")
     }
@@ -153,16 +153,16 @@ class Ocr2_5CleanerTitleExtractorTest {
     fun testExtractTitle_EmptyLinesAndNoValidCandidates() {
         // 1. List with empty strings
         val linesWithEmpty = listOf("", "Salade de tomates", "")
-        val resEmpty = Ocr2_5CleanerTitleExtractor.extractTitle(linesWithEmpty, vocabulary)
+        val resEmpty = Ocr3CategorizerTitleExtractor.extractTitle(linesWithEmpty, vocabulary)
         assertThat(resEmpty.title).isEqualTo("Salade de tomates")
 
         // 2. Candidates with score <= 0
         val linesLowScore = listOf("10. Etape 1")
-        val resLowScore = Ocr2_5CleanerTitleExtractor.extractTitle(linesLowScore, vocabulary)
+        val resLowScore = Ocr3CategorizerTitleExtractor.extractTitle(linesLowScore, vocabulary)
         assertThat(resLowScore.title).isNull()
 
         // 3. Completely empty list
-        val resNoCandidates = Ocr2_5CleanerTitleExtractor.extractTitle(emptyList(), vocabulary)
+        val resNoCandidates = Ocr3CategorizerTitleExtractor.extractTitle(emptyList(), vocabulary)
         assertThat(resNoCandidates.title).isNull()
     }
 
@@ -182,7 +182,7 @@ class Ocr2_5CleanerTitleExtractorTest {
             "• Pelez le melon et servez."
         )
 
-        val result = Ocr2_5CleanerTitleExtractor.extractTitle(lines, vocabulary)
+        val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, vocabulary)
 
         assertThat(result.title).isEqualTo("Bûchettes de melon au jambon italien et au porto")
     }
@@ -199,7 +199,7 @@ class Ocr2_5CleanerTitleExtractorTest {
             "1. Verser la bière et mélanger."
         )
 
-        val result = Ocr2_5CleanerTitleExtractor.extractTitle(lines, vocabulary)
+        val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, vocabulary)
 
         assertThat(result.title).isEqualTo("Fondue à la bière")
     }

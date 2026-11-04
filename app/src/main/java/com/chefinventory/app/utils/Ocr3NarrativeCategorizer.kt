@@ -85,7 +85,7 @@ object Ocr3NarrativeCategorizer {
         val firstInstructionLine = lines.firstOrNull { line ->
             val lower = line.lowercase().trim()
             if (lower == "pour" || META_HEADER_PREFIXES.any { lower.startsWith(it) }) return@firstOrNull false
-            if (OcrHelperUtils.isLikelyProperNameOrSource(line, vocabulary)) return@firstOrNull false
+            if (Ocr3CategorizerProperNameDetector.isLikelyProperNameOrSource(line, vocabulary)) return@firstOrNull false
             if (vocabulary.excludedOcrKeywords.any { it.equals(line.trim(), ignoreCase = true) }) return@firstOrNull false
 
             val isStepNumber = STEP_NUMBER_REGEX.containsMatchIn(line)
@@ -132,8 +132,8 @@ object Ocr3NarrativeCategorizer {
             }
 
             // 3. Traitement des sources/établissements
-            if (!OcrInstructionUtils.hasActionVerb(workingLine, vocabulary.stepActionKeywords) && SourceParser.isSourceLine(workingLine, vocabulary)) {
-                val cleanedSource = SourceParser.cleanSourceLine(workingLine, vocabulary)
+            if (!OcrInstructionUtils.hasActionVerb(workingLine, vocabulary.stepActionKeywords) && Ocr3CategorizerSource.isSourceLine(workingLine, vocabulary)) {
+                val cleanedSource = Ocr3CategorizerSource.cleanSourceLine(workingLine, vocabulary)
                 if (cleanedSource.isNotBlank() && cleanedSource !in results.detectedSourceList) {
                     results.detectedSourceList.add(cleanedSource)
                 }

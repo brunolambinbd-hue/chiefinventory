@@ -23,7 +23,7 @@ class IngredientParserTest {
         expectedUnit: String?,
         expectedInfo: String?
     ) {
-        val normalized = Ocr1Normalizer.normalize(input)
+        val normalized = Ocr1Corrector.normalize(input)
         val result = IngredientParser.parse(normalized)
         assertWithMessage("Nom incorrect pour '$input'").that(result.name).isEqualTo(expectedName)
         assertWithMessage("Quantité incorrecte pour '$input'").that(result.quantity).isEqualTo(expectedQty)
@@ -174,19 +174,19 @@ class IngredientParserTest {
     @Test
     @CoveredRequirement("6.1.1.9")
     fun `preClean basic normalizations`() {
-        assertThat(Ocr1Normalizer.normalize("  ± 100 g  ")).isEqualTo("100 g")
-        assertThat(Ocr1Normalizer.normalize("200 g +/-")).isEqualTo("200 g")
-        assertThat(Ocr1Normalizer.normalize("+- 50 g")).isEqualTo("50 g")
-        assertThat(Ocr1Normalizer.normalize("environ 100 g")).isEqualTo("100 g")
+        assertThat(Ocr1Corrector.normalize("  ± 100 g  ")).isEqualTo("100 g")
+        assertThat(Ocr1Corrector.normalize("200 g +/-")).isEqualTo("200 g")
+        assertThat(Ocr1Corrector.normalize("+- 50 g")).isEqualTo("50 g")
+        assertThat(Ocr1Corrector.normalize("environ 100 g")).isEqualTo("100 g")
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun `preClean OCR corrections`() {
-        assertThat(Ocr1Normalizer.normalize("| citron")).isEqualTo("1 citron")
-        assertThat(Ocr1Normalizer.normalize("l/2")).isEqualTo("1/2")
-        assertThat(Ocr1Normalizer.normalize("1 e citron")).isEqualTo("le citron")
-        assertThat(Ocr1Normalizer.normalize("1'ail")).isEqualTo("l'ail")
+        assertThat(Ocr1Corrector.normalize("| citron")).isEqualTo("1 citron")
+        assertThat(Ocr1Corrector.normalize("l/2")).isEqualTo("1/2")
+        assertThat(Ocr1Corrector.normalize("1 e citron")).isEqualTo("le citron")
+        assertThat(Ocr1Corrector.normalize("1'ail")).isEqualTo("l'ail")
     }
 
     @Test

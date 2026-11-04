@@ -4,7 +4,7 @@ import com.parabd.lib.traceability.utils.LogManager
 import java.util.regex.Matcher
 
 /**
- * Étape 1 du pipeline OCR : Normalisation des caractères, chiffres, fractions et symboles.
+ * Étape 1 du pipeline OCR : Correction et normalisation des caractères, chiffres, fractions et symboles.
  *
  * Ordre d'Exécution des Traitements :
  * 1. Garde-fou d'entrée et Early-Exit si la ligne est vide.
@@ -21,9 +21,9 @@ import java.util.regex.Matcher
  * 12. Effondrement des espaces multiples et retrait des espaces de bordure ([OcrRegexes.Normalizer.MULTIPLE_SPACES]).
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
-object Ocr1Normalizer {
+object Ocr1Corrector {
 
-    private const val TAG = "Ocr1Normalizer"
+    private const val TAG = "Ocr1Corrector"
     private const val KEYWORD_INGREDIENTS = "ingrédients"
     private const val KEYWORD_INSTRUCTIONS = "instructions"
 
@@ -48,29 +48,12 @@ object Ocr1Normalizer {
     }
 
     /**
-     * Effectue la normalisation complète d'une chaîne de texte brute issue de l'OCR.
-     *
-     * Détail ligne par ligne des 15 sous-traitements de normalisation :
-     * 1. **Garde-fou d'entrée :** Vérifie que la ligne n'est ni vide ni constituée uniquement d'espaces.
-     * 2. **Sélection des diacritiques :** Reçoit ou charge les paires de réparations de diacritiques depuis `ocr_step1_diacritic_repairs.xml`.
-     * 3. **Réparations orthographiques XML (`ocr_step1_spelling_repairs.xml`) :** Applique les paires fautif|correct (`lajout` -> `l'ajout`, `càsde` -> `c. à soupe de`).
-     * 4. **Protection des mots-clés de section :** Empêche la confusion du 'I' majuscule avec '1' dans `"INGRÉDIENTS"` et `"INSTRUCTIONS"`.
-     * 5. **Nettoyage du préfixe 't' parasite :** Supprime le caractère 't' ou 't ' accidentellement inséré devant un chiffre (ex: `t10 min` -> `10 min`).
-     * 6. **Suppression des symboles de tolérance & puces :** Retire `±`, `+/-`, `+-`, `environ` et les puces devant un chiffre (ex: `! 100 g` -> `100 g`).
-     * 7. **Suppression du bruit publicitaire & devises :** Élimine les dates (`14/12/94`), prix (`209 F`, `15.50 EUR`, `20 €`).
-     * 8. **Correction OCR du chiffre '1' :** Restaure le chiffre `1` lorsqu'il est lu comme `|`, `!`, `i` ou `l` devant une lettre.
-     * 9. **Fractions & Erreurs de nombres (Garde-fou `isDigit()`) :** Si la ligne contient un chiffre, convertit `I12` -> `1/2`, `112` -> `1/2`, `del` -> `de 1`.
-     * 10. **Conversion des diacritiques parasites (`ocr_step1_diacritic_repairs.xml`) :** Remplace les accents Unicode étrangers/vietnamiens (`ế` -> `é`, `ề` -> `è`, `š` -> `s`).
-     * 11. **Corrections d'articles & liaisons d'apostrophes :** Normalise `1 e` -> `le`, `T'oignon` -> `l'oignon`, `jauned'oeuf` -> `jaune d'oeuf`.
-     * 12. **Normalisation des unités de cuillères (Garde-fou `contains('c')`) :** Si la ligne contient 'c', convertit `cas` -> `c. à soupe`, `cac` -> `c. à café`.
-     * 13. **Séparation Chiffre / Unité :** Sépare `500g` -> `500 g`, `1l` -> `1 l`.
-     * 14. **Nettoyage de la ponctuation finale :** Nettoie les virgules, deux-points et points-virgules finaux parasites.
-     * 15. **Normalisation des espaces :** Effondre les espaces multiples consécutifs en un espace unique.
+     * Effectue la correction complète d'une chaîne de texte brute issue de l'OCR.
      *
      * @param input La chaîne de texte brute.
      * @param repairs Liste facultative de paires de réparations orthographiques (ex: de [OcrVocabulary.ocrSpellingRepairs]).
      * @param diacriticRepairs Liste facultative de réparations diacritiques (ex: de [OcrVocabulary.ocrDiacriticRepairs]).
-     * @return La chaîne nettoyée et normalisée.
+     * @return La chaîne nettoyée et corrigée.
      */
     fun normalize(input: String, repairs: List<String> = emptyList(), diacriticRepairs: List<String> = emptyList()): String {
         // 1. Garde-fou d'entrée : chaîne vide ou blanche

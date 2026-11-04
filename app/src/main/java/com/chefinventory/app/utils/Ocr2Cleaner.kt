@@ -109,7 +109,7 @@ object Ocr2Cleaner {
             if (trimmed.isEmpty()) continue
 
             // Inspection précoce de la source dans la ligne publicitaire/marketing avant suppression
-            val extractedSource = SourceParser.extractSourceFromAdLine(trimmed, vocabulary)
+            val extractedSource = Ocr2CleanerAdSourceExtractor.extractSourceFromAdLine(trimmed, vocabulary)
             if (extractedSource != null && extractedSource !in earlySources) {
                 earlySources.add(extractedSource)
                 LogManager.d(TAG, "CLEANER: Source précoce capturée depuis bannière -> $extractedSource")

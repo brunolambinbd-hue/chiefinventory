@@ -47,7 +47,7 @@ object Ocr4Merger {
         var prevOriginalLine = ""
 
         for (line in rawIngredients) {
-            val normalizedLine = Ocr1Normalizer.normalize(line)
+            val normalizedLine = Ocr1Corrector.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
             if (current.isEmpty()) {
@@ -135,7 +135,7 @@ object Ocr4Merger {
         var prevOriginalLine = ""
 
         for (line in rawInstructions) {
-            val normalizedLine = Ocr1Normalizer.normalize(line)
+            val normalizedLine = Ocr1Corrector.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
             val currentEndsWithPeriod = currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }

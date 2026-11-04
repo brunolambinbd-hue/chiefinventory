@@ -31,7 +31,7 @@ object Ocr3CategorizerWineCleaner {
     fun cleanWineLine(line: String, vocabulary: OcrVocabulary): String {
         return cleanWineLine(
             line,
-            WineParser.WineResources(
+            Ocr3CategorizerWine.WineResources(
                 appellations = vocabulary.wineAppellations,
                 producers = vocabulary.wineProducers,
                 keywords = vocabulary.wineKeywords,
@@ -48,7 +48,7 @@ object Ocr3CategorizerWineCleaner {
      * @param resources Les ressources de vins.
      * @return La ligne nettoyée (ex: "Un Bordeaux 1996 75 cl").
      */
-    fun cleanWineLine(line: String, resources: WineParser.WineResources): String {
+    fun cleanWineLine(line: String, resources: Ocr3CategorizerWine.WineResources): String {
         var cleaned = line
         cleaned = cleaned.replace(OcrRegexes.Wines.REMOVE_HEADER_PATTERN, "").trim()
 

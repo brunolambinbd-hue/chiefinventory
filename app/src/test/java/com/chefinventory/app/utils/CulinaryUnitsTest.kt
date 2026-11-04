@@ -85,14 +85,14 @@ class CulinaryUnitsTest {
     }
 
     @Test
-    fun `Ocr1Normalizer and IngredientParser should handle casde and cacde typos from ocr_repairs`() {
-        val normalized1 = Ocr1Normalizer.normalize("2 casde mayonnaise", vocabulary.ocrSpellingRepairs)
+    fun `Ocr1Corrector and IngredientParser should handle casde and cacde typos from ocr_repairs`() {
+        val normalized1 = Ocr1Corrector.normalize("2 casde mayonnaise", vocabulary.ocrSpellingRepairs)
         val parsed1 = IngredientParser.parse(normalized1, vocabulary.culinaryMeasurementUnits)
         assertThat(parsed1.quantity).isEqualTo(2.0)
         assertThat(parsed1.unit).isAnyOf("c. à s.", "c. à soupe")
         assertThat(parsed1.name).isEqualTo("mayonnaise")
 
-        val normalized2 = Ocr1Normalizer.normalize("1 cacde miel", vocabulary.ocrSpellingRepairs)
+        val normalized2 = Ocr1Corrector.normalize("1 cacde miel", vocabulary.ocrSpellingRepairs)
         val parsed2 = IngredientParser.parse(normalized2, vocabulary.culinaryMeasurementUnits)
         assertThat(parsed2.quantity).isEqualTo(1.0)
         assertThat(parsed2.unit).isAnyOf("c. à c.", "c. à café")

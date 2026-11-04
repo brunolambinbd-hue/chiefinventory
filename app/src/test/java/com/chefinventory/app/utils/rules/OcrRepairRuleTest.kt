@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils.rules
 
-import com.chefinventory.app.utils.Ocr1Normalizer
+import com.chefinventory.app.utils.Ocr1Corrector
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.google.common.truth.Truth.assertThat
@@ -24,7 +24,7 @@ class OcrRepairRuleTest {
                 val wrong = parts[0].trim().replace("\\'", "'")
                 val expected = parts[1].trim().replace("\\'", "'")
 
-                val normalized = Ocr1Normalizer.normalize(wrong, baseVocabulary.ocrSpellingRepairs)
+                val normalized = Ocr1Corrector.normalize(wrong, baseVocabulary.ocrSpellingRepairs)
                 assertThat(normalized).ignoringCase().contains(expected.lowercase())
             }
         }
@@ -33,7 +33,7 @@ class OcrRepairRuleTest {
     @Test
     fun `normalize should apply custom synthetic repair complement`() {
         val customRepairs = baseVocabulary.ocrSpellingRepairs + "mot_invalide_test|mot_corrige_test"
-        val result = Ocr1Normalizer.normalize("Ceci est un mot_invalide_test", customRepairs)
+        val result = Ocr1Corrector.normalize("Ceci est un mot_invalide_test", customRepairs)
 
         assertThat(result).contains("mot_corrige_test")
     }

@@ -51,7 +51,7 @@ object Ocr5BeautifierInstruction {
         val cleanedLines = instructions.map { line ->
             var cleaned = line.trim()
             if (spellingRepairs.isNotEmpty()) {
-                cleaned = Ocr1Normalizer.applySpellingRepairs(cleaned, spellingRepairs)
+                cleaned = Ocr1Corrector.applySpellingRepairs(cleaned, spellingRepairs)
             }
             cleaned = cleaned.replace(prefixPattern, "")
             cleaned = cleaned.replace(OcrRegexes.Beautifier.STEP_DIGIT_PREFIX, "")
