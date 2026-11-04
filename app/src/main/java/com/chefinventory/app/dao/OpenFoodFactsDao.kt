@@ -58,8 +58,8 @@ interface OpenFoodFactsDao {
     @Query("SELECT DISTINCT category FROM openfoodfacts_taxonomy WHERE category IS NOT NULL AND category != '' ORDER BY category")
     suspend fun getAllCategories(): List<String>
 
-    @Query("SELECT COUNT(*) FROM openfoodfacts_taxonomy WHERE categoryCode = 1")
-    suspend fun getLegumesCodeCount(): Int
+    @Query("SELECT COUNT(*) FROM openfoodfacts_taxonomy WHERE synonyms IS NOT NULL")
+    suspend fun getSynonymsCount(): Int
 
     @Query("SELECT COUNT(*) FROM openfoodfacts_taxonomy WHERE categoryCode = 3 OR category LIKE '%Huiles%'")
     suspend fun getHuilesGraissesCount(): Int

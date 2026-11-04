@@ -47,8 +47,10 @@ object OcrVocabularyLoader {
 
         parseResDirectory(resDir, stringArrays, strings)
 
+        val combinedStepActionKeywords = getList(stringArrays, "step_action_keywords") + getList(stringArrays, "step_action_keywords_complement")
+
         val vocabulary = OcrVocabulary(
-            stepActionKeywords = getList(stringArrays, "step_action_keywords"),
+            stepActionKeywords = combinedStepActionKeywords,
             commonIngredientsNoQty = getList(stringArrays, "common_ingredients_no_qty"),
             excludedOcrKeywords = getList(stringArrays, "excluded_ocr_keywords"),
             ingredientPreparationModifiers = getList(stringArrays, "ingredient_preparation_modifiers"),

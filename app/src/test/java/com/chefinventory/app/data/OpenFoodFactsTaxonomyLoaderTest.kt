@@ -90,7 +90,7 @@ class OpenFoodFactsTaxonomyLoaderTest {
         val countInDb = database.openFoodFactsDao().getTaxonomyCount()
         assertThat(countInDb).isEqualTo(insertedCount)
 
-        // Second call should return 0 because count > 0 and legumesCodeCount >= 100
+        // Second call should return 0 because count > 0 and synonymsCount >= 100
         val secondCallCount = OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(context, database)
         assertThat(secondCallCount).isEqualTo(0)
     }
@@ -107,7 +107,7 @@ class OpenFoodFactsTaxonomyLoaderTest {
         val mockDao = mock<OpenFoodFactsDao>()
         whenever(mockDb.openFoodFactsDao()).thenReturn(mockDao)
         whenever(mockDao.getTaxonomyCount()).thenReturn(5000)
-        whenever(mockDao.getLegumesCodeCount()).thenReturn(0)
+        whenever(mockDao.getSynonymsCount()).thenReturn(0)
 
         val result = OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(mockContext, mockDb)
         assertThat(result).isEqualTo(0)
@@ -126,7 +126,7 @@ class OpenFoodFactsTaxonomyLoaderTest {
         val mockDao = mock<OpenFoodFactsDao>()
         whenever(mockDb.openFoodFactsDao()).thenReturn(mockDao)
         whenever(mockDao.getTaxonomyCount()).thenReturn(0)
-        whenever(mockDao.getLegumesCodeCount()).thenReturn(0)
+        whenever(mockDao.getSynonymsCount()).thenReturn(0)
 
         val result = OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(mockContext, mockDb)
         assertThat(result).isEqualTo(0)
@@ -144,7 +144,7 @@ class OpenFoodFactsTaxonomyLoaderTest {
         val mockDao = mock<OpenFoodFactsDao>()
         whenever(mockDb.openFoodFactsDao()).thenReturn(mockDao)
         whenever(mockDao.getTaxonomyCount()).thenReturn(0)
-        whenever(mockDao.getLegumesCodeCount()).thenReturn(0)
+        whenever(mockDao.getSynonymsCount()).thenReturn(0)
 
         val result = OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(mockContext, mockDb)
         assertThat(result).isEqualTo(0)
@@ -168,7 +168,7 @@ class OpenFoodFactsTaxonomyLoaderTest {
         val mockDao = mock<OpenFoodFactsDao>()
         whenever(mockDb.openFoodFactsDao()).thenReturn(mockDao)
         whenever(mockDao.getTaxonomyCount()).thenReturn(0)
-        whenever(mockDao.getLegumesCodeCount()).thenReturn(0)
+        whenever(mockDao.getSynonymsCount()).thenReturn(0)
 
         val result = OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(mockContext, mockDb)
         assertThat(result).isEqualTo(0)

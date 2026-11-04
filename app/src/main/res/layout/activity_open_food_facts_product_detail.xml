@@ -125,6 +125,25 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- VARIANTES & SYNONYMES -->
+            <TextView
+                android:id="@+id/tv_synonyms_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="🔀 Synonymes &amp; Pluriels"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?android:attr/textColorPrimary" />
+
+            <TextView
+                android:id="@+id/tv_synonyms_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textSize="14sp"
+                android:textColor="?android:attr/textColorSecondary" />
+
             <!-- BOUTON D'ACTION D'IMPORTATION VERS LE GARDE-MANGER -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_import_to_pantry"

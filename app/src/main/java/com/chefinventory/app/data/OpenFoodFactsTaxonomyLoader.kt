@@ -65,7 +65,7 @@ object OpenFoodFactsTaxonomyLoader {
     }
 
     /**
-     * Alimente la table `openfoodfacts_taxonomy` à partir de l'asset `off_french_taxonomy.json` si la table est vide ou contient des données non catégorisées.
+     * Alimente la table `openfoodfacts_taxonomy` à partir de l'asset `off_french_taxonomy.json` si la table est vide ou contient des données non mises à jour.
      *
      * @param context Le contexte Android.
      * @param database L'instance de la base de données Room [AppDatabase].
@@ -74,15 +74,15 @@ object OpenFoodFactsTaxonomyLoader {
     suspend fun seedTaxonomyIfEmpty(context: Context, database: AppDatabase): Int {
         val dao = database.openFoodFactsDao()
         val currentCount = dao.getTaxonomyCount()
-        val legumesCodeCount = dao.getLegumesCodeCount()
+        val synonymsCount = dao.getSynonymsCount()
 
-        if (currentCount > 0 && legumesCodeCount >= 100) {
-            LogManager.d(TAG, "Taxonomie Open Food Facts déjà alimentée avec categoryCode (count=$currentCount, legumesCodeCount=$legumesCodeCount). Seeding ignoré.")
+        if (currentCount > 0 && synonymsCount >= 100) {
+            LogManager.d(TAG, "Taxonomie Open Food Facts déjà alimentée avec synonymes (count=$currentCount, synonymsCount=$synonymsCount). Seeding ignoré.")
             return 0
         }
 
-        if (legumesCodeCount < 100 || currentCount == 0) {
-            LogManager.d(TAG, "Ré-initialisation de la taxonomie pour peupler la colonne categoryCode (count=$currentCount, legumesCodeCount=$legumesCodeCount)")
+        if (synonymsCount < 100 || currentCount == 0) {
+            LogManager.d(TAG, "Ré-initialisation de la taxonomie pour chargement des synonymes/pluriels (count=$currentCount, synonymsCount=$synonymsCount)")
             dao.clearTaxonomy()
         }
 

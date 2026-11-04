@@ -87,6 +87,8 @@ class OpenFoodFactsProductDetailActivity : AppCompatActivity() {
                 binding.tvParents.isVisible = false
                 binding.tvChildren.isVisible = false
                 binding.tvCarbonFootprint.isVisible = false
+                binding.tvSynonymsLabel.isVisible = false
+                binding.tvSynonymsText.isVisible = false
 
                 if (!product.imageUrl.isNullOrBlank()) {
                     binding.ivProductImage.load(product.imageUrl)
@@ -166,6 +168,15 @@ class OpenFoodFactsProductDetailActivity : AppCompatActivity() {
                     "🌍 Empreinte Carbone : Non évaluée"
                 }
                 binding.tvCarbonFootprint.isVisible = true
+
+                if (!taxonomy.synonyms.isNullOrBlank()) {
+                    binding.tvSynonymsText.text = taxonomy.synonyms
+                    binding.tvSynonymsText.isVisible = true
+                    binding.tvSynonymsLabel.isVisible = true
+                } else {
+                    binding.tvSynonymsText.isVisible = false
+                    binding.tvSynonymsLabel.isVisible = false
+                }
             }
         }
 
