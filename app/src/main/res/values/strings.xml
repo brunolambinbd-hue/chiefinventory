@@ -128,6 +128,8 @@
     <string name="error_unknown_location_category">Aucun emplacement correspondant pour la catégorie : %1$s</string>
 
     <!-- Textes legacy pour les menus -->
+    <string name="btn_add_to_pantry">➕ Stock</string>
+    <string name="menu_nav_off_catalog">Catalogue OFF (5 000+)</string>
     <string name="menu_search_title">Recherche</string>
     <string name="menu_counter_title">Compteur</string>
     <string name="menu_home_title">Accueil</string>

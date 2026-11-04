@@ -120,7 +120,9 @@
     <string name="refine_search_title">Refine search</string>
     <string name="new_search_title">New search</string>
     <string name="locations_management_title">Location Management</string>
-    
+    <string name="btn_add_to_pantry">➕ Stock</string>
+    <string name="menu_nav_off_catalog">OFF Catalog (5 000+)</string>
+
     <!-- Backup and Restore -->
     <string name="backup_button_backup">Backup</string>
     <string name="backup_button_restore">Restore</string>

@@ -9,6 +9,7 @@ import com.parabd.lib.traceability.CoveredRequirement
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -141,6 +142,59 @@ class OpenFoodFactsRepositoryTest {
 
             val result = repo.searchTaxonomy("haricots")
             assertThat(result).isEqualTo(expectedList)
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testGetTaxonomyPaged_SearchPaged_GetAllCategories() {
+        runBlocking {
+            val mockDao = mock<OpenFoodFactsDao>()
+            val repo = OpenFoodFactsRepository(mockDao)
+
+            val pagedList = listOf(OpenFoodFactsTaxonomy(cleanName = "pommes"))
+            whenever(mockDao.getTaxonomyPaged(50, 0)).thenReturn(pagedList)
+
+            val resultPaged = repo.getTaxonomyPaged(50, 0)
+            assertThat(resultPaged).isEqualTo(pagedList)
+
+            // Search paged with blank query -> calls getTaxonomyPaged
+            val resultBlankSearch = repo.searchTaxonomyPaged("", 50, 0)
+            assertThat(resultBlankSearch).isEqualTo(pagedList)
+
+            // Search paged with query
+            whenever(mockDao.searchTaxonomyPaged("%pommes%", 50, 0)).thenReturn(pagedList)
+            val resultQuerySearch = repo.searchTaxonomyPaged("pommes", 50, 0)
+            assertThat(resultQuerySearch).isEqualTo(pagedList)
+
+            // Categories
+            val categories = listOf("Épicerie", "Légumes")
+            whenever(mockDao.getAllCategories()).thenReturn(categories)
+            assertThat(repo.getAllCategories()).isEqualTo(categories)
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testGetFilteredTaxonomyPaged_AllBranchesAndAccents() {
+        runBlocking {
+            val mockDao = mock<OpenFoodFactsDao>()
+            val repo = OpenFoodFactsRepository(mockDao)
+
+            val expectedList = listOf(OpenFoodFactsTaxonomy(cleanName = "épinards", category = "Légumes"))
+            whenever(mockDao.getFilteredTaxonomyPaged(anyOrNull(), anyOrNull(), anyOrNull(), any(), any())).thenReturn(expectedList)
+
+            // 1. With category and query with accents
+            val result1 = repo.getFilteredTaxonomyPaged(category = "Légumes", query = "épinards")
+            assertThat(result1).isEqualTo(expectedList)
+
+            // 2. With query ending with wildcard %
+            val result2 = repo.getFilteredTaxonomyPaged(category = "Épicerie", query = "c%")
+            assertThat(result2).isEqualTo(expectedList)
+
+            // 3. With null category and query
+            val result3 = repo.getFilteredTaxonomyPaged(category = null, query = null)
+            assertThat(result3).isEqualTo(expectedList)
         }
     }
 }

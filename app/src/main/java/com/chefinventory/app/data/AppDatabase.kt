@@ -27,7 +27,7 @@ import com.chefinventory.app.model.RecipeIngredient
         OpenFoodFactsProduct::class,
         OpenFoodFactsTaxonomy::class
     ],
-    version = 34,
+    version = 37,
     exportSchema = false
 )
 @TypeConverters(com.chefinventory.app.data.TypeConverters::class)
@@ -38,7 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun openFoodFactsDao(): OpenFoodFactsDao
 
     companion object {
-        const val DATABASE_VERSION: Int = 34
+        const val DATABASE_VERSION: Int = 37
         const val DATABASE_NAME: String = "chiefinventory_database"
 
         private val MIGRATION_18_19 = object : Migration(18, 19) {
@@ -168,16 +168,46 @@ abstract class AppDatabase : RoomDatabase() {
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                         cleanName TEXT NOT NULL,
                         category TEXT,
-                        synonyms TEXT
+                        categoryCode INTEGER NOT NULL DEFAULT 10,
+                        synonyms TEXT,
+                        averageWeightStr TEXT,
+                        seasonStr TEXT,
+                        carbonFootprintStr TEXT,
+                        ciqualName TEXT,
+                        ecobalyseCategory TEXT,
+                        parentsStr TEXT,
+                        childrenStr TEXT
                     )
                 """.trimIndent())
+            }
+        }
+
+        val MIGRATION_34_35 = object : Migration(34, 35) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE openfoodfacts_taxonomy ADD COLUMN averageWeightStr TEXT")
+                db.execSQL("ALTER TABLE openfoodfacts_taxonomy ADD COLUMN seasonStr TEXT")
+                db.execSQL("ALTER TABLE openfoodfacts_taxonomy ADD COLUMN carbonFootprintStr TEXT")
+                db.execSQL("ALTER TABLE openfoodfacts_taxonomy ADD COLUMN ciqualName TEXT")
+                db.execSQL("ALTER TABLE openfoodfacts_taxonomy ADD COLUMN ecobalyseCategory TEXT")
+            }
+        }
+
+        val MIGRATION_35_36 = object : Migration(35, 36) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE openfoodfacts_taxonomy ADD COLUMN parentsStr TEXT")
+                db.execSQL("ALTER TABLE openfoodfacts_taxonomy ADD COLUMN childrenStr TEXT")
+            }
+        }
+
+        val MIGRATION_36_37 = object : Migration(36, 37) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE openfoodfacts_taxonomy ADD COLUMN categoryCode INTEGER NOT NULL DEFAULT 10")
             }
         }
 
         private val DB_CALLBACK = object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                // Initialisation par défaut si nécessaire
                 db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (1, 'Frigo', 'INGREDIENT')")
                 db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (2, 'Placard', 'INGREDIENT')")
                 db.execSQL("INSERT OR IGNORE INTO locations (id, name, type) VALUES (3, 'Surgélateur', 'INGREDIENT')")
@@ -206,7 +236,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27,
                     MIGRATION_27_28, MIGRATION_28_29, MIGRATION_29_30, 
                     MIGRATION_30_31, MIGRATION_31_32, MIGRATION_32_33,
-                    MIGRATION_33_34
+                    MIGRATION_33_34, MIGRATION_34_35, MIGRATION_35_36,
+                    MIGRATION_36_37
                 )
                 .addCallback(DB_CALLBACK)
                 .fallbackToDestructiveMigration()

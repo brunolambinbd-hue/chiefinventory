@@ -125,6 +125,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 startActivity(intent)
             }
+            R.id.nav_off_catalog -> {
+                startActivity(Intent(this, OpenFoodFactsCatalogActivity::class.java))
+            }
             R.id.nav_all_recipes -> {
                 startActivity(Intent(this, RecipeListActivity::class.java))
             }

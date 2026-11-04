@@ -30,12 +30,29 @@ object OpenFoodFactsTaxonomyLoader {
                 val cleanName = obj.optString("cleanName", "").trim()
                 if (cleanName.isNotBlank()) {
                     val rawCategory = if (obj.has("category") && !obj.isNull("category")) obj.getString("category").trim() else ""
+                    val rawCategoryCode = if (obj.has("categoryCode") && !obj.isNull("categoryCode")) obj.getInt("categoryCode") else 10
                     val rawSynonyms = if (obj.has("synonyms") && !obj.isNull("synonyms")) obj.getString("synonyms").trim() else ""
+                    val rawWeight = if (obj.has("averageWeightStr") && !obj.isNull("averageWeightStr")) obj.getString("averageWeightStr").trim() else ""
+                    val rawSeason = if (obj.has("seasonStr") && !obj.isNull("seasonStr")) obj.getString("seasonStr").trim() else ""
+                    val rawCarbon = if (obj.has("carbonFootprintStr") && !obj.isNull("carbonFootprintStr")) obj.getString("carbonFootprintStr").trim() else ""
+                    val rawCiqual = if (obj.has("ciqualName") && !obj.isNull("ciqualName")) obj.getString("ciqualName").trim() else ""
+                    val rawEcobalyse = if (obj.has("ecobalyseCategory") && !obj.isNull("ecobalyseCategory")) obj.getString("ecobalyseCategory").trim() else ""
+                    val rawParents = if (obj.has("parentsStr") && !obj.isNull("parentsStr")) obj.getString("parentsStr").trim() else ""
+                    val rawChildren = if (obj.has("childrenStr") && !obj.isNull("childrenStr")) obj.getString("childrenStr").trim() else ""
+
                     list.add(
                         OpenFoodFactsTaxonomy(
                             cleanName = cleanName,
                             category = rawCategory.ifBlank { null },
-                            synonyms = rawSynonyms.ifBlank { null }
+                            categoryCode = rawCategoryCode,
+                            synonyms = rawSynonyms.ifBlank { null },
+                            averageWeightStr = rawWeight.ifBlank { null },
+                            seasonStr = rawSeason.ifBlank { null },
+                            carbonFootprintStr = rawCarbon.ifBlank { null },
+                            ciqualName = rawCiqual.ifBlank { null },
+                            ecobalyseCategory = rawEcobalyse.ifBlank { null },
+                            parentsStr = rawParents.ifBlank { null },
+                            childrenStr = rawChildren.ifBlank { null }
                         )
                     )
                 }
@@ -48,7 +65,7 @@ object OpenFoodFactsTaxonomyLoader {
     }
 
     /**
-     * Alimente la table `openfoodfacts_taxonomy` à partir de l'asset `off_french_taxonomy.json` si la table est vide.
+     * Alimente la table `openfoodfacts_taxonomy` à partir de l'asset `off_french_taxonomy.json` si la table est vide ou contient des données non catégorisées.
      *
      * @param context Le contexte Android.
      * @param database L'instance de la base de données Room [AppDatabase].
@@ -57,9 +74,16 @@ object OpenFoodFactsTaxonomyLoader {
     suspend fun seedTaxonomyIfEmpty(context: Context, database: AppDatabase): Int {
         val dao = database.openFoodFactsDao()
         val currentCount = dao.getTaxonomyCount()
-        if (currentCount > 0) {
-            LogManager.d(TAG, "Taxonomie Open Food Facts déjà alimentée (count=$currentCount). Seeding ignoré.")
+        val legumesCodeCount = dao.getLegumesCodeCount()
+
+        if (currentCount > 0 && legumesCodeCount >= 100) {
+            LogManager.d(TAG, "Taxonomie Open Food Facts déjà alimentée avec categoryCode (count=$currentCount, legumesCodeCount=$legumesCodeCount). Seeding ignoré.")
             return 0
+        }
+
+        if (legumesCodeCount < 100 || currentCount == 0) {
+            LogManager.d(TAG, "Ré-initialisation de la taxonomie pour peupler la colonne categoryCode (count=$currentCount, legumesCodeCount=$legumesCodeCount)")
+            dao.clearTaxonomy()
         }
 
         return try {

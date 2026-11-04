@@ -32,6 +32,10 @@
                 android:id="@+id/nav_ingredients_locations"
                 android:icon="@android:drawable/ic_menu_manage"
                 android:title="@string/menu_nav_ingredients_locations" />
+            <item
+                android:id="@+id/nav_off_catalog"
+                android:icon="@android:drawable/ic_menu_search"
+                android:title="@string/menu_nav_off_catalog" />
         </menu>
     </item>
 

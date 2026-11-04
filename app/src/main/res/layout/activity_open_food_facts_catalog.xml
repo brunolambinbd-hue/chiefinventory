@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:title="Catalogue Open Food Facts"
+        app:titleTextColor="?attr/colorOnPrimary" />
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="8dp"
+        app:queryHint="Rechercher parmi 5 000+ ingrédients..."
+        app:iconifiedByDefault="false" />
+
+    <!-- BANDEAU DE FILTRES DES CATÉGORIES ÉCOBALYSE PAR CODE ID -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginVertical="4dp"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_categories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleLine="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:tag="0"
+                android:text="Tous" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_legumes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="1"
+                android:text="🥦 Fruits &amp; Légumes" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_cremerie"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="2"
+                android:text="🧀 Produits Laitiers" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_huiles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="3"
+                android:text="🛢️ Huiles &amp; Graisses" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_viandes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="4"
+                android:text="🥩 Viandes Rouges" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_volailles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="5"
+                android:text="🍗 Volailles" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_poissons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="6"
+                android:text="🐟 Poissons &amp; Crustacés" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_epices"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="7"
+                android:text="🧂 Épices &amp; Condiments" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_cereales"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="8"
+                android:text="🌾 Céréales &amp; Farines" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_boissons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="9"
+                android:text="🥤 Boissons" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_epicerie"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="10"
+                android:text="🛒 Épicerie &amp; Divers" />
+
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- ZONE PRINCIPALE : RECYCLERVIEW + BARRE LATÉRALE VERTICALE A-Z -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_catalog"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp" />
+
+        <!-- BARRE D'INDEXATION ALPHABÉTIQUE VERTICALE DÉDIÉE (A À Z) -->
+        <ScrollView
+            android:layout_width="28dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="4dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/layout_alphabet_sidebar"
+                android:layout_width="28dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingVertical="4dp" />
+        </ScrollView>
+
+    </LinearLayout>
+
+</LinearLayout>

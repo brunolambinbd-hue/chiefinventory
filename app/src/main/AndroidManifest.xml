@@ -72,6 +72,20 @@
             android:name=".ui.actvity.ImportRecipePacksActivity"
             android:exported="true" />
 
+        <!-- Déclaration de l'activité du Catalogue Open Food Facts (Niveau 2) -->
+        <activity
+            android:name=".ui.actvity.OpenFoodFactsCatalogActivity"
+            android:exported="false"
+            android:label="Catalogue Open Food Facts"
+            android:theme="@style/Theme.ChefInventory" />
+
+        <!-- Déclaration de l'activité de détail du produit Open Food Facts (Niveau 2) -->
+        <activity
+            android:name=".ui.actvity.OpenFoodFactsProductDetailActivity"
+            android:exported="false"
+            android:label="Fiche Produit Open Food Facts"
+            android:theme="@style/Theme.ChefInventory" />
+
         <!-- Déclaration de l'activité de la librairie de recadrage avec un thème approprié -->
         <activity
             android:name="com.canhub.cropper.CropImageActivity"
