@@ -106,7 +106,7 @@ object Ocr4Merger {
 
         val finalSplitList = mutableListOf<String>()
         for (mergedIng in intermediateMerged) {
-            val splits = OcrHelperUtils.splitCombinedIngredients(
+            val splits = Ocr4MergerIngredientSplitter.splitCombinedIngredients(
                 mergedIng, 
                 commonIngredients, 
                 mandatoryComplements, 

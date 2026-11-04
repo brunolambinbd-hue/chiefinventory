@@ -6,73 +6,85 @@ package com.chefinventory.app.utils
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr4MergerIngredientSplitter {
 
-    private val ARTICLES = setOf("le", "la", "les", "un", "une", "des", "du", "de", "d'", "d")
-    private val SIZE_PREFIX_REGEX = Regex("^(?:\\d+|1/2|1/4|un|une)\\s+(?:petit|petite|petits|petites|grand|grande|grands|grandes|moyen|moyenne|moyens|moyennes|beau|beaux|belle|belles)$", RegexOption.IGNORE_CASE)
-    private val MODIFIERS = setOf("fine", "fines", "grand", "grande", "grands", "grandes", "petit", "petite", "petits", "petites", "beau", "beaux", "belle", "belles")
-
     /**
-     * Détermine si le préfixe précédant un mot-clé constitue une séparation d'ingrédient valide.
+     * Découpe une ligne contenant plusieurs ingrédients fusionnés (ex: *"4 toasts salade de blé"* ➔ *["4 toasts", "salade de blé"]*).
+     *
+     * @param line La ligne combinée à découper.
+     * @param commonItems La liste des ingrédients connus sans quantité (`ingredients.xml`).
+     * @param mandatoryComplements La liste des compléments d'ingrédients obligatoires (`complement_ingredients.xml`).
+     * @return La liste des lignes d'ingrédients scindées.
      */
-    internal fun isValidSplitPrefix(lowerPrefix: String): Boolean {
-        if (lowerPrefix in ARTICLES) return false
-        if (SIZE_PREFIX_REGEX.matches(lowerPrefix)) return false
+    fun splitCombinedIngredients(
+        line: String, 
+        commonItems: List<String>, 
+        mandatoryComplements: List<String> = emptyList(),
+        preparationModifiers: List<String> = emptyList(),
+        splitterConnectors: List<String> = emptyList(),
+        culinaryUnits: List<String> = emptyList()
+    ): List<String> {
+        var cleanedLine = line.trim()
+        if (cleanedLine.isBlank()) return emptyList()
 
-        val endsWithDe = lowerPrefix.endsWith(" de")
-        val endsWithD = lowerPrefix.endsWith(" d'")
-        val endsWithDu = lowerPrefix.endsWith(" du")
-        val endsWithDes = lowerPrefix.endsWith(" des")
-        val endsWithAu = lowerPrefix.endsWith(" au")
-        val endsWithAux = lowerPrefix.endsWith(" aux")
-        val endsWithConnector = endsWithDe || endsWithD || endsWithDu || endsWithDes || endsWithAu || endsWithAux
-        if (endsWithConnector) return false
-
-        val lastPrefixWord = lowerPrefix.split(Regex("\\s+")).last()
-        val endsWithModifier = lastPrefixWord in MODIFIERS
-        if (endsWithModifier) return false
-
-        return true
-    }
-
-    /**
-     * Divise une ligne d'ingrédients combinée si elle contient plusieurs aliments distincts.
-     * Exemple : "2 gousses d'ail sel, poivre" -> ["2 gousses d'ail", "sel", "poivre"]
-     * Exemple : "1 piment rouge persil haché" -> ["1 piment rouge", "persil haché"]
-     */
-    fun splitCombinedIngredients(line: String, commonItems: List<String>): List<String> {
-        val lower = line.lowercase().trim()
+        val lower = cleanedLine.lowercase()
         if (commonItems.any { it.trim().lowercase() == lower }) {
-            return listOf(line.trim())
+            return listOf(cleanedLine)
         }
 
-        // 1. D'abord on split par les séparateurs classiques (virgule, et)
-        val initialParts = line.split(Regex("[,;]|\\bet\\b|\\band\\b"), 0).map { it.trim() }.filter { it.isNotBlank() }
-
-        // 2. Découpage agressif par mots-clés (même collés)
-        val sortedKeywords = commonItems.sortedByDescending { it.length }
-
-        val result = mutableListOf<String>()
-        for (part in initialParts) {
-            var currentPart = part
-            var found: Boolean
-            do {
-                found = false
-                for (keyword in sortedKeywords) {
-                    val pattern = Regex("(?<=.{3})${Regex.escape(keyword)}\\b", RegexOption.IGNORE_CASE)
-                    val match = pattern.find(currentPart)
-                    if (match != null) {
-                        val prefix = currentPart.substring(0, match.range.first).trim()
-                        val lowerPrefix = prefix.lowercase()
-                        if (isValidSplitPrefix(lowerPrefix)) {
-                            result.add(prefix)
-                            currentPart = currentPart.substring(match.range.first).trim()
-                            found = true
-                            break
-                        }
-                    }
-                }
-            } while (found)
-            result.add(currentPart)
+        val prefixMatch = Regex("^(\\d+\\s+){2,}\\d+").find(cleanedLine)
+        if (prefixMatch != null) {
+            cleanedLine = cleanedLine.substring(prefixMatch.range.last + 1).trim()
         }
-        return result.distinct()
+        
+        if (cleanedLine.isBlank()) return emptyList()
+        
+        val hacheVariants = listOf("haché", "hachée", "hachés", "hachées")
+        val otherKeywords = commonItems.filter { it.lowercase() !in hacheVariants }
+        
+        val otherKeywordsRegex = if (otherKeywords.isNotEmpty()) {
+            otherKeywords.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
+        } else {
+            "MATCH_NOTHING_RANDOM_UNLIKELY_STRING"
+        }
+        val hacheRegex = hacheVariants.joinToString("|") { Regex.escape(it) }
+
+        val defaultConnectors = listOf("et", "ou", "à", "-", "de", "du", "des", "d'", "d", "au", "aux", "sur", "le", "la", "les", "un", "une", "soupe", "café", "gousse", "gousses", "pincée", "filet", "botte", "branche", "salade", "beau", "beaux", "belle", "belles", "petit", "petite", "petits", "petites", "grand", "grande", "grands", "grandes", "moyen", "moyenne", "moyens", "moyennes", "fine", "fines", "gros", "grosse", "grosses")
+        val baseConnectors = if (splitterConnectors.isNotEmpty()) splitterConnectors else defaultConnectors
+        val defaultUnits = listOf("paquet", "paquets", "sachet", "sachets", "ravier", "raviers", "boîte", "boite", "boîtes", "boites", "bocal", "bocaux")
+        val activeUnits = if (culinaryUnits.isNotEmpty()) culinaryUnits else defaultUnits
+        val allConnectors = (baseConnectors + mandatoryComplements.map { it.lowercase() } + activeUnits.map { it.lowercase() }).distinct()
+        val connectors = allConnectors.joinToString("|") { Regex.escape(it) }
+        
+        val modifierWords = if (preparationModifiers.isNotEmpty()) {
+            preparationModifiers.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it.lowercase()) }
+        } else {
+            "haché|hachée|hachés|hachées|émincé|émincée|émincés|émincées|ciselé|ciselée|ciselés|ciselées|râpé|râpée|râpés|râpées|fondu|fondue|fondus|fondues|forte|douce|moulu|moulée|concassé|concassée|décortiquées|fumé|fumée"
+        }
+        val qtyPattern = "(?:\\d+(?:/\\d+)?|(?<=\\s|^)[1Il!|](?!\\p{L})(?:/\\d+)?)"
+
+        val seasoningRegex = "sel\\s+et\\s+poivre|sel,\\s*poivre"
+        val potentialSplits = Regex(
+            "(?<=[\\p{L}).,])(?<!\\b(?:$connectors))\\s+(?!(?:$connectors|$modifierWords)\\b)(?<!\\()(?=$qtyPattern\\s+[\\p{L}])|" +
+            "(?<=[\\p{L},])(?<!\\b(?:$connectors))\\s+(?!(?:$modifierWords)\\b)(?=$otherKeywordsRegex)|" +
+            "(?<=[\\p{L},])(?<!\\b(?:$connectors))\\s+(?=(?:$hacheRegex)\\b\\s+(?:de|du|d'|d\\s+))|" +
+            "(?<=[\\p{L}])\\s+(?=$seasoningRegex\\b)",
+            RegexOption.IGNORE_CASE
+        )
+
+        val sb = StringBuilder(cleanedLine)
+        var offset = 0
+        potentialSplits.findAll(cleanedLine).forEach { match ->
+            System.err.println("DEBUG SPLIT MATCH = '" + match.value + "' at " + match.range + " in '" + cleanedLine + "'")
+            val matchEndText = cleanedLine.substring(match.range.last + 1).trimStart()
+            val isParenthesisQuantity = matchEndText.startsWith("(") || OcrTextUtils.isInsideParentheses(cleanedLine, match.range.first)
+            if (!isParenthesisQuantity) {
+                val splitPos = match.range.first + offset
+                sb.insert(splitPos + 1, "##SPLIT##")
+                offset += "##SPLIT##".length
+            }
+        }
+
+        return sb.toString().split("##SPLIT##")
+            .map { it.trim().replace(Regex("[,:;\\s\\-]+$"), "") }
+            .filter { it.isNotBlank() }
     }
 }

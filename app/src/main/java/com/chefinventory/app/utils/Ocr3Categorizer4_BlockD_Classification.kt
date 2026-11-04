@@ -100,7 +100,7 @@ object Ocr3Categorizer4_BlockD_Classification {
     ): BlockDResult {
         var workingLine = rawWorkingLine.replace(Regex("\\s+"), " ").trim()
 
-        workingLine = OcrHelperUtils.cleanIngredientSemantics(workingLine, vocabulary.excludedOcrKeywords, vocabulary.ingredientSemanticExclusions)
+        workingLine = Ocr3CategorizerIngredientDetector.cleanIngredientSemantics(workingLine, vocabulary.excludedOcrKeywords, vocabulary.ingredientSemanticExclusions)
         if (workingLine.isEmpty()) {
             return BlockDResult(true, workingLine, currentSection)
         }

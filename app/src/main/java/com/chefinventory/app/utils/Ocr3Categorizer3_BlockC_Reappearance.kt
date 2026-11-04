@@ -125,7 +125,7 @@ object Ocr3Categorizer3_BlockC_Reappearance {
         }
 
         val weightRegex = Regex("(?i)\\(\\d+\\s*(?:g|kg|ml|cl|l|oz|lb|pcs|pce|un|une)\\)")
-        val hasExplicitW = OcrIngredientUtils.hasExplicitWeight(workingLine)
+        val hasExplicitW = Ocr3CategorizerIngredientDetector.hasExplicitWeight(workingLine)
         val hasWeight = if (hasExplicitW) {
             true
         } else {
@@ -136,7 +136,7 @@ object Ocr3Categorizer3_BlockC_Reappearance {
         val hasHardQuantity = if (hasHardQtyRegex) {
             true
         } else {
-            OcrHelperUtils.countIngredientSequences(workingLine) > 0
+            Ocr3CategorizerIngredientDetector.countIngredientSequences(workingLine) > 0
         }
 
         val hasQtyRegex = qtyRegex.containsMatchIn(workingLine)
