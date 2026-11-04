@@ -1,9 +1,11 @@
 package com.chefinventory.app.ui.actvity
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import coil.load
 import com.chefinventory.app.data.AppDatabase
 import com.chefinventory.app.databinding.ActivityOpenFoodFactsProductDetailBinding
 import com.chefinventory.app.repo.IngredientRepository
@@ -11,7 +13,7 @@ import com.chefinventory.app.repository.OpenFoodFactsRepository
 import com.chefinventory.app.ui.viewmodel.OpenFoodFactsProductDetailViewModel
 
 /**
- * Écran d'IHM de consultation et d'édition visuelle des fiches ingrédients Open Food Facts (Niveau 2).
+ * Écran d'IHM de consultation et d'édition visuelle des fiches ingrédients et produits Open Food Facts (Niveau 2).
  */
 class OpenFoodFactsProductDetailActivity : AppCompatActivity() {
 
@@ -62,8 +64,48 @@ class OpenFoodFactsProductDetailActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
+        viewModel.product.observe(this) { product ->
+            if (product != null) {
+                binding.tvProductName.text = product.productName ?: "Produit Code-Barres"
+                binding.tvProductName.isVisible = true
+
+                binding.tvCategory.text = "Marque : ${product.brand ?: "Non spécifiée"}"
+                binding.tvCategory.isVisible = true
+
+                binding.tvCiqualName.text = "Code-Barres EAN13 : ${product.barcode}"
+                binding.tvCiqualName.isVisible = true
+
+                binding.tvAverageWeight.text = "📦 Contenance : ${product.quantityStr ?: "Non renseignée"}"
+                binding.tvAverageWeight.isVisible = true
+
+                binding.tvSeason.text = "📊 Nutri-Score : ${product.nutriScore ?: "Non évalué"}"
+                binding.tvSeason.isVisible = true
+
+                binding.tvEcobalyseCategory.text = "📝 Composition : ${product.ingredientsText ?: "Non renseignée"}"
+                binding.tvEcobalyseCategory.isVisible = true
+
+                binding.tvParents.isVisible = false
+                binding.tvChildren.isVisible = false
+                binding.tvCarbonFootprint.isVisible = false
+
+                if (!product.imageUrl.isNullOrBlank()) {
+                    binding.ivProductImage.load(product.imageUrl)
+                    binding.ivProductImage.isVisible = true
+                    binding.ivProductImage.setOnClickListener {
+                        val intent = Intent(this, FullScreenImageActivity::class.java).apply {
+                            putExtra(FullScreenImageActivity.EXTRA_IMAGE_URI, product.imageUrl)
+                            putExtra(FullScreenImageActivity.EXTRA_TITLE, product.productName ?: "Produit Open Food Facts")
+                        }
+                        startActivity(intent)
+                    }
+                } else {
+                    binding.ivProductImage.isVisible = false
+                }
+            }
+        }
+
         viewModel.taxonomy.observe(this) { taxonomy ->
-            if (taxonomy != null) {
+            if (taxonomy != null && viewModel.product.value == null) {
                 val formattedName = taxonomy.cleanName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
                 binding.tvProductName.text = formattedName
                 binding.tvProductName.isVisible = true
@@ -71,9 +113,9 @@ class OpenFoodFactsProductDetailActivity : AppCompatActivity() {
                 val categoryText = when {
                     !taxonomy.ecobalyseCategory.isNullOrBlank() -> taxonomy.ecobalyseCategory
                     !taxonomy.category.isNullOrBlank() && taxonomy.category != "Alimentation" -> taxonomy.category
-                    else -> "other_food_items"
+                    else -> "Épicerie & Divers"
                 }
-                binding.tvCategory.text = "Catégorie Écobalyse : $categoryText"
+                binding.tvCategory.text = "Catégorie : $categoryText"
                 binding.tvCategory.isVisible = true
 
                 binding.tvCiqualName.text = if (!taxonomy.ciqualName.isNullOrBlank()) {

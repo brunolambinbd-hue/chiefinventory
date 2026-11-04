@@ -19,6 +19,15 @@
             app:title="Fiche Ingrédient Open Food Facts"
             app:titleTextColor="?attr/colorOnPrimary" />
 
+        <!-- PHOTO DU PRODUIT CODE-BARRES -->
+        <ImageView
+            android:id="@+id/iv_product_image"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Photo du produit"
+            android:visibility="gone" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

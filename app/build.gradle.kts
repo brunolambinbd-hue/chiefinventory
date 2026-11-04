@@ -141,6 +141,7 @@ dependencies {
     implementation(libs.mediapipe.tasks.vision)
     implementation(libs.image.cropper)
     implementation(libs.jsoup)
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)

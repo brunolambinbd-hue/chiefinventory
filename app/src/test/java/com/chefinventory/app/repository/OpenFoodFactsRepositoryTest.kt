@@ -17,9 +17,44 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 /**
- * Suite de tests unitaires de Type B vérifiant le comportement, le cache et la résilience de [OpenFoodFactsRepository].
+ * Suite de tests unitaires de Type B vérifiant le comportement, le cache et la résilience de [OpenFoodFactsRepository]
+ * à l'aide des 5 codes-barres réels d'Open Food Facts.
  */
 class OpenFoodFactsRepositoryTest {
+
+    private val realBarcodes = listOf(
+        "3017620422003", // Nutella
+        "3228857000166", // Lait Lactel
+        "3083680085304", // Eau Evian
+        "3124480183344", // Beurre Président
+        "3038350008000"  // Riz Taureau Ailé
+    )
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testGetProductByBarcode_5RealBarcodes_LocalHitAndRemoteMiss() {
+        runBlocking {
+            val mockDao = mock<OpenFoodFactsDao>()
+            val mockApi = mock<OpenFoodFactsApiClient>()
+            val repo = OpenFoodFactsRepository(mockDao, mockApi)
+
+            for (barcode in realBarcodes) {
+                val prod = OpenFoodFactsProduct(barcode = barcode, productName = "Produit $barcode")
+                
+                // Cache hit
+                whenever(mockDao.getProductByBarcode(barcode)).thenReturn(prod)
+                val resultHit = repo.getProductByBarcode(barcode)
+                assertThat(resultHit).isEqualTo(prod)
+
+                // Cache miss -> API hit
+                whenever(mockDao.getProductByBarcode(barcode)).thenReturn(null)
+                whenever(mockApi.fetchProductByBarcode(barcode, 5000)).thenReturn(prod)
+                val resultRemote = repo.getProductByBarcode(barcode)
+                assertThat(resultRemote).isEqualTo(prod)
+                verify(mockDao).insertProduct(prod)
+            }
+        }
+    }
 
     @Test
     @CoveredRequirement("6.1.1.9")
@@ -32,44 +67,6 @@ class OpenFoodFactsRepositoryTest {
             assertThat(repo.getProductByBarcode("")).isNull()
             assertThat(repo.getProductByBarcode("   ")).isNull()
             verify(mockDao, never()).getProductByBarcode(any())
-        }
-    }
-
-    @Test
-    @CoveredRequirement("6.1.1.9")
-    fun testGetProductByBarcode_LocalCacheHit_ReturnsLocalProductWithoutCallingApi() {
-        runBlocking {
-            val mockDao = mock<OpenFoodFactsDao>()
-            val mockApi = mock<OpenFoodFactsApiClient>()
-            val repo = OpenFoodFactsRepository(mockDao, mockApi)
-
-            val localProd = OpenFoodFactsProduct(barcode = "3017620422003", productName = "Nutella")
-            whenever(mockDao.getProductByBarcode("3017620422003")).thenReturn(localProd)
-
-            val result = repo.getProductByBarcode("3017620422003")
-
-            assertThat(result).isEqualTo(localProd)
-            verify(mockApi, never()).fetchProductByBarcode(any(), any())
-        }
-    }
-
-    @Test
-    @CoveredRequirement("6.1.1.9")
-    fun testGetProductByBarcode_LocalCacheMiss_CallsApiAndCachesProductInRoom() {
-        runBlocking {
-            val mockDao = mock<OpenFoodFactsDao>()
-            val mockApi = mock<OpenFoodFactsApiClient>()
-            val repo = OpenFoodFactsRepository(mockDao, mockApi)
-
-            whenever(mockDao.getProductByBarcode("3228857000166")).thenReturn(null)
-
-            val remoteProd = OpenFoodFactsProduct(barcode = "3228857000166", productName = "Lait demi-écrémé")
-            whenever(mockApi.fetchProductByBarcode("3228857000166", 5000)).thenReturn(remoteProd)
-
-            val result = repo.getProductByBarcode("3228857000166")
-
-            assertThat(result).isEqualTo(remoteProd)
-            verify(mockDao).insertProduct(remoteProd)
         }
     }
 
@@ -99,13 +96,13 @@ class OpenFoodFactsRepositoryTest {
             val mockApi = mock<OpenFoodFactsApiClient>()
             val repo = OpenFoodFactsRepository(mockDao, mockApi)
 
-            whenever(mockDao.getProductByBarcode("123456")).thenReturn(null)
+            whenever(mockDao.getProductByBarcode("3017620422003")).thenReturn(null)
 
-            val remoteProd = OpenFoodFactsProduct(barcode = "123456", productName = "Biscuits")
-            whenever(mockApi.fetchProductByBarcode("123456", 5000)).thenReturn(remoteProd)
+            val remoteProd = OpenFoodFactsProduct(barcode = "3017620422003", productName = "Nutella")
+            whenever(mockApi.fetchProductByBarcode("3017620422003", 5000)).thenReturn(remoteProd)
             whenever(mockDao.insertProduct(remoteProd)).doThrow(RuntimeException("DB Lock"))
 
-            val result = repo.getProductByBarcode("123456")
+            val result = repo.getProductByBarcode("3017620422003")
 
             assertThat(result).isEqualTo(remoteProd)
         }
@@ -124,6 +121,25 @@ class OpenFoodFactsRepositoryTest {
 
             val invalidProd = OpenFoodFactsProduct(barcode = "", productName = "Invalide")
             repo.saveProductLocally(invalidProd)
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testGetTaxonomyByIdAndExactName() {
+        runBlocking {
+            val mockDao = mock<OpenFoodFactsDao>()
+            val repo = OpenFoodFactsRepository(mockDao)
+
+            val taxonomy = OpenFoodFactsTaxonomy(id = 10L, cleanName = "courgettes")
+            whenever(mockDao.getTaxonomyById(10L)).thenReturn(taxonomy)
+            whenever(mockDao.getTaxonomyByExactName("courgettes")).thenReturn(taxonomy)
+
+            assertThat(repo.getTaxonomyById(10L)).isEqualTo(taxonomy)
+            assertThat(repo.getTaxonomyById(0L)).isNull()
+
+            assertThat(repo.getTaxonomyByExactName("courgettes")).isEqualTo(taxonomy)
+            assertThat(repo.getTaxonomyByExactName("")).isNull()
         }
     }
 

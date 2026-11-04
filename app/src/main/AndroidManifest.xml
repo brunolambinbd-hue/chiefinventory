@@ -86,6 +86,13 @@
             android:label="Fiche Produit Open Food Facts"
             android:theme="@style/Theme.ChefInventory" />
 
+        <!-- Déclaration de l'activité d'édition autonome d'un Produit Code-Barres Open Food Facts (Niveau 2) -->
+        <activity
+            android:name=".ui.actvity.EditBarcodeProductActivity"
+            android:exported="false"
+            android:label="Édition Produit Code-Barres"
+            android:theme="@style/Theme.ChefInventory" />
+
         <!-- Déclaration de l'activité de la librairie de recadrage avec un thème approprié -->
         <activity
             android:name="com.canhub.cropper.CropImageActivity"

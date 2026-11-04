@@ -2,24 +2,23 @@ package com.chefinventory.app.ui.actvity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.chefinventory.app.ChefInventoryApplication
 import com.chefinventory.app.R
 import com.chefinventory.app.databinding.ActivityMainBinding
 import com.chefinventory.app.model.LocationType
+import com.chefinventory.app.ui.dialog.BarcodeScannerDialog
 import com.chefinventory.app.ui.viewmodel.MainViewModel
 import com.chefinventory.app.ui.viewmodel.ViewModelFactory
-import com.google.android.material.navigation.NavigationView
-
 import com.chefinventory.app.utils.setOnSingleClickListener
+import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -28,12 +27,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val viewModel: MainViewModel by viewModels {
         val app = application as ChefInventoryApplication
-        @Suppress("VisibleForTests")
         ViewModelFactory(app, app.locationRepository, app.ingredientRepository, app.recipeRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        setTheme(R.style.Theme_ChefInventory)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -92,6 +90,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val count = recipes?.size ?: 0
             binding.totalRecipesText.text = "Toutes les recettes : $count"
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.toolbar_main, menu)
+        return true
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -155,6 +158,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (toggle.onOptionsItemSelected(item)) return true
-        return super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.action_scan_barcode -> {
+                BarcodeScannerDialog.show(this, lifecycleScope)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
