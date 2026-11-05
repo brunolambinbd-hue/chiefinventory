@@ -12,8 +12,8 @@ import javax.xml.parsers.DocumentBuilderFactory
  * du vocabulaire métier de l'application [OcrVocabulary].
  *
  * Responsabilités :
- * - Localiser et lire le répertoire `res/values` du projet depuis le disque (mode TDD/JVM) ou les ressources Android.
- * - Parser les fichiers XML (`ocr_*.xml`, `step_keywords.xml`, `ingredients.xml`, `wine_arrays.xml`) sans dépendance Android Framework.
+ * - Localiser et lire tous les répertoires res-values du projet depuis le disque (mode TDD/JVM) ou les ressources Android.
+ * - Parser les fichiers XML (ocr_*.xml, step_keywords.xml, ingredients.xml, wine_arrays.xml) sans dépendance Android Framework.
  * - Effectuer la mise en cache de l'instance [OcrVocabulary] par défaut pour accélérer l'exécution des tests.
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
@@ -24,20 +24,20 @@ object OcrVocabularyLoader {
     private var cachedDefaultVocabulary: OcrVocabulary? = null
 
     /**
-     * Charge le vocabulaire métier complet depuis les fichiers XML du répertoire `res/values`.
+     * Charge le vocabulaire métier complet depuis les fichiers XML des répertoires res-values.
      *
-     * @param projectDir Répertoire racine du projet (par défaut : dossier courant `"."`).
+     * @param projectDir Répertoire racine du projet (par défaut : dossier courant ".").
      * @return L'objet [OcrVocabulary] alimenté.
-     * @throws IllegalStateException si le répertoire `res/values` est introuvable.
+     * @throws IllegalStateException si aucun répertoire res-values n'est localisé.
      */
     fun loadFromProjectResources(projectDir: File = File(".")): OcrVocabulary {
         if ((projectDir.path == ".") && (cachedDefaultVocabulary != null)) {
             return cachedDefaultVocabulary!!
         }
 
-        val resDir = findResValuesDir(projectDir)
-        if (resDir == null) {
-            val errorMsg = "Could not locate 'res/values' directory from: ${projectDir.absolutePath}"
+        val resDirs = findResValueDirs(projectDir)
+        if (resDirs.isEmpty()) {
+            val errorMsg = "Could not locate any 'res*/values' directory from: ${projectDir.absolutePath}"
             LogManager.e(TAG, errorMsg)
             throw IllegalStateException(errorMsg)
         }
@@ -45,7 +45,9 @@ object OcrVocabularyLoader {
         val stringArrays = mutableMapOf<String, List<String>>()
         val strings = mutableMapOf<String, String>()
 
-        parseResDirectory(resDir, stringArrays, strings)
+        for (resDir in resDirs) {
+            parseResDirectory(resDir, stringArrays, strings)
+        }
 
         val combinedStepActionKeywords = getList(stringArrays, "step_action_keywords") + getList(stringArrays, "step_action_keywords_complement")
 
@@ -110,14 +112,25 @@ object OcrVocabularyLoader {
         cachedDefaultVocabulary = null
     }
 
-    private fun findResValuesDir(startDir: File): File? {
-        val candidates = listOf(
-            File(startDir, "src/main/res/values"),
-            File(startDir, "app/src/main/res/values"),
-            File(startDir, "../app/src/main/res/values"),
-            File(startDir, "../../app/src/main/res/values"),
+    private fun findResValueDirs(startDir: File): List<File> {
+        val baseCandidates = listOf(
+            File(startDir, "src/main"),
+            File(startDir, "app/src/main"),
+            File(startDir, "../app/src/main"),
+            File(startDir, "../../app/src/main"),
         )
-        return candidates.firstOrNull { it.isDirectory }
+        val subFolders = listOf("res", "res-pantry", "res-catalog", "res-ocr")
+        val foundDirs = mutableListOf<File>()
+
+        for (base in baseCandidates) {
+            for (sub in subFolders) {
+                val candidateValues = File(base, "$sub/values")
+                if (candidateValues.isDirectory && !foundDirs.contains(candidateValues)) {
+                    foundDirs.add(candidateValues)
+                }
+            }
+        }
+        return foundDirs
     }
 
     internal fun parseResDirectory(

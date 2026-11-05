@@ -38,6 +38,14 @@ android {
     }
 
     sourceSets {
+        getByName("main") {
+            res.srcDirs(
+                "src/main/res",
+                "src/main/res-pantry",
+                "src/main/res-catalog",
+                "src/main/res-ocr"
+            )
+        }
         getByName("androidTest") {
             java.srcDirs(
                 "src/androidTest/java",
