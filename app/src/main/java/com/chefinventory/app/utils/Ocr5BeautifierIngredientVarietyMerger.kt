@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Assistant de l'Étape 5 (Embellissement) dédié au traitement et à la fusion data-driven des ingrédients composés
@@ -15,10 +15,13 @@ object Ocr5BeautifierIngredientVarietyMerger {
      * Exemples : "haricots", "crevettes", "poivrons", "chou", "yaourt", "saumon".
      */
     fun isBaseExpectingVariety(text: String, baseIngredients: List<String>): Boolean {
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val activeBases = baseIngredients.ifEmpty { vocab.baseIngredientsExpectingVariety }
+
         val lower = text.lowercase().trim()
         val words = lower.split(Regex("\\s+"))
         val lastWord = words.last()
-        return baseIngredients.any { base ->
+        return activeBases.any { base ->
             val lowerBase = base.lowercase().trim()
             lowerBase.equals(lastWord, ignoreCase = true)
         }
@@ -29,9 +32,12 @@ object Ocr5BeautifierIngredientVarietyMerger {
      * Exemples : "princesses", "verts", "grises", "roses", "grec", "nature", "frais", "décortiquées".
      */
     fun isVarietyQualifier(text: String, qualifiers: List<String>): Boolean {
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val activeQualifiers = qualifiers.ifEmpty { vocab.ingredientVarietyQualifiers }
+
         val lower = text.lowercase().trim()
         val clean = lower.replace(Regex("^[^\\p{L}]+"), "").trim()
-        return qualifiers.any { qual ->
+        return activeQualifiers.any { qual ->
             val lowerQual = qual.lowercase().trim()
             clean.equals(lowerQual, ignoreCase = true) || clean.startsWith("$lowerQual ")
         }
@@ -41,8 +47,8 @@ object Ocr5BeautifierIngredientVarietyMerger {
      * Balaye la liste nettoyée des lignes d'ingrédients et fusionne les qualificatifs de variété orphelins avec la ligne précédente.
      *
      * @param ingredientLines La liste des lignes d'ingrédients.
-     * @param baseIngredients La liste des noms d'ingrédients de base attendant une variété.
-     * @param qualifiers La liste des adjectifs et qualificatifs de variété.
+     * @param baseIngredients La liste des noms d'ingrédients de base attendant une variété (`ingredient_varieties.xml`).
+     * @param qualifiers La liste des adjectifs et qualificatifs de variété (`ingredient_varieties.xml`).
      * @return La liste nettoyée des lignes d'ingrédients avec variétés fusionnées.
      */
     fun beautifyIngredientVarieties(
@@ -52,6 +58,10 @@ object Ocr5BeautifierIngredientVarietyMerger {
     ): List<String> {
         if (ingredientLines.isEmpty()) return emptyList()
 
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val activeBases = baseIngredients.ifEmpty { vocab.baseIngredientsExpectingVariety }
+        val activeQualifiers = qualifiers.ifEmpty { vocab.ingredientVarietyQualifiers }
+
         val result = mutableListOf<String>()
         var idx = 0
 
@@ -60,8 +70,8 @@ object Ocr5BeautifierIngredientVarietyMerger {
             val nextLine = if (idx + 1 < ingredientLines.size) ingredientLines[idx + 1].trim() else ""
 
             if (nextLine.isNotEmpty()) {
-                val isNextVariety = isVarietyQualifier(nextLine, qualifiers)
-                val isCurrentBase = isBaseExpectingVariety(currentLine, baseIngredients)
+                val isNextVariety = isVarietyQualifier(nextLine, activeQualifiers)
+                val isCurrentBase = isBaseExpectingVariety(currentLine, activeBases)
 
                 if (isNextVariety) {
                     if (isCurrentBase) {
@@ -73,7 +83,7 @@ object Ocr5BeautifierIngredientVarietyMerger {
                         }
                         val merged = "$currentLine $uncapitalizedNext"
                         result.add(merged)
-                        Log.d(TAG, "VARIETY MERGER: Fusion de la variété '$nextLine' avec '$currentLine' -> '$merged'")
+                        LogManager.d(TAG, String.format(vocab.logOcr5BeautifierVarietyMerged, nextLine, currentLine, merged))
                         idx += 2
                         continue
                     }

@@ -6,7 +6,6 @@
 <item>décortiquées</item>
 <item>en quartiers</item>
 <item>en rondelles</item>
-<item>en rondelles</item>
 <item>frais hachés</item>
 <item>décortiquée</item>
 <item>décortiqués</item>
@@ -16,9 +15,12 @@
 <item>en feuilles</item>
 <item>en lamelles</item>
 <item>en morceaux</item>
-<item>en morceaux</item>
 <item>en tranches</item>
-<item>en tranches</item>
+<item>à point</item>
+<item>cuites</item>
+<item>cuits</item>
+<item>cuite</item>
+<item>cuit</item>
 <item>frais haché</item>
 <item>concassées</item>
 <item>décortiqué</item>
@@ -77,7 +79,6 @@
 <item>coupée</item>
 <item>coupés</item>
 <item>en dés</item>
-<item>en dés</item>
 <item>fondue</item>
 <item>fondus</item>
 <item>fumées</item>
@@ -118,5 +119,13 @@
 <item>fumé</item>
 <item>pelé</item>
 <item>râpé</item>
+    </string-array>
+
+    <!-- Modificateurs de préparation de fin d'élément (Étape 4 Splitter - Longest Match First) -->
+    <string-array name="ingredient_preparation_suffix_modifiers">
+        <item>hachées</item>
+        <item>hachés</item>
+        <item>hachée</item>
+        <item>haché</item>
     </string-array>
 </resources>

@@ -2,6 +2,7 @@ package com.chefinventory.app.utils
 
 import android.content.res.Resources
 import com.chefinventory.app.R
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -10,6 +11,11 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 class OcrVocabularyTest {
+
+    @After
+    fun tearDown() {
+        OcrVocabularyLoader.clearCache()
+    }
 
     @Test
     fun testOcrVocabularySyntheticDefaultConstructorReflectionCoverage() {
@@ -293,6 +299,8 @@ class OcrVocabularyTest {
         assertEquals("ng", vocab.ocr1IngredientsSuffixPrefix)
         assertEquals("pattern", vocab.wineRemovePattern)
         assertEquals("Échec du chargement des réparations diacritiques par défaut", vocab.logErrDiacriticRepairs)
+
+        OcrVocabularyLoader.clearCache()
     }
 
     @Test
@@ -340,5 +348,7 @@ class OcrVocabularyTest {
         assertEquals("", vocab.wineRemovePattern)
         assertEquals("", vocab.ocr1IngredientsSuffixPrefix)
         assertEquals("", vocab.logErrDiacriticRepairs)
+
+        OcrVocabularyLoader.clearCache()
     }
 }

@@ -24,9 +24,11 @@ object Ocr5BeautifierIngredient {
         baseIngredients: List<String> = emptyList(),
         varietyQualifiers: List<String> = emptyList()
     ): List<String> {
-        val standaloneTrashWords = setOf(
-            "les", "le", "la", "des", "du", "de", "d'", "un", "une", "et", "ou", "pour", "sur", "avec", "dans", "par", "ce", "ces", "cette", "notre", "conseil", "prix"
-        )
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val standaloneTrashWords = (vocab.standaloneArticles + vocab.hangingConnectors + vocab.priceTitleKeywords + vocab.wineTitleKeywords)
+            .map { it.lowercase().trim() }
+            .toSet()
+        val headerTrashWords = vocab.ocr1ProtectedIngredientsHeaders.map { it.lowercase().trim() }.toSet()
 
         val mergedVarieties = Ocr5BeautifierIngredientVarietyMerger.beautifyIngredientVarieties(ingredients, baseIngredients, varietyQualifiers)
         return mergedVarieties.map { line ->
@@ -42,7 +44,7 @@ object Ocr5BeautifierIngredient {
             cleaned
         }.filter { line ->
             val lower = line.lowercase().trim().removeSuffix(":").removeSuffix(".")
-            line.isNotBlank() && lower != "ingrédients" && lower != "ingredients" && lower != "composition" && lower != "ngrédients" && lower !in standaloneTrashWords
+            line.isNotBlank() && lower !in headerTrashWords && lower !in standaloneTrashWords
         }
     }
 }

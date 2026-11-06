@@ -27,11 +27,24 @@ object OcrInstructionUtils {
      */
     fun hasActionVerb(line: String, stepActionKeywords: List<String>): Boolean {
         if (line.isBlank() || stepActionKeywords.isEmpty()) return false
+
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val excludedNonVerbs = (vocab.durationUnits + vocab.durationApproximationAdverbs + vocab.timeHeaderKeywords)
+            .map { it.lowercase().trim() }
+            .toSet()
+
         val distinctKeywords = stepActionKeywords
             .map { it.replace(OcrRegexes.Beautifier.BRACKET_COMMENT, "").trim().lowercase() }
-            .filter { it.length >= 3 && it !in listOf("minutes", "heures", "secondes", "environ") }
+            .filter { it.length >= 3 && it !in excludedNonVerbs }
+            .distinct()
+            .sortedByDescending { it.length }
+
         if (distinctKeywords.isEmpty()) return false
-        val pattern = Pattern.compile("(?<!\\p{L})(?:" + distinctKeywords.joinToString("|") { Pattern.quote(it) } + ")(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+
+        val regexParts = distinctKeywords.map { kw ->
+            if (kw.contains("[") && kw.contains("]")) kw else Pattern.quote(kw)
+        }
+        val pattern = Pattern.compile("(?<!\\p{L})(?:" + regexParts.joinToString("|") + ")(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
         return pattern.matcher(line).find()
     }
 }

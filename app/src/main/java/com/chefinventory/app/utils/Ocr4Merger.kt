@@ -15,9 +15,6 @@ import com.parabd.lib.traceability.utils.LogManager
 object Ocr4Merger {
     private const val TAG = "Ocr4Merger"
 
-    /** Articles isolés en fin de ligne indiquant une fusion obligatoire. */
-    private val ARTICLES = listOf("le", "la", "les", "l'", "un", "une", "des", "du")
-
     /**
      * Fusionne les lignes d'ingrédients tronquées et scinde ensuite les lignes combinées.
      *
@@ -53,6 +50,7 @@ object Ocr4Merger {
             }
 
             val isNewStart = startsWithQuantity(normalizedLine)
+            val isNextCommonIngredient = commonIngredients.any { it.trim().lowercase() == normalizedLine.lowercase() }
             val prevIsHanging = isHanging(current, customConnectors)
             val nextStartsWithConnector = startsWithConnector(normalizedLine, customConnectors)
             val nextIsModifier = isOrphanModifier(normalizedLine, preparationModifiers)
@@ -61,7 +59,7 @@ object Ocr4Merger {
 
             val hasUnclosedParen = current.count { it == '(' } > current.count { it == ')' }
             val prevEndsWithRangeConnector = current.lowercase().trimEnd().let { it.endsWith(" ou") || it.endsWith(" à") || it.endsWith(" a") || it.endsWith(" -") || it.endsWith("-") }
-            val allowMerge = (!isNewStart || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || prevEndsWithRangeConnector)
+            val allowMerge = (!isNewStart && (!isNextCommonIngredient || prevIsHanging) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || prevEndsWithRangeConnector)
 
             if (allowMerge) {
                 if (prevWasHyphenated) {
@@ -127,6 +125,9 @@ object Ocr4Merger {
         LogManager.d(TAG, "--- mergeInstructions START ---")
 
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val standaloneWords = (vocab.standaloneArticles + vocab.hangingConnectors).map { it.lowercase().trim() }.toSet()
+        val articlesAndConnectors = (vocab.standaloneArticles + vocab.hangingConnectors + vocab.ingredientConnectors).map { it.lowercase().trim() }.distinct()
+
         val resultSentences = mutableListOf<String>()
         var currentBlock = ""
         var prevOriginalLine = ""
@@ -135,16 +136,23 @@ object Ocr4Merger {
             val normalizedLine = Ocr1Corrector.normalize(line)
             if (normalizedLine.isEmpty()) continue
 
-            val currentEndsWithPeriod = currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }
-            val currentEndsWithConjunction = currentBlock.trimEnd().let { 
-                it.endsWith(" et") || it.endsWith(" et-") || it.endsWith(" ou") || it.endsWith(" ou-") || it.endsWith(",") 
+            val prevWasHyphenated = prevOriginalLine.trimEnd().endsWith("-")
+            val trailingWord = currentBlock.trimEnd().lowercase().split(Regex("\\s+")).lastOrNull()?.removeSuffix(".")?.removeSuffix(",") ?: ""
+            val endsWithParasiteArticle = trailingWord in articlesAndConnectors
+
+            val currentEndsWithPeriod = !endsWithParasiteArticle && currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }
+            val currentEndsWithConjunction = currentBlock.trimEnd().let { cleanBlock ->
+                val lowerClean = cleanBlock.lowercase()
+                lowerClean.endsWith(" et") || lowerClean.endsWith(" et-") || 
+                lowerClean.endsWith(" ou") || lowerClean.endsWith(" ou-") || 
+                lowerClean.endsWith(",") ||
+                endsWithParasiteArticle
             }
             val hasExplicitStepMarker = Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(line) || Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(normalizedLine)
-            val isNextStep = hasExplicitStepMarker || currentEndsWithPeriod || (!currentEndsWithConjunction && (isNewStep(line, vocab) || isNewStep(normalizedLine, vocab)))
+            val lineStartsWithConjunction = Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(line) || Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(normalizedLine)
+            val isNextStep = !prevWasHyphenated && (hasExplicitStepMarker || currentEndsWithPeriod || (!currentEndsWithConjunction && !lineStartsWithConjunction && (isNewStep(line, vocab) || isNewStep(normalizedLine, vocab))))
 
             if (currentBlock.isNotEmpty() && !isNextStep) {
-                val prevWasHyphenated = prevOriginalLine.trimEnd().endsWith("-")
-
                 if (prevWasHyphenated) {
                     val blockClean = currentBlock.trimEnd()
                     val charBeforeDash = if (blockClean.endsWith("-")) {
@@ -157,7 +165,6 @@ object Ocr4Merger {
                     val startsWithLetter = normalizedLine.firstOrNull()?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
 
                     val baseWord = blockClean.dropLast(1).trim().split(Regex("\\s+")).lastOrNull()?.lowercase() ?: ""
-                    val standaloneWords = setOf("et", "ou", "de", "du", "des", "d", "au", "aux", "en", "par", "pour", "sur", "à", "a")
                     val isStandaloneWordHyphenated = baseWord in standaloneWords
 
                     if (endsWithLetter && startsWithLetter && !isStandaloneWordHyphenated) {
@@ -168,7 +175,15 @@ object Ocr4Merger {
                         currentBlock = "${base.trim()} ${normalizedLine.trim()}"
                     }
                 } else {
-                    currentBlock = "${currentBlock.trim()} ${normalizedLine.trim()}"
+                    val blockClean = currentBlock.trimEnd()
+                    val endsWithConjunctionDot = blockClean.endsWith(" et.") || blockClean.endsWith(" ou.") || blockClean.endsWith(",.") || (endsWithParasiteArticle && blockClean.endsWith("."))
+                    val base = if (endsWithConjunctionDot) blockClean.dropLast(1).trimEnd() else blockClean
+                    val nextText = if (endsWithConjunctionDot && normalizedLine.isNotEmpty() && normalizedLine[0].isUpperCase()) {
+                        normalizedLine[0].lowercase() + normalizedLine.substring(1)
+                    } else {
+                        normalizedLine
+                    }
+                    currentBlock = "$base ${nextText.trim()}"
                 }
             } else {
                 if (currentBlock.isNotEmpty()) {
@@ -193,7 +208,7 @@ object Ocr4Merger {
      * @return La liste des phrases isolées.
      */
     private fun splitIntoSentences(text: String): List<String> {
-        val pattern = Regex("(?<=[.!?])\\s+")
+        val pattern = Regex("(?<=[.帖!?])\\s+")
         return text.split(pattern).map { it.trim() }.filter { it.isNotEmpty() }
     }
 
@@ -206,21 +221,22 @@ object Ocr4Merger {
      */
     internal fun isHanging(text: String, customConnectors: List<String> = emptyList()): Boolean {
         val lower = text.lowercase().trim()
-        if (ARTICLES.contains(lower)) return true
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val articles = vocab.standaloneArticles.map { it.lowercase().trim() }
+        if (articles.contains(lower)) return true
 
         // Détection de parenthèse ouverte non refermée ou tiret terminal (ex: "1 citron (1/2 pour le jus -")
         val hasUnclosedParenthesis = text.count { it == '(' } > text.count { it == ')' }
         val endsWithHyphen = text.trimEnd().endsWith("-")
         if (hasUnclosedParenthesis || endsWithHyphen) return true
 
-        val vocab = OcrVocabularyLoader.loadFromProjectResources()
         val parsed = IngredientParser.parse(text, vocab.culinaryMeasurementUnits)
-        if (parsed.quantity != null && (parsed.name.isBlank() || parsed.name.matches(Regex("(?i)^(?:soupe|café|c\\.?\\s*[àa]\\s*(?:soupe|café)|g|kg|cl|ml|l)$")))) {
+        if (parsed.quantity != null && (parsed.name.isBlank() || parsed.name.matches(Regex("(?i)^(?:[àa]|soupe|café|c\\.?|c\\.?\\s*[àa]|c\\.?\\s*[àa]\\s*(?:soupe|café)|g|kg|cl|ml|l)$")))) {
             return true
         }
 
         val connectors = if (customConnectors.isNotEmpty()) customConnectors else vocab.ingredientConnectors
-        val endsWithConnector = connectors.any { lower.endsWith(" $it") || lower.endsWith("$it") }
+        val endsWithConnector = connectors.any { lower.endsWith(" $it") || (it.endsWith("'") && lower.endsWith(it)) || lower == it }
 
         val hangingNouns = (vocab.mandatoryComplementIngredients + vocab.culinaryMeasurementUnits).map { it.lowercase().trim() }
         val endsWithHangingNoun = hangingNouns.any { lower.endsWith(" $it") || lower == it }
@@ -237,7 +253,7 @@ object Ocr4Merger {
     internal fun startsWithConnector(text: String, customConnectors: List<String> = emptyList()): Boolean {
         val connectors = if (customConnectors.isNotEmpty()) customConnectors else OcrVocabularyLoader.loadFromProjectResources().ingredientConnectors
         val lower = text.lowercase().trim()
-        return connectors.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
+        return connectors.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) || lower == it }
     }
 
     /**
@@ -273,11 +289,10 @@ object Ocr4Merger {
      * Détermine si la ligne marque le début d'une nouvelle étape de consigne d'instructions.
      *
      * @param line La ligne d'instruction à évaluer.
-     * @param vocabulary Le vocabulaire métier OCR.
+     * @param vocab Le vocabulaire métier OCR.
      * @return `true` s'il s'agit du début d'une nouvelle étape, `false` sinon.
      */
-    private fun isNewStep(line: String, vocabulary: OcrVocabulary? = null): Boolean {
-        val vocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
+    private fun isNewStep(line: String, vocab: OcrVocabulary): Boolean {
         val regex = OcrRegexes.getInstructionPrefixPattern(vocab.stepStartVerbs)
         return regex.containsMatchIn(line)
     }

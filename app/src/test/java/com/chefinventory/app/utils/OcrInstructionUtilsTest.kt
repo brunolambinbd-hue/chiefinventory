@@ -2,12 +2,18 @@ package com.chefinventory.app.utils
 
 import com.google.common.truth.Truth.assertThat
 import com.parabd.lib.traceability.CoveredRequirement
+import org.junit.Before
 import org.junit.Test
 
 /**
  * Suite de tests unitaires de Type B vérifiant le comportement de [OcrInstructionUtils].
  */
 class OcrInstructionUtilsTest {
+
+    @Before
+    fun setUp() {
+        OcrVocabularyLoader.clearCache()
+    }
 
     @Test
     @CoveredRequirement("6.1.1.9")

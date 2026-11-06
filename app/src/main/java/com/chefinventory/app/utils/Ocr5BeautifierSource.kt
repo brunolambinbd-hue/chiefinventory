@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Assistant de l'Étape 5 (Embellissement) dédié à la beautification et à la présentation finale des sources et établissements.
@@ -23,6 +23,7 @@ object Ocr5BeautifierSource {
     fun beautifySources(sources: List<String>): List<String> {
         if (sources.isEmpty()) return emptyList()
 
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
         val beautifiedList = mutableListOf<String>()
 
         for (source in sources) {
@@ -44,7 +45,7 @@ object Ocr5BeautifierSource {
 
             if (cleaned !in beautifiedList) {
                 beautifiedList.add(cleaned)
-                Log.d(TAG, "SOURCE BEAUTIFIER: '$source' -> '$cleaned'")
+                LogManager.d(TAG, String.format(vocab.logOcr5BeautifierSourceFormatted, source, cleaned))
             }
         }
 

@@ -15,4 +15,13 @@
         <item>hr</item>
         <item>h</item>
     </string-array>
+
+    <!-- Adverbes et qualificatifs d'approximation de quantité et durée (Étape 3 - Longest Match First) -->
+    <string-array name="duration_approximation_adverbs">
+        <item>approximativement</item>
+        <item>plus ou moins</item>
+        <item>à peu près</item>
+        <item>presque</item>
+        <item>environ</item>
+    </string-array>
 </resources>

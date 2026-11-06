@@ -31,15 +31,18 @@ object OcrVocabularyLoader {
      * @throws IllegalStateException si aucun répertoire res-values n'est localisé.
      */
     fun loadFromProjectResources(projectDir: File = File(".")): OcrVocabulary {
-        if ((projectDir.path == ".") && (cachedDefaultVocabulary != null)) {
+        if ((projectDir.path == ".") && (cachedDefaultVocabulary != null) && cachedDefaultVocabulary!!.durationUnits.isNotEmpty()) {
             return cachedDefaultVocabulary!!
         }
 
         val resDirs = findResValueDirs(projectDir)
         if (resDirs.isEmpty()) {
             val errorMsg = "Could not locate any 'res*/values' directory from: ${projectDir.absolutePath}"
-            LogManager.e(TAG, errorMsg)
-            throw IllegalStateException(errorMsg)
+            LogManager.w(TAG, errorMsg)
+            if (projectDir.path != ".") {
+                throw IllegalStateException(errorMsg)
+            }
+            return cachedDefaultVocabulary ?: OcrVocabulary()
         }
 
         val stringArrays = mutableMapOf<String, List<String>>()
@@ -60,6 +63,7 @@ object OcrVocabularyLoader {
             commonIngredientsNoQty = getList(stringArrays, "common_ingredients_no_qty"),
             excludedOcrKeywords = getList(stringArrays, "excluded_ocr_keywords"),
             ingredientPreparationModifiers = getList(stringArrays, "ingredient_preparation_modifiers"),
+            ingredientPreparationSuffixModifiers = getList(stringArrays, "ingredient_preparation_suffix_modifiers"),
             instructionSwitchKeywords = getList(stringArrays, "instruction_switch_keywords"),
             ingredientSemanticExclusions = getList(stringArrays, "ingredient_semantic_exclusions"),
             ingredientEndMarkers = getList(stringArrays, "ingredient_end_markers"),
@@ -102,6 +106,7 @@ object OcrVocabularyLoader {
             orphanNounStopWords = getList(stringArrays, "orphan_noun_stop_words"),
             narrativeStopWords = getList(stringArrays, "narrative_stop_words"),
             durationUnits = getList(stringArrays, "duration_units"),
+            durationApproximationAdverbs = getList(stringArrays, "duration_approximation_adverbs"),
             stepStartVerbs = getList(stringArrays, "step_start_verbs"),
             stepSecondaryVerbs = getList(stringArrays, "step_secondary_verbs"),
             stepContextWords = getList(stringArrays, "step_context_words"),
@@ -167,6 +172,11 @@ object OcrVocabularyLoader {
             logOcr3WineImplicitNoVolumeOpen = getStringVal(strings, "log_ocr3_wine_implicit_no_volume_open"),
             logOcr3WineImplicitDuplicateIgnored = getStringVal(strings, "log_ocr3_wine_implicit_duplicate_ignored"),
             logOcr3WineImplicitEmptyIgnored = getStringVal(strings, "log_ocr3_wine_implicit_empty_ignored"),
+            logOcr4SplitterDebugMatch = getStringVal(strings, "log_ocr4_splitter_debug_match"),
+            logOcr5BeautifierInstructionMerged = getStringVal(strings, "log_ocr5_beautifier_instruction_merged"),
+            logOcr5BeautifierVarietyMerged = getStringVal(strings, "log_ocr5_beautifier_variety_merged"),
+            logOcr5BeautifierWineFormatted = getStringVal(strings, "log_ocr5_beautifier_wine_formatted"),
+            logOcr5BeautifierSourceFormatted = getStringVal(strings, "log_ocr5_beautifier_source_formatted"),
             logOcrVocabLoaderCustomDirNoCache = getStringVal(strings, "log_ocr_vocab_loader_custom_dir_no_cache"),
             logErrDiacriticRepairs = getStringVal(strings, "log_err_diacritic_repairs")
         )
@@ -182,7 +192,7 @@ object OcrVocabularyLoader {
      * @param vocabulary L'instance [OcrVocabulary] à mettre en cache.
      */
     internal fun cacheVocabularyIfNeeded(projectDir: File, vocabulary: OcrVocabulary) {
-        if (projectDir.path == ".") {
+        if (projectDir.path == "." && vocabulary.durationUnits.isNotEmpty()) {
             cachedDefaultVocabulary = vocabulary
         } else {
             val format = vocabulary.logOcrVocabLoaderCustomDirNoCache
@@ -289,7 +299,7 @@ object OcrVocabularyLoader {
             val node = arrayNodes.item(i)
             if (node.nodeType == Node.ELEMENT_NODE) {
                 val elem = node as Element
-                val arrayName = elem.getAttribute("name")
+                val arrayName = if (elem.hasAttribute("arrayName")) elem.getAttribute("arrayName") else elem.getAttribute("name")
                 val items = mutableListOf<String>()
                 val itemNodes = elem.getElementsByTagName("item")
                 for (j in 0 until itemNodes.length) {

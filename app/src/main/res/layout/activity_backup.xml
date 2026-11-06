@@ -36,6 +36,13 @@
             android:layout_marginTop="16dp"
             android:text="@string/backup_button_restore" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_diagnostic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Diagnostic des Ressources OCR" />
+
         <TextView
             android:id="@+id/tv_backup_status"
             android:layout_width="wrap_content"

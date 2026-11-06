@@ -403,8 +403,8 @@ object OcrRegexes {
         /** Supprime les puces typographiques en début de ligne (ex: "• ", "- ", "* "). */
         val BULLET_PREFIX: Regex = Regex("^[•\\-*]\\s*")
 
-        /** Nettoie les commentaires entre crochets dans les listes de mots-clés. */
-        val BRACKET_COMMENT: Regex = Regex("\\[[^\\]]+\\]")
+        /** Nettoie les commentaires entre crochets en fin de mot-clé (ex: "mot [note]"). */
+        val BRACKET_COMMENT: Regex = Regex("\\s+\\[[^\\]]+\\]$")
     }
 
     /** Cache memoized pour les Regexes d'unités culinaires pour ne jamais compiler deux fois le même motif. */

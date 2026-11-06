@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Assistant de l'Étape 5 (Embellissement) dédié à la beautification et à la présentation finale des recommandations de vins.
@@ -23,6 +23,7 @@ object Ocr5BeautifierWine {
     fun beautifyWines(wines: List<String>): List<String> {
         if (wines.isEmpty()) return emptyList()
 
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
         val beautifiedList = mutableListOf<String>()
 
         for (wine in wines) {
@@ -44,7 +45,7 @@ object Ocr5BeautifierWine {
 
             if (cleaned !in beautifiedList) {
                 beautifiedList.add(cleaned)
-                Log.d(TAG, "WINE BEAUTIFIER: '$wine' -> '$cleaned'")
+                LogManager.d(TAG, String.format(vocab.logOcr5BeautifierWineFormatted, wine, cleaned))
             }
         }
 

@@ -67,4 +67,9 @@
     <string name="log_ocr3_wine_implicit_no_volume_open">  [!] Vin implicite capturé sans volume (section vin reste ouverte)</string>
     <string name="log_ocr3_wine_implicit_duplicate_ignored">  [!] Ligne de vin implicite ignorée (doublon déjà enregistré)</string>
     <string name="log_ocr3_wine_implicit_empty_ignored">  [!] Ligne de vin implicite ignorée (nom vide)</string>
+    <string name="log_ocr4_splitter_debug_match">SPLITTER : Match découpage = \'%1$s\' à %2$s dans \'%3$s\'</string>
+    <string name="log_ocr5_beautifier_instruction_merged">INSTRUCTION BEAUTIFIER : Fusionné \'%1$s\' avec \'%2$s\'</string>
+    <string name="log_ocr5_beautifier_variety_merged">VARIETY MERGER : Fusion de la variété \'%1$s\' avec \'%2$s\' ➔ \'%3$s\'</string>
+    <string name="log_ocr5_beautifier_wine_formatted">WINE BEAUTIFIER : \'%1$s\' ➔ \'%2$s\'</string>
+    <string name="log_ocr5_beautifier_source_formatted">SOURCE BEAUTIFIER : \'%1$s\' ➔ \'%2$s\'</string>
 </resources>

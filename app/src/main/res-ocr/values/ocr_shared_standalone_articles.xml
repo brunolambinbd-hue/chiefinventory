@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Articles et prépositions isolés ne pouvant pas exister comme ligne d'ingrédient ou d'instruction -->
+    <!-- Articles, déterminants et prépositions isolés ne pouvant pas exister comme ligne d'ingrédient ou d'instruction (Longest Match First) -->
     <string-array name="standalone_articles">
-<item>cette</item>
-<item>pour</item>
-<item>aux</item>
-<item>ces</item>
-<item>des</item>
-<item>les</item>
-<item>par</item>
-<item>ses</item>
-<item>son</item>
-<item>sur</item>
-<item>une</item>
-<item>au</item>
-<item>ce</item>
-<item>de</item>
-<item>du</item>
-<item>en</item>
-<item>la</item>
-<item>le</item>
-<item>sa</item>
-<item>un</item>
+        <item>cette</item>
+        <item>notre</item>
+        <item>votre</item>
+        <item>pour</item>
+        <item>avec</item>
+        <item>dans</item>
+        <item>sans</item>
+        <item>aux</item>
+        <item>ces</item>
+        <item>des</item>
+        <item>les</item>
+        <item>par</item>
+        <item>ses</item>
+        <item>son</item>
+        <item>sur</item>
+        <item>une</item>
+        <item>au</item>
+        <item>ce</item>
+        <item>de</item>
+        <item>du</item>
+        <item>en</item>
+        <item>et</item>
+        <item>ou</item>
+        <item>la</item>
+        <item>le</item>
+        <item>sa</item>
+        <item>un</item>
     </string-array>
 </resources>

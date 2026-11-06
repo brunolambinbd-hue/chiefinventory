@@ -17,6 +17,7 @@ import com.chefinventory.app.model.LocationType
 import com.chefinventory.app.ui.dialog.BarcodeScannerDialog
 import com.chefinventory.app.ui.viewmodel.MainViewModel
 import com.chefinventory.app.ui.viewmodel.ViewModelFactory
+import com.chefinventory.app.utils.ResourceHealthChecker
 import com.chefinventory.app.utils.setOnSingleClickListener
 import com.google.android.material.navigation.NavigationView
 
@@ -39,6 +40,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setupToolbarAndDrawer()
         setupClickListeners()
         observeViewModel()
+        checkResourcesOnStartup()
+    }
+
+    private fun checkResourcesOnStartup() {
+        val report = ResourceHealthChecker.check(this)
+        if (!report.isHealthy) {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Ressources OCR Incomplètes")
+                .setMessage("Les dictionnaires métier indispensables au fonctionnement du scanner de recettes sont absents ou incomplets. Le scan OCR ne peut pas fonctionner.")
+                .setCancelable(false)
+                .setPositiveButton("Consulter le Diagnostic") { dialog, _ ->
+                    dialog.dismiss()
+                    ResourceDiagnosticActivity.start(this)
+                }
+                .show()
+        }
     }
 
     private fun setupToolbarAndDrawer() {

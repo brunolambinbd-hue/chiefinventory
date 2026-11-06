@@ -80,6 +80,10 @@ class BackupActivity : AppCompatActivity() {
             openDocumentLauncher.launch(arrayOf("application/x-sqlite3", "application/octet-stream", "*/*"))
         }
 
+        binding.btnDiagnostic.setOnClickListener {
+            ResourceDiagnosticActivity.start(this)
+        }
+
         binding.btnTestCrash.setOnClickListener {
             throw RuntimeException("Test Crash triggered from BackupActivity")
         }

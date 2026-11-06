@@ -1,23 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Connecteurs et prépositions de liaison d'ingrédients (Étape 4 Merger) -->
+    <!-- Connecteurs, adjectifs de taille et prépositions de liaison d'ingrédients (Étape 4 Merger - Longest Match First) -->
     <string-array name="ingredient_connectors">
-<item>pour les</item>
-<item>pour la</item>
-<item>pour le</item>
-<item>ou d\'</item>
-<item>ou de</item>
-<item>selon</item>
-<item>pour</item>
-<item>aux</item>
-<item>des</item>
-<item>au</item>
-<item>d\'</item>
-<item>de</item>
-<item>du</item>
-<item>en</item>
-<item>ou</item>
-<item>d</item>
-<item>à</item>
+        <item>moyennes</item>
+        <item>pour les</item>
+        <item>petites</item>
+        <item>pour la</item>
+        <item>pour le</item>
+        <item>belles</item>
+        <item>grands</item>
+        <item>grandes</item>
+        <item>moyen</item>
+        <item>moyenne</item>
+        <item>moyens</item>
+        <item>grosse</item>
+        <item>grosses</item>
+        <item>petite</item>
+        <item>petits</item>
+        <item>belle</item>
+        <item>beaux</item>
+        <item>grand</item>
+        <item>fines</item>
+        <item>ou d\'</item>
+        <item>ou de</item>
+        <item>selon</item>
+        <item>pour</item>
+        <item>petit</item>
+        <item>beau</item>
+        <item>fine</item>
+        <item>gros</item>
+        <item>aux</item>
+        <item>des</item>
+        <item>d\'</item>
+        <item>au</item>
+        <item>de</item>
+        <item>du</item>
+        <item>en</item>
+        <item>ou</item>
+        <item>et</item>
+        <item>d</item>
+        <item>à</item>
     </string-array>
 </resources>

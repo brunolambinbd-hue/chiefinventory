@@ -2,6 +2,7 @@ package com.chefinventory.app.utils
 
 import android.content.res.Resources
 import com.chefinventory.app.R
+import java.io.File
 
 /**
  * Modèle de domaine représentant l'ensemble du vocabulaire, des mots-clés et des règles du pipeline OCR.
@@ -13,6 +14,7 @@ import com.chefinventory.app.R
  * @property commonIngredientsNoQty Ingrédients courants sans quantité (assaisonnements).
  * @property excludedOcrKeywords Mots-clés d'exclusion OCR.
  * @property ingredientPreparationModifiers Modificateurs de préparation d'ingrédients.
+ * @property ingredientPreparationSuffixModifiers Modificateurs de préparation de fin d'élément.
  * @property instructionSwitchKeywords Mots-clés de bascule vers la section d'instructions.
  * @property ingredientSemanticExclusions Exclusions sémantiques d'ingrédients.
  * @property ingredientEndMarkers Marqueurs de fin de section d'ingrédients.
@@ -55,6 +57,7 @@ import com.chefinventory.app.R
  * @property orphanNounStopWords Mots-morts et bruits sémantiques exclus pour le complétement des noms orphelins.
  * @property narrativeStopWords Mots-morts exclus pour l'extraction d'ingrédients implicites des recettes narratives.
  * @property durationUnits Unités et abréviations de durée temporelle.
+ * @property durationApproximationAdverbs Adverbes et qualificatifs d'approximation de quantité et durée.
  * @property stepStartVerbs Verbes d'action au mode impératif marquant le début d'une nouvelle étape.
  * @property stepSecondaryVerbs Verbes d'action secondaires en forme infinitive ou interne.
  * @property stepContextWords Mots et expressions de contexte d'instructions.
@@ -109,7 +112,7 @@ import com.chefinventory.app.R
  * @property logOcr3TitleRepairRuleInvalid Message de log pour une règle de réparation de titre invalide.
  * @property logOcr3TitleLettrineRepaired Message de log pour la réparation de lettrine du titre.
  * @property logOcr3TitleOrphanNounCompleted Message de log pour le titre complété par un nom orphelin.
- * @property logOcr3TitleNoOrphanNounFound Message de log lorsqu'aucun nom orphelin n'est trouvé.
+ * @property logOcr3TitleNoOrphanNounFound Message de log lorsqu'aucun nom orphelin trouvé dans les lignes restantes.
  * @property logOcr3TitleStripRecipeNumberEmpty Message de log pour une chaîne vide après suppression du numéro de fiche.
  * @property logOcr3WineDuplicateIgnored Message de log pour la ligne de vin ignorée d'étape 3.
  * @property logOcr3WineEmptyIgnored Message de log pour la ligne de vin vide ignorée d'étape 3.
@@ -118,8 +121,13 @@ import com.chefinventory.app.R
  * @property logOcr3WineAlreadyClosedIgnored Message de log pour la ligne de vin ignorée sur section fermée d'étape 3.
  * @property logOcr3WineImplicitVolumeClosed Message de log pour la fermeture de section vin implicite d'étape 3.
  * @property logOcr3WineImplicitNoVolumeOpen Message de log pour le vin implicite sans volume d'étape 3.
- * @property logOcr3WineImplicitDuplicateIgnored Message de log pour le vin implicite doublon ignoré d'étape 3.
- * @property logOcr3WineImplicitEmptyIgnored Message de log pour le vin implicite vide ignoré d'étape 3.
+ * @property logOcr3WineImplicitDuplicateIgnored Message de log pour la ligne de vin implicite ignorée d'étape 3.
+ * @property logOcr3WineImplicitEmptyIgnored Message de log pour la ligne de vin implicite vide ignorée d'étape 3.
+ * @property logOcr4SplitterDebugMatch Message de log pour le match de découpage d'étape 4.
+ * @property logOcr5BeautifierInstructionMerged Message de log pour la fusion d'instructions d'étape 5.
+ * @property logOcr5BeautifierVarietyMerged Message de log pour la fusion de variété d'étape 5.
+ * @property logOcr5BeautifierWineFormatted Message de log pour le formatage de vin d'étape 5.
+ * @property logOcr5BeautifierSourceFormatted Message de log pour le formatage de source d'étape 5.
  * @property logOcrVocabLoaderCustomDirNoCache Message de log pour les répertoires personnalisés non mis en cache.
  * @property logErrDiacriticRepairs Message de log d'erreur de chargement des diacritiques.
  *
@@ -130,6 +138,7 @@ data class OcrVocabulary(
     val commonIngredientsNoQty: List<String> = emptyList(),
     val excludedOcrKeywords: List<String> = emptyList(),
     val ingredientPreparationModifiers: List<String> = emptyList(),
+    val ingredientPreparationSuffixModifiers: List<String> = emptyList(),
     val instructionSwitchKeywords: List<String> = emptyList(),
     val ingredientSemanticExclusions: List<String> = emptyList(),
     val ingredientEndMarkers: List<String> = emptyList(),
@@ -172,6 +181,7 @@ data class OcrVocabulary(
     val orphanNounStopWords: List<String> = emptyList(),
     val narrativeStopWords: List<String> = emptyList(),
     val durationUnits: List<String> = emptyList(),
+    val durationApproximationAdverbs: List<String> = emptyList(),
     val stepStartVerbs: List<String> = emptyList(),
     val stepSecondaryVerbs: List<String> = emptyList(),
     val stepContextWords: List<String> = emptyList(),
@@ -237,6 +247,11 @@ data class OcrVocabulary(
     val logOcr3WineImplicitNoVolumeOpen: String = "  [!] Vin implicite capturé sans volume (section vin reste ouverte)",
     val logOcr3WineImplicitDuplicateIgnored: String = "  [!] Ligne de vin implicite ignorée (doublon déjà enregistré)",
     val logOcr3WineImplicitEmptyIgnored: String = "  [!] Ligne de vin implicite ignorée (nom vide)",
+    val logOcr4SplitterDebugMatch: String = "SPLITTER : Match découpage = '%1\$s' à %2\$s dans '%3\$s'",
+    val logOcr5BeautifierInstructionMerged: String = "INSTRUCTION BEAUTIFIER : Fusionné '%1\$s' avec '%2\$s'",
+    val logOcr5BeautifierVarietyMerged: String = "VARIETY MERGER : Fusion de la variété '%1\$s' avec '%2\$s' ➔ '%3\$s'",
+    val logOcr5BeautifierWineFormatted: String = "WINE BEAUTIFIER : '%1\$s' ➔ '%2\$s'",
+    val logOcr5BeautifierSourceFormatted: String = "SOURCE BEAUTIFIER : '%1\$s' ➔ '%2\$s'",
     val logOcrVocabLoaderCustomDirNoCache: String = "Répertoire personnalisé '%1\$s', non mis en cache",
     val logErrDiacriticRepairs: String = "Échec du chargement des réparations diacritiques par défaut"
 ) {
@@ -249,11 +264,12 @@ data class OcrVocabulary(
          * @return L'objet [OcrVocabulary] alimenté.
          */
         fun fromResources(res: Resources): OcrVocabulary {
-            return OcrVocabulary(
+            val vocab = OcrVocabulary(
                 stepActionKeywords = getStringArraySafely(res, R.array.step_start_verbs) + getStringArraySafely(res, R.array.step_secondary_verbs) + getStringArraySafely(res, R.array.step_context_words) + getStringArraySafely(res, R.array.step_action_keywords_complement),
                 commonIngredientsNoQty = getStringArraySafely(res, R.array.common_ingredients_no_qty),
                 excludedOcrKeywords = getStringArraySafely(res, R.array.excluded_ocr_keywords),
                 ingredientPreparationModifiers = getStringArraySafely(res, R.array.ingredient_preparation_modifiers),
+                ingredientPreparationSuffixModifiers = getStringArraySafely(res, R.array.ingredient_preparation_suffix_modifiers),
                 instructionSwitchKeywords = getStringArraySafely(res, R.array.instruction_switch_keywords),
                 ingredientSemanticExclusions = getStringArraySafely(res, R.array.ingredient_semantic_exclusions),
                 ingredientEndMarkers = getStringArraySafely(res, R.array.ingredient_end_markers),
@@ -296,6 +312,7 @@ data class OcrVocabulary(
                 orphanNounStopWords = getStringArraySafely(res, R.array.orphan_noun_stop_words),
                 narrativeStopWords = getStringArraySafely(res, R.array.narrative_stop_words),
                 durationUnits = getStringArraySafely(res, R.array.duration_units),
+                durationApproximationAdverbs = getStringArraySafely(res, R.array.duration_approximation_adverbs),
                 stepStartVerbs = getStringArraySafely(res, R.array.step_start_verbs),
                 stepSecondaryVerbs = getStringArraySafely(res, R.array.step_secondary_verbs),
                 stepContextWords = getStringArraySafely(res, R.array.step_context_words),
@@ -361,9 +378,16 @@ data class OcrVocabulary(
                 logOcr3WineImplicitNoVolumeOpen = getStringSafely(res, R.string.log_ocr3_wine_implicit_no_volume_open),
                 logOcr3WineImplicitDuplicateIgnored = getStringSafely(res, R.string.log_ocr3_wine_implicit_duplicate_ignored),
                 logOcr3WineImplicitEmptyIgnored = getStringSafely(res, R.string.log_ocr3_wine_implicit_empty_ignored),
+                logOcr4SplitterDebugMatch = getStringSafely(res, R.string.log_ocr4_splitter_debug_match),
+                logOcr5BeautifierInstructionMerged = getStringSafely(res, R.string.log_ocr5_beautifier_instruction_merged),
+                logOcr5BeautifierVarietyMerged = getStringSafely(res, R.string.log_ocr5_beautifier_variety_merged),
+                logOcr5BeautifierWineFormatted = getStringSafely(res, R.string.log_ocr5_beautifier_wine_formatted),
+                logOcr5BeautifierSourceFormatted = getStringSafely(res, R.string.log_ocr5_beautifier_source_formatted),
                 logOcrVocabLoaderCustomDirNoCache = getStringSafely(res, R.string.log_ocr_vocab_loader_custom_dir_no_cache),
                 logErrDiacriticRepairs = getStringSafely(res, R.string.log_err_diacritic_repairs)
             )
+            OcrVocabularyLoader.cacheVocabularyIfNeeded(File("."), vocab)
+            return vocab
         }
 
         /**

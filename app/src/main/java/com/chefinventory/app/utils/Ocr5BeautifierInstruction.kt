@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Assistant de l'Étape 5 (Embellissement) dédié à la beautification et au recollage sémantique final des consignes d'instructions.
@@ -35,17 +35,15 @@ object Ocr5BeautifierInstruction {
     ): List<String> {
         if (instructions.isEmpty()) return emptyList()
 
-        val defaultUnits = listOf("c.", "c", "cuillère", "cuillères", "cuillere", "cuilleres", "g.", "g", "kg", "cl", "ml", "dl", "l.", "l", "pincée", "gousse")
-        val activeUnits = (if (culinaryUnits.isNotEmpty()) culinaryUnits else defaultUnits)
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val activeUnits = (if (culinaryUnits.isNotEmpty()) culinaryUnits else vocab.culinaryMeasurementUnits)
             .map { it.lowercase().trim() }
             .distinct()
 
         val prefixPattern = OcrRegexes.getInstructionPrefixPattern(stepActionKeywords)
 
-        val standaloneTrashWords = setOf(
-            "les", "le", "la", "des", "du", "de", "d'", "un", "une", "et", "ou", "pour", "sur", "avec", "dans", "par", "ce", "ces", "cette", "salade"
-        )
-        val headerTrashWords = setOf("préparation", "preparation", "instructions", "consignes")
+        val standaloneTrashWords = (vocab.standaloneArticles + vocab.hangingConnectors).map { it.lowercase().trim() }.toSet()
+        val headerTrashWords = vocab.ocr1ProtectedInstructionsHeaders.map { it.lowercase().trim() }.toSet()
 
         // 1. Nettoyage initial de chaque ligne
         val cleanedLines = instructions.map { line ->
@@ -82,7 +80,8 @@ object Ocr5BeautifierInstruction {
 
                 val endsWithConjunction = currentClean.endsWith(" et.") || currentClean.endsWith(" et") ||
                         currentClean.endsWith(" ou.") || currentClean.endsWith(" ou") ||
-                        currentClean.endsWith(",.") || currentClean.endsWith(",")
+                        currentClean.endsWith(",.") || currentClean.endsWith(",") ||
+                        standaloneTrashWords.any { word -> currentLower.endsWith(" $word") || currentLower.endsWith(" $word.") }
 
                 val endsWithUnit = activeUnits.any { unit ->
                     currentLower.endsWith(" $unit") || currentLower.endsWith(" $unit.")
@@ -100,7 +99,7 @@ object Ocr5BeautifierInstruction {
                         nextLine
                     }
                     current = "$currentNoDot $uncapitalizedNext"
-                    Log.d(TAG, "INSTRUCTION BEAUTIFIER: Merged '$currentNoDot' with '$nextLine'")
+                    LogManager.d(TAG, String.format(vocab.logOcr5BeautifierInstructionMerged, currentNoDot, nextLine))
                     i++
                 } else {
                     break
