@@ -1,122 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="ingredient_preparation_modifiers">
-        <item>haché</item>
-        <item>hachée</item>
-        <item>hachés</item>
-        <item>hachées</item>
-        <item>beau</item>
-        <item>beaux</item>
-        <item>belle</item>
-        <item>belles</item>
-        <item>petit</item>
-        <item>petite</item>
-        <item>petits</item>
-        <item>petites</item>
-        <item>grand</item>
-        <item>grande</item>
-        <item>grands</item>
-        <item>grandes</item>
-        <item>moyen</item>
-        <item>moyenne</item>
-        <item>moyens</item>
-        <item>moyennes</item>
-        <item>frais hachés</item>
-        <item>frais haché</item>
-        <item>émincé</item>
-        <item>émincée</item>
-        <item>émincés</item>
-        <item>émincées</item>
-        <item>ciselé</item>
-        <item>ciselée</item>
-        <item>ciselés</item>
-        <item>ciselées</item>
-        <item>coupé</item>
-        <item>coupée</item>
-        <item>coupés</item>
-        <item>coupées</item>
-        <item>découpé</item>
-        <item>découpée</item>
-        <item>découpés</item>
-        <item>découpées</item>
-        <item>râpé</item>
-        <item>râpée</item>
-        <item>râpés</item>
-        <item>râpées</item>
-        <item>frais</item>
-        <item>fraîche</item>
-        <item>fraîches</item>
-        <item>forte</item>
-        <item>douce</item>
-        <item>fondue</item>
-        <item>fondu</item>
-        <item>fondus</item>
-        <item>fondues</item>
-        <item>concassé</item>
-        <item>concassée</item>
-        <item>concassés</item>
-        <item>concassées</item>
-        <item>pressé</item>
-        <item>pressée</item>
-        <item>pressés</item>
-        <item>pressées</item>
-        <item>égoutté</item>
-        <item>égouttée</item>
-        <item>égouttés</item>
-        <item>égouttées</item>
-        <item>egoutté</item>
-        <item>nettoyé</item>
-        <item>nettoyée</item>
-        <item>nettoyés</item>
-        <item>nettoyées</item>
-        <item>moulu</item>
-        <item>moulue</item>
-        <item>moulus</item>
-        <item>moulues</item>
-        <item>fumé</item>
-        <item>fumée</item>
-        <item>fumés</item>
-        <item>fumées</item>
-        <item>fouetté</item>
-        <item>fines</item>
-        <item>fine</item>
-        <item>en fines tranches</item>
-        <item>en tranches</item>
-        <item>en lamelles</item>
-        <item>en rondelles</item>
-        <item>en dés</item>
-        <item>en morceaux</item>
-        <item>en quartiers</item>
-        <item>fouettée</item>
-        <item>fouettés</item>
-        <item>fouettées</item>
-        <item>pelé</item>
-        <item>pelée</item>
-        <item>pelés</item>
-        <item>pelées</item>
-        <item>dénoyauté</item>
-        <item>dénoyautée</item>
-        <item>dénoyautés</item>
-        <item>dénoyautées</item>
-        <item>effeuillé</item>
-        <item>effeuillée</item>
-        <item>effeuillés</item>
-        <item>effeuillées</item>
-        <item>décortiqué</item>
-        <item>décortiquée</item>
-        <item>décortiqués</item>
-        <item>décortiquées</item>
-        <item>surgelé</item>
-        <item>surgelée</item>
-        <item>surgelés</item>
-        <item>surgelées</item>
-        <item>en dés</item>
-        <item>en rondelles</item>
-        <item>en tranches</item>
-        <item>en cubes</item>
-        <item>en morceaux</item>
-        <item>en branches</item>
-        <item>en fines branches</item>
-        <item>en feuilles</item>
+<item>en fines branches</item>
+<item>en fines tranches</item>
+<item>décortiquées</item>
+<item>en quartiers</item>
+<item>en rondelles</item>
+<item>en rondelles</item>
+<item>frais hachés</item>
+<item>décortiquée</item>
+<item>décortiqués</item>
+<item>dénoyautées</item>
+<item>effeuillées</item>
+<item>en branches</item>
+<item>en feuilles</item>
+<item>en lamelles</item>
+<item>en morceaux</item>
+<item>en morceaux</item>
+<item>en tranches</item>
+<item>en tranches</item>
+<item>frais haché</item>
+<item>concassées</item>
+<item>décortiqué</item>
+<item>dénoyautée</item>
+<item>dénoyautés</item>
+<item>effeuillée</item>
+<item>effeuillés</item>
+<item>concassée</item>
+<item>concassés</item>
+<item>découpées</item>
+<item>dénoyauté</item>
+<item>effeuillé</item>
+<item>fouettées</item>
+<item>nettoyées</item>
+<item>surgelées</item>
+<item>égouttées</item>
+<item>ciselées</item>
+<item>concassé</item>
+<item>découpée</item>
+<item>découpés</item>
+<item>en cubes</item>
+<item>fouettée</item>
+<item>fouettés</item>
+<item>fraîches</item>
+<item>moyennes</item>
+<item>nettoyée</item>
+<item>nettoyés</item>
+<item>pressées</item>
+<item>surgelée</item>
+<item>surgelés</item>
+<item>égouttée</item>
+<item>égouttés</item>
+<item>émincées</item>
+<item>ciselée</item>
+<item>ciselés</item>
+<item>coupées</item>
+<item>découpé</item>
+<item>egoutté</item>
+<item>fondues</item>
+<item>fouetté</item>
+<item>fraîche</item>
+<item>grandes</item>
+<item>hachées</item>
+<item>moulues</item>
+<item>moyenne</item>
+<item>nettoyé</item>
+<item>petites</item>
+<item>pressée</item>
+<item>pressés</item>
+<item>surgelé</item>
+<item>égoutté</item>
+<item>émincée</item>
+<item>émincés</item>
+<item>belles</item>
+<item>ciselé</item>
+<item>coupée</item>
+<item>coupés</item>
+<item>en dés</item>
+<item>en dés</item>
+<item>fondue</item>
+<item>fondus</item>
+<item>fumées</item>
+<item>grande</item>
+<item>grands</item>
+<item>hachée</item>
+<item>hachés</item>
+<item>moulue</item>
+<item>moulus</item>
+<item>moyens</item>
+<item>pelées</item>
+<item>petite</item>
+<item>petits</item>
+<item>pressé</item>
+<item>râpées</item>
+<item>émincé</item>
+<item>beaux</item>
+<item>belle</item>
+<item>coupé</item>
+<item>douce</item>
+<item>fines</item>
+<item>fondu</item>
+<item>forte</item>
+<item>frais</item>
+<item>fumée</item>
+<item>fumés</item>
+<item>grand</item>
+<item>haché</item>
+<item>moulu</item>
+<item>moyen</item>
+<item>pelée</item>
+<item>pelés</item>
+<item>petit</item>
+<item>râpée</item>
+<item>râpés</item>
+<item>beau</item>
+<item>fine</item>
+<item>fumé</item>
+<item>pelé</item>
+<item>râpé</item>
     </string-array>
 </resources>

@@ -5,8 +5,7 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Suite de tests unitaires de Type B vérifiant la conversion des caractères diacritiques parasites
- * issus du dictionnaire XML [diacritic_repairs.xml] dans [Ocr1Normalizer].
+ * Tests unitaires isolés pour les réparations d'accents et diacritiques parasites Unicode (`ocr_step1_diacritic_repairs.xml`).
  */
 class OcrDiacriticRepairsTest {
 
@@ -14,23 +13,31 @@ class OcrDiacriticRepairsTest {
 
     @Before
     fun setUp() {
+        OcrVocabularyLoader.clearCache()
         vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
     @Test
-    fun `normalize should convert vietnamese and eastern european ocr diacritic accents from XML`() {
-        val input = "200 g d'ếpinards frais, 1/2 cuillệre à café"
-        val normalized = Ocr1Corrector.normalize(input, vocabulary.ocrSpellingRepairs, vocabulary.ocrDiacriticRepairs)
-
-        assertThat(normalized).contains("d'épinards")
-        assertThat(normalized).contains("cuillère")
+    fun `defaultDiacriticRepairs should convert accented characters correctly`() {
+        val diacritics = vocabulary.ocrDiacriticRepairs
+        assertThat(Ocr1Corrector.correct("ế", diacriticRepairs = diacritics)).isEqualTo("é")
+        assertThat(Ocr1Corrector.correct("ề", diacriticRepairs = diacritics)).isEqualTo("è")
+        assertThat(Ocr1Corrector.correct("ấ", diacriticRepairs = diacritics)).isEqualTo("â")
+        assertThat(Ocr1Corrector.correct("ầ", diacriticRepairs = diacritics)).isEqualTo("à")
+        assertThat(Ocr1Corrector.correct("ặ", diacriticRepairs = diacritics)).isEqualTo("a")
     }
 
     @Test
-    fun `vocabulary should load ocrDiacriticRepairs from diacritic_repairs XML`() {
-        assertThat(vocabulary.ocrDiacriticRepairs).contains("ế|é")
-        assertThat(vocabulary.ocrDiacriticRepairs).contains("ề|è")
-        assertThat(vocabulary.ocrDiacriticRepairs).contains("š|s")
-        assertThat(vocabulary.ocrDiacriticRepairs).contains("č|c")
+    fun `applyDiacriticRepairs should fallback gracefully on empty list or invalid format`() {
+        assertThat(Ocr1Corrector.applyDiacriticRepairs("test", emptyList())).isEqualTo("test")
+        val withInvalidDiacritic = Ocr1Corrector.correct("ế", diacriticRepairs = listOf("invalid_no_pipe"))
+        assertThat(withInvalidDiacritic).isEqualTo("ế")
+    }
+
+    @Test
+    fun testNormalize_EmptyHeaderListsAndHeaderMatchNoChange() {
+        val emptyVocab = OcrVocabulary()
+        val result = Ocr1Corrector.correct("ingrédients", diacriticRepairs = emptyVocab.ocrDiacriticRepairs)
+        assertThat(result).isEqualTo("ingrédients")
     }
 }

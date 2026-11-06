@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="advertisement_exclusions">
-        <item>.*Assiette de pr[eéèê]sentation.*</item>
-        <item>.*disponible dans les.*</item>
-        <item>Assiette de présentation disponible dans les Maxi GB</item>
-        <item>Assiette de présentation disponible dans les Maxi GE</item>
-        <item>Assiette de pr[éėeè]sentation disponible dans les Maxi GB</item>
-        <item>Plat disponible dans les Maxi GB</item>
-        <item>GB</item>
-        <item>nutriscore</item>
-        <item>Nutriscore</item>
-        <item>nutri-score</item>
-        <item>nutr-score</item>
-        <item>Prix à titre indicatif au</item>
-        <item>.*Əgo.*</item>
+<item>Assiette de pr[éėeè]sentation disponible dans les Maxi GB</item>
+<item>Assiette de présentation disponible dans les Maxi GB</item>
+<item>Assiette de présentation disponible dans les Maxi GE</item>
+<item>.*Assiette de pr[eéèê]sentation.*</item>
+<item>Plat disponible dans les Maxi GB</item>
+<item>Prix à titre indicatif au</item>
+<item>.*disponible dans les.*</item>
+<item>nutri-score</item>
+<item>nutr-score</item>
+<item>nutriscore</item>
+<item>Nutriscore</item>
+<item>.*Əgo.*</item>
+<item>GB</item>
     </string-array>
 </resources>

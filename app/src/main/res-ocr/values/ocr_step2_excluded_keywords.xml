@@ -1,74 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="excluded_ocr_keywords">
-        <item>BR</item>
-        <item>PAGE</item>
-        <item>RECETTE</item>
-        <item>RECETTES</item>
-        <item>recette</item>
-        <item>recettes</item>
-        <item>cet te</item>
-        <item>N°</item>
-        <item>NOTES</item>
-        <item>ASTUCE</item>
-        <item>CONRAD</item>
-        <item>HILTON</item>
-        <item>SHERATON</item>
-        <item>MARRIOTT</item>
-        <item>CHEF</item>
-        <item>NAHIT</item>
-        <item>YILMAZ</item>
-        <item>CUISINIER</item>
-        <item>SAVEUR</item>
-        <item>LS</item>
-        <item>INGRÉDIENTS</item>
-        <item>INGREDIENTS</item>
-        <item>PRIX INDICATIF AU</item>
-        <item>PRIX INDICATIF POUR</item>
-        <item>PRIX INDICATIF</item>
-        <item>ENTREES CHAUDES</item>
-        <item>ENTRÉES CHAUDES</item>
-        <item>STININ</item>
-        <item>TOCRAINE</item>
-        <item>SAETICsox</item>
-        <item>AUVICNoN</item>
-        <item>NGRÉDIENTS</item>
-        <item>WARME</item>
-        <item>Carrefour</item>
-        <item>Royaume-Uni</item>
-        <item>ROYAUME UNI</item>
-        <item>ROYAUME</item>
-        <item>UNI</item>
-        <item>Prix indicatif</item>
-        <item>ONNES</item>
-        <item>sh</item> <!-- pour le symbole de Delhaize -->
-        <item>S3</item> <!-- pour le symbole de Delhaize -->
-        <item>EEE</item>
-        <item>eee</item>
-        <item>€€€</item>
-        <item>€ee</item>
-        <item>€e</item>
-        <item>€</item>
-        <item>\$</item>
+<item>PRIX INDICATIF POUR</item>
+<item>PRIX INDICATIF AU</item>
+<item>ENTREES CHAUDES</item>
+<item>ENTRÉES CHAUDES</item>
+<item>PRIX INDICATIF</item>
+<item>Prix indicatif</item>
+<item>INGREDIENTS</item>
+<item>INGRÉDIENTS</item>
+<item>ROYAUME UNI</item>
+<item>Royaume-Uni</item>
+<item>NGRÉDIENTS</item>
+<item>Carrefour</item>
+<item>CUISINIER</item>
+<item>SAETICsox</item>
+<item>AUVICNoN</item>
+<item>MARRIOTT</item>
+<item>RECETTES</item>
+<item>recettes</item>
+<item>SHERATON</item>
+<item>TOCRAINE</item>
+<item>RECETTE</item>
+<item>recette</item>
+<item>ROYAUME</item>
+<item>ASTUCE</item>
+<item>cet te</item>
+<item>CONRAD</item>
+<item>HILTON</item>
+<item>SAVEUR</item>
+<item>STININ</item>
+<item>YILMAZ</item>
+<item>NAHIT</item>
+<item>NOTES</item>
+<item>ONNES</item>
+<item>WARME</item>
+<item>CHEF</item>
+<item>PAGE</item>
+<item>EEE</item>
+<item>eee</item>
+<item>UNI</item>
+<item>€ee</item>
+<item>€€€</item>
+<item>\$</item>
+<item>BR</item>
+<item>LS</item>
+<item>N°</item>
+<item>S3</item>
+<item>sh</item>
+<item>€e</item>
+<item>€</item>
     </string-array>
 
     <string-array name="ocr_protected_section_headers">
-        <item>INGRÉDIENTS</item>
-        <item>INSTRUCTIONS</item>
-        <item>PRÉPARATION</item>
+<item>INSTRUCTIONS</item>
+<item>INGRÉDIENTS</item>
+<item>PRÉPARATION</item>
     </string-array>
 
     <string-array name="ocr_time_header_prefixes">
-        <item>temps de</item>
-        <item>durée de</item>
-        <item>temps</item>
-        <item>durée</item>
+<item>durée de</item>
+<item>temps de</item>
+<item>durée</item>
+<item>temps</item>
     </string-array>
 
     <string-array name="ocr_time_header_keywords">
-        <item>préparation</item>
-        <item>preparation</item>
-        <item>cuisson</item>
-        <item>repos</item>
+<item>preparation</item>
+<item>préparation</item>
+<item>cuisson</item>
+<item>repos</item>
+    </string-array>
+
+    <string-array name="ocr2_technical_dimension_keywords">
+<item>d\'épaisseur</item>
+<item>de large</item>
+<item>de haut</item>
+<item>troncon</item>
+<item>tronçon</item>
+<item>sur</item>
+<item>x</item>
     </string-array>
 </resources>

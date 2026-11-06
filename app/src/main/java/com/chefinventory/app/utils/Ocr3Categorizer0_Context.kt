@@ -33,6 +33,11 @@ object Ocr3Categorizer0_Context {
      */
     internal fun processBlock0_CategorizationContext(vocabulary: OcrVocabulary): CategorizationContext {
         val actionVerbs = vocabulary.stepActionKeywords.distinct()
+
+        val ingrHeadersCombined = (vocabulary.ocr1ProtectedIngredientsHeaders + vocabulary.protectedSectionHeaders).distinct().map { it.lowercase() }
+        val instrHeadersCombined = (vocabulary.ocr1ProtectedInstructionsHeaders + vocabulary.instructionSwitchKeywords + vocabulary.protectedSectionHeaders).distinct().map { it.lowercase() }
+        val connectorsCombined = vocabulary.ingredientConnectors.distinct().map { it.lowercase() }
+
         return CategorizationContext(
             actionVerbs = actionVerbs,
             commonIngredients = vocabulary.commonIngredientsNoQty,
@@ -42,12 +47,12 @@ object Ocr3Categorizer0_Context {
             semanticExclusions = vocabulary.ingredientSemanticExclusions,
             endMarkers = vocabulary.ingredientEndMarkers,
             subHeaders = vocabulary.ingredientSubHeaders,
-            ingredientHeaders = listOf("ingrédients", "ingredients", "composition", "ngrédients"),
-            instructionHeaders = listOf("préparation", "preparation", "instructions", "nstructions", "étapes", "réalisation", "méthode", "progression", "cuisson"),
+            ingredientHeaders = ingrHeadersCombined,
+            instructionHeaders = instrHeadersCombined,
             hardQtyRegex = Regex("^[\\d¼½¾]|[|Il!](?=[\\s\\d])|\\d+/\\d+", RegexOption.IGNORE_CASE),
             qtyRegex = Regex("^(?:[\\d\\-*•¼½¾]|un\\b|une\\b|des\\b|du\\b|de la\\b|de l'|le\\b|la\\b|les\\b|l['’]|quelques\\b|plusieurs\\b|un\\s+peu\\b)", RegexOption.IGNORE_CASE),
             containsActionRegex = if (actionVerbs.isEmpty()) null else Regex("(?i)\\b(?:${actionVerbs.joinToString("|")})\\b"),
-            ingredientConnectors = listOf("de", "du", "des", "d'", "au", "aux", "à")
+            ingredientConnectors = connectorsCombined
         )
     }
 }

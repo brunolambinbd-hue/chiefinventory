@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Résultat de l'analyse du Bloc D (Signaux d'instructions & Classification de section).
@@ -126,7 +126,7 @@ object Ocr3Categorizer4_BlockD_Classification {
             isStepNumber, containsAction, workingLine.length, startsWithBullet
         )
 
-        Log.d(TAG, "  => BILAN: reappear=$isReappearance | instrSignal=$isInstructionSignal | currentSec=$currentSection")
+        LogManager.d(TAG, String.format(vocabulary.logOcr3BlockDClassificationSummary, isReappearance, isInstructionSignal, currentSection))
 
         val updatedSection = classifySection(
             currentSection, isInstructionSignal, isIngredientListClosed,

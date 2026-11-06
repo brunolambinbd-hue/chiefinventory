@@ -145,10 +145,14 @@ object Ocr3CategorizerWine {
                     if (!isAlreadyAdded) {
                         wineState.detectedWineList.add(cleanedWine)
                     } else {
-                        Log.d(TAG, "  [!] Ligne de vin ignorée (doublon déjà enregistré)")
+                        if (vocabulary.logOcr3WineDuplicateIgnored.isNotBlank()) {
+                            Log.d(TAG, vocabulary.logOcr3WineDuplicateIgnored)
+                        }
                     }
                 } else {
-                    Log.d(TAG, "  [!] Ligne de vin ignorée (nom vide)")
+                    if (vocabulary.logOcr3WineEmptyIgnored.isNotBlank()) {
+                        Log.d(TAG, vocabulary.logOcr3WineEmptyIgnored)
+                    }
                 }
                 val hasVolume = Ocr3CategorizerWineCleaner.hasWineVolume(workingLine)
                 val hasVintageYear = OcrRegexes.Wines.YEAR.containsMatchIn(workingLine)
@@ -157,12 +161,18 @@ object Ocr3CategorizerWine {
                 if (hasVolume || hasVintageYear || hasKnownBrand) {
                     wineState.isWineSectionClosed = true
                     wineState.isWineHeaderActive = false
-                    Log.d(TAG, "  [!] SECTION VIN FERMÉE (Volume/Millésime/Enseigne vin détectée)")
+                    if (vocabulary.logOcr3WineSectionClosed.isNotBlank()) {
+                        Log.d(TAG, vocabulary.logOcr3WineSectionClosed)
+                    }
                 } else {
-                    Log.d(TAG, "  [!] Section vin maintenue active (en attente du volume/millésime final)")
+                    if (vocabulary.logOcr3WineSectionActive.isNotBlank()) {
+                        Log.d(TAG, vocabulary.logOcr3WineSectionActive)
+                    }
                 }
             } else {
-                Log.d(TAG, "  [!] Ligne de vin ignorée (section vin déjà fermée)")
+                if (vocabulary.logOcr3WineAlreadyClosedIgnored.isNotBlank()) {
+                    Log.d(TAG, vocabulary.logOcr3WineAlreadyClosedIgnored)
+                }
             }
             return true
         }
@@ -180,15 +190,23 @@ object Ocr3CategorizerWine {
                         wineState.detectedWineList.add(cleanedWine)
                         if (Ocr3CategorizerWineCleaner.hasWineVolume(workingLine)) {
                             wineState.isWineSectionClosed = true
-                            Log.d(TAG, "  [!] SECTION VIN FERMÉE (Volume/Millésime détecté)")
+                            if (vocabulary.logOcr3WineImplicitVolumeClosed.isNotBlank()) {
+                                Log.d(TAG, vocabulary.logOcr3WineImplicitVolumeClosed)
+                            }
                         } else {
-                            Log.d(TAG, "  [!] Vin implicite capturé sans volume (section vin reste ouverte)")
+                            if (vocabulary.logOcr3WineImplicitNoVolumeOpen.isNotBlank()) {
+                                Log.d(TAG, vocabulary.logOcr3WineImplicitNoVolumeOpen)
+                            }
                         }
                     } else {
-                        Log.d(TAG, "  [!] Ligne de vin implicite ignorée (doublon déjà enregistré)")
+                        if (vocabulary.logOcr3WineImplicitDuplicateIgnored.isNotBlank()) {
+                            Log.d(TAG, vocabulary.logOcr3WineImplicitDuplicateIgnored)
+                        }
                     }
                 } else {
-                    Log.d(TAG, "  [!] Ligne de vin implicite ignorée (nom vide)")
+                    if (vocabulary.logOcr3WineImplicitEmptyIgnored.isNotBlank()) {
+                        Log.d(TAG, vocabulary.logOcr3WineImplicitEmptyIgnored)
+                    }
                 }
             }
             return true

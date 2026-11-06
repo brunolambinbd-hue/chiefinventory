@@ -8,12 +8,12 @@ package com.chefinventory.app.utils
  * @property detectedWineList Liste mutable des recommandations de vins extraites.
  * @property detectedSourceList Liste mutable des provenances/sources extraites.
  * @property detectedTitle Le titre de la recette s'il est détecté à cette étape, ou null.
- * @property detectedServings Le nombre de personnes/portions extrait (ex: "4").
- * @property detectedPrepTime Le temps de préparation extrait en minutes (ex: "15").
- * @property detectedCookTime Le temps de cuisson extrait en minutes (ex: "45").
- * @property detectedRestingTime Le temps de repos extrait en minutes (ex: "30").
- * @property detectedKcal Les kilocalories par portion extraites (ex: "250").
- * @property detectedDifficulty La difficulté extraite (ex: "Facile").
+ * @property detectedServings Le nombre de personnes/portions extrait (ex : "4").
+ * @property detectedPrepTime Le temps de préparation extrait en minutes (ex : "15").
+ * @property detectedCookTime Le temps de cuisson extrait en minutes (ex : "45").
+ * @property detectedRestingTime Le temps de repos extrait en minutes (ex : "30").
+ * @property detectedKcal Les kilocalories par portion extraites (ex : "250").
+ * @property detectedDifficulty La difficulté extraite (ex : "Facile").
  * @property ingredientKeywords L'ensemble des mots-clés d'ingrédients inventoriés pour le suivi des réapparitions.
  */
 data class RawSections(

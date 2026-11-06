@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 import java.util.regex.Pattern
 
 /**
@@ -46,13 +46,14 @@ object Ocr3Categorizer3_BlockC_Reappearance {
         seenIngredientKeywords: Set<String>
     ): Boolean {
         if (startsWithConnector) return false
-        Log.d(TAG, "LIGNE: '$workingLine' | Déjà inventorisés: $seenIngredientKeywords")
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        LogManager.d(TAG, String.format(vocab.logOcr3BlockCReappearanceCheck, workingLine, seenIngredientKeywords))
         return seenIngredientKeywords.any { keyword ->
             val pattern = Regex("(?<!\\p{L})${Regex.escape(keyword)}(?!\\p{L})", RegexOption.IGNORE_CASE)
             val match = pattern.containsMatchIn(workingLine)
             if (match) {
                 val finalDecision = isIngredientListClosed || (!hasHardQuantity && !hasWeight)
-                Log.d(TAG, "  ? Comparaison: '$keyword' -> MATCH=true | hardQty=$hasHardQuantity | weight=$hasWeight | closed=$isIngredientListClosed | final=$finalDecision")
+                LogManager.d(TAG, String.format(vocab.logOcr3BlockCReappearanceMatch, keyword, true, hasHardQuantity, hasWeight, isIngredientListClosed, finalDecision))
             }
             val allowWithQty = isIngredientListClosed
             val noQty = !hasHardQuantity && !hasWeight
@@ -159,12 +160,11 @@ object Ocr3Categorizer3_BlockC_Reappearance {
         val isCommonIngrStart = vocabulary.commonIngredientsNoQty.any { lowerLine.startsWith(it.lowercase()) }
         val looksLikeIngredient = (hasQuantity || hasWeight || isolatedMod || isCommonIngrStart) && !hasInstructionTrigger && !isReappearance
 
-        val instructionHeaders = listOf("préparation", "preparation", "instructions", "nstructions", "étapes", "réalisation", "méthode", "progression", "cuisson")
-        val matchesInstrList = instructionHeaders.any { lowerLine.contains(it) }
+        val matchesInstrList = vocabulary.ocr1ProtectedInstructionsHeaders.any { lowerLine.contains(it.lowercase()) }
         val matchesInstrTrig = vocabulary.instructionSwitchKeywords.any { lowerLine == it.lowercase() }
         val isInstrHeader = (matchesInstrList || matchesInstrTrig) && workingLine.length < 35 && !containsAction
 
-        val matchesIngrWord = lowerLine.contains("ingrédients") || lowerLine.contains("composition")
+        val matchesIngrWord = vocabulary.ocr1ProtectedIngredientsHeaders.any { lowerLine.contains(it.lowercase()) }
         val isIngrHeader = matchesIngrWord && workingLine.length < 35 && !containsAction
 
         var updatedSection = currentSection

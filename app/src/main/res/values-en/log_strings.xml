@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- LOG & TRACEABILITY MESSAGES (ENGLISH) -->
+    <string name="log_err_diacritic_repairs">Failed to load default diacritic repairs</string>
+    <string name="log_ocr1_protected_header_repaired">OCR Header Repaired: \'%1$s\' ➔ \'%2$s\'</string>
+    <string name="log_ocr1_protected_ingredients_empty">Warning: ocr1ProtectedIngredientsHeaders is empty in vocabulary</string>
+    <string name="log_ocr1_protected_instructions_empty">Warning: ocr1ProtectedInstructionsHeaders is empty in vocabulary</string>
+    <string name="log_err_ocr_vocab_loader_no_res_dir">Could not locate any \'res*/values\' directory from: %1$s</string>
+    <string name="log_ocr_vocab_loader_custom_dir_no_cache">Custom directory \'%1$s\', not cached</string>
+    <string name="log_ocr_vocab_loader_no_xml_files">No XML files found in directory: %1$s</string>
+    <string name="log_err_ocr_vocab_loader_parse_file">Error parsing XML resource file %1$s: %2$s</string>
+    <string name="log_ocr_vocab_loader_skip_non_element_array">Skipping non-element string-array node</string>
+    <string name="log_ocr_vocab_loader_skip_non_element_string">Skipping non-element string node</string>
+    <string name="log_ocr2_cleaner_source_captured">CLEANER: Early source captured from banner ➔ %1$s</string>
+    <string name="log_ocr2_cleaner_noise_removed">CLEANER: OCR scan noise removed ➔ %1$s</string>
+    <string name="log_ocr2_cleaner_ad_line_removed">CLEANER: Advertisement line removed ➔ %1$s</string>
+    <string name="log_ocr2_cleaner_ad_prefix_removed">CLEANER: Advertisement prefix stripped from ➔ %1$s</string>
+    <string name="log_ocr2_cleaner_excluded_keyword_removed">CLEANER: Excluded keyword removed ➔ %1$s</string>
+    <string name="log_ocr3_categorizer_narrative_delegation"> => ACTIVATING TYPE 2 NARRATIVE DELEGATION (Ocr3NarrativeCategorizer)</string>
+    <string name="log_ocr3_categorizer_start">--- START CATEGORIZATION ---</string>
+    <string name="log_ocr3_categorizer_end">--- END CATEGORIZATION ---</string>
+    <string name="log_ocr3_block_a_metadata_ignored">  [METADATA / PERIODIC IGNORED] \'%1$s\'</string>
+    <string name="log_ocr3_block_a_fusion_continuation">  [FUSION CONTINUATION] Appended: \'%1$s\' ➔ New line: \'%2$s\'</string>
+    <string name="log_ocr3_block_c_reappearance_check">LINE: \'%1$s\' | Already inventoried: %2$s</string>
+    <string name="log_ocr3_block_c_reappearance_match">  \? Comparison: \'%1$s\' -> MATCH=%2$b | hardQty=%3$b | weight=%4$b | closed=%5$b | final=%6$b</string>
+    <string name="log_ocr3_block_d_classification_summary">  => SUMMARY: reappear=%1$b | instrSignal=%2$b | currentSec=%3$d</string>
+    <string name="log_ocr3_block_e_dispatch_ingr_split">  [INGR] Split: Q=%1$s, U=%2$s, N=\'%3$s\', Info=\'%4$s\' | Keywords added: %5$s</string>
+    <string name="log_ocr3_block_e_dispatch_instr_added">  [INSTR] Line added to instructions ➔ \'%1$s\'</string>
+    <string name="log_ocr3_block_e_dispatch_catchup">  [INGREDIENT CATCHUP] Header caught up from closed section ➔ \'%1$s\'</string>
+    <string name="log_ocr3_block_e_dispatch_lock_activated">  [!] LOCK ACTIVATED (End marker detected)</string>
+    <string name="log_ocr3_header_switch_instructions">  [!] SECTION SWITCH ➔ INSTRUCTIONS (\'%1$s\')</string>
+    <string name="log_ocr3_header_switch_ingredients">  [!] SECTION SWITCH ➔ INGREDIENTS (\'%1$s\')</string>
+    <string name="log_ocr3_header_subheader_detected">  [!] INGREDIENT SUB-HEADER DETECTED (\'%1$s\')</string>
+    <string name="log_ocr3_unfinished_ingr_still_empty">  [INCOMPLETE UNIT FUSION] Ingredient name still empty after fusion (\'%1$s\')</string>
+    <string name="log_ocr3_unfinished_ingr_fused">  [INCOMPLETE UNIT FUSION] Appended: \'%1$s\' ➔ New line: \'%2$s\'</string>
+    <string name="log_ocr3_title_extractor_start">=== START TITLE EXTRACTION BY SCORING ===</string>
+    <string name="log_ocr3_title_extractor_end">=== END TITLE EXTRACTION BY SCORING ===</string>
+    <string name="log_ocr3_title_extractor_retained">>>> TITLE INITIALLY RETAINED: \'%1$s\' with MAX SCORE: %2$d</string>
+    <string name="log_ocr3_title_extractor_ingr_detected">TITLE EXTRACTOR: Ingredients detected for scoring ➔ %1$s</string>
+    <string name="log_ocr3_title_extractor_no_ingr">TITLE EXTRACTOR: No ingredient words detected for scoring</string>
+    <string name="log_ocr3_title_extractor_line_processed">  [PROCESSED LINE] \'%1$s\'</string>
+    <string name="log_ocr3_title_extractor_candidate_score">TITLE CANDIDATE [#%1$d]: \'%2$s\' ➔ SCORE: %3$d (%4$s)</string>
+    <string name="log_ocr3_title_extractor_no_title_retained">>>> NO VALID TITLE RETAINED</string>
+    <string name="log_ocr3_title_extractor_remaining_line">  [REMAINING CANDIDATE LINE] \'%1$s\'</string>
+    <string name="log_ocr3_title_extractor_sel_poivre_candidate">TITLE EXTRACTOR: Candidate extracted from sel/poivre line ➔ \'%1$s\' (score=%2$d)</string>
+    <string name="log_ocr3_title_repair_rule_invalid">  [SKIP] Invalid repair rule without separator: \'%1$s\'</string>
+    <string name="log_ocr3_title_lettrine_repaired">TITLE EXTRACTOR: Initial letter repaired ➔ \'%1$s\' becoming \'%2$s\' (via \'%3$s\')</string>
+    <string name="log_ocr3_title_orphan_noun_completed">TITLE EXTRACTOR: Title completed with orphan noun ➔ \'%1$s\' (consumed line: \'%2$s\')</string>
+    <string name="log_ocr3_title_no_orphan_noun_found">  [INFO] No orphan noun found in remaining lines</string>
+    <string name="log_ocr3_title_strip_recipe_number_empty">  [INFO] Empty string after stripping recipe number</string>
+    <string name="log_ocr3_wine_duplicate_ignored">  [!] Wine line ignored (duplicate already recorded)</string>
+    <string name="log_ocr3_wine_empty_ignored">  [!] Wine line ignored (empty name)</string>
+    <string name="log_ocr3_wine_section_closed">  [!] WINE SECTION CLOSED (Volume/Vintage/Wine Brand detected)</string>
+    <string name="log_ocr3_wine_section_active">  [!] Wine section kept active (waiting for final volume/vintage)</string>
+    <string name="log_ocr3_wine_already_closed_ignored">  [!] Wine line ignored (wine section already closed)</string>
+    <string name="log_ocr3_wine_implicit_volume_closed">  [!] WINE SECTION CLOSED (Volume/Vintage detected)</string>
+    <string name="log_ocr3_wine_implicit_no_volume_open">  [!] Implicit wine captured without volume (wine section remains open)</string>
+    <string name="log_ocr3_wine_implicit_duplicate_ignored">  [!] Implicit wine line ignored (duplicate already recorded)</string>
+    <string name="log_ocr3_wine_implicit_empty_ignored">  [!] Implicit wine line ignored (empty name)</string>
+</resources>

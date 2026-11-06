@@ -2,18 +2,18 @@
 <resources>
     <!-- Bruit de scan OCR, codes-barres, artefacts visuels et étiquettes corrompues -->
     <string-array name="ocr_noise_exclusions">
-        <item>DUITe TOugp MO 100s</item>
-        <item>EprrtEANS</item>
-        <item>ExprrtEANS</item>
-        <item>IRAINE</item>
-        <item>BOURGUIL</item>
-        <item>AtN</item>
-        <item>AUVICNoN</item>
-        <item>FOTIC</item>
-        <item>CONRAD|</item>
-        <item>saveur de</item>
-        <item>Iở</item>
-        <item>d\'&#10;cubes</item>
-        <item>d\'\ncubes</item>
+<item>DUITe TOugp MO 100s</item>
+<item>d\'&#10;cubes</item>
+<item>ExprrtEANS</item>
+<item>d\'\ncubes</item>
+<item>EprrtEANS</item>
+<item>saveur de</item>
+<item>AUVICNoN</item>
+<item>BOURGUIL</item>
+<item>CONRAD|</item>
+<item>IRAINE</item>
+<item>FOTIC</item>
+<item>AtN</item>
+<item>Iở</item>
     </string-array>
 </resources>

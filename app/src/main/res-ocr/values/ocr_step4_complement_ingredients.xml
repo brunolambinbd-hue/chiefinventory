@@ -1,82 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="ingredient_mandatory_complements">
-        <item>vinaigre</item>
-        <item>huile</item>
-        <item>jus</item>
-        <item>zeste</item>
-        <item>zestes</item>
-        <item>sauce</item>
-        <item>crème</item>
-        <item>creme</item>
-        <item>chair</item>
-        <item>sirop</item>
-        <item>pâte</item>
-        <item>pate</item>
-        <item>purée</item>
-        <item>puree</item>
-        <item>poudre</item>
-        <item>extrait</item>
-        <item>concentré</item>
-        <item>coulis</item>
-        <item>vin</item>
-        <item>tranche</item>
-        <item>tranches</item>
-        <item>morceau</item>
-        <item>morceaux</item>
-        <item>bocal</item>
-        <item>bocaux</item>
-        <item>sachet</item>
-        <item>sachets</item>
-        <item>branche</item>
-        <item>branches</item>
-        <item>botte</item>
-        <item>bottes</item>
+<item>concentré</item>
+<item>branches</item>
+<item>morceaux</item>
+<item>tranches</item>
+<item>vinaigre</item>
+<item>branche</item>
+<item>extrait</item>
+<item>morceau</item>
+<item>sachets</item>
+<item>tranche</item>
+<item>bocaux</item>
+<item>bottes</item>
+<item>coulis</item>
+<item>poudre</item>
+<item>sachet</item>
+<item>zestes</item>
+<item>bocal</item>
+<item>botte</item>
+<item>chair</item>
+<item>creme</item>
+<item>crème</item>
+<item>huile</item>
+<item>puree</item>
+<item>purée</item>
+<item>sauce</item>
+<item>sirop</item>
+<item>zeste</item>
+<item>pate</item>
+<item>pâte</item>
+<item>jus</item>
+<item>vin</item>
     </string-array>
 
     <!-- Connecteurs, prépositions et unités de liaison pour le découpage des ingrédients combinés -->
     <string-array name="ingredient_splitter_connectors">
-        <item>et</item>
-        <item>ou</item>
-        <item>à</item>
-        <item>-</item>
-        <item>de</item>
-        <item>du</item>
-        <item>des</item>
-        <item>d\'</item>
-        <item>d</item>
-        <item>au</item>
-        <item>aux</item>
-        <item>sur</item>
-        <item>le</item>
-        <item>la</item>
-        <item>les</item>
-        <item>un</item>
-        <item>une</item>
-        <item>soupe</item>
-        <item>café</item>
-        <item>gousse</item>
-        <item>gousses</item>
-        <item>pincée</item>
-        <item>filet</item>
-        <item>botte</item>
-        <item>branche</item>
-        <item>salade</item>
-        <item>beau</item>
-        <item>beaux</item>
-        <item>belle</item>
-        <item>belles</item>
-        <item>petit</item>
-        <item>petite</item>
-        <item>petits</item>
-        <item>petites</item>
-        <item>grand</item>
-        <item>grande</item>
-        <item>grands</item>
-        <item>grandes</item>
-        <item>moyen</item>
-        <item>moyenne</item>
-        <item>moyens</item>
-        <item>moyennes</item>
+<item>moyennes</item>
+<item>branche</item>
+<item>gousses</item>
+<item>grandes</item>
+<item>moyenne</item>
+<item>petites</item>
+<item>belles</item>
+<item>gousse</item>
+<item>grande</item>
+<item>grands</item>
+<item>moyens</item>
+<item>petite</item>
+<item>petits</item>
+<item>pincée</item>
+<item>salade</item>
+<item>beaux</item>
+<item>belle</item>
+<item>botte</item>
+<item>filet</item>
+<item>grand</item>
+<item>moyen</item>
+<item>petit</item>
+<item>soupe</item>
+<item>beau</item>
+<item>café</item>
+<item>aux</item>
+<item>des</item>
+<item>les</item>
+<item>sur</item>
+<item>une</item>
+<item>au</item>
+<item>d\'</item>
+<item>de</item>
+<item>du</item>
+<item>et</item>
+<item>la</item>
+<item>le</item>
+<item>ou</item>
+<item>un</item>
+<item>-</item>
+<item>d</item>
+<item>à</item>
     </string-array>
 </resources>

@@ -1,6 +1,7 @@
 package com.chefinventory.app.utils
 
 import com.parabd.lib.traceability.utils.LogManager
+import java.io.File
 import java.util.regex.Matcher
 
 /**
@@ -24,8 +25,6 @@ import java.util.regex.Matcher
 object Ocr1Corrector {
 
     private const val TAG = "Ocr1Corrector"
-    private const val KEYWORD_INGREDIENTS = "ingrédients"
-    private const val KEYWORD_INSTRUCTIONS = "instructions"
 
     /**
      * Charge dynamiquement la liste des paires de réparations diacritiques depuis les ressources du projet.
@@ -33,19 +32,19 @@ object Ocr1Corrector {
      * @param projectDir Le répertoire racine du projet à partir duquel localiser `res/values`.
      * @return La liste des paires "fautif|correct", ou une liste vide en cas d'erreur.
      */
-    internal fun loadDefaultDiacriticRepairs(projectDir: java.io.File = java.io.File(".")): List<String> {
+    internal fun loadDefaultDiacriticRepairs(projectDir: File = File(".")): List<String> {
         return try {
-            OcrVocabularyLoader.loadFromProjectResources(projectDir).ocrDiacriticRepairs
+            val vocab = OcrVocabularyLoader.loadFromProjectResources(projectDir)
+            vocab.ocrDiacriticRepairs
         } catch (e: Exception) {
-            LogManager.e(TAG, "Failed to load default diacritic repairs", e)
+            LogManager.e(TAG, OcrVocabulary().logErrDiacriticRepairs, e)
             emptyList()
         }
     }
 
     /** Diacritiques et accents parasites par défaut chargés dynamiquement depuis `R.array.ocr_diacritic_repairs` (`ocr_step1_diacritic_repairs.xml`). */
-    internal val defaultDiacriticRepairs: List<String> by lazy {
-        loadDefaultDiacriticRepairs()
-    }
+    internal val defaultDiacriticRepairs: List<String>
+        get() = loadDefaultDiacriticRepairs()
 
     /**
      * Effectue la correction complète d'une chaîne de texte brute issue de l'OCR.
@@ -55,11 +54,13 @@ object Ocr1Corrector {
      * @param diacriticRepairs Liste facultative de réparations diacritiques (ex: de [OcrVocabulary.ocrDiacriticRepairs]).
      * @return La chaîne nettoyée et corrigée.
      */
-    fun normalize(input: String, repairs: List<String> = emptyList(), diacriticRepairs: List<String> = emptyList()): String {
+    fun correct(input: String, repairs: List<String> = emptyList(), diacriticRepairs: List<String> = emptyList()): String {
+
         // 1. Garde-fou d'entrée : chaîne vide ou blanche
         if (input.isBlank()) {
             return ""
         }
+
         var text = input.trim()
 
         // 2. Sélection de la table de diacritiques (reçue ou par défaut depuis diacritic_repairs.xml)
@@ -68,14 +69,29 @@ object Ocr1Corrector {
         // 3. Application des réparations orthographiques issues de ocr_repairs.xml
         text = applySpellingRepairs(text, repairs)
 
+        // Chargement du vocabulaire data-driven
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+
+        val ingredientsWord = vocab.ocr1CanonicalIngredientsHeader
+        val instructionsWord = vocab.ocr1CanonicalInstructionsHeader
+        val suffixPrefix = vocab.ocr1IngredientsSuffixPrefix
+
         // 4. Protection des mots-clés d'en-tête de section ("INGRÉDIENTS", "INSTRUCTIONS") contre la confusion 'I' -> '1'
         text = text.replace(OcrRegexes.Normalizer.PROTECTED_KEYWORDS) { match ->
+            val rawMatch = match.value
             val suffix = match.groupValues[1]
-            if (suffix.lowercase().startsWith("ng")) {
-                KEYWORD_INGREDIENTS
+
+            val replacement = if (suffix.lowercase().startsWith(suffixPrefix)) {
+                ingredientsWord
             } else {
-                KEYWORD_INSTRUCTIONS
+                instructionsWord
             }
+
+            if (rawMatch != replacement && replacement.isNotEmpty()) {
+                LogManager.d(TAG, String.format(vocab.logOcr1ProtectedHeaderRepaired, rawMatch, replacement))
+            }
+
+            replacement
         }
 
         // 5. Suppression du préfixe 't' parasite devant un chiffre (ex: "t 10 min" -> "10 min")
@@ -123,6 +139,13 @@ object Ocr1Corrector {
         // 15. Effondrement des espaces multiples consécutifs en un espace unique et retrait des espaces de bordure
         return text.replace(OcrRegexes.Normalizer.MULTIPLE_SPACES, " ").trim()
     }
+
+    /**
+     * Alias de rétrocompatibilité conservé pour la méthode de normalisation.
+     */
+    @Deprecated("Utiliser correct()", ReplaceWith("correct(input, repairs, diacriticRepairs)"))
+    fun normalize(input: String, repairs: List<String> = emptyList(), diacriticRepairs: List<String> = emptyList()): String =
+        correct(input, repairs, diacriticRepairs)
 
     /**
      * Applique la table de conversion des diacritiques et accents parasites issue de [diacriticRepairs].

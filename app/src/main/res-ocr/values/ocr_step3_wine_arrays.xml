@@ -2,179 +2,179 @@
 <resources>
     <!-- Appellations et cépages de vins -->
     <string-array name="wine_appellations">
-        <item>Bordeaux</item>
-        <item>Bourgogne</item>
-        <item>Beaujolais</item>
-        <item>Alsace</item>
-        <item>Champagne</item>
-        <item>Chablis</item>
-        <item>Sancerre</item>
-        <item>Pouilly-Fumé</item>
-        <item>Pouilly-Fuissé</item>
-        <item>Muscadet</item>
-        <item>Anjou</item>
-        <item>Saumur</item>
-        <item>Touraine</item>
-        <item>Chinon</item>
-        <item>Bourgueil</item>
-        <item>Vouvray</item>
-        <item>Côtes du Rhône</item>
-        <item>Châteauneuf-du-Pape</item>
-        <item>Gigondas</item>
-        <item>Vacqueyras</item>
-        <item>Hermitage</item>
-        <item>Crozes-Hermitage</item>
-        <item>Saint-Joseph</item>
-        <item>Côte-Rôtie</item>
-        <item>Condrieu</item>
-        <item>Tavel</item>
-        <item>Lirac</item>
-        <item>Bandol</item>
-        <item>Côtes de Provence</item>
-        <item>Cassis</item>
-        <item>Corbières</item>
-        <item>Minervois</item>
-        <item>Saint-Chinian</item>
-        <item>Fitou</item>
-        <item>Roussillon</item>
-        <item>Côtes du Roussillon</item>
-        <item>Cahors</item>
-        <item>Madiran</item>
-        <item>Gaillac</item>
-        <item>Bergerac</item>
-        <item>Monbazillac</item>
-        <item>Jurançon</item>
-        <item>Chardonnay</item>
-        <item>Sauvignon</item>
-        <item>Pinot Noir</item>
-        <item>Cabernet Sauvignon</item>
-        <item>Cabernet Franc</item>
-        <item>Merlot</item>
-        <item>Syrah</item>
-        <item>Shiraz</item>
-        <item>Grenache</item>
-        <item>Mourvèdre</item>
-        <item>Cinsault</item>
-        <item>Viognier</item>
-        <item>Riesling</item>
-        <item>Gewurztraminer</item>
-        <item>Pinot Gris</item>
-        <item>Pinot Blanc</item>
-        <item>Sylvaner</item>
-        <item>Gamay</item>
-        <item>Malbec</item>
-        <item>Carmenère</item>
-        <item>Sangiovese</item>
-        <item>Nebbiolo</item>
-        <item>Barolo</item>
-        <item>Barbaresco</item>
-        <item>Chianti</item>
-        <item>Brunello</item>
-        <item>Amarone</item>
-        <item>Valpolicella</item>
-        <item>Prosecco</item>
-        <item>Rioja</item>
-        <item>Ribera del Duero</item>
-        <item>Priorat</item>
-        <item>Tempranillo</item>
-        <item>Albarino</item>
-        <item>Porto</item>
-        <item>Sherry</item>
-        <item>Xérès</item>
+<item>Châteauneuf-du-Pape</item>
+<item>Côtes du Roussillon</item>
+<item>Cabernet Sauvignon</item>
+<item>Côtes de Provence</item>
+<item>Crozes-Hermitage</item>
+<item>Ribera del Duero</item>
+<item>Cabernet Franc</item>
+<item>Côtes du Rhône</item>
+<item>Gewurztraminer</item>
+<item>Pouilly-Fuissé</item>
+<item>Saint-Chinian</item>
+<item>Pouilly-Fumé</item>
+<item>Saint-Joseph</item>
+<item>Valpolicella</item>
+<item>Monbazillac</item>
+<item>Pinot Blanc</item>
+<item>Tempranillo</item>
+<item>Barbaresco</item>
+<item>Beaujolais</item>
+<item>Chardonnay</item>
+<item>Côte-Rôtie</item>
+<item>Pinot Gris</item>
+<item>Pinot Noir</item>
+<item>Roussillon</item>
+<item>Sangiovese</item>
+<item>Vacqueyras</item>
+<item>Bourgogne</item>
+<item>Bourgueil</item>
+<item>Carmenère</item>
+<item>Champagne</item>
+<item>Corbières</item>
+<item>Hermitage</item>
+<item>Minervois</item>
+<item>Mourvèdre</item>
+<item>Sauvignon</item>
+<item>Albarino</item>
+<item>Bergerac</item>
+<item>Bordeaux</item>
+<item>Brunello</item>
+<item>Cinsault</item>
+<item>Condrieu</item>
+<item>Gigondas</item>
+<item>Grenache</item>
+<item>Jurançon</item>
+<item>Muscadet</item>
+<item>Nebbiolo</item>
+<item>Prosecco</item>
+<item>Riesling</item>
+<item>Sancerre</item>
+<item>Sylvaner</item>
+<item>Touraine</item>
+<item>Viognier</item>
+<item>Amarone</item>
+<item>Chablis</item>
+<item>Chianti</item>
+<item>Gaillac</item>
+<item>Madiran</item>
+<item>Priorat</item>
+<item>Vouvray</item>
+<item>Alsace</item>
+<item>Bandol</item>
+<item>Barolo</item>
+<item>Cahors</item>
+<item>Cassis</item>
+<item>Chinon</item>
+<item>Malbec</item>
+<item>Merlot</item>
+<item>Saumur</item>
+<item>Sherry</item>
+<item>Shiraz</item>
+<item>Anjou</item>
+<item>Fitou</item>
+<item>Gamay</item>
+<item>Lirac</item>
+<item>Porto</item>
+<item>Rioja</item>
+<item>Syrah</item>
+<item>Tavel</item>
+<item>Xérès</item>
     </string-array>
 
     <!-- Producteurs, Châteaux et Domaines -->
     <string-array name="wine_producers">
-        <item>Château</item>
-        <item>Chateau</item>
-        <item>Domaine</item>
-        <item>Maison</item>
-        <item>Cave</item>
-        <item>Caves</item>
-        <item>Clos</item>
-        <item>Mas</item>
-        <item>Baron</item>
-        <item>Comte</item>
-        <item>Marquis</item>
-        <item>Marqués</item>
-        <item>Pfaffenheim</item>
-        <item>Laroche</item>
-        <item>Michel Laroche</item>
-        <item>Guigal</item>
-        <item>Chapoutier</item>
-        <item>Jaboulet</item>
-        <item>Perrin</item>
-        <item>Torres</item>
-        <item>Antinori</item>
-        <item>Frescobaldi</item>
-        <item>Alban de Saint-Pé</item>
+<item>Alban de Saint-Pé</item>
+<item>Michel Laroche</item>
+<item>Frescobaldi</item>
+<item>Pfaffenheim</item>
+<item>Chapoutier</item>
+<item>Antinori</item>
+<item>Jaboulet</item>
+<item>Chateau</item>
+<item>Château</item>
+<item>Domaine</item>
+<item>Laroche</item>
+<item>Marquis</item>
+<item>Marqués</item>
+<item>Guigal</item>
+<item>Maison</item>
+<item>Perrin</item>
+<item>Torres</item>
+<item>Baron</item>
+<item>Caves</item>
+<item>Comte</item>
+<item>Cave</item>
+<item>Clos</item>
+<item>Mas</item>
     </string-array>
 
     <!-- Mots-clés généraux d'œnologie -->
     <string-array name="wine_keywords">
-        <item>cuvée</item>
-        <item>cuvee</item>
-        <item>réserve</item>
-        <item>reserve</item>
-        <item>grand cru</item>
-        <item>premier cru</item>
-        <item>cru</item>
-        <item>millesime</item>
-        <item>millésime</item>
-        <item>AOC</item>
-        <item>AOP</item>
-        <item>IGP</item>
-        <item>DOC</item>
-        <item>DOCG</item>
-        <item>DO</item>
-        <item>brut</item>
-        <item>sec</item>
-        <item>demi-sec</item>
-        <item>moelleux</item>
-        <item>liquoreux</item>
-        <item>mousseux</item>
-        <item>crémant</item>
-        <item>cremant</item>
-        <item>Atinium</item>
-        <item>Marqués</item>
-        <item>Domaine</item>
-        <item>Caves</item>
-        <item>Bodega</item>
-        <item>Bodegas</item>
-        <item>Tenuta</item>
-        <item>Castello</item>
-        <item>Weingut</item>
+<item>premier cru</item>
+<item>grand cru</item>
+<item>liquoreux</item>
+<item>millesime</item>
+<item>millésime</item>
+<item>Castello</item>
+<item>demi-sec</item>
+<item>moelleux</item>
+<item>mousseux</item>
+<item>Atinium</item>
+<item>Bodegas</item>
+<item>cremant</item>
+<item>crémant</item>
+<item>Domaine</item>
+<item>Marqués</item>
+<item>reserve</item>
+<item>réserve</item>
+<item>Weingut</item>
+<item>Bodega</item>
+<item>Tenuta</item>
+<item>Caves</item>
+<item>cuvee</item>
+<item>cuvée</item>
+<item>brut</item>
+<item>DOCG</item>
+<item>AOC</item>
+<item>AOP</item>
+<item>cru</item>
+<item>DOC</item>
+<item>IGP</item>
+<item>sec</item>
+<item>DO</item>
     </string-array>
 
     <!-- En-têtes explicites déclencheurs d'ouverture de la section Vin (Étape 3) -->
     <string-array name="ocr3_explicit_wine_headers">
-        <item>conseil vin</item>
-        <item>vin conseillé</item>
-        <item>accord vin</item>
-        <item>l\'accord</item>
-        <item>sommelier</item>
-        <item>notre vin</item>
-        <item>vin suggéré</item>
-        <item>suggestion vin</item>
+<item>suggestion vin</item>
+<item>vin conseillé</item>
+<item>conseil vin</item>
+<item>vin suggéré</item>
+<item>accord vin</item>
+<item>notre vin</item>
+<item>sommelier</item>
+<item>l\'accord</item>
     </string-array>
 
     <string-array name="wine_title_keywords">
-        <item>conseil vin</item>
-        <item>vin conseillé</item>
-        <item>accord vin</item>
-        <item>l\'accord</item>
-        <item>sommelier</item>
-        <item>accord</item>
-        <item>boisson</item>
-        <item>boire</item>
-        <item>servir avec</item>
-        <item>notre vin</item>
-        <item>vin suggéré</item>
-        <item>m.o.</item>
-        <item>conseillé</item>
-        <item>suggéré</item>
-        <item>recommandé</item>
-        <item>suggestion</item>
+<item>vin conseillé</item>
+<item>conseil vin</item>
+<item>servir avec</item>
+<item>vin suggéré</item>
+<item>accord vin</item>
+<item>recommandé</item>
+<item>suggestion</item>
+<item>conseillé</item>
+<item>notre vin</item>
+<item>sommelier</item>
+<item>l\'accord</item>
+<item>boisson</item>
+<item>suggéré</item>
+<item>accord</item>
+<item>boire</item>
+<item>m.o.</item>
     </string-array>
 
     <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage robuste) -->

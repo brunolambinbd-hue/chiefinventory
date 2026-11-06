@@ -1,70 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="common_ingredients_no_qty">
-        <item>sel</item>
-        <item>poivre</item>
-        <item>sel et poivre</item>
-        <item>sel et poivre du moulin</item>
-        <item>vinaigrette</item>
-        <item>huile</item>
-        <item>persil</item>
-        <item>beurre</item>
-        <item>salade de blé</item>
-        <item>salade de ble</item>
-        <item>salade</item>
-        <item>tabasco</item>
-        <item>aneth</item>
-        <item>ciboulette</item>
-        <item>échalote</item>
-        <item>ail</item>
-        <item>huile d\'olive</item>
-        <item>moutarde</item>
-        <item>thym</item>
-        <item>romarin</item>
-        <item>œufs de truite</item>
-        <item>oeufs de truite</item>
-        <item>du thym et du romarin frais</item>
-        <item>du thym et du romarin</item>
-        <item>thym et romarin</item>
-        <item>bouquet garni</item>
-        <item>herbes de provence</item>
-        <item>du persil et de la ciboulette</item>
-        <item>persil</item>
-        <item>ciboulette</item>
-        <item>persil et ciboulette</item>
-        <item>laurier</item>
-        <item>feuille de laurier</item>
-        <item>feuilles de laurier</item>
-        <item>estragon</item>
-        <item>cerfeuil</item>
-        <item>basilic</item>
-        <item>menthe</item>
-        <item>coriandre</item>
-        <item>coriandre fraîche</item>
-        <item>coriandre fraiche</item>
-        <item>sauge</item>
-        <item>origan</item>
-        <item>persil plat</item>
-        <item>persil frisé</item>
-        <item>fleur de sel</item>
-        <item>poivre du moulin</item>
-        <item>piment d\'espelette</item>
-        <item>noix de muscade</item>
-        <item>noix de muscade râpée</item>
-        <item>paprika</item>
-        <item>curry</item>
-        <item>cannelle</item>
-        <item>gingembre frais</item>
-        <item>chicon</item>
-        <item>des petites feuilles de chicon</item>
-        <item>petites feuilles de chicon</item>
-        <item>feuilles de chicon</item>
-        <item>1 branche d\'aneth</item>
-        <item>branche d\'aneth</item>
-        <item>poivre de Cayenne</item>
-        <item>poivre de Cayenne, sel, poivre</item>
-        <item>italien</item>
-        <item>jus de</item>
-        <item>jus</item>
+<item>des petites feuilles de chicon</item>
+<item>poivre de Cayenne, sel, poivre</item>
+<item>du persil et de la ciboulette</item>
+<item>du thym et du romarin frais</item>
+<item>petites feuilles de chicon</item>
+<item>sel et poivre du moulin</item>
+<item>du thym et du romarin</item>
+<item>noix de muscade râpée</item>
+<item>persil et ciboulette</item>
+<item>feuilles de laurier</item>
+<item>feuille de laurier</item>
+<item>feuilles de chicon</item>
+<item>herbes de provence</item>
+<item>piment d\'espelette</item>
+<item>1 branche d\'aneth</item>
+<item>coriandre fraiche</item>
+<item>coriandre fraîche</item>
+<item>poivre de Cayenne</item>
+<item>poivre du moulin</item>
+<item>branche d\'aneth</item>
+<item>gingembre frais</item>
+<item>noix de muscade</item>
+<item>oeufs de truite</item>
+<item>thym et romarin</item>
+<item>œufs de truite</item>
+<item>bouquet garni</item>
+<item>huile d\'olive</item>
+<item>salade de ble</item>
+<item>salade de blé</item>
+<item>sel et poivre</item>
+<item>fleur de sel</item>
+<item>persil frisé</item>
+<item>persil plat</item>
+<item>vinaigrette</item>
+<item>ciboulette</item>
+<item>ciboulette</item>
+<item>coriandre</item>
+<item>cannelle</item>
+<item>cerfeuil</item>
+<item>estragon</item>
+<item>moutarde</item>
+<item>échalote</item>
+<item>basilic</item>
+<item>italien</item>
+<item>laurier</item>
+<item>paprika</item>
+<item>romarin</item>
+<item>tabasco</item>
+<item>beurre</item>
+<item>chicon</item>
+<item>jus de</item>
+<item>menthe</item>
+<item>origan</item>
+<item>persil</item>
+<item>persil</item>
+<item>poivre</item>
+<item>salade</item>
+<item>aneth</item>
+<item>curry</item>
+<item>huile</item>
+<item>sauge</item>
+<item>thym</item>
+<item>ail</item>
+<item>jus</item>
+<item>sel</item>
     </string-array>
 </resources>

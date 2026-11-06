@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Résultat de l'analyse du Bloc A (Méta-données & Continuation de phrase suspendue).
@@ -50,7 +50,7 @@ object Ocr3Categorizer1_BlockA_Metadata {
         seenIngredientKeywords: MutableSet<String>
     ): BlockAResult {
         var workingLine = rawLine.trim()
-        if (Ocr2Cleaner.isTechnicalDimension(workingLine)) {
+        if (Ocr2Cleaner.isTechnicalDimension(workingLine, vocabulary)) {
             results.rawInstructionsList.add(workingLine)
             return BlockAResult(true, workingLine, "", false, false, false)
         }
@@ -59,6 +59,7 @@ object Ocr3Categorizer1_BlockA_Metadata {
         val metaResult = RecipeMetadataParser.extractMetadata(workingLine, results, vocabulary)
         workingLine = metaResult.remainingLine
         if (metaResult.isPureMetadata) {
+            LogManager.d(TAG, String.format(vocabulary.logOcr3BlockAMetadataIgnored, rawLine))
             return BlockAResult(true, workingLine, "", false, false, false)
         }
 
@@ -77,8 +78,9 @@ object Ocr3Categorizer1_BlockA_Metadata {
         val startsWithConnector = ingredientConnectors.any { lowerLine.startsWith("$it ") || (it.endsWith("'") && lowerLine.startsWith(it)) }
 
         // 8.5 RATTRAPAGE IMMÉDIAT DE CONTINUATION DE PHRASE SUSPENDUE (Ingrédients ou Instructions)
-        val baseConnectors = listOf(" de", " d'", " du", " des", " ou", " au", " aux", " avec", " dans", " pour", " sur", " en", " par", " la", " le", " les")
-        val allConnectorsEnding = (baseConnectors + vocabulary.hangingConnectors.map { " ${it.trim().lowercase()}" }).distinct()
+        val defaultHanging = listOf("de", "d'", "du", "des", "ou", "au", "aux", "avec", "dans", "pour", "sur", "en", "par", "la", "le", "les")
+        val combinedHanging = (vocabulary.hangingConnectors + defaultHanging).distinct()
+        val allConnectorsEnding = combinedHanging.map { " ${it.trim().lowercase()}" }
 
         val targetListForContinuation = if (currentSection == Ocr3Categorizer.SECTION_INGREDIENTS) {
             results.rawIngredientsList
@@ -106,7 +108,7 @@ object Ocr3Categorizer1_BlockA_Metadata {
                         val keywords = Ocr3Categorizer.extractKeywordsFromText(workingLine, null)
                         seenIngredientKeywords.addAll(keywords)
                     }
-                    Log.d(TAG, "  [FUSION CONTINUATION] Appended: '$workingLine' -> New line: '${targetListForContinuation[lastIdx]}'")
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3BlockAFusionContinuation, workingLine, targetListForContinuation[lastIdx]))
                     return BlockAResult(true, workingLine, lowerLine, containsAction, startsWithBullet, startsWithConnector)
                 }
             }

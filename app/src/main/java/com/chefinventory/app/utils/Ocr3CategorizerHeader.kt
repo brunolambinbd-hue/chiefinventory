@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Assistant dédié à la détection des en-têtes de sections (Ingrédients, Instructions, Sous-titres)
@@ -46,36 +46,36 @@ object Ocr3CategorizerHeader {
         seenIngredientKeywords: MutableSet<String>
     ): Boolean {
         val cleanLower = lowerLine.trimEnd('.').trim()
-        val instructionHeaders = listOf("préparation", "preparation", "instructions", "consignes", "etapes", "étapes", "méthode", "methode", "déroulement", "deroulement")
-        val isInstrHeader = (instructionHeaders.any { 
-            cleanLower == it || 
-            cleanLower.startsWith("$it :") || 
-            cleanLower.startsWith("$it:") || 
-            cleanLower.startsWith("$it de ") || 
-            cleanLower.startsWith("$it d'") || 
-            cleanLower.startsWith("temps de $it")
+        val isInstrHeader = (vocabulary.ocr1ProtectedInstructionsHeaders.any { 
+            val lowerIt = it.lowercase()
+            cleanLower == lowerIt || 
+            cleanLower.startsWith("$lowerIt :") || 
+            cleanLower.startsWith("$lowerIt:") || 
+            cleanLower.startsWith("$lowerIt de ") || 
+            cleanLower.startsWith("$lowerIt d'") || 
+            cleanLower.startsWith("temps de $lowerIt")
         }) && workingLine.length < 40 && !containsAction
 
-        val isIngrHeader = (cleanLower.startsWith("ingrédients") || cleanLower.startsWith("ingredients") || cleanLower.startsWith("composition") || cleanLower.startsWith("ngrédients")) && workingLine.length < 35 && !containsAction
+        val isIngrHeader = vocabulary.ocr1ProtectedIngredientsHeaders.any { cleanLower.startsWith(it.lowercase()) } && workingLine.length < 35 && !containsAction
         val isSubHeader = vocabulary.ingredientSubHeaders.any { lowerLine.startsWith(it.lowercase()) }
 
         when {
             isInstrHeader -> {
                 state.currentSection = Ocr3Categorizer.SECTION_INSTRUCTIONS
-                Log.d(TAG, "  [!] BASCULEMENT DE SECTION -> INSTRUCTIONS ('$workingLine')")
+                LogManager.d(TAG, String.format(vocabulary.logOcr3HeaderSwitchInstructions, workingLine))
                 return true
             }
             isIngrHeader -> {
                 state.currentSection = Ocr3Categorizer.SECTION_INGREDIENTS
                 state.isIngredientListClosed = false
                 seenIngredientKeywords.clear()
-                Log.d(TAG, "  [!] BASCULEMENT DE SECTION -> INGRÉDIENTS ('$workingLine')")
+                LogManager.d(TAG, String.format(vocabulary.logOcr3HeaderSwitchIngredients, workingLine))
                 return true
             }
             isSubHeader -> {
                 state.currentSection = Ocr3Categorizer.SECTION_INGREDIENTS
                 state.isIngredientListClosed = false
-                Log.d(TAG, "  [!] SOUS-EN-TÊTE D'INGRÉDIENT DÉTECTÉ ('$workingLine')")
+                LogManager.d(TAG, String.format(vocabulary.logOcr3HeaderSubheaderDetected, workingLine))
                 return false
             }
         }

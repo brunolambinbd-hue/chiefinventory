@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- CIBLES CANONIQUES DE REMPLACEMENT D'EN-TÊTES DE SECTION (ÉTAPE 1) -->
+    <string name="ocr1_canonical_ingredients_header">ingrédients</string>
+    <string name="ocr1_canonical_instructions_header">instructions</string>
+
+    <!-- EN-TÊTES PROTÉGÉS & VARIANTES ÉVOLUTIVES DE LA SECTION INGRÉDIENTS (ÉTAPE 1 & 3 - LONGEST MATCH FIRST) -->
+    <string-array name="ocr1_protected_ingredients_headers">
+        <item>ingrédients nécessaires</item>
+        <item>ce qu\'il vous faut</item>
+        <item>ingrédients</item>
+        <item>ingrédient</item>
+        <item>ingredients</item>
+        <item>composition</item>
+        <item>ngrédients</item>
+    </string-array>
+
+    <!-- EN-TÊTES PROTÉGÉS & VARIANTES ÉVOLUTIVES DE LA SECTION INSTRUCTIONS (ÉTAPE 1 & 3 - LONGEST MATCH FIRST) -->
+    <string-array name="ocr1_protected_instructions_headers">
+        <item>étapes de préparation</item>
+        <item>instructions</item>
+        <item>déroulement</item>
+        <item>deroulement</item>
+        <item>instruction</item>
+        <item>nstructions</item>
+        <item>préparation</item>
+        <item>preparation</item>
+        <item>progression</item>
+        <item>réalisation</item>
+        <item>consignes</item>
+        <item>cuisson</item>
+        <item>méthode</item>
+        <item>methode</item>
+        <item>procédé</item>
+        <item>étapes</item>
+        <item>etapes</item>
+    </string-array>
+
+    <!-- PRÉFIXE DE DÉTECTION DU SUFFIXE INGRÉDIENTS (ÉVOLUTIF) -->
+    <string name="ocr1_ingredients_suffix_prefix" translatable="false">ng</string>
+</resources>

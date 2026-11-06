@@ -1,22 +1,47 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Sous-composant du Bloc A de l'Étape 3 : Traite et scinde les lignes mixtes "Sel et Poivre" suivies d'un potentiel titre pour [Ocr3CategorizerTitleExtractor].
+ *
+ * Responsabilités :
+ * - Détecter si une ligne se termine par un connecteur de continuation de titre multi-lignes.
+ * - Isoler et extraire un titre de recette accidentellement accolé après une ligne de fin d'ingrédients ("Sel et poivre").
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3CategorizerTitleExtractor1_BlockA_MixedLines {
     private const val TAG = "Ocr3TitleExtractor1_BlockA"
 
-    internal fun hasEndingConnector(text: String): Boolean {
+    /**
+     * Détermine si le texte [text] se termine par un connecteur ou une préposition de liaison multi-lignes.
+     *
+     * @param text Le texte de la ligne à vérifier.
+     * @param vocabulary Le vocabulaire métier data-driven contenant les connecteurs de titres.
+     * @return `true` si le texte se termine par un connecteur suspendu, `false` sinon.
+     */
+    internal fun hasEndingConnector(text: String, vocabulary: OcrVocabulary? = null): Boolean {
         val lower = text.lowercase()
-        if (lower.endsWith(" et")) return true
-        if (lower.endsWith(" d'")) return true
-        if (lower.endsWith(" de")) return true
-        return lower.endsWith(" aux")
+        val activeVocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
+        val connectors = (activeVocab.titleMultilineConnectors + activeVocab.hangingConnectors)
+            .map { " ${it.trim().lowercase()}" }
+            .distinct()
+        return connectors.any { lower.endsWith(it) }
     }
 
+    /**
+     * Traite et extrait un potentiel candidat titre situé sur la même ligne qu'un marqueur de fin d'ingrédients ("Sel et poivre").
+     *
+     * @param workingLine La ligne nettoyée courante.
+     * @param lineIndex L'index de la ligne dans la liste globale de la recette.
+     * @param lines La liste complète des lignes de la recette.
+     * @param vocabulary Le vocabulaire métier data-driven.
+     * @param recipeIngredientWords L'ensemble des mots-clés d'ingrédients vus sur la fiche.
+     * @param containsActionRegex Expression régulière des verbes d'action.
+     * @param firstIngredientWord Le premier mot d'ingrédient significatif.
+     * @param candidates La liste mutable des candidats titres scorés à alimenter.
+     * @return `true` si un candidat titre a été extrait et ajouté depuis cette ligne mixte, `false` sinon.
+     */
     internal fun processSelPoivreLine(
         workingLine: String,
         lineIndex: Int,
@@ -28,15 +53,16 @@ object Ocr3CategorizerTitleExtractor1_BlockA_MixedLines {
         candidates: MutableList<ScoredTitleCandidate>
     ): Boolean {
         val lowerLine = workingLine.lowercase()
-        val isSelPoivreLine = lowerLine.contains("sel et poivre")
+        val endMarker = vocabulary.ingredientEndMarkers.firstOrNull { it.contains("sel") } ?: ""
+        val isSelPoivreLine = endMarker.isNotEmpty() && lowerLine.contains(endMarker.lowercase())
 
         if (isSelPoivreLine) {
             val parts = workingLine.split(OcrRegexes.Titles.SPLIT_SEL_POIVRE, 2)
-            val rawTitlePart = parts[1].trim()
+            val rawTitlePart = if (parts.size > 1) parts[1].trim() else ""
             if (rawTitlePart.isNotEmpty()) {
                 var potentialTitle = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(rawTitlePart)
                 val hasNextLine = lineIndex + 1 < lines.size
-                val endingConn = hasEndingConnector(potentialTitle)
+                val endingConn = hasEndingConnector(potentialTitle, vocabulary)
                 val nextConn = if (hasNextLine) {
                     Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(lines[lineIndex + 1], vocabulary)
                 } else {
@@ -57,7 +83,7 @@ object Ocr3CategorizerTitleExtractor1_BlockA_MixedLines {
                 if (isBase) {
                     val (score, details) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(potentialTitle, vocabulary, recipeIngredientWords, firstIngredientWord)
                     candidates.add(ScoredTitleCandidate(potentialTitle, lineIndex, skipCount, score, details))
-                    Log.d(TAG, "TITLE EXTRACTOR: Candidate extracted from sel/poivre line -> '$potentialTitle' (score=$score)")
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3TitleExtractorSelPoivreCandidate, potentialTitle, score))
                     return true
                 }
             }

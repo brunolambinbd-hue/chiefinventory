@@ -1,182 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="step_action_keywords">
-        <item>faire</item>
-        <item>faites</item>
-        <item>Faites</item>
-        <item>maintenez</item>
-        <item>maintenir</item>
-        <item>poursuivez</item>
-        <item>poursuivre</item>
-        <item>conservez</item>
-        <item>conserver</item>
-        <item>obteniez</item>
-        <item>obtenez</item>
-        <item>obtenir</item>
-        <item>mélanger</item>
-        <item>melanger</item>
-        <item>mélangez</item>
-        <item>melangez</item>
-        <item>couper</item>
-        <item>coupez</item>
-        <item>découpez</item>
-        <item>decoupez</item>
-        <item>découper</item>
-        <item>salez</item>
-        <item>saler</item>
-        <item>creusez</item>
-        <item>creuser</item>
-        <item>étuvez</item>
-        <item>éplucher</item>
-        <item>eplucher</item>
-        <item>épluchez</item>
-        <item>pelez</item>
-        <item>peler</item>
-        <item>roulez</item>
-        <item>rouler</item>
-        <item>delayez</item>
-        <item>délayez</item>
-        <item>délayer</item>
-        <item>decortiquez</item>
-        <item>distribuez</item>
-        <item>surmontez</item>
-        <item>décorez</item>
-        <item>déposez</item>
-        <item>préparer</item>
-        <item>préparez</item>
-        <item>cuire</item>
-        <item>cuisez</item>
-        <item>préchauffer</item>
-        <item>prechauffer</item>
-        <item>ajouter</item>
-        <item>ajoutez</item>
-        <item>prélevez</item>
-        <item>prelevez</item>
-        <item>émincer</item>
-        <item>emincer</item>
-        <item>verser</item>
-        <item>versez</item>
-        <item>fouetter</item>
-        <item>incorporer</item>
-        <item>incorporez</item>
-        <item>laisser</item>
-        <item>laissez</item>
-        <item>mettre</item>
-        <item>disposer</item>
-        <item>disposez</item>
-        <item>retirer</item>
-        <item>retire</item>
-        <item>placer</item>
-        <item>placez</item>
-        <item>Placez</item>
-        <item>posez</item>
-        <item>servir</item>
-        <item>servez</item>
-        <item>nettoyer</item>
-        <item>laver</item>
-        <item>battez</item>
-        <item>[ée]taler</item>
-        <item>[ée]talez</item>
-        <item>saupoudrer</item>
-        <item>garnir</item>
-        <item>d[ée]coupez</item>
-        <item>portez</item>
-        <item>bouillir</item>
-        <item>r[ée]servez</item>
-        <item>chauffer</item>
-        <item>chauffez</item>
-        <item>badigeonner</item>
-        <item>enfourner</item>
-        <item>dressez</item>
-        <item>pr[ée]sentez</item>
-        <item>accompagnez</item>
-        <item>r[ée]partissez</item>
-        <item>mixez</item>
-        <item>[ée]gouttez</item>
-        <item>Egouttez</item>
-        <item>Recouvrez</item>
-        <item>Nappez</item>
-        <item>Evidez</item>
-        <item>Epluchez</item>
-        <item>Eplucher</item>
-        <item>Découpez</item>
-        <item>Découper</item>
-        <item>Décorez</item>
-        <item>Décortiquez</item>
-        <item>Déposez</item>
-        <item>Détaillez</item>
-        <item>Garnissez</item>
-        <item>Hachez</item>
-        <item>Arrosez</item>
-        <item>Prenez</item>
-        <item>Prelevez</item>
-        <item>Assemblez</item>
-        <item>Trempez</item>
-        <item>Coupez</item>
-        <item>Saupoudrez</item>
-        <item>Placez</item>
-        <item>Farcissez</item>
-        <item>Frottez</item>
-        <item>Otez</item>
-        <item>Salez et poivrez</item>
-        <item>Salez</item>
-        <item>Poivrez</item>
-        <item>entourez</item>
-        <item>Plongez</item>
-        <item>Retirez</item>
-        <item>Ajoutez</item>
-        <item>dans</item>
-        <item>Assaisonnez</item>
-        <item>Mélangez</item>
-        <item>Préparez</item>
-        <item>Répartissez</item>
-        <item>Servez</item>
-        <item>Rafraîchissez</item>
-        <item>Joignez</item>
-        <item>pressez</item>
-        <item>faites</item>
-        <item>espaçant</item>
-        <item>Quand</item>
-        <item>à obtenir</item>
-        <item>reposer</item>
-        <item>de tranches</item>
-        <item>de morceaux</item>
-        <item>des dés</item>
-        <item>les dés</item>
-        <item>de jus</item>
-        <item>vous en</item>
-        <item>au dernier moment</item>
-        <item>salade mixte coupée.</item>
-        <item>de se passer</item>
-        <item>Versez</item>
-        <item>Comptez</item>
-        <item>passez</item>
-        <item>passer</item>
-        <item>poursuivez</item>
-        <item>poursuivre</item>
-        <item>badigeonnez</item>
-        <item>parsemez</item>
-        <item>parsemer</item>
-        <item>enfournez</item>
-        <item>mettez</item>
-        <item>[ée]crasez</item>
-        <item>[ée]craser</item>
-        <item>[ée]calez</item>
-        <item>[ée]caler</item>
-        <item>extrayez</item>
-        <item>extraire</item>
-        <item>nettoyez</item>
-        <item>creusez</item>
-        <item>creuser</item>
-        <item>taillez</item>
-        <item>tailler</item>
-        <item>mouillez</item>
-        <item>arrosez</item>
-        <item>Lavez</item>
-        <item>sous</item>
-        <item>Découpez</item>
-        <item>obtenez</item>
-        <item>permet</item>
-        <item>rectifiez</item>
+<item>salade mixte coupée.</item>
+<item>au dernier moment</item>
+<item>Salez et poivrez</item>
+<item>r[ée]partissez</item>
+<item>Rafraîchissez</item>
+<item>de se passer</item>
+<item>pr[ée]sentez</item>
+<item>[ée]gouttez</item>
+<item>accompagnez</item>
+<item>Assaisonnez</item>
+<item>badigeonner</item>
+<item>badigeonnez</item>
+<item>d[ée]coupez</item>
+<item>de morceaux</item>
+<item>de tranches</item>
+<item>decortiquez</item>
+<item>Décortiquez</item>
+<item>prechauffer</item>
+<item>préchauffer</item>
+<item>r[ée]servez</item>
+<item>Répartissez</item>
+<item>[ée]craser</item>
+<item>[ée]crasez</item>
+<item>distribuez</item>
+<item>incorporer</item>
+<item>incorporez</item>
+<item>poursuivez</item>
+<item>poursuivez</item>
+<item>poursuivre</item>
+<item>poursuivre</item>
+<item>saupoudrer</item>
+<item>Saupoudrez</item>
+<item>[ée]caler</item>
+<item>[ée]calez</item>
+<item>[ée]taler</item>
+<item>[ée]talez</item>
+<item>Assemblez</item>
+<item>conserver</item>
+<item>conservez</item>
+<item>Détaillez</item>
+<item>enfourner</item>
+<item>enfournez</item>
+<item>Farcissez</item>
+<item>Garnissez</item>
+<item>maintenez</item>
+<item>maintenir</item>
+<item>Recouvrez</item>
+<item>rectifiez</item>
+<item>surmontez</item>
+<item>à obtenir</item>
+<item>bouillir</item>
+<item>chauffer</item>
+<item>chauffez</item>
+<item>decoupez</item>
+<item>disposer</item>
+<item>disposez</item>
+<item>découper</item>
+<item>Découper</item>
+<item>découpez</item>
+<item>Découpez</item>
+<item>Découpez</item>
+<item>Egouttez</item>
+<item>entourez</item>
+<item>eplucher</item>
+<item>Eplucher</item>
+<item>Epluchez</item>
+<item>espaçant</item>
+<item>extraire</item>
+<item>extrayez</item>
+<item>fouetter</item>
+<item>melanger</item>
+<item>melangez</item>
+<item>mouillez</item>
+<item>mélanger</item>
+<item>mélangez</item>
+<item>Mélangez</item>
+<item>nettoyer</item>
+<item>nettoyez</item>
+<item>obteniez</item>
+<item>parsemer</item>
+<item>parsemez</item>
+<item>prelevez</item>
+<item>Prelevez</item>
+<item>prélevez</item>
+<item>préparer</item>
+<item>préparez</item>
+<item>Préparez</item>
+<item>éplucher</item>
+<item>épluchez</item>
+<item>ajouter</item>
+<item>ajoutez</item>
+<item>Ajoutez</item>
+<item>Arrosez</item>
+<item>arrosez</item>
+<item>Comptez</item>
+<item>creuser</item>
+<item>creuser</item>
+<item>creusez</item>
+<item>creusez</item>
+<item>delayez</item>
+<item>des dés</item>
+<item>dressez</item>
+<item>décorez</item>
+<item>Décorez</item>
+<item>délayer</item>
+<item>délayez</item>
+<item>déposez</item>
+<item>Déposez</item>
+<item>emincer</item>
+<item>Frottez</item>
+<item>Joignez</item>
+<item>laisser</item>
+<item>laissez</item>
+<item>les dés</item>
+<item>obtenez</item>
+<item>obtenez</item>
+<item>obtenir</item>
+<item>Plongez</item>
+<item>Poivrez</item>
+<item>pressez</item>
+<item>reposer</item>
+<item>retirer</item>
+<item>Retirez</item>
+<item>tailler</item>
+<item>taillez</item>
+<item>Trempez</item>
+<item>vous en</item>
+<item>émincer</item>
+<item>battez</item>
+<item>couper</item>
+<item>coupez</item>
+<item>Coupez</item>
+<item>cuisez</item>
+<item>de jus</item>
+<item>Evidez</item>
+<item>faites</item>
+<item>Faites</item>
+<item>faites</item>
+<item>garnir</item>
+<item>Hachez</item>
+<item>mettez</item>
+<item>mettre</item>
+<item>Nappez</item>
+<item>passer</item>
+<item>passez</item>
+<item>permet</item>
+<item>placer</item>
+<item>placez</item>
+<item>Placez</item>
+<item>Placez</item>
+<item>portez</item>
+<item>Prenez</item>
+<item>retire</item>
+<item>rouler</item>
+<item>roulez</item>
+<item>servez</item>
+<item>Servez</item>
+<item>servir</item>
+<item>verser</item>
+<item>versez</item>
+<item>Versez</item>
+<item>étuvez</item>
+<item>cuire</item>
+<item>faire</item>
+<item>laver</item>
+<item>Lavez</item>
+<item>mixez</item>
+<item>peler</item>
+<item>pelez</item>
+<item>posez</item>
+<item>Quand</item>
+<item>saler</item>
+<item>salez</item>
+<item>Salez</item>
+<item>dans</item>
+<item>Otez</item>
+<item>sous</item>
     </string-array>
 </resources>

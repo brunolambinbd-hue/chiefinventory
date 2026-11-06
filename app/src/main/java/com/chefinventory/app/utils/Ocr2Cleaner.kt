@@ -61,7 +61,13 @@ object Ocr2Cleaner {
             ocrNoiseExclusions = ocrNoiseExclusions,
             protectedSectionHeaders = defaultVocab.protectedSectionHeaders,
             timeHeaderPrefixes = defaultVocab.timeHeaderPrefixes,
-            timeHeaderKeywords = defaultVocab.timeHeaderKeywords
+            timeHeaderKeywords = defaultVocab.timeHeaderKeywords,
+            ocr2TechnicalDimensionKeywords = defaultVocab.ocr2TechnicalDimensionKeywords,
+            logOcr2CleanerSourceCaptured = defaultVocab.logOcr2CleanerSourceCaptured,
+            logOcr2CleanerNoiseRemoved = defaultVocab.logOcr2CleanerNoiseRemoved,
+            logOcr2CleanerAdLineRemoved = defaultVocab.logOcr2CleanerAdLineRemoved,
+            logOcr2CleanerAdPrefixRemoved = defaultVocab.logOcr2CleanerAdPrefixRemoved,
+            logOcr2CleanerExcludedKeywordRemoved = defaultVocab.logOcr2CleanerExcludedKeywordRemoved
         )
         return cleanWithVocabulary(lines, vocab).cleanedLines
     }
@@ -112,7 +118,7 @@ object Ocr2Cleaner {
             val extractedSource = Ocr2CleanerAdSourceExtractor.extractSourceFromAdLine(trimmed, vocabulary)
             if (extractedSource != null && extractedSource !in earlySources) {
                 earlySources.add(extractedSource)
-                LogManager.d(TAG, "CLEANER: Source précoce capturée depuis bannière -> $extractedSource")
+                LogManager.d(TAG, String.format(vocabulary.logOcr2CleanerSourceCaptured, extractedSource))
             }
 
             // 1. PASSE 1 : Filtrage du bruit de scan OCR et artefacts d'images (ocr_noise_exclusions.xml)
@@ -120,7 +126,7 @@ object Ocr2Cleaner {
                 noise.isNotBlank() && trimmed.equals(noise.trim(), ignoreCase = true)
             }
             if (isOcrNoise) {
-                LogManager.d(TAG, "CLEANER: Bruit de scan OCR supprimé -> $trimmed")
+                LogManager.d(TAG, String.format(vocabulary.logOcr2CleanerNoiseRemoved, trimmed))
                 continue
             }
 
@@ -139,10 +145,10 @@ object Ocr2Cleaner {
 
                         if (remaining.isEmpty() || remaining.length <= 8) {
                             isFullAdLine = true
-                            LogManager.d(TAG, "CLEANER: Ligne publicitaire supprimée -> $trimmed")
+                            LogManager.d(TAG, String.format(vocabulary.logOcr2CleanerAdLineRemoved, trimmed))
                             break
                         } else {
-                            LogManager.d(TAG, "CLEANER: Préfixe publicitaire effacé de -> $trimmed")
+                            LogManager.d(TAG, String.format(vocabulary.logOcr2CleanerAdPrefixRemoved, trimmed))
                             trimmed = remaining
                         }
                     }
@@ -162,7 +168,7 @@ object Ocr2Cleaner {
 
             val isExcluded = !isProtectedHeader && vocabulary.excludedOcrKeywords.any { it.equals(trimmed, ignoreCase = true) }
             if (isExcluded) {
-                LogManager.d(TAG, "CLEANER: Mot-clé exclu supprimé -> $trimmed")
+                LogManager.d(TAG, String.format(vocabulary.logOcr2CleanerExcludedKeywordRemoved, trimmed))
                 continue
             }
 
@@ -179,12 +185,14 @@ object Ocr2Cleaner {
      * Détermine si une ligne de texte représente une dimension technique plutôt qu'un ingrédient (ex : "5 mm sur 5 mm").
      *
      * @param line La ligne de texte à analyser.
+     * @param vocabulary Le vocabulaire métier OCR.
      * @return `true` si la ligne représente une dimension technique, `false` sinon.
      */
-    fun isTechnicalDimension(line: String): Boolean {
+    fun isTechnicalDimension(line: String, vocabulary: OcrVocabulary = OcrVocabularyLoader.loadFromProjectResources()): Boolean {
         val lower = line.lowercase()
         val isDimensionMatch = OcrRegexes.Cleaner.TECHNICAL_DIMENSION.containsMatchIn(line)
-        val hasTechnicalContext = lower.contains("sur") || lower.contains("x") || lower.contains("de haut") || lower.contains("de large") || lower.contains("d'épaisseur") || lower.contains("tronçon") || lower.contains("troncon")
+        val dimensionKeywords = vocabulary.ocr2TechnicalDimensionKeywords
+        val hasTechnicalContext = dimensionKeywords.any { lower.contains(it.lowercase()) }
 
         return isDimensionMatch && hasTechnicalContext
     }

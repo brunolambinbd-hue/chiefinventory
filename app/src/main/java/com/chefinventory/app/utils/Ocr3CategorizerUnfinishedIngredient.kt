@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Assistant dédié à la détection et à la fusion des lignes de quantités d'ingrédients inachevées lors de l'Étape 3 (Catégorisation).
@@ -45,15 +45,14 @@ object Ocr3CategorizerUnfinishedIngredient {
         // 1. Analyse du nom de la dernière ligne
         val parsedLast = IngredientParser.parse(lastRawIng, vocabulary.culinaryMeasurementUnits)
 
-        // S'il existe déjà un véritable nom d'ingrédient (ex: "persil" dans "2 c. à soupe de persil haché", "pain" dans "1 baguette de pain gris"), la ligne est complète !
-        val stopUnits = listOf("soupe", "café", "cafe", "verre", "pincée", "pincee", "gousse", "gousses", "botte", "sachet", "sachets", "bocal", "bocaux", "tranche", "tranches", "branche", "branches")
+        // S'il existe déjà un véritable nom d'ingrédient (ex: "persil" dans "2 c. à soupe de persil haché"), la ligne est complète !
+        val units = vocabulary.culinaryMeasurementUnits
         val hasIngredientNoun = parsedLast.name.isNotBlank() &&
             parsedLast.name.split(Regex("[\\s,.'’()\\-*•/0-9]+")).any { word ->
                 val cleanWord = word.lowercase().replace(Regex("[^\\p{L}]"), "")
                 cleanWord.length >= 3 &&
-                cleanWord !in stopUnits &&
-                vocabulary.ingredientPreparationModifiers.none { mod -> mod.equals(cleanWord, ignoreCase = true) } &&
-                vocabulary.culinaryMeasurementUnits.none { unit -> unit.equals(cleanWord, ignoreCase = true) }
+                units.none { unit -> unit.equals(cleanWord, ignoreCase = true) } &&
+                vocabulary.ingredientPreparationModifiers.none { mod -> mod.equals(cleanWord, ignoreCase = true) }
             }
 
         if (hasIngredientNoun) {
@@ -77,8 +76,7 @@ object Ocr3CategorizerUnfinishedIngredient {
         }
 
         // Test 3 : Se termine par une unité culinaire isolée
-        val baseUnits = listOf("soupe", "café", "cafe", "c. à soupe", "c. à café", "cuillère à soupe", "cuillère à café", "cuillere a soupe", "cuillere a cafe", "c.", "c", "cuillère", "cuillères", "cuillere", "cuilleres", "g.", "g", "kg", "cl", "ml", "dl", "l.", "l", "pincée", "gousse", "gousses", "botte", "sachet", "sachets", "bocal", "bocaux", "tranche", "tranches", "branche", "branches")
-        val allUnits = (baseUnits + vocabulary.culinaryMeasurementUnits.map { it.lowercase() }).distinct()
+        val allUnits = vocabulary.culinaryMeasurementUnits.map { it.lowercase() }.distinct()
 
         val endsWithUnit = allUnits.any { unit ->
             val cleanUnit = unit.trim().lowercase()
@@ -88,7 +86,7 @@ object Ocr3CategorizerUnfinishedIngredient {
         if (isBlankName || endsWithUnit || isModifierName) {
             val lastIdx = rawIngredientsList.lastIndex
             rawIngredientsList[lastIdx] = "$lastRawIng $workingLine"
-            val parsedNew = IngredientParser.parse(rawIngredientsList[lastIdx])
+            val parsedNew = IngredientParser.parse(rawIngredientsList[lastIdx], vocabulary.culinaryMeasurementUnits)
             if (parsedNew.name.isNotBlank()) {
                 val rawWords = parsedNew.name.split(Regex("[\\s,.'’()\\-*•/0-9]+"))
                 val keywords = rawWords.filter { word ->
@@ -100,9 +98,13 @@ object Ocr3CategorizerUnfinishedIngredient {
                 }
                 seenIngredientKeywords.addAll(keywords)
             } else {
-                Log.d(TAG, "  [FUSION UNITÉ INCOMPLÈTE] Nom d'ingrédient toujours vide après fusion ('${rawIngredientsList[lastIdx]}')")
+                if (vocabulary.logOcr3UnfinishedIngrStillEmpty.isNotBlank()) {
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3UnfinishedIngrStillEmpty, rawIngredientsList[lastIdx]))
+                }
             }
-            Log.d(TAG, "  [FUSION UNITE INCOMPLÈTE] Appended: '$workingLine' -> New line: '${rawIngredientsList[lastIdx]}'")
+            if (vocabulary.logOcr3UnfinishedIngrFused.isNotBlank()) {
+                LogManager.d(TAG, String.format(vocabulary.logOcr3UnfinishedIngrFused, workingLine, rawIngredientsList[lastIdx]))
+            }
             return true
         }
 

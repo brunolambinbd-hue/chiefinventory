@@ -1,51 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="instruction_switch_keywords">
-        <!-- Connecteurs temporels et logiques -->
-        <item>pendant</item>
-        <item>jusqu\'à</item>
-        <item>jusqu\’à</item>
-        <item>ensuite</item>
-        <item>puis</item>
-        <item>ainsi</item>
-        <item>alors</item>
-        <item>lorsque</item>
-        <item>quand</item>
-
-        <!-- Lieux et outils de cuisson -->
-        <item>four</item>
-        <item>poêle</item>
-        <item>casserole</item>
-        <item>saladier</item>
-        <item>réfrigérateur</item>
-
-        <!-- Verbes à l'infinitif (souvent instructions) -->
-        <item>réserver</item>
-        <item>servir</item>
-        <item>cuire</item>
-        <item>laisser</item>
-        <item>obtenir</item>
-
-        <!-- Contextes narratifs -->
-        <item>décoration</item>
-        <item>accompagnement</item>
-        <item>astuce</item>
-        <item>note</item>
-        <item>attention</item>
-        <item>chaud</item>
-        <item>froid</item>
-        <item>tiède</item>
-        <item>environ</item>
-        <item>minutes</item>
-        <item>heures</item>
-        <item>à feu doux</item>
-        <item>à l\'aide</item>
-        <item>Croquantes</item>
-
-        <!-- Connecteurs de fin de phrase -->
-        <item>personne</item>
-        <item>personnes</item>
-        <item>et au</item>
-        <item>et aux</item>
+<item>accompagnement</item>
+<item>réfrigérateur</item>
+<item>Croquantes</item>
+<item>décoration</item>
+<item>à feu doux</item>
+<item>attention</item>
+<item>casserole</item>
+<item>personnes</item>
+<item>jusqu\’à</item>
+<item>personne</item>
+<item>réserver</item>
+<item>saladier</item>
+<item>à l\'aide</item>
+<item>ensuite</item>
+<item>environ</item>
+<item>jusqu\'à</item>
+<item>laisser</item>
+<item>lorsque</item>
+<item>minutes</item>
+<item>obtenir</item>
+<item>pendant</item>
+<item>astuce</item>
+<item>et aux</item>
+<item>heures</item>
+<item>servir</item>
+<item>ainsi</item>
+<item>alors</item>
+<item>chaud</item>
+<item>cuire</item>
+<item>et au</item>
+<item>froid</item>
+<item>poêle</item>
+<item>quand</item>
+<item>tiède</item>
+<item>four</item>
+<item>note</item>
+<item>puis</item>
     </string-array>
 </resources>

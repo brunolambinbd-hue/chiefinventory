@@ -38,9 +38,10 @@ object Ocr3Categorizer {
      */
     fun categorize(lines: List<String>, vocabulary: OcrVocabulary): RawSections {
         val isNarrative = Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(lines, vocabulary)
-        Log.d(TAG, "DÉTECTION TYPE RECETTE: isNarrativeInstructionOnlyRecipe = $isNarrative")
         if (isNarrative) {
-            Log.d(TAG, "  => ACTIVER DÉLÉGATION NARRATIVE TYPE 2 (Ocr3NarrativeCategorizer)")
+            if (vocabulary.logOcr3CategorizerNarrativeDelegation.isNotBlank()) {
+                Log.d(TAG, vocabulary.logOcr3CategorizerNarrativeDelegation)
+            }
             return Ocr3NarrativeCategorizer.categorizeNarrativeRecipe(lines, vocabulary)
         }
 
@@ -50,7 +51,9 @@ object Ocr3Categorizer {
         val wineState = Ocr3CategorizerWine.WineState()
         val seenIngredientKeywords = mutableSetOf<String>()
 
-        Log.d(TAG, "--- DÉBUT CATÉGORISATION ---")
+        if (vocabulary.logOcr3CategorizerStart.isNotBlank()) {
+            Log.d(TAG, vocabulary.logOcr3CategorizerStart)
+        }
 
         // === DEBUT BLOC 0 : Dictionnaires & Compilations Regex ===
         val ctx = Ocr3Categorizer0_Context.processBlock0_CategorizationContext(vocabulary)
@@ -131,7 +134,11 @@ object Ocr3Categorizer {
         }
         results.detectedWineList.addAll(wineState.detectedWineList)
         results.ingredientKeywords = seenIngredientKeywords
-        Log.d(TAG, "--- FIN CATÉGORISATION ---")
+
+        if (vocabulary.logOcr3CategorizerEnd.isNotBlank()) {
+            Log.d(TAG, vocabulary.logOcr3CategorizerEnd)
+        }
+
         return results
     }
 

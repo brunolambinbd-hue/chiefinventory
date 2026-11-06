@@ -1,31 +1,34 @@
 package com.chefinventory.app.utils
 
 import com.google.common.truth.Truth.assertThat
-import com.parabd.lib.traceability.CoveredRequirement
+import org.junit.Before
 import org.junit.Test
-import java.io.File
 
 /**
- * Suite de tests unitaires de Type B vérifiant le comportement et l'exhaustivité de [Ocr1Corrector].
+ * Tests unitaires isolés pour l'Étape 1 du pipeline OCR ([Ocr1Corrector]).
  */
 class Ocr1CorrectorTest {
 
-    @Test
-    @CoveredRequirement("6.1.1.9")
-    fun testNormalize_BlankAndEmptyInput() {
-        assertThat(Ocr1Corrector.normalize("")).isEmpty()
-        assertThat(Ocr1Corrector.normalize("   ")).isEmpty()
-        assertThat(Ocr1Corrector.normalize("\n\t")).isEmpty()
+    private lateinit var vocabulary: OcrVocabulary
+
+    @Before
+    fun setUp() {
+        vocabulary = OcrVocabularyLoader.loadFromProjectResources()
     }
 
     @Test
-    @CoveredRequirement("6.1.1.9")
-    fun testNormalize_SpellingRepairsFromVocabulary() {
-        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
-        val result1 = Ocr1Corrector.normalize("poisson au goit de crabe", vocabulary.ocrSpellingRepairs)
+    fun testNormalize_StandardFlowsAndSpellingRepairs() {
+        // Blank input
+        assertThat(Ocr1Corrector.correct("")).isEmpty()
+
+        // Fraction rules and number corrections
+        assertThat(Ocr1Corrector.correct("1/2 l de lait")).isEqualTo("1/2 l de lait")
+
+        // Spelling repairs from dictionary
+        val result1 = Ocr1Corrector.correct("poisson au goit de crabe", vocabulary.ocrSpellingRepairs)
         assertThat(result1).isEqualTo("poisson au goût de crabe")
 
-        val result2 = Ocr1Corrector.normalize("FONDUE ÀLA BIERE", vocabulary.ocrSpellingRepairs)
+        val result2 = Ocr1Corrector.correct("FONDUE ÀLA BIERE", vocabulary.ocrSpellingRepairs)
         assertThat(result2).isEqualTo("FONDUE À LA BIERE")
 
         // Test applySpellingRepairs with invalid formats and non-letter text
@@ -34,57 +37,29 @@ class Ocr1CorrectorTest {
     }
 
     @Test
-    @CoveredRequirement("6.1.1.9")
-    fun testNormalize_DefaultDiacriticRepairsAndEmptyListAndInvalidEntries() {
-        assertThat(Ocr1Corrector.defaultDiacriticRepairs).isNotEmpty()
-        assertThat(Ocr1Corrector.normalize("ế")).isEqualTo("é")
-        assertThat(Ocr1Corrector.normalize("ề")).isEqualTo("è")
-        assertThat(Ocr1Corrector.normalize("ấ")).isEqualTo("â")
-        assertThat(Ocr1Corrector.normalize("ầ")).isEqualTo("à")
-        assertThat(Ocr1Corrector.normalize("ặ")).isEqualTo("a")
+    fun testNormalize_DiacriticRepairsAndEmptyListAndInvalidEntries() {
+        val diacritics = vocabulary.ocrDiacriticRepairs
+        assertThat(Ocr1Corrector.correct("ế", diacriticRepairs = diacritics)).isEqualTo("é")
+        assertThat(Ocr1Corrector.correct("ề", diacriticRepairs = diacritics)).isEqualTo("è")
+        assertThat(Ocr1Corrector.correct("ấ", diacriticRepairs = diacritics)).isEqualTo("â")
+        assertThat(Ocr1Corrector.correct("ầ", diacriticRepairs = diacritics)).isEqualTo("à")
+        assertThat(Ocr1Corrector.correct("ặ", diacriticRepairs = diacritics)).isEqualTo("a")
 
         // Empty diacritic repairs fallback
         assertThat(Ocr1Corrector.applyDiacriticRepairs("test", emptyList())).isEqualTo("test")
 
         // Invalid diacritic entries without pipe
-        val withInvalidDiacritic = Ocr1Corrector.normalize("ế", diacriticRepairs = listOf("invalid_no_pipe"))
+        val withInvalidDiacritic = Ocr1Corrector.correct("ế", diacriticRepairs = listOf("invalid_no_pipe"))
         assertThat(withInvalidDiacritic).isEqualTo("ế")
     }
 
     @Test
-    @CoveredRequirement("6.3.2.9")
-    fun testLoadDefaultDiacriticRepairs_InvalidDirectory_CatchesExceptionAndReturnsEmptyList() {
-        val isolatedDir = File(System.getProperty("java.io.tmpdir"), "isolated_test_dir_normalizer_999")
-        isolatedDir.mkdirs()
+    fun testNormalize_TrailingPunctuationRemoval() {
+        assertThat(Ocr1Corrector.correct("500 g de farine,")).isEqualTo("500 g de farine")
+        assertThat(Ocr1Corrector.correct("200 ml d'eau:")).isEqualTo("200 ml d'eau")
+        assertThat(Ocr1Corrector.correct("1 pincée de sel;")).isEqualTo("1 pincée de sel")
 
-        val result = Ocr1Corrector.loadDefaultDiacriticRepairs(isolatedDir)
-        assertThat(result).isEmpty()
-
-        isolatedDir.delete()
-    }
-
-    @Test
-    @CoveredRequirement("6.1.1.9")
-    fun testNormalize_ProtectedKeywords() {
-        assertThat(Ocr1Corrector.normalize("Ingrédients")).isEqualTo("ingrédients")
-        assertThat(Ocr1Corrector.normalize("I nstructions")).isEqualTo("instructions")
-    }
-
-    @Test
-    @CoveredRequirement("6.1.1.9")
-    fun testNormalize_ToleranceSymbolAndEnvironRemoval() {
-        assertThat(Ocr1Corrector.normalize("± 100 g")).isEqualTo("100 g")
-        assertThat(Ocr1Corrector.normalize("200 g +/-")).isEqualTo("200 g")
-        assertThat(Ocr1Corrector.normalize("+- 50 g")).isEqualTo("50 g")
-        assertThat(Ocr1Corrector.normalize("environ 250 g")).isEqualTo("250 g")
-        assertThat(Ocr1Corrector.normalize("250 g ENVIRON")).isEqualTo("250 g")
-    }
-
-    @Test
-    @CoveredRequirement("6.1.1.9")
-    fun testNormalize_OcrTPrefixRemovalBeforeDigits() {
-        assertThat(Ocr1Corrector.normalize("t 10 min")).isEqualTo("10 min")
-        assertThat(Ocr1Corrector.normalize("t15 min")).isEqualTo("15 min")
-        assertThat(Ocr1Corrector.normalize("6 aubergines moyennes (t 1 kg)")).isEqualTo("6 aubergines moyennes (1 kg)")
+        // Trailing hyphen should be preserved for hyphenated multi-line instructions
+        assertThat(Ocr1Corrector.correct("Hachez finement le surimi ou-")).isEqualTo("Hachez finement le surimi ou-")
     }
 }

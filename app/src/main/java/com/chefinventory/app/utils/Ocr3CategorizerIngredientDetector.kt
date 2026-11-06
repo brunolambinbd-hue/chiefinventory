@@ -63,12 +63,16 @@ object Ocr3CategorizerIngredientDetector {
         if (OcrTextUtils.isExcluded(cleaned, excludedKeywords)) return ""
         if (OcrTextUtils.isExcluded(cleaned, semanticExclusions)) return ""
 
+        val activeArticles = if (standaloneArticles.isNotEmpty()) {
+            standaloneArticles
+        } else {
+            OcrVocabularyLoader.loadFromProjectResources().standaloneArticles
+        }
+
         val words = cleaned.split(Regex("\\s+"))
         if (words.size == 1) {
             val cleanWord = words[0].lowercase().replace(Regex("[^\\p{L}]"), "")
-            val baseArticles = setOf("du", "de", "des", "le", "la", "les", "un", "une", "au", "aux", "en", "par", "pour", "sur", "ce", "cette", "ces", "sa", "son", "ses")
-            val allArticles = baseArticles + standaloneArticles.map { it.lowercase() }
-            if (cleanWord in allArticles) {
+            if (activeArticles.any { it.equals(cleanWord, ignoreCase = true) }) {
                 return ""
             }
         }

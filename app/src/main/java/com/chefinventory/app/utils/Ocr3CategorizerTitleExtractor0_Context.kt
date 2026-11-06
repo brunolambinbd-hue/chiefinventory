@@ -10,18 +10,21 @@ object Ocr3CategorizerTitleExtractor0_Context {
      * Extraie les mots des noms d'ingrédients présents sur la fiche scannée de la recette.
      *
      * @param lines La liste des lignes brutes de la recette.
+     * @param vocabulary Le vocabulaire métier data-driven.
      * @return L'ensemble des mots significatifs d'ingrédients de longueur >= 3.
      */
-    internal fun extractRecipeIngredientWords(lines: List<String>): Set<String> {
+    internal fun extractRecipeIngredientWords(lines: List<String>, vocabulary: OcrVocabulary? = null): Set<String> {
         val ingredientNameWords = mutableSetOf<String>()
-        val ignoreWords = setOf("pour", "personnes", "portions", "cuillere", "soupe", "cafe", "pincee", "gousses", "grammes", "kilo")
+        val activeVocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
+        val ignoreWords = (activeVocab.culinaryMeasurementUnits + activeVocab.standaloneArticles).map { it.lowercase().trim() }.toSet()
+
         for (line in lines) {
             val trimmed = line.trim()
             if (trimmed.isEmpty()) continue
             val startsDigit = OcrRegexes.Titles.STARTS_WITH_DIGIT.containsMatchIn(trimmed)
             val hasUnitWord = OcrRegexes.Titles.INGREDIENT_UNIT_WORD.containsMatchIn(trimmed)
             if (startsDigit || hasUnitWord) {
-                val parsed = IngredientParser.parse(trimmed)
+                val parsed = IngredientParser.parse(trimmed, activeVocab.culinaryMeasurementUnits)
                 if (parsed.name.isNotBlank()) {
                     val words = parsed.name.split(OcrRegexes.Titles.PUNCTUATION_SPLIT)
                         .map { it.lowercase().trim() }
@@ -66,13 +69,9 @@ object Ocr3CategorizerTitleExtractor0_Context {
      * @param vocabulary Le vocabulaire métier data-driven (`ocr_step25_title_repairs.xml`).
      * @return Le premier mot d'ingrédient significatif trouvé, ou null.
      */
-    internal fun findFirstIngredientWord(lines: List<String>, vocabulary: OcrVocabulary?): String? {
-        val defaultStop = listOf("de", "du", "des", "d'", "la", "le", "les", "pour")
-        val stopWords = if (vocabulary != null && vocabulary.standaloneArticles.isNotEmpty()) {
-            vocabulary.standaloneArticles.map { it.trim().lowercase() }
-        } else {
-            defaultStop.map { it.trim().lowercase() }
-        }
+    internal fun findFirstIngredientWord(lines: List<String>, vocabulary: OcrVocabulary? = null): String? {
+        val activeVocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
+        val stopWords = activeVocab.standaloneArticles.map { it.trim().lowercase() }
 
         for (line in lines) {
             val trimmed = line.trim()
@@ -80,7 +79,7 @@ object Ocr3CategorizerTitleExtractor0_Context {
             val startsDigit = OcrRegexes.Titles.STARTS_WITH_DIGIT.containsMatchIn(trimmed)
             val hasUnitWord = OcrRegexes.Titles.INGREDIENT_UNIT_WORD.containsMatchIn(trimmed)
             if (startsDigit || hasUnitWord) {
-                val parsed = IngredientParser.parse(trimmed)
+                val parsed = IngredientParser.parse(trimmed, activeVocab.culinaryMeasurementUnits)
                 val word = extractFirstIngredientNameWord(parsed.name, stopWords)
                 if (word != null) {
                     return word
@@ -88,9 +87,5 @@ object Ocr3CategorizerTitleExtractor0_Context {
             }
         }
         return null
-    }
-
-    internal fun findFirstIngredientWord(lines: List<String>): String? {
-        return findFirstIngredientWord(lines, null)
     }
 }

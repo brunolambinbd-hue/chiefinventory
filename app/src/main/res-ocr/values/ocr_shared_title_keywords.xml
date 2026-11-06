@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="title_keywords">
-        <item>artichauts</item>
-        <item>artichaut</item>
-        <item>aubergines</item>
-        <item>aubergine</item>
-        <item>avocat</item>
-        <item>salade</item>
-        <item>soupe</item>
-        <item>crevettes</item>
-        <item>crabe</item>
-        <item>mangue</item>
-        <item>poulet</item>
-        <item>saumon</item>
-        <item>poisson</item>
-        <item>tartare</item>
-        <item>carpaccio</item>
-        <item>quiche</item>
-        <item>velouté</item>
-        <item>tarte</item>
-        <item>gratin</item>
-        <item>terrine</item>
-        <item>mousse</item>
-        <item>moules</item>
-        <item>saint-jacques</item>
-        <item>vinaigrette</item>
-        <item>échalotes</item>
-        <item>echalotes</item>
-        <item>tomates</item>
-        <item>chicon</item>
-        <item>princesses</item>
-        <item>chocolat</item>
-        <item>surimi</item>
-        <item>blé</item>
-        <item>ble</item>
-        <item>pommes</item>
-        <item>poires</item>
-        <item>canapés</item>
-        <item>canapé</item>
-        <item>ricotta</item>
-        <item>épinards</item>
-        <item>fondue</item>
-        <item>concombre</item>
-        <item>concombres</item>
-        <item>roulade</item>
-        <item>roulades</item>
-        <item>roulé</item>
-        <item>roulés</item>
+<item>saint-jacques</item>
+<item>vinaigrette</item>
+<item>artichauts</item>
+<item>aubergines</item>
+<item>concombres</item>
+<item>princesses</item>
+<item>artichaut</item>
+<item>aubergine</item>
+<item>carpaccio</item>
+<item>concombre</item>
+<item>crevettes</item>
+<item>echalotes</item>
+<item>échalotes</item>
+<item>chocolat</item>
+<item>roulades</item>
+<item>épinards</item>
+<item>canapés</item>
+<item>poisson</item>
+<item>ricotta</item>
+<item>roulade</item>
+<item>tartare</item>
+<item>terrine</item>
+<item>tomates</item>
+<item>velouté</item>
+<item>avocat</item>
+<item>canapé</item>
+<item>chicon</item>
+<item>fondue</item>
+<item>gratin</item>
+<item>mangue</item>
+<item>moules</item>
+<item>mousse</item>
+<item>poires</item>
+<item>pommes</item>
+<item>poulet</item>
+<item>quiche</item>
+<item>roulés</item>
+<item>salade</item>
+<item>saumon</item>
+<item>surimi</item>
+<item>crabe</item>
+<item>roulé</item>
+<item>soupe</item>
+<item>tarte</item>
+<item>ble</item>
+<item>blé</item>
     </string-array>
 </resources>

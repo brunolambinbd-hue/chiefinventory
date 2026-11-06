@@ -2,25 +2,25 @@
 <resources>
     <!-- Articles et prépositions isolés ne pouvant pas exister comme ligne d'ingrédient ou d'instruction -->
     <string-array name="standalone_articles">
-        <item>du</item>
-        <item>de</item>
-        <item>des</item>
-        <item>le</item>
-        <item>la</item>
-        <item>les</item>
-        <item>un</item>
-        <item>une</item>
-        <item>au</item>
-        <item>aux</item>
-        <item>en</item>
-        <item>par</item>
-        <item>pour</item>
-        <item>sur</item>
-        <item>ce</item>
-        <item>cette</item>
-        <item>ces</item>
-        <item>sa</item>
-        <item>son</item>
-        <item>ses</item>
+<item>cette</item>
+<item>pour</item>
+<item>aux</item>
+<item>ces</item>
+<item>des</item>
+<item>les</item>
+<item>par</item>
+<item>ses</item>
+<item>son</item>
+<item>sur</item>
+<item>une</item>
+<item>au</item>
+<item>ce</item>
+<item>de</item>
+<item>du</item>
+<item>en</item>
+<item>la</item>
+<item>le</item>
+<item>sa</item>
+<item>un</item>
     </string-array>
 </resources>

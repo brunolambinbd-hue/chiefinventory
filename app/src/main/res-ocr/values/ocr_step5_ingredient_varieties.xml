@@ -2,38 +2,38 @@
 <resources>
     <!-- Qualificatifs de variété d'ingrédient ne pouvant pas exister isolés sur une ligne -->
     <string-array name="ingredient_variety_qualifiers">
-        <item>princesses</item>
-        <item>verts</item>
-        <item>rouges</item>
-        <item>blancs</item>
-        <item>grises</item>
-        <item>roses</item>
-        <item>décortiquées</item>
-        <item>nature</item>
-        <item>grec</item>
-        <item>frais</item>
-        <item>séchés</item>
-        <item>secs</item>
-        <item>de terre</item>
-        <item>fumé</item>
-        <item>cru</item>
-        <item>crus</item>
-        <item>italien</item>
-        <item>italienne</item>
+<item>décortiquées</item>
+<item>princesses</item>
+<item>italienne</item>
+<item>de terre</item>
+<item>italien</item>
+<item>blancs</item>
+<item>grises</item>
+<item>nature</item>
+<item>rouges</item>
+<item>séchés</item>
+<item>frais</item>
+<item>roses</item>
+<item>verts</item>
+<item>crus</item>
+<item>fumé</item>
+<item>grec</item>
+<item>secs</item>
+<item>cru</item>
     </string-array>
 
     <!-- Noms d'ingrédients de base appelant très souvent une variété ou précision -->
     <string-array name="base_ingredients_expecting_variety">
-        <item>haricots</item>
-        <item>crevettes</item>
-        <item>poivrons</item>
-        <item>chou</item>
-        <item>yaourt</item>
-        <item>saumon</item>
-        <item>pommes</item>
-        <item>riz</item>
-        <item>pâtes</item>
-        <item>pates</item>
-        <item>jambon</item>
+<item>crevettes</item>
+<item>haricots</item>
+<item>poivrons</item>
+<item>jambon</item>
+<item>pommes</item>
+<item>saumon</item>
+<item>yaourt</item>
+<item>pates</item>
+<item>pâtes</item>
+<item>chou</item>
+<item>riz</item>
     </string-array>
 </resources>

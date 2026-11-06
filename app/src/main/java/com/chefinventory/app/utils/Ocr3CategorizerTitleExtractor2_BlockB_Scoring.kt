@@ -1,13 +1,10 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
-
 /**
  * Sous-composant du Bloc B de l'Étape 3 : Filtrage (`isBaseCandidate`) et Scoring (`evaluateScore`) des candidats titres pour [Ocr3CategorizerTitleExtractor].
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
-    private const val TAG = "Ocr3TitleExtractor2_BlockB"
 
     /**
      * Détermine si la ligne constitue une ébauche de candidat titre valide d'après les critères fondamentaux.
@@ -52,11 +49,7 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
             val isExcludedKeyword = vocabulary.excludedOcrKeywords.any { it.equals(trimmed, ignoreCase = true) }
             if (isExcludedKeyword) {
                 return false
-            } else {
-                Log.d(TAG, "  [OK] Pas de mot-clé d'exclusion OCR")
             }
-        } else {
-            Log.d(TAG, "  [OK] Liste de mots-clés d'exclusion vide")
         }
 
         val cleanIngName = trimmed.replace(OcrRegexes.Titles.DE_PREFIX_FULL, "").trim()
@@ -72,28 +65,24 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
 
         if (Ocr3CategorizerWine.isWineLine(trimmed, vocabulary)) return false
 
-        val invalidPrefixes = setOf(
-            "d'", "l'", "de ", "du ", "des ", "de la ", "de l'", "ou ", "à ", "a ",
-            "tranches de ", "tranche de ", "quelques ", "plusieurs ", "ingrédients",
-            "ingredients", "préparation", "cuisson", "repos", "pour ", "le jus", "jus de"
-        )
-        if (invalidPrefixes.any { lower.startsWith(it) }) return false
+        val headersAndTimes = (vocabulary.ocr1ProtectedIngredientsHeaders + vocabulary.ocr1ProtectedInstructionsHeaders + vocabulary.timeHeaderKeywords)
+            .map { it.lowercase().trim() }
+        val connectors = (vocabulary.standaloneArticles + vocabulary.ingredientConnectors)
+            .map { it.lowercase().trim() }
+            .flatMap { listOf("$it ", "$it'", "$it’") }
+        val invalidPrefixes = (headersAndTimes + connectors + listOf("tranches de ", "tranche de ", "quelques ", "plusieurs ", "le jus", "jus de")).distinct()
+
+        if (invalidPrefixes.any { prefix -> lower.startsWith(prefix) }) return false
 
         val hasPersonnes = lower.contains("personnes")
-        if (hasPersonnes) {
+        val hasPortions = lower.contains("portions")
+        if (hasPersonnes || hasPortions) {
             return false
-        } else {
-            val hasPortions = lower.contains("portions")
-            if (hasPortions) {
-                return false
-            } else {
-                Log.d(TAG, "  [OK] Pas de mention de personnes/portions")
-            }
         }
 
         val lastWordList = lower.split(Regex("\\s+"))
         val lastWord = lastWordList.last()
-        val stopLastWords = (vocabulary.standaloneArticles + vocabulary.hangingConnectors + listOf("ce", "que")).map { it.trim().lowercase() }.distinct()
+        val stopLastWords = (vocabulary.standaloneArticles + vocabulary.hangingConnectors).map { it.trim().lowercase() }.distinct()
         if (lastWord in stopLastWords) return false
 
         val letterCount = trimmed.count { it.isLetter() }
@@ -139,14 +128,12 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         }
 
         // Critère 3 : Connecteurs de titre (et, aux, à la, au)
-        val defaultConnectors = listOf(" et ", " aux ", " à la ", " au ", " d'", " de ")
-        val rawConnectors = vocabulary.titleMultilineConnectors
-        val connectorsList = if (rawConnectors.isEmpty()) {
-            defaultConnectors
+        val connectorsList = if (vocabulary.titleMultilineConnectors.isNotEmpty()) {
+            vocabulary.titleMultilineConnectors
         } else {
-            rawConnectors
+            listOf("et", "aux", "à la", "au", "d'", "de")
         }
-        val connectors = connectorsList.map { " ${it.trim()} " }
+        val connectors = connectorsList.map { " ${it.trim().lowercase()} " }
         val matchedConnectors = connectors.filter { lower.contains(it) }
         if (matchedConnectors.isNotEmpty()) {
             val pts = matchedConnectors.size * 10

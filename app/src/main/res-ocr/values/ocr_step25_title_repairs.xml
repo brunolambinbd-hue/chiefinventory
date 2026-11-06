@@ -2,37 +2,37 @@
 <resources>
     <!-- Réparations orthographiques spécifiques aux lettrines et titres stylisés -->
     <string-array name="title_spelling_repairs">
-        <item>Danapés|Canapés</item>
-        <item>danapés|canapés</item>
-        <item>lelon|Melon</item>
-        <item>Lelon|Melon</item>
-        <item>Chits|Puits</item>
-        <item>chits|puits</item>
-        <item>Drabe|Crabe</item>
-        <item>drabe|crabe</item>
-        <item>Toocktail|Cocktail</item>
-        <item>Tocktail|Cocktail</item>
-        <item>Toctail|Cocktail</item>
-        <item>Büchettes|Bûchettes</item>
-        <item>Buchettes|Bûchettes</item>
+<item>Buchettes|Bûchettes</item>
+<item>Büchettes|Bûchettes</item>
+<item>Toocktail|Cocktail</item>
+<item>Tocktail|Cocktail</item>
+<item>Toctail|Cocktail</item>
+<item>Danapés|Canapés</item>
+<item>danapés|canapés</item>
+<item>Chits|Puits</item>
+<item>chits|puits</item>
+<item>Drabe|Crabe</item>
+<item>drabe|crabe</item>
+<item>lelon|Melon</item>
+<item>Lelon|Melon</item>
     </string-array>
 
     <!-- Connecteurs et prépositions de liaison pour titres multi-lignes -->
     <string-array name="title_multiline_connectors">
-        <item>au</item>
-        <item>aux</item>
-        <item>et</item>
-        <item>à la</item>
-        <item>a la</item>
-        <item>à</item>
-        <item>de</item>
-        <item>d\'</item>
-        <item>du</item>
-        <item>des</item>
-        <item>avec</item>
-        <item>sur</item>
-        <item>en</item>
-        <item>pour</item>
-        <item>façon</item>
+<item>façon</item>
+<item>a la</item>
+<item>avec</item>
+<item>pour</item>
+<item>à la</item>
+<item>aux</item>
+<item>des</item>
+<item>sur</item>
+<item>au</item>
+<item>d\'</item>
+<item>de</item>
+<item>du</item>
+<item>en</item>
+<item>et</item>
+<item>à</item>
     </string-array>
 </resources>

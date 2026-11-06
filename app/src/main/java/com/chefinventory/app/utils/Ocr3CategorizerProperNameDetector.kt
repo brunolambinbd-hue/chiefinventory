@@ -21,17 +21,16 @@ object Ocr3CategorizerProperNameDetector {
         if (words.size !in 2..4) return false
         if (trimmed.any { it.isDigit() }) return false
 
-        if (vocabulary != null) {
-            val foodConnectors = listOf(" et ", " ou ", " au ", " aux ", " avec ", " de ", " d'", " à ")
-            val containsConnector = foodConnectors.any { lower.contains(it) }
+        val activeVocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
 
-            val containsFoodWord = containsConnector ||
-                    vocabulary.commonIngredientsNoQty.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) } ||
-                    vocabulary.titleKeywords.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) } ||
-                    vocabulary.baseIngredientsExpectingVariety.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) }
+        val containsConnector = activeVocab.ingredientConnectors.any { lower.contains(" ${it.trim().lowercase()} ") || lower.contains(" ${it.trim().lowercase()}") }
 
-            if (containsFoodWord) return false
-        }
+        val containsFoodWord = containsConnector ||
+                activeVocab.commonIngredientsNoQty.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) } ||
+                activeVocab.titleKeywords.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) } ||
+                activeVocab.baseIngredientsExpectingVariety.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(lower) }
+
+        if (containsFoodWord) return false
 
         return words.all { word -> word[0].isUpperCase() }
     }

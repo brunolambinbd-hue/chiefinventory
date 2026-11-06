@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Sous-composant du Bloc E de l'Étape 3 : Effectue l'aiguillage final de la ligne vers la section INGREDIENTS ou INSTRUCTIONS avec rattrapage.
@@ -9,13 +9,33 @@ import android.util.Log
 object Ocr3Categorizer5_BlockE_Dispatch {
     private const val TAG = "Ocr3Categorizer5_BlockE"
 
-    internal fun isEndMarkerLine(lowerLine: String): Boolean {
-        val hasBothSaltPoivre = lowerLine.contains("sel") && lowerLine.contains("poivre")
-        if (hasBothSaltPoivre) return true
-        if (lowerLine == "sel") return true
-        return lowerLine == "poivre"
+    /**
+     * Détermine si la ligne représente un marqueur de fin de section d'ingrédients (ex: assaisonnement, sel, poivre).
+     *
+     * @param lowerLine La ligne nettoyée en minuscules.
+     * @param endMarkers La liste facultative des marqueurs de fin d'ingrédients (ex: de [OcrVocabulary.ingredientEndMarkers]).
+     * @return `true` si la ligne correspond à un marqueur de fin d'ingrédients, `false` sinon.
+     */
+    internal fun isEndMarkerLine(lowerLine: String, endMarkers: List<String> = emptyList()): Boolean {
+        val markers = if (endMarkers.isNotEmpty()) endMarkers else OcrVocabularyLoader.loadFromProjectResources().ingredientEndMarkers
+        return markers.any { marker ->
+            val lowerMarker = marker.lowercase()
+            lowerLine == lowerMarker || (lowerMarker.contains(" ") && lowerLine.contains(lowerMarker))
+        }
     }
 
+    /**
+     * Évalue si une ligne initialement classée en instruction doit être réorientée vers les ingrédients (rattrapage).
+     *
+     * @param isReappearance Indique s'il s'agit d'une réapparition d'un ingrédient déjà inventorisé.
+     * @param isHyphenatedInstruction Indique si la ligne se termine par une césure ou un connecteur de consigne.
+     * @param isEndMarkerLine Indique s'il s'agit d'un marqueur de fin de liste d'ingrédients.
+     * @param containsAction Indique la présence d'un verbe d'action culinaire.
+     * @param closedState L'état de verrouillage de la liste d'ingrédients.
+     * @param isStrictWithQty Indique si la ligne est un ingrédient strict accompagné d'une quantité.
+     * @param isCommonWithNoAction Indique s'il s'agit d'un ingrédient courant sans verbe d'action.
+     * @return `true` si la ligne doit être réorientée vers les ingrédients, `false` sinon.
+     */
     internal fun evaluateShouldPullBack(
         isReappearance: Boolean,
         isHyphenatedInstruction: Boolean,
@@ -71,31 +91,33 @@ object Ocr3Categorizer5_BlockE_Dispatch {
         results: RawSections,
         seenIngredientKeywords: MutableSet<String>
     ): Boolean {
-        val parsed = IngredientParser.parse(workingLine)
+        val parsed = IngredientParser.parse(workingLine, vocabulary.culinaryMeasurementUnits)
         var closedState = isIngredientListClosed
 
         when (currentSection) {
             Ocr3Categorizer.SECTION_INGREDIENTS -> {
-                if (Ocr2Cleaner.isTechnicalDimension(workingLine)) {
+                if (Ocr2Cleaner.isTechnicalDimension(workingLine, vocabulary)) {
                     return closedState
                 }
 
-                val isSaltPepperMarker = lowerLine.contains("sel") && lowerLine.contains("poivre")
+                val isSaltPepperMarker = vocabulary.ingredientEndMarkers.any { marker -> lowerLine.contains(marker.lowercase()) }
 
                 if (!containsAction) {
                     if (isSaltPepperMarker) {
                         closedState = true
-                        Log.d(TAG, "  [!] VERROU ACTIVÉ (Marqueur de fin sel/poivre détecté)")
+                        if (vocabulary.logOcr3BlockEDispatchLockActivated.isNotBlank()) {
+                            LogManager.d(TAG, vocabulary.logOcr3BlockEDispatchLockActivated)
+                        }
                     }
                 }
                 results.rawIngredientsList.add(workingLine)
                 val keywords = Ocr3Categorizer.extractKeywordsFromText(parsed.name, parsed.supplementalInfo)
                     .filter { kw -> vocabulary.ingredientPreparationModifiers.none { mod -> mod.equals(kw, ignoreCase = true) } }
                 seenIngredientKeywords.addAll(keywords)
-                Log.d(TAG, "  [INGR] Split: Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}', Info='${parsed.supplementalInfo}' | Keywords added: $keywords")
+                LogManager.d(TAG, String.format(vocabulary.logOcr3BlockEDispatchIngrSplit, parsed.quantity, parsed.unit, parsed.name, parsed.supplementalInfo, keywords))
             }
             Ocr3Categorizer.SECTION_INSTRUCTIONS -> {
-                val isTechDim = Ocr2Cleaner.isTechnicalDimension(workingLine)
+                val isTechDim = Ocr2Cleaner.isTechnicalDimension(workingLine, vocabulary)
                 val isIngrOrConnector = looksLikeIngredient || startsWithConnector
                 val isStrictIngredient = if (isIngrOrConnector && !containsAction) {
                     if (!isTechDim) {
@@ -107,7 +129,7 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                     false
                 }
 
-                val endMarkerLine = isEndMarkerLine(lowerLine)
+                val endMarkerLine = isEndMarkerLine(lowerLine, vocabulary.ingredientEndMarkers)
 
                 val isCommonIngredient = vocabulary.commonIngredientsNoQty.any { lowerLine.contains(it.lowercase()) }
                 val endsWithDash = workingLine.trimEnd().endsWith("-")
@@ -136,13 +158,16 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                 if (shouldPullBack) {
                     if (endMarkerLine) {
                         closedState = true
-                        Log.d(TAG, "  [!] VERROU ACTIVÉ DEPUIS RATTRAPAGE (Marqueur de fin détecté)")
+                        if (vocabulary.logOcr3BlockEDispatchLockActivated.isNotBlank()) {
+                            LogManager.d(TAG, vocabulary.logOcr3BlockEDispatchLockActivated)
+                        }
                     }
                     results.rawIngredientsList.add(workingLine)
                     seenIngredientKeywords.addAll(Ocr3Categorizer.extractKeywordsFromText(parsed.name, parsed.supplementalInfo))
-                    Log.d(TAG, "  [RATTRAPAGE] Split: Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}', Info='${parsed.supplementalInfo}'")
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3BlockEDispatchCatchup, workingLine))
                 } else {
                     results.rawInstructionsList.add(workingLine.replace(OcrRegexes.Beautifier.BULLET_PREFIX, "").trim())
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3BlockEDispatchInstrAdded, workingLine))
                 }
             }
             else -> {
@@ -150,9 +175,10 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                 if (isIngrCandidate) {
                     results.rawIngredientsList.add(workingLine)
                     seenIngredientKeywords.addAll(Ocr3Categorizer.extractKeywordsFromText(parsed.name, parsed.supplementalInfo))
-                    Log.d(TAG, "  [DEFAUT] Split: Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}', Info='${parsed.supplementalInfo}'")
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3BlockEDispatchIngrSplit, parsed.quantity, parsed.unit, parsed.name, parsed.supplementalInfo, ""))
                 } else {
                     results.rawInstructionsList.add(workingLine.replace(OcrRegexes.Beautifier.BULLET_PREFIX, "").trim())
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3BlockEDispatchInstrAdded, workingLine))
                 }
             }
         }

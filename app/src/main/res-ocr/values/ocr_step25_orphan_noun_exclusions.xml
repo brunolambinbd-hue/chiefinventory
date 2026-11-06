@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mots numériques et nombres exprimés en toutes lettres disqualifiant les noms orphelins (Étape 2.5/3 - Longest Match First) -->
+    <string-array name="orphan_noun_number_words">
+<item>quatre</item>
+<item>seize</item>
+<item>trois</item>
+<item>cinq</item>
+<item>deux</item>
+<item>huit</item>
+<item>neuf</item>
+<item>sept</item>
+<item>dix</item>
+<item>six</item>
+<item>une</item>
+<item>un</item>
+    </string-array>
+
+    <!-- Mots-morts, déterminants et bruits sémantiques exclus pour le complétement des noms orphelins de titres (Étape 2.5/3) -->
+    <string-array name="orphan_noun_stop_words">
+<item>melon</item>
+<item>avec</item>
+<item>dans</item>
+<item>pour</item>
+<item>tout</item>
+<item>des</item>
+<item>les</item>
+<item>par</item>
+<item>sur</item>
+    </string-array>
+</resources>

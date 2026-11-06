@@ -3,12 +3,11 @@ package com.chefinventory.app.utils
 import android.content.res.Resources
 import com.chefinventory.app.R
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class OcrVocabularyTest {
 
@@ -23,22 +22,22 @@ class OcrVocabularyTest {
             val paramCount = defaultConstructor.parameterCount
 
             val argsMask0 = Array<Any?>(paramCount) { i ->
-                when (i) {
-                    16 -> ""
-                    paramCount - 3 -> 0
-                    paramCount - 2 -> 0
-                    paramCount - 1 -> null
-                    else -> emptyList<String>()
+                val pType = defaultConstructor.parameterTypes[i]
+                when {
+                    pType == String::class.java -> ""
+                    pType == Int::class.javaPrimitiveType || pType == Int::class.java -> 0
+                    pType == List::class.java -> emptyList<String>()
+                    else -> null
                 }
             }
             defaultConstructor.newInstance(*argsMask0)
 
             val argsMaskAllOn = Array<Any?>(paramCount) { i ->
-                when (i) {
-                    16 -> ""
-                    paramCount - 3 -> -1
-                    paramCount - 2 -> -1
-                    paramCount - 1 -> null
+                val pType = defaultConstructor.parameterTypes[i]
+                when {
+                    pType == String::class.java -> ""
+                    pType == Int::class.javaPrimitiveType || pType == Int::class.java -> -1
+                    pType == List::class.java -> null
                     else -> null
                 }
             }
@@ -89,228 +88,224 @@ class OcrVocabularyTest {
         base.copy(protectedSectionHeaders = listOf("x"))
         base.copy(timeHeaderPrefixes = listOf("x"))
         base.copy(timeHeaderKeywords = listOf("x"))
-
-        val emptyCopy = base.copy()
-        assertEquals(base, emptyCopy)
+        base.copy(ocr1ProtectedIngredientsHeaders = listOf("x"))
+        base.copy(ocr1ProtectedInstructionsHeaders = listOf("x"))
+        base.copy(ocr2TechnicalDimensionKeywords = listOf("x"))
+        base.copy(orphanNounNumberWords = listOf("x"))
+        base.copy(orphanNounStopWords = listOf("x"))
+        base.copy(ocr1IngredientsSuffixPrefix = "x")
+        base.copy(logOcr1ProtectedHeaderRepaired = "x")
+        base.copy(logOcr1ProtectedIngredientsEmpty = "x")
+        base.copy(logOcr1ProtectedInstructionsEmpty = "x")
+        base.copy(logOcr2CleanerSourceCaptured = "x")
+        base.copy(logOcr2CleanerNoiseRemoved = "x")
+        base.copy(logOcr2CleanerAdLineRemoved = "x")
+        base.copy(logOcr2CleanerAdPrefixRemoved = "x")
+        base.copy(logOcr2CleanerExcludedKeywordRemoved = "x")
+        base.copy(logOcr3CategorizerNarrativeDelegation = "x")
+        base.copy(logOcr3CategorizerStart = "x")
+        base.copy(logOcr3CategorizerEnd = "x")
+        base.copy(logOcr3BlockAMetadataIgnored = "x")
+        base.copy(logOcr3BlockAFusionContinuation = "x")
+        base.copy(logOcr3BlockCReappearanceCheck = "x")
+        base.copy(logOcr3BlockCReappearanceMatch = "x")
+        base.copy(logOcr3BlockDClassificationSummary = "x")
+        base.copy(logOcr3BlockEDispatchIngrSplit = "x")
+        base.copy(logOcr3BlockEDispatchInstrAdded = "x")
+        base.copy(logOcr3BlockEDispatchCatchup = "x")
+        base.copy(logOcr3BlockEDispatchLockActivated = "x")
+        base.copy(logOcr3HeaderSwitchInstructions = "x")
+        base.copy(logOcr3HeaderSwitchIngredients = "x")
+        base.copy(logOcr3HeaderSubheaderDetected = "x")
+        base.copy(logOcr3UnfinishedIngrStillEmpty = "x")
+        base.copy(logOcr3UnfinishedIngrFused = "x")
+        base.copy(logOcr3TitleExtractorStart = "x")
+        base.copy(logOcr3TitleExtractorEnd = "x")
+        base.copy(logOcr3TitleExtractorRetained = "x")
+        base.copy(logOcr3TitleExtractorIngrDetected = "x")
+        base.copy(logOcr3TitleExtractorNoIngr = "x")
+        base.copy(logOcr3TitleExtractorLineProcessed = "x")
+        base.copy(logOcr3TitleExtractorCandidateScore = "x")
+        base.copy(logOcr3TitleExtractorNoTitleRetained = "x")
+        base.copy(logOcr3TitleExtractorRemainingLine = "x")
+        base.copy(logOcr3TitleExtractorSelPoivreCandidate = "x")
+        base.copy(logOcr3TitleRepairRuleInvalid = "x")
+        base.copy(logOcr3TitleLettrineRepaired = "x")
+        base.copy(logOcr3TitleOrphanNounCompleted = "x")
+        base.copy(logOcr3TitleNoOrphanNounFound = "x")
+        base.copy(logOcr3TitleStripRecipeNumberEmpty = "x")
+        base.copy(logOcr3WineDuplicateIgnored = "x")
+        base.copy(logOcr3WineEmptyIgnored = "x")
+        base.copy(logOcr3WineSectionClosed = "x")
+        base.copy(logOcr3WineSectionActive = "x")
+        base.copy(logOcr3WineAlreadyClosedIgnored = "x")
+        base.copy(logOcr3WineImplicitVolumeClosed = "x")
+        base.copy(logOcr3WineImplicitNoVolumeOpen = "x")
+        base.copy(logOcr3WineImplicitDuplicateIgnored = "x")
+        base.copy(logOcr3WineImplicitEmptyIgnored = "x")
+        base.copy(logOcrVocabLoaderCustomDirNoCache = "x")
+        base.copy(logErrDiacriticRepairs = "x")
     }
 
     @Test
-    fun testOcrVocabularyAll78CopyAndConstructorBitmaskBranches() {
-        val base = OcrVocabulary()
+    fun fromResources_should_map_all_array_resources_to_vocabulary_lists() {
+        val mockRes = mock<Resources>()
 
-        val fullCopy = base.copy(
-            stepActionKeywords = listOf("a"),
-            commonIngredientsNoQty = listOf("b"),
-            excludedOcrKeywords = listOf("c"),
-            ingredientPreparationModifiers = listOf("d"),
-            instructionSwitchKeywords = listOf("e"),
-            ingredientSemanticExclusions = listOf("f"),
-            ingredientEndMarkers = listOf("g"),
-            ingredientSubHeaders = listOf("h"),
-            sourceKeywords = listOf("i"),
-            knownSourceBrands = listOf("j"),
-            phonePrefixes = listOf("k"),
-            wineAppellations = listOf("l"),
-            wineProducers = listOf("m"),
-            wineKeywords = listOf("n"),
-            wineTitleKeywords = listOf("o"),
-            ocr3ExplicitWineHeaders = listOf("p"),
-            wineRemovePattern = "q",
-            ocrSpellingRepairs = listOf("r"),
-            adExclusions = listOf("s"),
-            ocrNoiseExclusions = listOf("t"),
-            titleKeywords = listOf("u"),
-            mandatoryComplementIngredients = listOf("v"),
-            hangingConnectors = listOf("w"),
-            ingredientVarietyQualifiers = listOf("x"),
-            baseIngredientsExpectingVariety = listOf("y"),
-            standaloneArticles = listOf("z"),
-            culinaryMeasurementUnits = listOf("aa"),
-            titleSpellingRepairs = listOf("bb"),
-            titleMultilineConnectors = listOf("cc"),
-            ingredientSplitterConnectors = listOf("dd"),
-            ocrDiacriticRepairs = listOf("ee"),
-            priceTitleKeywords = listOf("ff"),
-            priceCategoriesLow = listOf("gg"),
-            priceCategoriesMedium = listOf("hh"),
-            priceCategoriesHigh = listOf("ii"),
-            ingredientConnectors = listOf("jj"),
-            protectedSectionHeaders = listOf("kk"),
-            timeHeaderPrefixes = listOf("ll"),
-            timeHeaderKeywords = listOf("mm")
-        )
+        val sampleArray = arrayOf("val1", "val2")
+        whenever(mockRes.getStringArray(R.array.step_action_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.step_action_keywords_complement)).thenReturn(emptyArray<String>())
+        whenever(mockRes.getStringArray(R.array.common_ingredients_no_qty)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.excluded_ocr_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ingredient_preparation_modifiers)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.instruction_switch_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ingredient_semantic_exclusions)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ingredient_end_markers)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ingredient_sub_headers)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.source_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.known_source_brands)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.phone_prefixes)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.wine_appellations)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.wine_producers)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.wine_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.wine_title_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ocr3_explicit_wine_headers)).thenReturn(sampleArray)
+        whenever(mockRes.getString(R.string.wine_remove_pattern)).thenReturn("pattern")
+        whenever(mockRes.getStringArray(R.array.ocr_spelling_repairs)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.advertisement_exclusions)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ocr_noise_exclusions)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.title_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ingredient_mandatory_complements)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.hanging_connectors)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ingredient_variety_qualifiers)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.base_ingredients_expecting_variety)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.standalone_articles)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.culinary_measurement_units)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.title_spelling_repairs)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.title_multiline_connectors)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ingredient_splitter_connectors)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ocr_diacritic_repairs)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.price_title_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.price_categories_low)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.price_categories_medium)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.price_categories_high)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ingredient_connectors)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ocr_protected_section_headers)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ocr_time_header_prefixes)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ocr_time_header_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ocr1_protected_ingredients_headers)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ocr1_protected_instructions_headers)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.ocr2_technical_dimension_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.orphan_noun_number_words)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.orphan_noun_stop_words)).thenReturn(sampleArray)
+        whenever(mockRes.getString(R.string.ocr1_ingredients_suffix_prefix)).thenReturn("ng")
+        whenever(mockRes.getString(R.string.log_ocr1_protected_header_repaired)).thenReturn("Réparation en-tête OCR : '%1\$s' ➔ '%2\$s'")
+        whenever(mockRes.getString(R.string.log_ocr1_protected_ingredients_empty)).thenReturn("Attention : ocr1ProtectedIngredientsHeaders est vide dans le vocabulaire")
+        whenever(mockRes.getString(R.string.log_ocr1_protected_instructions_empty)).thenReturn("Attention : ocr1ProtectedInstructionsHeaders est vide dans le vocabulaire")
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_source_captured)).thenReturn("CLEANER : Source précoce capturée depuis bannière ➔ %1\$s")
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_noise_removed)).thenReturn("CLEANER : Bruit de scan OCR supprimé ➔ %1\$s")
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_ad_line_removed)).thenReturn("CLEANER : Ligne publicitaire supprimée ➔ %1\$s")
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_ad_prefix_removed)).thenReturn("CLEANER : Préfixe publicitaire effacé de ➔ %1\$s")
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_excluded_keyword_removed)).thenReturn("CLEANER : Mot-clé exclu supprimé ➔ %1\$s")
+        whenever(mockRes.getString(R.string.log_ocr3_categorizer_narrative_delegation)).thenReturn(" => ACTIVER DÉLÉGATION NARRATIVE TYPE 2 (Ocr3NarrativeCategorizer)")
+        whenever(mockRes.getString(R.string.log_ocr3_categorizer_start)).thenReturn("--- DÉBUT CATÉGORISATION ---")
+        whenever(mockRes.getString(R.string.log_ocr3_categorizer_end)).thenReturn("--- FIN CATÉGORISATION ---")
+        whenever(mockRes.getString(R.string.log_ocr3_block_a_metadata_ignored)).thenReturn("  [MÉTADONNÉES / PÉRIODIQUE IGNORÉ] '%1\$s'")
+        whenever(mockRes.getString(R.string.log_ocr3_block_a_fusion_continuation)).thenReturn("  [FUSION CONTINUATION] Fusionné : '%1\$s' ➔ Nouvelle ligne : '%2\$s'")
+        whenever(mockRes.getString(R.string.log_ocr3_block_c_reappearance_check)).thenReturn("LIGNE: '%1\$s' | Déjà inventorisés: %2\$s")
+        whenever(mockRes.getString(R.string.log_ocr3_block_c_reappearance_match)).thenReturn("  ? Comparaison: '%1\$s' -> MATCH=%2\$b | hardQty=%3\$b | weight=%4\$b | closed=%5\$b | final=%6\$b")
+        whenever(mockRes.getString(R.string.log_ocr3_block_d_classification_summary)).thenReturn("  => BILAN: reappear=%1\$b | instrSignal=%2\$b | currentSec=%3\$d")
+        whenever(mockRes.getString(R.string.log_ocr3_block_e_dispatch_ingr_split)).thenReturn("  [INGR] Split: Q=%1\$s, U=%2\$s, N='%3\$s', Info='%4\$s' | Keywords added: %5\$s")
+        whenever(mockRes.getString(R.string.log_ocr3_block_e_dispatch_instr_added)).thenReturn("  [INSTR] Ligne ajoutée aux instructions ➔ '%1\$s'")
+        whenever(mockRes.getString(R.string.log_ocr3_block_e_dispatch_catchup)).thenReturn("  [RATTRAPAGE INGRÉDIENT] En-tête rattrapé depuis section fermée ➔ '%1\$s'")
+        whenever(mockRes.getString(R.string.log_ocr3_block_e_dispatch_lock_activated)).thenReturn("  [!] VERROU ACTIVÉ (Marqueur de fin détecté)")
+        whenever(mockRes.getString(R.string.log_ocr3_header_switch_instructions)).thenReturn("  [!] BASCULEMENT DE SECTION ➔ INSTRUCTIONS ('%1\$s')")
+        whenever(mockRes.getString(R.string.log_ocr3_header_switch_ingredients)).thenReturn("  [!] BASCULEMENT DE SECTION ➔ INGRÉDIENTS ('%1\$s')")
+        whenever(mockRes.getString(R.string.log_ocr3_header_subheader_detected)).thenReturn("  [!] SOUS-EN-TÊTE D'INGRÉDIENT DÉTECTÉ ('%1\$s')")
+        whenever(mockRes.getString(R.string.log_ocr3_unfinished_ingr_still_empty)).thenReturn("  [FUSION UNITÉ INCOMPLÈTE] Nom d'ingrédient toujours vide après fusion ('%1\$s')")
+        whenever(mockRes.getString(R.string.log_ocr3_unfinished_ingr_fused)).thenReturn("  [FUSION UNITÉ INCOMPLÈTE] Fusionné : '%1\$s' ➔ Nouvelle ligne : '%2\$s'")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_start)).thenReturn("=== DEBUT EXTRACTION DU TITRE PAR SCORING ===")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_end)).thenReturn("=== FIN EXTRACTION DU TITRE PAR SCORING ===")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_retained)).thenReturn(">>> TITRE RETENU INITIALEMENT: '%1\$s' avec SCORE MAX: %2\$d")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_ingr_detected)).thenReturn("TITLE EXTRACTOR : Ingrédients détectés sur la fiche pour scoring ➔ %1\$s")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_no_ingr)).thenReturn("TITLE EXTRACTOR : Aucun mot d'ingrédient détecté pour scoring")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_line_processed)).thenReturn("  [LIGNE TRAITÉE] '%1\$s'")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_candidate_score)).thenReturn("TITLE CANDIDATE [#%1\$d]: '%2\$s' ➔ SCORE: %3\$d (%4\$s)")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_no_title_retained)).thenReturn(">>> AUCUN TITRE VALIDE RETENU")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_remaining_line)).thenReturn("  [LIGNE RESTANTE CANDIDATE] '%1\$s'")
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_sel_poivre_candidate)).thenReturn("TITLE EXTRACTOR : Candidat extrait depuis la ligne sel/poivre ➔ '%1\$s' (score=%2\$d)")
+        whenever(mockRes.getString(R.string.log_ocr3_title_repair_rule_invalid)).thenReturn("  [SKIP] Règle de réparation invalide sans séparateur : '%1\$s'")
+        whenever(mockRes.getString(R.string.log_ocr3_title_lettrine_repaired)).thenReturn("TITLE EXTRACTOR : Lettrine réparée ➔ '%1\$s' devenant '%2\$s' (via '%3\$s')")
+        whenever(mockRes.getString(R.string.log_ocr3_title_orphan_noun_completed)).thenReturn("TITLE EXTRACTOR : Titre complété par nom orphelin ➔ '%1\$s' (ligne consommée : '%2\$s')")
+        whenever(mockRes.getString(R.string.log_ocr3_title_no_orphan_noun_found)).thenReturn("  [INFO] Aucun nom orphelin trouvé dans les lignes restantes")
+        whenever(mockRes.getString(R.string.log_ocr3_title_strip_recipe_number_empty)).thenReturn("  [INFO] Chaîne vide après suppression du numéro de fiche")
+        whenever(mockRes.getString(R.string.log_ocr3_wine_duplicate_ignored)).thenReturn("  [!] Ligne de vin ignorée (doublon déjà enregistré)")
+        whenever(mockRes.getString(R.string.log_ocr3_wine_empty_ignored)).thenReturn("  [!] Ligne de vin ignorée (nom vide)")
+        whenever(mockRes.getString(R.string.log_ocr3_wine_section_closed)).thenReturn("  [!] SECTION VIN FERMÉE (Volume/Millésime/Enseigne vin détectée)")
+        whenever(mockRes.getString(R.string.log_ocr3_wine_section_active)).thenReturn("  [!] Section vin maintenue active (en attente du volume/millésime final)")
+        whenever(mockRes.getString(R.string.log_ocr3_wine_already_closed_ignored)).thenReturn("  [!] Ligne de vin ignorée (section vin déjà fermée)")
+        whenever(mockRes.getString(R.string.log_ocr3_wine_implicit_volume_closed)).thenReturn("  [!] SECTION VIN FERMÉE (Volume/Millésime détecté)")
+        whenever(mockRes.getString(R.string.log_ocr3_wine_implicit_no_volume_open)).thenReturn("  [!] Vin implicite capturé sans volume (section vin reste ouverte)")
+        whenever(mockRes.getString(R.string.log_ocr3_wine_implicit_duplicate_ignored)).thenReturn("  [!] Ligne de vin implicite ignorée (doublon déjà enregistré)")
+        whenever(mockRes.getString(R.string.log_ocr3_wine_implicit_empty_ignored)).thenReturn("  [!] Ligne de vin implicite ignorée (nom vide)")
+        whenever(mockRes.getString(R.string.log_ocr_vocab_loader_custom_dir_no_cache)).thenReturn("Répertoire personnalisé '%1\$s', non mis en cache")
+        whenever(mockRes.getString(R.string.log_err_diacritic_repairs)).thenReturn("Échec du chargement des réparations diacritiques par défaut")
 
-        assertEquals(listOf("mm"), fullCopy.timeHeaderKeywords)
+        val vocab = OcrVocabulary.fromResources(mockRes)
+
+        assertEquals(listOf("val1", "val2"), vocab.stepActionKeywords)
+        assertEquals(listOf("val1", "val2"), vocab.commonIngredientsNoQty)
+        assertEquals(listOf("val1", "val2"), vocab.excludedOcrKeywords)
+        assertEquals(listOf("val1", "val2"), vocab.ocr1ProtectedIngredientsHeaders)
+        assertEquals(listOf("val1", "val2"), vocab.ocr1ProtectedInstructionsHeaders)
+        assertEquals("ng", vocab.ocr1IngredientsSuffixPrefix)
+        assertEquals("pattern", vocab.wineRemovePattern)
+        assertEquals("Échec du chargement des réparations diacritiques par défaut", vocab.logErrDiacriticRepairs)
     }
 
     @Test
-    fun testOcrVocabularyExhaustiveBytecodeBranches() {
-        val fullExplicit = OcrVocabulary(
-            stepActionKeywords = listOf("a"),
-            commonIngredientsNoQty = listOf("b"),
-            excludedOcrKeywords = listOf("c"),
-            ingredientPreparationModifiers = listOf("d"),
-            instructionSwitchKeywords = listOf("e"),
-            ingredientSemanticExclusions = listOf("f"),
-            ingredientEndMarkers = listOf("g"),
-            ingredientSubHeaders = listOf("h"),
-            sourceKeywords = listOf("i"),
-            knownSourceBrands = listOf("j"),
-            phonePrefixes = listOf("k"),
-            wineAppellations = listOf("l"),
-            wineProducers = listOf("m"),
-            wineKeywords = listOf("n"),
-            wineTitleKeywords = listOf("o"),
-            ocr3ExplicitWineHeaders = listOf("p"),
-            wineRemovePattern = "q",
-            ocrSpellingRepairs = listOf("r"),
-            adExclusions = listOf("s"),
-            ocrNoiseExclusions = listOf("t"),
-            titleKeywords = listOf("u"),
-            mandatoryComplementIngredients = listOf("v"),
-            hangingConnectors = listOf("w"),
-            ingredientVarietyQualifiers = listOf("x"),
-            baseIngredientsExpectingVariety = listOf("y"),
-            standaloneArticles = listOf("z"),
-            culinaryMeasurementUnits = listOf("aa"),
-            titleSpellingRepairs = listOf("bb"),
-            titleMultilineConnectors = listOf("cc"),
-            ingredientSplitterConnectors = listOf("dd"),
-            ocrDiacriticRepairs = listOf("ee"),
-            priceTitleKeywords = listOf("ff"),
-            priceCategoriesLow = listOf("gg"),
-            priceCategoriesMedium = listOf("hh"),
-            priceCategoriesHigh = listOf("ii"),
-            ingredientConnectors = listOf("jj"),
-            protectedSectionHeaders = listOf("kk"),
-            timeHeaderPrefixes = listOf("ll"),
-            timeHeaderKeywords = listOf("mm")
-        )
+    fun fromResources_should_handle_missing_resources_safely_without_crashing() {
+        val mockRes = mock<Resources>()
+        whenever(mockRes.getStringArray(R.array.step_action_keywords)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.wine_remove_pattern)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.ocr1_ingredients_suffix_prefix)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr1_protected_header_repaired)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_source_captured)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_noise_removed)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_ad_line_removed)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_ad_prefix_removed)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr2_cleaner_excluded_keyword_removed)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_categorizer_narrative_delegation)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_categorizer_start)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_categorizer_end)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_block_a_metadata_ignored)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_block_c_reappearance_check)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_block_c_reappearance_match)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_block_d_classification_summary)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_block_e_dispatch_ingr_split)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_block_e_dispatch_instr_added)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_block_e_dispatch_catchup)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_unfinished_ingr_still_empty)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_unfinished_ingr_fused)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_start)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_end)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_title_extractor_retained)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_wine_duplicate_ignored)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_wine_empty_ignored)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_wine_section_closed)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_wine_section_active)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_wine_already_closed_ignored)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_wine_implicit_volume_closed)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_wine_implicit_no_volume_open)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_wine_implicit_duplicate_ignored)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr3_wine_implicit_empty_ignored)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_ocr_vocab_loader_custom_dir_no_cache)).doThrow(Resources.NotFoundException())
+        whenever(mockRes.getString(R.string.log_err_diacritic_repairs)).doThrow(Resources.NotFoundException())
 
-        val fullExplicitSame = fullExplicit.copy()
-        val fullExplicitDiffLast = fullExplicit.copy(timeHeaderKeywords = listOf("diff"))
+        val vocab = OcrVocabulary.fromResources(mockRes)
 
-        assertTrue(fullExplicit == fullExplicitSame)
-        assertFalse(fullExplicit == fullExplicitDiffLast)
-        assertEquals(listOf("mm"), fullExplicit.component39())
-    }
-
-    @Test
-    fun testOcrVocabularyDataClassGeneratedMethods() {
-        val vocab1 = OcrVocabulary(stepActionKeywords = listOf("couper"))
-        val vocab2 = vocab1.copy()
-        val vocab3 = vocab1.copy(stepActionKeywords = listOf("mélanger"))
-
-        assertTrue(vocab1 == vocab2)
-        assertFalse(vocab1 == vocab3)
-        assertFalse(vocab1.equals(null))
-        assertFalse(vocab1.equals("autreObjet"))
-        assertEquals(vocab1.hashCode(), vocab2.hashCode())
-        assertTrue(vocab1.toString().contains("OcrVocabulary"))
-        assertEquals(listOf("couper"), vocab1.component1())
-    }
-
-    @Test
-    fun `default instantiation should have empty lists and blank pattern`() {
-        val vocabulary = OcrVocabulary()
-
-        assertTrue(vocabulary.stepActionKeywords.isEmpty())
-        assertTrue(vocabulary.commonIngredientsNoQty.isEmpty())
-        assertTrue(vocabulary.excludedOcrKeywords.isEmpty())
-        assertTrue(vocabulary.ingredientPreparationModifiers.isEmpty())
-        assertTrue(vocabulary.instructionSwitchKeywords.isEmpty())
-        assertTrue(vocabulary.ingredientSemanticExclusions.isEmpty())
-        assertTrue(vocabulary.ingredientEndMarkers.isEmpty())
-        assertTrue(vocabulary.ingredientSubHeaders.isEmpty())
-        assertTrue(vocabulary.sourceKeywords.isEmpty())
-        assertTrue(vocabulary.phonePrefixes.isEmpty())
-        assertTrue(vocabulary.wineAppellations.isEmpty())
-        assertTrue(vocabulary.wineProducers.isEmpty())
-        assertTrue(vocabulary.wineKeywords.isEmpty())
-        assertTrue(vocabulary.wineTitleKeywords.isEmpty())
-        assertEquals("", vocabulary.wineRemovePattern)
-    }
-
-    @Test
-    fun `custom instantiation should preserve provided keyword lists`() {
-        val actions = listOf("couper", "mélanger")
-        val ingredients = listOf("farine", "oeufs")
-
-        val vocabulary = OcrVocabulary(
-            stepActionKeywords = actions,
-            commonIngredientsNoQty = ingredients,
-            wineRemovePattern = "Accord: "
-        )
-
-        assertEquals(actions, vocabulary.stepActionKeywords)
-        assertEquals(ingredients, vocabulary.commonIngredientsNoQty)
-        assertEquals("Accord: ", vocabulary.wineRemovePattern)
-    }
-
-    @Test
-    fun `fromResources should map all array resources to vocabulary lists`() {
-        val mockResources = mock<Resources> {
-            on { getStringArray(R.array.step_action_keywords) } doReturn arrayOf("couper", "mélanger")
-            on { getStringArray(R.array.common_ingredients_no_qty) } doReturn arrayOf("sel", "poivre")
-            on { getStringArray(R.array.excluded_ocr_keywords) } doReturn arrayOf("page", "pub")
-            on { getStringArray(R.array.ingredient_preparation_modifiers) } doReturn arrayOf("haché")
-            on { getStringArray(R.array.instruction_switch_keywords) } doReturn arrayOf("cuisson")
-            on { getStringArray(R.array.ingredient_semantic_exclusions) } doReturn arrayOf("bio")
-            on { getStringArray(R.array.ingredient_end_markers) } doReturn arrayOf("fin")
-            on { getStringArray(R.array.ingredient_sub_headers) } doReturn arrayOf("sauce")
-            on { getStringArray(R.array.source_keywords) } doReturn arrayOf("hôtel")
-            on { getStringArray(R.array.phone_prefixes) } doReturn arrayOf("tél")
-            on { getStringArray(R.array.wine_appellations) } doReturn arrayOf("Bordeaux")
-            on { getStringArray(R.array.wine_producers) } doReturn arrayOf("Château")
-            on { getStringArray(R.array.wine_keywords) } doReturn arrayOf("vin")
-            on { getStringArray(R.array.wine_title_keywords) } doReturn arrayOf("médaille")
-            on { getString(R.string.wine_remove_pattern) } doReturn "Accord: "
-        }
-
-        val vocabulary = OcrVocabulary.fromResources(mockResources)
-
-        assertEquals(listOf("couper", "mélanger"), vocabulary.stepActionKeywords)
-        assertEquals(listOf("sel", "poivre"), vocabulary.commonIngredientsNoQty)
-        assertEquals(listOf("page", "pub"), vocabulary.excludedOcrKeywords)
-        assertEquals(listOf("haché"), vocabulary.ingredientPreparationModifiers)
-        assertEquals(listOf("cuisson"), vocabulary.instructionSwitchKeywords)
-        assertEquals(listOf("bio"), vocabulary.ingredientSemanticExclusions)
-        assertEquals(listOf("fin"), vocabulary.ingredientEndMarkers)
-        assertEquals(listOf("sauce"), vocabulary.ingredientSubHeaders)
-        assertEquals(listOf("hôtel"), vocabulary.sourceKeywords)
-        assertEquals(listOf("tél"), vocabulary.phonePrefixes)
-        assertEquals(listOf("Bordeaux"), vocabulary.wineAppellations)
-        assertEquals(listOf("Château"), vocabulary.wineProducers)
-        assertEquals(listOf("vin"), vocabulary.wineKeywords)
-        assertEquals(listOf("médaille"), vocabulary.wineTitleKeywords)
-        assertEquals("Accord: ", vocabulary.wineRemovePattern)
-    }
-
-    @Test
-    fun `fromResources should handle missing resources safely without crashing`() {
-        val mockResources = mock<Resources> {
-            on { getStringArray(R.array.step_action_keywords) } doThrow Resources.NotFoundException("Not found")
-            on { getString(R.string.wine_remove_pattern) } doThrow Resources.NotFoundException("Not found")
-        }
-
-        val vocabulary = OcrVocabulary.fromResources(mockResources)
-
-        assertTrue(vocabulary.stepActionKeywords.isEmpty())
-        assertEquals("", vocabulary.wineRemovePattern)
-    }
-
-    @Test
-    fun `loadFromProjectResources should parse real production XML files from disk`() {
-        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
-
-        assertFalse("Real wine appellations should be loaded from wine_arrays.xml", vocabulary.wineAppellations.isEmpty())
-        assertTrue(vocabulary.wineAppellations.any { it.equals("saumur", ignoreCase = true) })
-        assertTrue(vocabulary.wineAppellations.any { it.equals("chablis", ignoreCase = true) })
-
-        assertFalse("Real step action keywords should be loaded from step_keywords.xml", vocabulary.stepActionKeywords.isEmpty())
-        assertFalse("Real common ingredients should be loaded from ingredients.xml", vocabulary.commonIngredientsNoQty.isEmpty())
-        assertTrue(vocabulary.commonIngredientsNoQty.contains("sel"))
-
-        assertFalse("Real wine remove pattern should be loaded from wine_arrays.xml", vocabulary.wineRemovePattern.isBlank())
+        assertTrue(vocab.stepActionKeywords.isEmpty())
+        assertEquals("", vocab.wineRemovePattern)
+        assertEquals("", vocab.ocr1IngredientsSuffixPrefix)
+        assertEquals("", vocab.logErrDiacriticRepairs)
     }
 }

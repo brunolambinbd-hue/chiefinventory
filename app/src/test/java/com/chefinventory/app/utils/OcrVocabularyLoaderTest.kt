@@ -148,6 +148,8 @@ class OcrVocabularyLoaderTest {
         assertThat(vocab.protectedSectionHeaders).isNotEmpty()
         assertThat(vocab.timeHeaderPrefixes).isNotEmpty()
         assertThat(vocab.timeHeaderKeywords).isNotEmpty()
+        assertThat(vocab.ocr1ProtectedIngredientsHeaders).isNotEmpty()
+        assertThat(vocab.ocr1ProtectedInstructionsHeaders).isNotEmpty()
     }
 
     @Test

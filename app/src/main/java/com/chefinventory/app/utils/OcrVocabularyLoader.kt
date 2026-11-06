@@ -12,7 +12,7 @@ import javax.xml.parsers.DocumentBuilderFactory
  * du vocabulaire métier de l'application [OcrVocabulary].
  *
  * Responsabilités :
- * - Localiser et lire tous les répertoires res-values du projet depuis le disque (mode TDD/JVM) ou les ressources Android.
+ * - Localiser et lire tous les répertoires res-values des 4 domaines fonctionnels depuis le disque (mode TDD/JVM) ou les ressources Android.
  * - Parser les fichiers XML (ocr_*.xml, step_keywords.xml, ingredients.xml, wine_arrays.xml) sans dépendance Android Framework.
  * - Effectuer la mise en cache de l'instance [OcrVocabulary] par défaut pour accélérer l'exécution des tests.
  */
@@ -91,27 +91,99 @@ object OcrVocabularyLoader {
             protectedSectionHeaders = getList(stringArrays, "ocr_protected_section_headers"),
             timeHeaderPrefixes = getList(stringArrays, "ocr_time_header_prefixes"),
             timeHeaderKeywords = getList(stringArrays, "ocr_time_header_keywords"),
+            ocr1ProtectedIngredientsHeaders = getList(stringArrays, "ocr1_protected_ingredients_headers"),
+            ocr1ProtectedInstructionsHeaders = getList(stringArrays, "ocr1_protected_instructions_headers"),
+            ocr2TechnicalDimensionKeywords = getList(stringArrays, "ocr2_technical_dimension_keywords"),
+            orphanNounNumberWords = getList(stringArrays, "orphan_noun_number_words"),
+            orphanNounStopWords = getList(stringArrays, "orphan_noun_stop_words"),
+            ocr1CanonicalIngredientsHeader = getStringVal(strings, "ocr1_canonical_ingredients_header"),
+            ocr1CanonicalInstructionsHeader = getStringVal(strings, "ocr1_canonical_instructions_header"),
+            ocr1IngredientsSuffixPrefix = getStringVal(strings, "ocr1_ingredients_suffix_prefix"),
+            logOcr1ProtectedHeaderRepaired = getStringVal(strings, "log_ocr1_protected_header_repaired"),
+            logOcr1ProtectedIngredientsEmpty = getStringVal(strings, "log_ocr1_protected_ingredients_empty"),
+            logOcr1ProtectedInstructionsEmpty = getStringVal(strings, "log_ocr1_protected_instructions_empty"),
+            logOcr2CleanerSourceCaptured = getStringVal(strings, "log_ocr2_cleaner_source_captured"),
+            logOcr2CleanerNoiseRemoved = getStringVal(strings, "log_ocr2_cleaner_noise_removed"),
+            logOcr2CleanerAdLineRemoved = getStringVal(strings, "log_ocr2_cleaner_ad_line_removed"),
+            logOcr2CleanerAdPrefixRemoved = getStringVal(strings, "log_ocr2_cleaner_ad_prefix_removed"),
+            logOcr2CleanerExcludedKeywordRemoved = getStringVal(strings, "log_ocr2_cleaner_excluded_keyword_removed"),
+            logOcr3CategorizerNarrativeDelegation = getStringVal(strings, "log_ocr3_categorizer_narrative_delegation"),
+            logOcr3CategorizerStart = getStringVal(strings, "log_ocr3_categorizer_start"),
+            logOcr3CategorizerEnd = getStringVal(strings, "log_ocr3_categorizer_end"),
+            logOcr3BlockAMetadataIgnored = getStringVal(strings, "log_ocr3_block_a_metadata_ignored"),
+            logOcr3BlockAFusionContinuation = getStringVal(strings, "log_ocr3_block_a_fusion_continuation"),
+            logOcr3BlockCReappearanceCheck = getStringVal(strings, "log_ocr3_block_c_reappearance_check"),
+            logOcr3BlockCReappearanceMatch = getStringVal(strings, "log_ocr3_block_c_reappearance_match"),
+            logOcr3BlockDClassificationSummary = getStringVal(strings, "log_ocr3_block_d_classification_summary"),
+            logOcr3BlockEDispatchIngrSplit = getStringVal(strings, "log_ocr3_block_e_dispatch_ingr_split"),
+            logOcr3BlockEDispatchInstrAdded = getStringVal(strings, "log_ocr3_block_e_dispatch_instr_added"),
+            logOcr3BlockEDispatchCatchup = getStringVal(strings, "log_ocr3_block_e_dispatch_catchup"),
+            logOcr3BlockEDispatchLockActivated = getStringVal(strings, "log_ocr3_block_e_dispatch_lock_activated"),
+            logOcr3HeaderSwitchInstructions = getStringVal(strings, "log_ocr3_header_switch_instructions"),
+            logOcr3HeaderSwitchIngredients = getStringVal(strings, "log_ocr3_header_switch_ingredients"),
+            logOcr3HeaderSubheaderDetected = getStringVal(strings, "log_ocr3_header_subheader_detected"),
+            logOcr3UnfinishedIngrStillEmpty = getStringVal(strings, "log_ocr3_unfinished_ingr_still_empty"),
+            logOcr3UnfinishedIngrFused = getStringVal(strings, "log_ocr3_unfinished_ingr_fused"),
+            logOcr3TitleExtractorStart = getStringVal(strings, "log_ocr3_title_extractor_start"),
+            logOcr3TitleExtractorEnd = getStringVal(strings, "log_ocr3_title_extractor_end"),
+            logOcr3TitleExtractorRetained = getStringVal(strings, "log_ocr3_title_extractor_retained"),
+            logOcr3TitleExtractorIngrDetected = getStringVal(strings, "log_ocr3_title_extractor_ingr_detected"),
+            logOcr3TitleExtractorNoIngr = getStringVal(strings, "log_ocr3_title_extractor_no_ingr"),
+            logOcr3TitleExtractorLineProcessed = getStringVal(strings, "log_ocr3_title_extractor_line_processed"),
+            logOcr3TitleExtractorCandidateScore = getStringVal(strings, "log_ocr3_title_extractor_candidate_score"),
+            logOcr3TitleExtractorNoTitleRetained = getStringVal(strings, "log_ocr3_title_extractor_no_title_retained"),
+            logOcr3TitleExtractorRemainingLine = getStringVal(strings, "log_ocr3_title_extractor_remaining_line"),
+            logOcr3TitleExtractorSelPoivreCandidate = getStringVal(strings, "log_ocr3_title_extractor_sel_poivre_candidate"),
+            logOcr3TitleRepairRuleInvalid = getStringVal(strings, "log_ocr3_title_repair_rule_invalid"),
+            logOcr3TitleLettrineRepaired = getStringVal(strings, "log_ocr3_title_lettrine_repaired"),
+            logOcr3TitleOrphanNounCompleted = getStringVal(strings, "log_ocr3_title_orphan_noun_completed"),
+            logOcr3TitleNoOrphanNounFound = getStringVal(strings, "log_ocr3_title_no_orphan_noun_found"),
+            logOcr3TitleStripRecipeNumberEmpty = getStringVal(strings, "log_ocr3_title_strip_recipe_number_empty"),
+            logOcr3WineDuplicateIgnored = getStringVal(strings, "log_ocr3_wine_duplicate_ignored"),
+            logOcr3WineEmptyIgnored = getStringVal(strings, "log_ocr3_wine_empty_ignored"),
+            logOcr3WineSectionClosed = getStringVal(strings, "log_ocr3_wine_section_closed"),
+            logOcr3WineSectionActive = getStringVal(strings, "log_ocr3_wine_section_active"),
+            logOcr3WineAlreadyClosedIgnored = getStringVal(strings, "log_ocr3_wine_already_closed_ignored"),
+            logOcr3WineImplicitVolumeClosed = getStringVal(strings, "log_ocr3_wine_implicit_volume_closed"),
+            logOcr3WineImplicitNoVolumeOpen = getStringVal(strings, "log_ocr3_wine_implicit_no_volume_open"),
+            logOcr3WineImplicitDuplicateIgnored = getStringVal(strings, "log_ocr3_wine_implicit_duplicate_ignored"),
+            logOcr3WineImplicitEmptyIgnored = getStringVal(strings, "log_ocr3_wine_implicit_empty_ignored"),
+            logOcrVocabLoaderCustomDirNoCache = getStringVal(strings, "log_ocr_vocab_loader_custom_dir_no_cache"),
+            logErrDiacriticRepairs = getStringVal(strings, "log_err_diacritic_repairs")
         )
 
         cacheVocabularyIfNeeded(projectDir, vocabulary)
         return vocabulary
     }
 
+    /**
+     * Effectue la mise en cache de l'instance [OcrVocabulary] par défaut si le répertoire est le répertoire racine courant.
+     *
+     * @param projectDir Le répertoire racine du projet.
+     * @param vocabulary L'instance [OcrVocabulary] à mettre en cache.
+     */
     internal fun cacheVocabularyIfNeeded(projectDir: File, vocabulary: OcrVocabulary) {
         if (projectDir.path == ".") {
             cachedDefaultVocabulary = vocabulary
         } else {
-            LogManager.d(TAG, "Repertoire personnalise '${projectDir.path}', non mis en cache")
+            val format = vocabulary.logOcrVocabLoaderCustomDirNoCache
+            LogManager.d(TAG, String.format(format, projectDir.path))
         }
     }
 
     /**
-     * Resets the internal vocabulary cache (used for unit testing).
+     * Réinitialise le cache interne du vocabulaire (utilisé pour l'isolation des tests unitaires).
      */
     internal fun clearCache() {
         cachedDefaultVocabulary = null
     }
 
+    /**
+     * Localise l'ensemble des répertoires `values/` existants à travers les 4 domaines de ressources (`res`, `res-pantry`, `res-catalog`, `res-ocr`).
+     *
+     * @param startDir Le répertoire initial de recherche.
+     * @return La liste des dossiers `values/` localisés.
+     */
     private fun findResValueDirs(startDir: File): List<File> {
         val baseCandidates = listOf(
             File(startDir, "src/main"),
@@ -133,6 +205,13 @@ object OcrVocabularyLoader {
         return foundDirs
     }
 
+    /**
+     * Lit et analyse tous les fichiers XML de ressources contenus dans le répertoire [resDir].
+     *
+     * @param resDir Le répertoire de ressources `values/` à analyser.
+     * @param stringArrays La carte de destination des tableaux de chaînes.
+     * @param strings La carte de destination des chaînes simples.
+     */
     internal fun parseResDirectory(
         resDir: File,
         stringArrays: MutableMap<String, List<String>>,
@@ -144,10 +223,18 @@ object OcrVocabularyLoader {
                 parseXmlResourceFile(xmlFile, stringArrays, strings)
             }
         } else {
-            LogManager.w(TAG, "No XML files found in directory: ${resDir.absolutePath}")
+            val format = getStringVal(strings, "log_ocr_vocab_loader_no_xml_files")
+            LogManager.w(TAG, String.format(format, resDir.absolutePath))
         }
     }
 
+    /**
+     * Parse un fichier XML individuel de ressources à l'aide du parser DOM.
+     *
+     * @param file Le fichier XML à parser.
+     * @param stringArrays La carte de destination des tableaux de chaînes.
+     * @param strings La carte de destination des chaînes simples.
+     */
     internal fun parseXmlResourceFile(
         file: File,
         stringArrays: MutableMap<String, List<String>>,
@@ -159,10 +246,18 @@ object OcrVocabularyLoader {
             val doc = dBuilder.parse(file)
             parseXmlDocument(doc, stringArrays, strings)
         } catch (e: Exception) {
-            LogManager.e(TAG, "Error parsing XML resource file ${file.name}: ${e.message}", e)
+            val format = getStringVal(strings, "log_err_ocr_vocab_loader_parse_file")
+            LogManager.e(TAG, String.format(format, file.name, e.message), e)
         }
     }
 
+    /**
+     * Extrait les éléments `<string-array>` et `<string>` d'un document DOM XML normalisé.
+     *
+     * @param doc Le document XML DOM normalisé.
+     * @param stringArrays La carte de destination des tableaux de chaînes.
+     * @param strings La carte de destination des chaînes simples.
+     */
     internal fun parseXmlDocument(
         doc: Document,
         stringArrays: MutableMap<String, List<String>>,
@@ -179,11 +274,20 @@ object OcrVocabularyLoader {
                 val items = mutableListOf<String>()
                 val itemNodes = elem.getElementsByTagName("item")
                 for (j in 0 until itemNodes.length) {
-                    items.add(itemNodes.item(j).textContent.trim().replace("\\'", "'"))
+                    val itemText = itemNodes.item(j).textContent.trim().replace("\\'", "'")
+                    val parts = itemText.split("|")
+                    if (parts.size == 2 && parts[0].trim().equals(parts[1].trim(), ignoreCase = true)) {
+                        continue
+                    }
+                    items.add(itemText)
                 }
-                stringArrays[arrayName] = items
+                if (arrayName.isNotBlank()) {
+                    val existing = stringArrays[arrayName] ?: emptyList()
+                    stringArrays[arrayName] = existing + items
+                }
             } else {
-                LogManager.w(TAG, "Skipping non-element string-array node")
+                val msg = getStringVal(strings, "log_ocr_vocab_loader_skip_non_element_array")
+                LogManager.w(TAG, msg)
             }
         }
 
@@ -194,17 +298,34 @@ object OcrVocabularyLoader {
                 val elem = node as Element
                 val stringName = elem.getAttribute("name")
                 val rawText = elem.textContent.trim()
-                strings[stringName] = rawText.replace("\\\\", "\\")
+                if (stringName.isNotBlank()) {
+                    strings[stringName] = rawText.replace("\\'", "'")
+                }
             } else {
-                LogManager.w(TAG, "Skipping non-element string node")
+                val msg = getStringVal(strings, "log_ocr_vocab_loader_skip_non_element_string")
+                LogManager.w(TAG, msg)
             }
         }
     }
 
+    /**
+     * Extrait de manière sécurisée une liste de chaînes depuis la carte [map] pour une clé [key] donnée.
+     *
+     * @param map La carte source des tableaux de chaînes.
+     * @param key La clé de tableau recherchée.
+     * @return La liste des chaînes correspondantes, ou une liste vide.
+     */
     internal fun getList(map: Map<String, List<String>>, key: String): List<String> {
         return map[key] ?: emptyList()
     }
 
+    /**
+     * Extrait de manière sécurisée une chaîne simple depuis la carte [map] pour une clé [key] donnée.
+     *
+     * @param map La carte source des chaînes simples.
+     * @param key La clé de chaîne recherchée.
+     * @return La valeur de la chaîne correspondante, ou une chaîne vide.
+     */
     internal fun getStringVal(map: Map<String, String>, key: String): String {
         return map[key] ?: ""
     }

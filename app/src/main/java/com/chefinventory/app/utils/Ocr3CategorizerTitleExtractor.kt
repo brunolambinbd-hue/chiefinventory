@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Étape 3 du pipeline OCR : Extraction et Scoring du Titre de la Recette (Orchestrateur Principal).
@@ -26,22 +26,30 @@ object Ocr3CategorizerTitleExtractor {
         val actionVerbs = vocabulary.stepActionKeywords.distinct()
         val containsActionRegex = if (actionVerbs.isEmpty()) null else OcrRegexes.getInstructionPrefixPattern(actionVerbs)
 
-        val recipeIngredientWords = Ocr3CategorizerTitleExtractor0_Context.extractRecipeIngredientWords(lines)
+        val recipeIngredientWords = Ocr3CategorizerTitleExtractor0_Context.extractRecipeIngredientWords(lines, vocabulary)
         val firstIngredientWord = Ocr3CategorizerTitleExtractor0_Context.findFirstIngredientWord(lines, vocabulary)
         if (recipeIngredientWords.isNotEmpty()) {
-            Log.d(TAG, "TITLE EXTRACTOR: Ingrédients détectés sur la fiche pour scoring -> $recipeIngredientWords")
+            if (vocabulary.logOcr3TitleExtractorIngrDetected.isNotBlank()) {
+                LogManager.d(TAG, String.format(vocabulary.logOcr3TitleExtractorIngrDetected, recipeIngredientWords))
+            }
         } else {
-            Log.d(TAG, "TITLE EXTRACTOR: Aucun mot d'ingrédient détecté pour scoring")
+            if (vocabulary.logOcr3TitleExtractorNoIngr.isNotBlank()) {
+                LogManager.d(TAG, vocabulary.logOcr3TitleExtractorNoIngr)
+            }
         }
 
-        Log.d(TAG, "=== DEBUT EXTRACTION DU TITRE PAR SCORING ===")
+        if (vocabulary.logOcr3TitleExtractorStart.isNotBlank()) {
+            LogManager.d(TAG, vocabulary.logOcr3TitleExtractorStart)
+        }
 
         for (i in lines.indices) {
             val workingLine = lines[i].trim()
             if (workingLine.isEmpty()) {
                 continue
             } else {
-                Log.d(TAG, "  [LIGNE TRAITÉE] '$workingLine'")
+                if (vocabulary.logOcr3TitleExtractorLineProcessed.isNotBlank()) {
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3TitleExtractorLineProcessed, workingLine))
+                }
             }
 
             // 1. Détection de titre collé après "sel et poivre"
@@ -65,7 +73,7 @@ object Ocr3CategorizerTitleExtractor {
             }
 
             // 3. Traitement de la ligne courante (Exclut les lignes ayant des quantités d'ingrédients)
-            val parsedRawLine = IngredientParser.parse(workingLine)
+            val parsedRawLine = IngredientParser.parse(workingLine, vocabulary.culinaryMeasurementUnits)
             val isIngredientQuantityLine = parsedRawLine.quantity != null && 
                     (parsedRawLine.unit != null || parsedRawLine.quantity!! < 50.0)
 
@@ -81,8 +89,9 @@ object Ocr3CategorizerTitleExtractor {
 
         // Logcat de tous les candidats évalués avec leurs détails
         candidates.forEachIndexed { index, candidate ->
-            System.err.println("TITLE CANDIDATE [#$index]: '${candidate.candidateText}' -> SCORE: ${candidate.score} (${candidate.scoreDetails})")
-            Log.d(TAG, "TITLE CANDIDATE [#$index]: '${candidate.candidateText}' -> SCORE: ${candidate.score} (${candidate.scoreDetails})")
+            if (vocabulary.logOcr3TitleExtractorCandidateScore.isNotBlank()) {
+                LogManager.d(TAG, String.format(vocabulary.logOcr3TitleExtractorCandidateScore, index, candidate.candidateText, candidate.score, candidate.scoreDetails))
+            }
         }
 
         val bestCandidate = candidates.maxByOrNull { it.score }
@@ -92,9 +101,19 @@ object Ocr3CategorizerTitleExtractor {
 
         if (bestCandidate != null) {
             extractedTitle = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.postProcessTitle(bestCandidate.candidateText, vocabulary)
-            Log.d(TAG, ">>> TITRE RETENU INITIALEMENT: '$extractedTitle' avec SCORE MAX: ${bestCandidate.score}")
+            if (vocabulary.logOcr3TitleExtractorRetained.isNotBlank()) {
+                LogManager.d(TAG, String.format(vocabulary.logOcr3TitleExtractorRetained, extractedTitle, bestCandidate.score))
+            }
         } else {
-            Log.d(TAG, ">>> AUCUN TITRE VALIDE RETENU")
+            if (vocabulary.logOcr3TitleExtractorNoTitleRetained.isNotBlank()) {
+                LogManager.d(TAG, vocabulary.logOcr3TitleExtractorNoTitleRetained)
+            }
+        }
+
+        val endMarker = if (vocabulary.ingredientEndMarkers.isNotEmpty()) {
+            vocabulary.ingredientEndMarkers.firstOrNull { it.contains("sel") } ?: vocabulary.ingredientEndMarkers[0]
+        } else {
+            ""
         }
 
         // Reconstruction des lignes restantes sans le titre retenu
@@ -108,13 +127,15 @@ object Ocr3CategorizerTitleExtractor {
             if (line.isEmpty()) {
                 continue
             } else {
-                Log.d(TAG, "  [LIGNE RESTANTE CANDIDATE] '$line'")
+                if (vocabulary.logOcr3TitleExtractorRemainingLine.isNotBlank()) {
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3TitleExtractorRemainingLine, line))
+                }
             }
 
             if (bestCandidate != null && i == bestCandidate.originalLineIndex) {
-                if (line.lowercase().contains("sel et poivre")) {
+                if (endMarker.isNotEmpty() && line.lowercase().contains(endMarker.lowercase())) {
                     val parts = line.split(OcrRegexes.Titles.SPLIT_SEL_POIVRE, 2)
-                    remainingLines.add(parts[0].trim() + " sel et poivre")
+                    remainingLines.add(parts[0].trim() + " " + endMarker)
                 }
                 skipCounter = bestCandidate.originalLinesToSkip
                 continue
@@ -125,7 +146,9 @@ object Ocr3CategorizerTitleExtractor {
         // Complétion grammaticale du titre si le titre se termine par un adjectif/déterminant suspendu
         extractedTitle = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.recoverOrphanNoun(extractedTitle, remainingLines, vocabulary)
 
-        Log.d(TAG, "=== FIN EXTRACTION DU TITRE PAR SCORING ===")
+        if (vocabulary.logOcr3TitleExtractorEnd.isNotBlank()) {
+            LogManager.d(TAG, vocabulary.logOcr3TitleExtractorEnd)
+        }
         return TitleExtractionResult(extractedTitle, remainingLines)
     }
 

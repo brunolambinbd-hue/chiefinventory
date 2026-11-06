@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 import java.util.regex.Matcher
 
 /**
@@ -28,7 +28,7 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
                 val pattern = OcrRegexes.getSpellingRepairPattern(wrong)
                 result = pattern.matcher(result).replaceAll(Matcher.quoteReplacement(correct))
             } else {
-                Log.d(TAG, "  [SKIP] Règle de réparation invalide sans séparateur: '$repair'")
+                LogManager.d(TAG, String.format(vocabulary.logOcr3TitleRepairRuleInvalid, repair))
             }
         }
         return result
@@ -41,24 +41,14 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
      * @param vocabulary Le vocabulaire métier data-driven (`ocr_step25_title_repairs.xml`).
      * @return `true` si la ligne commence par un connecteur de titre (ex: "au jambon", "aux crevettes"), `false` sinon.
      */
-    internal fun isMultiLineTitleConnector(line: String, vocabulary: OcrVocabulary?): Boolean {
+    internal fun isMultiLineTitleConnector(line: String, vocabulary: OcrVocabulary? = null): Boolean {
         val lower = line.lowercase().trim()
-        val defaultConnectors = listOf("au ", "aux ", "et ", "à la ", "a la ", "à ", "de ", "d'", "du ", "des ", "avec ", "sur ")
-        val rawConnectors = if (vocabulary != null) {
-            vocabulary.titleMultilineConnectors
-        } else {
-            emptyList()
-        }
-        val connectors = if (rawConnectors.isEmpty()) {
-            defaultConnectors
-        } else {
-            rawConnectors.map { " ${it.trim().lowercase()} " }
-        }
-        return connectors.any { lower.startsWith(it.trimStart()) || lower.startsWith(it.trim()) }
-    }
+        val activeVocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
+        val baseConnectors = listOf("au ", "aux ", "et ", "à la ", "a la ", "à ", "de ", "d'", "du ", "des ", "avec ", "sur ")
+        val xmlConnectors = activeVocab.titleMultilineConnectors.map { " ${it.trim().lowercase()} " }
+        val connectors = (xmlConnectors + baseConnectors).distinct()
 
-    internal fun isMultiLineTitleConnector(line: String): Boolean {
-        return isMultiLineTitleConnector(line, null)
+        return connectors.any { lower.startsWith(it.trimStart()) || lower.startsWith(it.trim()) }
     }
 
     /**
@@ -100,7 +90,7 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
             val firstCharUpper = matchedIngredient[0].uppercaseChar()
             val repairedFirstWord = firstCharUpper + matchedIngredient.substring(1)
             val repairedText = (listOf(repairedFirstWord) + words.drop(1)).joinToString(" ")
-            Log.d(TAG, "TITLE EXTRACTOR: Lettrine réparée -> '$titleCandidate' devenant '$repairedText' (via '$matchedIngredient')")
+            LogManager.d(TAG, String.format(vocabulary.logOcr3TitleLettrineRepaired, titleCandidate, repairedText, matchedIngredient))
             return repairedText
         }
 
@@ -113,18 +103,34 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
     internal fun isEligibleOrphanNoun(
         line: String,
         isFeminineAdj: Boolean,
-        actionKeywords: List<String>
+        actionKeywords: List<String>,
+        vocabulary: OcrVocabulary? = null
     ): Boolean {
         val cleanL = line.lowercase().trim().removeSuffix(".")
-        val numberWords = setOf("un", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix")
-        val stopInOrphanNoun = setOf("les", "des", "pour", "dans", "sur", "avec", "par", "tout", "melon")
+        val defaultVocab by lazy { OcrVocabularyLoader.loadFromProjectResources() }
+
+        // Copies des lignes originales conservées en commentaire :
+        // val numberWords = setOf("un", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix")
+        // val stopInOrphanNoun = setOf("les", "des", "pour", "dans", "sur", "avec", "par", "tout", "melon")
+
+        val numberWords = if (vocabulary != null && vocabulary.orphanNounNumberWords.isNotEmpty()) {
+            vocabulary.orphanNounNumberWords
+        } else {
+            defaultVocab.orphanNounNumberWords
+        }.map { it.trim().lowercase() }
+
+        val stopWords = if (vocabulary != null && vocabulary.orphanNounStopWords.isNotEmpty()) {
+            vocabulary.orphanNounStopWords
+        } else {
+            defaultVocab.orphanNounStopWords
+        }.map { it.trim().lowercase() }
 
         val matchesGender = if (isFeminineAdj) cleanL.endsWith("e") else true
         val isCorrectLen = cleanL.length in 3..20
         val noSpace = !cleanL.contains(" ")
-        val isNotNumber = cleanL !in numberWords
+        val isNotNumber = numberWords.none { cleanL.equals(it, ignoreCase = true) }
         val hasVerb = OcrInstructionUtils.hasActionVerb(cleanL, actionKeywords)
-        val isNotStop = cleanL !in stopInOrphanNoun
+        val isNotStop = stopWords.none { cleanL.equals(it, ignoreCase = true) }
 
         if (!isCorrectLen) return false
         if (!noSpace) return false
@@ -163,7 +169,7 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
             }
 
             val orphanNounIdx = remainingLines.indexOfFirst { line ->
-                isEligibleOrphanNoun(line, isFeminineAdj, vocabulary.stepActionKeywords)
+                isEligibleOrphanNoun(line, isFeminineAdj, vocabulary.stepActionKeywords, vocabulary)
             }
 
             if (orphanNounIdx != -1) {
@@ -171,9 +177,9 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
                 val baseTitle = titleResult.replace(Regex("\\s+[a-zA-Z]$"), "").trim()
                 titleResult = "$baseTitle $orphanNoun"
                 remainingLines.removeAt(orphanNounIdx)
-                Log.d(TAG, "TITLE EXTRACTOR: Title completed with orphan noun -> '$titleResult' (consumed line: '$orphanNoun')")
+                LogManager.d(TAG, String.format(vocabulary.logOcr3TitleOrphanNounCompleted, titleResult, orphanNoun))
             } else {
-                Log.d(TAG, "  [INFO] Aucun nom orphelin trouvé dans les lignes restantes")
+                LogManager.d(TAG, vocabulary.logOcr3TitleNoOrphanNounFound)
             }
         }
         return titleResult
@@ -192,7 +198,8 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
             val firstCharUpper = cleaned[0].uppercaseChar()
             cleaned = firstCharUpper + cleaned.substring(1)
         } else {
-            Log.d(TAG, "  [INFO] Chaîne vide après stripRecipeNumber")
+            val vocab = OcrVocabularyLoader.loadFromProjectResources()
+            LogManager.d(TAG, vocab.logOcr3TitleStripRecipeNumberEmpty)
         }
         return cleaned
     }
