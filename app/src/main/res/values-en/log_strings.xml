@@ -33,6 +33,16 @@
     <string name="log_ocr3_header_subheader_detected">  [!] INGREDIENT SUB-HEADER DETECTED (\'%1$s\')</string>
     <string name="log_ocr3_unfinished_ingr_still_empty">  [INCOMPLETE UNIT FUSION] Ingredient name still empty after fusion (\'%1$s\')</string>
     <string name="log_ocr3_unfinished_ingr_fused">  [INCOMPLETE UNIT FUSION] Appended: \'%1$s\' ➔ New line: \'%2$s\'</string>
+    <string name="log_ocr3_inverted_is_inverted">isInvertedRecipe = %1$b</string>
+    <string name="log_ocr3_inverted_start">--- START INVERTED CATEGORIZATION (TYPE 3) ---</string>
+    <string name="log_ocr3_inverted_end">--- END INVERTED CATEGORIZATION (TYPE 3) ---</string>
+    <string name="log_ocr3_inverted_bottom_ingr_switch">  [!] BOTTOM INGREDIENTS SECTION SWITCH DETECTED (Line: \'%1$s\')</string>
+    <string name="log_ocr3_narrative_is_narrative">isNarrativeInstructionOnlyRecipe = %1$b (first instruction line=\'%2$s\')</string>
+    <string name="log_ocr3_narrative_start">--- START NARRATIVE CATEGORIZATION (TYPE 2) ---</string>
+    <string name="log_ocr3_narrative_end">--- END NARRATIVE CATEGORIZATION (TYPE 2) ---</string>
+    <string name="log_ocr3_narrative_extracted_implied_ingr">  [EXTRACTED IMPLIED INGREDIENT] ➔ \'%1$s\'</string>
+    <string name="log_ocr3_narrative_extracted_seasoning">  [EXTRACTED IMPLIED SEASONING] ➔ \'%1$s\'</string>
+    <string name="log_ocr3_narrative_seasoning_already_present">  [IMPLIED SEASONING] Salt or pepper already present in recipe</string>
     <string name="log_ocr3_title_extractor_start">=== START TITLE EXTRACTION BY SCORING ===</string>
     <string name="log_ocr3_title_extractor_end">=== END TITLE EXTRACTION BY SCORING ===</string>
     <string name="log_ocr3_title_extractor_retained">>>> TITLE INITIALLY RETAINED: \'%1$s\' with MAX SCORE: %2$d</string>

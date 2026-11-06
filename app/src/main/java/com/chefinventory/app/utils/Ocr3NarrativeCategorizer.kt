@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Catégoriseur spécialisé pour les recettes narratives courtes sans section d'ingrédients dédiée (Type 2).
@@ -15,11 +15,6 @@ import android.util.Log
 object Ocr3NarrativeCategorizer {
     private const val TAG = "Ocr3NarrativeCat"
 
-    private val EXPLICIT_INGR_KEYWORDS = listOf("ingrédients", "ingredients", "composition", "ngrédients")
-    private val INSTRUCTION_HEADER_KEYWORDS = setOf("instructions", "réalisation", "méthode", "progression")
-    private val DURATION_UNITS = setOf("min", "mn", "sec", "h", "min.", "mn.", "sec.", "h.")
-    private val DURATION_ENDINGS = listOf(" min", " mn", " h")
-    private val META_HEADER_PREFIXES = listOf("préparation", "cuisson", "repos", "pour")
     private val STEP_NUMBER_REGEX = Regex("^\\d{1,2}(?:\\s+[\\p{Lu}]|[.)\\-])")
 
     /**
@@ -35,19 +30,22 @@ object Ocr3NarrativeCategorizer {
         // 1. Si la fiche contient un en-tête d'ingrédients explicite ("INGRÉDIENTS", "COMPOSITION"), ce n'est PAS du Type 2 !
         val hasExplicitIngrHeader = lines.any { line ->
             val lower = line.lowercase().trim()
-            EXPLICIT_INGR_KEYWORDS.any { lower.contains(it) }
+            vocabulary.ocr1ProtectedIngredientsHeaders.any { lower.contains(it.lowercase()) }
         }
         if (hasExplicitIngrHeader) return false
 
         // 1.5 Si la fiche contient un en-tête d'instructions ET un ingrédient quantifié -> Type 1 !
         val hasInstructionHeader = lines.any { line ->
             val lower = line.lowercase().trim().trimEnd(':', '.')
-            INSTRUCTION_HEADER_KEYWORDS.any { lower.startsWith(it) } && "mn" !in lower && "min" !in lower
+            vocabulary.ocr1ProtectedInstructionsHeaders.any { lower.startsWith(it.lowercase()) } && "mn" !in lower && "min" !in lower
         }
+        val durationUnits = vocabulary.culinaryMeasurementUnits.map { it.lowercase() }.toSet()
+        val durationEndings = vocabulary.timeHeaderKeywords.map { " ${it.trim().lowercase()}" }
+
         val hasIngredientWithQuantity = lines.any { line ->
             val parsed = IngredientParser.parse(line, vocabulary.culinaryMeasurementUnits)
             val unitLower = parsed.unit?.lowercase()?.trim().orEmpty()
-            val isDurationUnit = unitLower in DURATION_UNITS || (parsed.quantity != null && DURATION_ENDINGS.any { line.endsWith(it, ignoreCase = true) })
+            val isDurationUnit = unitLower in durationUnits || (parsed.quantity != null && durationEndings.any { line.endsWith(it, ignoreCase = true) })
             parsed.quantity != null && parsed.name.isNotBlank() && !isDurationUnit
         }
         if (hasInstructionHeader && hasIngredientWithQuantity) return false
@@ -61,13 +59,15 @@ object Ocr3NarrativeCategorizer {
         }
         if (hasBottomIngredientList) return false
 
+        val metaPrefixes = (vocabulary.timeHeaderPrefixes + vocabulary.timeHeaderKeywords).map { it.lowercase().trim() }.distinct()
+
         // 2. Si la fiche contient au moins une ligne d'ingrédient autonome AVANT le début des instructions
         var hasInstructionStarted = false
         val hasStandaloneIngredientLine = lines.any { line ->
             val lower = line.lowercase().trim()
             val hasAction = OcrInstructionUtils.hasActionVerb(line, vocabulary.stepActionKeywords)
-            val isMetaHeader = META_HEADER_PREFIXES.any { lower.startsWith(it) } || lower == "pour"
-            val isHeader = isMetaHeader || lower.startsWith("réalisation") || lower.startsWith("instructions")
+            val isMetaHeader = metaPrefixes.any { lower.startsWith(it) } || lower.startsWith("pour ")
+            val isHeader = isMetaHeader || vocabulary.ocr1ProtectedInstructionsHeaders.any { lower.startsWith(it.lowercase()) }
 
             if (hasAction || (Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) && !isMetaHeader)) {
                 hasInstructionStarted = true
@@ -84,7 +84,7 @@ object Ocr3NarrativeCategorizer {
         // 3. Recherche de la première véritable ligne d'instruction (verbe d'action ou numéro d'étape)
         val firstInstructionLine = lines.firstOrNull { line ->
             val lower = line.lowercase().trim()
-            if (lower == "pour" || META_HEADER_PREFIXES.any { lower.startsWith(it) }) return@firstOrNull false
+            if (lower == "pour" || metaPrefixes.any { lower.startsWith(it) }) return@firstOrNull false
             if (Ocr3CategorizerProperNameDetector.isLikelyProperNameOrSource(line, vocabulary)) return@firstOrNull false
             if (vocabulary.excludedOcrKeywords.any { it.equals(line.trim(), ignoreCase = true) }) return@firstOrNull false
 
@@ -97,7 +97,7 @@ object Ocr3NarrativeCategorizer {
         }
 
         val result = firstInstructionLine != null
-        Log.d(TAG, "isNarrativeInstructionOnlyRecipe = $result (firstInstructionLine='${firstInstructionLine ?: "aucun"}')")
+        LogManager.d(TAG, String.format(vocabulary.logOcr3NarrativeIsNarrative, result, firstInstructionLine ?: ""))
         return result
     }
 
@@ -109,7 +109,7 @@ object Ocr3NarrativeCategorizer {
      * @return L'objet [RawSections] alimenté avec les consignes fluides et les ingrédients pour la BDD.
      */
     fun categorizeNarrativeRecipe(lines: List<String>, vocabulary: OcrVocabulary): RawSections {
-        Log.d(TAG, "--- DÉBUT CATÉGORISATION NARRATIVE (TYPE 2) ---")
+        LogManager.d(TAG, vocabulary.logOcr3NarrativeStart)
         val results = RawSections()
 
         val instructionLines = mutableListOf<String>()
@@ -152,7 +152,7 @@ object Ocr3NarrativeCategorizer {
         // 4. Extraction d'ingrédients implicites depuis les consignes pour alimenter le moteur de recherche par garde-manger
         Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(instructionLines, vocabulary, results)
 
-        Log.d(TAG, "--- FIN CATÉGORISATION NARRATIVE (TYPE 2) ---")
+        LogManager.d(TAG, vocabulary.logOcr3NarrativeEnd)
         return results
     }
 }

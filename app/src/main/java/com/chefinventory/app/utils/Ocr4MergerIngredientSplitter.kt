@@ -1,10 +1,13 @@
 package com.chefinventory.app.utils
 
+import com.parabd.lib.traceability.utils.LogManager
+
 /**
  * Sous-composant de l'Étape 4 (Fusion & Découpage) : Scinde les lignes d'ingrédients combinées en éléments distincts.
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr4MergerIngredientSplitter {
+    private const val TAG = "Ocr4MergerSplitter"
 
     /**
      * Découpe une ligne contenant plusieurs ingrédients fusionnés (ex: *"4 toasts salade de blé"* ➔ *["4 toasts", "salade de blé"]*).
@@ -73,7 +76,7 @@ object Ocr4MergerIngredientSplitter {
         val sb = StringBuilder(cleanedLine)
         var offset = 0
         potentialSplits.findAll(cleanedLine).forEach { match ->
-            System.err.println("DEBUG SPLIT MATCH = '" + match.value + "' at " + match.range + " in '" + cleanedLine + "'")
+            LogManager.d(TAG, "DEBUG SPLIT MATCH = '" + match.value + "' at " + match.range + " in '" + cleanedLine + "'")
             val matchEndText = cleanedLine.substring(match.range.last + 1).trimStart()
             val isParenthesisQuantity = matchEndText.startsWith("(") || OcrTextUtils.isInsideParentheses(cleanedLine, match.range.first)
             if (!isParenthesisQuantity) {

@@ -59,10 +59,11 @@ public object MatchRecipeInventoryEngine {
         }
     }
 
-    private val unitPrefixPattern: Regex by lazy {
-        val vocab = loadVocabSafely()
-        buildUnitPrefixPattern(vocab)
-    }
+    private val unitPrefixPattern: Regex
+        get() {
+            val vocab = loadVocabSafely()
+            return buildUnitPrefixPattern(vocab)
+        }
 
     /**
      * Cleans an ingredient name by purging measurement unit prefixes and non-alphabetic characters.

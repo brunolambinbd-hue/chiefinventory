@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Unités et abréviations de durée temporelle pour l'OCR (Étape 3 - Longest Match First) -->
+    <string-array name="duration_units">
+        <item>secondes</item>
+        <item>minutes</item>
+        <item>minute</item>
+        <item>heures</item>
+        <item>heure</item>
+        <item>mins</item>
+        <item>min</item>
+        <item>sec</item>
+        <item>hrs</item>
+        <item>mn</item>
+        <item>hr</item>
+        <item>h</item>
+    </string-array>
+</resources>

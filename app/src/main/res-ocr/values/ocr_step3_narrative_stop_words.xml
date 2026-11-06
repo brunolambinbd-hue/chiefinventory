@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mots-morts et bruits sémantiques exclus pour l'extraction d'ingrédients implicites des recettes narratives (Étape 3 - Longest Match First) -->
+    <string-array name="narrative_stop_words">
+        <item>pendant</item>
+        <item>glacée</item>
+        <item>savoir</item>
+        <item>temps</item>
+        <item>moyen</item>
+        <item>soupe</item>
+        <item>vous</item>
+        <item>nous</item>
+        <item>dans</item>
+        <item>pour</item>
+        <item>feu</item>
+        <item>que</item>
+        <item>bon</item>
+    </string-array>
+</resources>

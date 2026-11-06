@@ -107,23 +107,10 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
         vocabulary: OcrVocabulary? = null
     ): Boolean {
         val cleanL = line.lowercase().trim().removeSuffix(".")
-        val defaultVocab by lazy { OcrVocabularyLoader.loadFromProjectResources() }
+        val activeVocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
 
-        // Copies des lignes originales conservées en commentaire :
-        // val numberWords = setOf("un", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix")
-        // val stopInOrphanNoun = setOf("les", "des", "pour", "dans", "sur", "avec", "par", "tout", "melon")
-
-        val numberWords = if (vocabulary != null && vocabulary.orphanNounNumberWords.isNotEmpty()) {
-            vocabulary.orphanNounNumberWords
-        } else {
-            defaultVocab.orphanNounNumberWords
-        }.map { it.trim().lowercase() }
-
-        val stopWords = if (vocabulary != null && vocabulary.orphanNounStopWords.isNotEmpty()) {
-            vocabulary.orphanNounStopWords
-        } else {
-            defaultVocab.orphanNounStopWords
-        }.map { it.trim().lowercase() }
+        val numberWords = activeVocab.orphanNounNumberWords.map { it.trim().lowercase() }
+        val stopWords = activeVocab.orphanNounStopWords.map { it.trim().lowercase() }
 
         val matchesGender = if (isFeminineAdj) cleanL.endsWith("e") else true
         val isCorrectLen = cleanL.length in 3..20

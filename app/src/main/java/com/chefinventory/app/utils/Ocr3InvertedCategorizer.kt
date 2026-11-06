@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Catégoriseur spécialisé pour les recettes inversées (Type 3) dont les consignes d'instructions
@@ -12,6 +12,7 @@ import android.util.Log
  * - Passe 2 : Évaluer et réparer le titre du haut en utilisant les mots-clés d'ingrédients extraits du bas.
  * - Extraire les métadonnées, le vin et les sources.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3InvertedCategorizer {
     private const val TAG = "Ocr3InvertedCat"
 
@@ -28,7 +29,7 @@ object Ocr3InvertedCategorizer {
         // 1. Si la fiche contient un en-tête d'ingrédients explicite ("INGRÉDIENTS", "COMPOSITION"), ce n'est PAS du Type 3 !
         val hasExplicitIngrHeader = lines.any { line ->
             val lower = line.lowercase().trim()
-            lower.contains("ingr") || lower.contains("composition")
+            vocabulary.ocr1ProtectedIngredientsHeaders.any { lower.contains(it.lowercase()) }
         }
         if (hasExplicitIngrHeader) return false
 
@@ -51,7 +52,7 @@ object Ocr3InvertedCategorizer {
         }
 
         val result = startsWithInstruction && hasBottomIngredientBlock
-        Log.d(TAG, "isInvertedRecipe = $result")
+        LogManager.d(TAG, String.format(vocabulary.logOcr3InvertedIsInverted, result))
         return result
     }
 
@@ -62,6 +63,7 @@ object Ocr3InvertedCategorizer {
      *
      * @param lines La liste des lignes de texte scannées.
      * @param vocabulary Le vocabulaire métier OCR.
+     * @param originalCleanedLines Liste des lignes nettoyées d'origine pour l'extraction du titre.
      * @return L'objet [RawSections] alimenté avec le titre réparé, les instructions, ingrédients et métadonnées.
      */
     fun categorizeInvertedRecipe(
@@ -69,7 +71,7 @@ object Ocr3InvertedCategorizer {
         vocabulary: OcrVocabulary, 
         originalCleanedLines: List<String> = emptyList()
     ): RawSections {
-        Log.d(TAG, "--- DÉBUT CATÉGORISATION INVERSÉE (TYPE 3) ---")
+        LogManager.d(TAG, vocabulary.logOcr3InvertedStart)
         val results = RawSections()
 
         var currentSection = Ocr3Categorizer.SECTION_INSTRUCTIONS
@@ -89,8 +91,8 @@ object Ocr3InvertedCategorizer {
             val isStepNumber = Regex("^\\s*\\d{1,2}\\s*[.)\\-]").containsMatchIn(workingLine)
 
             val isServingsHeader = !containsAction && !isStepNumber && ((lowerLine.contains("pour") && lowerLine.contains("personnes")) || lowerLine.contains("personnes") || lowerLine.contains("portions"))
-            val isIngrHeader = !containsAction && (lowerLine.contains("ingrédients") || lowerLine.contains("ingredients") || lowerLine.contains("composition"))
-            val isWineHeader = !containsAction && (lowerLine.contains("conseil vin") || lowerLine.contains("vin conseillé") || lowerLine == "notre" || (Regex("(?i)\\bvin(?:s)?\\b").containsMatchIn(workingLine) && !lowerLine.contains("vinaigre") && !lowerLine.contains("vinaigrette")))
+            val isIngrHeader = !containsAction && vocabulary.ocr1ProtectedIngredientsHeaders.any { lowerLine.contains(it.lowercase()) }
+            val isWineHeader = !containsAction && (vocabulary.ocr3ExplicitWineHeaders.any { lowerLine.contains(it.lowercase()) } || (Regex("(?i)\\bvin(?:s)?\\b").containsMatchIn(workingLine) && !lowerLine.contains("vinaigre") && !lowerLine.contains("vinaigrette")))
 
             if (isWineHeader) {
                 Ocr3CategorizerWine.processWineLine(workingLine, currentSection, false, false, false, vocabulary, wineState)
@@ -101,7 +103,7 @@ object Ocr3InvertedCategorizer {
             if (currentSection == Ocr3Categorizer.SECTION_INSTRUCTIONS) {
                 if (isServingsHeader || isIngrHeader) {
                     currentSection = Ocr3Categorizer.SECTION_INGREDIENTS
-                    Log.d(TAG, "  [!] BASCULE SECTION INGRÉDIENTS DU BAS DÉTECTÉE (Ligne: '$line')")
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3InvertedBottomIngrSwitch, line))
                 }
             }
 
@@ -130,7 +132,7 @@ object Ocr3InvertedCategorizer {
             // 5. Classification selon la section active
             when (currentSection) {
                 Ocr3Categorizer.SECTION_INGREDIENTS -> {
-                    if (!Ocr2Cleaner.isTechnicalDimension(workingLine)) {
+                    if (!Ocr2Cleaner.isTechnicalDimension(workingLine, vocabulary)) {
                         results.rawIngredientsList.add(workingLine)
                         val parsed = IngredientParser.parse(workingLine, vocabulary.culinaryMeasurementUnits)
                         val keywords = extractKeywordsFromText(parsed.name, parsed.supplementalInfo)
@@ -157,10 +159,17 @@ object Ocr3InvertedCategorizer {
             results.detectedTitle = titleResult.title
         }
 
-        Log.d(TAG, "--- FIN CATÉGORISATION INVERSÉE (TYPE 3) ---")
+        LogManager.d(TAG, vocabulary.logOcr3InvertedEnd)
         return results
     }
 
+    /**
+     * Extrait les mots-clés significatifs d'un nom d'ingrédient et de ses informations complémentaires de longueur >= 3.
+     *
+     * @param name Le nom de l'ingrédient.
+     * @param info Les informations complémentaires facultatives.
+     * @return La liste des mots-clés significatifs uniques en minuscules.
+     */
     private fun extractKeywordsFromText(name: String, info: String?): List<String> {
         val textToSplit = if (info.isNullOrBlank()) name else "$name $info"
         return textToSplit.split(Regex("[\\s,.'’()\\-*•/0-9]+"))

@@ -33,6 +33,16 @@
     <string name="log_ocr3_header_subheader_detected">  [!] SOUS-EN-TÊTE D\'INGRÉDIENT DÉTECTÉ (\'%1$s\')</string>
     <string name="log_ocr3_unfinished_ingr_still_empty">  [FUSION UNITÉ INCOMPLÈTE] Nom d\'ingrédient toujours vide après fusion (\'%1$s\')</string>
     <string name="log_ocr3_unfinished_ingr_fused">  [FUSION UNITÉ INCOMPLÈTE] Fusionné : \'%1$s\' ➔ Nouvelle ligne : \'%2$s\'</string>
+    <string name="log_ocr3_inverted_is_inverted">isInvertedRecipe = %1$b</string>
+    <string name="log_ocr3_inverted_start">--- DÉBUT CATÉGORISATION INVERSÉE (TYPE 3) ---</string>
+    <string name="log_ocr3_inverted_end">--- FIN CATÉGORISATION INVERSÉE (TYPE 3) ---</string>
+    <string name="log_ocr3_inverted_bottom_ingr_switch">  [!] BASCULE SECTION INGRÉDIENTS DU BAS DÉTECTÉE (Ligne : \'%1$s\')</string>
+    <string name="log_ocr3_narrative_is_narrative">isNarrativeInstructionOnlyRecipe = %1$b (première ligne d\'instruction=\'%2$s\')</string>
+    <string name="log_ocr3_narrative_start">--- DÉBUT CATÉGORISATION NARRATIVE (TYPE 2) ---</string>
+    <string name="log_ocr3_narrative_end">--- FIN CATÉGORISATION NARRATIVE (TYPE 2) ---</string>
+    <string name="log_ocr3_narrative_extracted_implied_ingr">  [INGRÉDIENT IMPLICITE EXTRAIT] ➔ \'%1$s\'</string>
+    <string name="log_ocr3_narrative_extracted_seasoning">  [ASSAISONNEMENT IMPLICITE EXTRAIT] ➔ \'%1$s\'</string>
+    <string name="log_ocr3_narrative_seasoning_already_present">  [ASSAISONNEMENT IMPLICITE] Sel ou poivre déjà présent dans la recette</string>
     <string name="log_ocr3_title_extractor_start">=== DEBUT EXTRACTION DU TITRE PAR SCORING ===</string>
     <string name="log_ocr3_title_extractor_end">=== FIN EXTRACTION DU TITRE PAR SCORING ===</string>
     <string name="log_ocr3_title_extractor_retained">>>> TITRE RETENU INITIALEMENT: \'%1$s\' avec SCORE MAX: %2$d</string>

@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Étape 4 du pipeline OCR : Fusion et Reconstruction Sémantique des Lignes Intermédiaires.
@@ -11,14 +11,9 @@ import android.util.Log
  * - Recoller les qualificatifs de préparation orphelins (*"haché"*, *"émincé"*).
  * - Découper les blocs d'instructions narratives en phrases individuelles ordonnées (une phrase par ligne).
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr4Merger {
     private const val TAG = "Ocr4Merger"
-
-    /** Connecteurs d'ingrédients de liaison provoquant la fusion de la ligne suivante. */
-    private val DEFAULT_INGREDIENTS_CONNECTORS = listOf("de", "du", "des", "d'", "au", "aux", "à", "ou", "ou de", "ou d'", "pour", "pour la", "pour le", "pour les")
-
-    /** Noms d'ingrédients appelant presque toujours un complément ("de ..."). */
-    private val HANGING_NOUNS = listOf("vinaigre", "huile", "jus", "zeste", "pincée", "pincee", "filet", "brin", "brins", "botte", "gousse", "gousses", "cuillère", "cuillere", "verre")
 
     /** Articles isolés en fin de ligne indiquant une fusion obligatoire. */
     private val ARTICLES = listOf("le", "la", "les", "l'", "un", "une", "des", "du")
@@ -30,6 +25,7 @@ object Ocr4Merger {
      * @param preparationModifiers La liste des adjectifs/modificateurs de préparation (`modifiers.xml`).
      * @param commonIngredients La liste des ingrédients connus sans quantité (`ingredients.xml`).
      * @param mandatoryComplements La liste des compléments d'ingrédients obligatoires (`complement_ingredients.xml`).
+     * @param customConnectors Liste personnalisée de connecteurs de liaison.
      * @return La liste finale des ingrédients reconstitués et séparés.
      */
     fun mergeIngredients(
@@ -40,7 +36,7 @@ object Ocr4Merger {
         customConnectors: List<String> = emptyList()
     ): List<String> {
         if (rawIngredients.isEmpty()) return emptyList()
-        Log.d(TAG, "--- mergeIngredients START ---")
+        LogManager.d(TAG, "--- mergeIngredients START ---")
 
         val intermediateMerged = mutableListOf<String>()
         var current = ""
@@ -128,8 +124,9 @@ object Ocr4Merger {
      */
     fun mergeInstructions(rawInstructions: List<String>): List<String> {
         if (rawInstructions.isEmpty()) return emptyList()
-        Log.d(TAG, "--- mergeInstructions START ---")
+        LogManager.d(TAG, "--- mergeInstructions START ---")
 
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
         val resultSentences = mutableListOf<String>()
         var currentBlock = ""
         var prevOriginalLine = ""
@@ -143,7 +140,7 @@ object Ocr4Merger {
                 it.endsWith(" et") || it.endsWith(" et-") || it.endsWith(" ou") || it.endsWith(" ou-") || it.endsWith(",") 
             }
             val hasExplicitStepMarker = Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(line) || Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(normalizedLine)
-            val isNextStep = hasExplicitStepMarker || currentEndsWithPeriod || (!currentEndsWithConjunction && (isNewStep(line) || isNewStep(normalizedLine)))
+            val isNextStep = hasExplicitStepMarker || currentEndsWithPeriod || (!currentEndsWithConjunction && (isNewStep(line, vocab) || isNewStep(normalizedLine, vocab)))
 
             if (currentBlock.isNotEmpty() && !isNextStep) {
                 val prevWasHyphenated = prevOriginalLine.trimEnd().endsWith("-")
@@ -204,6 +201,7 @@ object Ocr4Merger {
      * Détermine si une ligne d'ingrédient se termine par un mot suspendu ou une quantité incomplète sans nom d'ingrédient.
      *
      * @param text La ligne d'ingrédient à analyser.
+     * @param customConnectors Liste de connecteurs personnalisés optionnelle.
      * @return `true` si la ligne est suspendue et doit être fusionnée avec la suivante, `false` sinon.
      */
     internal fun isHanging(text: String, customConnectors: List<String> = emptyList()): Boolean {
@@ -215,14 +213,17 @@ object Ocr4Merger {
         val endsWithHyphen = text.trimEnd().endsWith("-")
         if (hasUnclosedParenthesis || endsWithHyphen) return true
 
-        val parsed = IngredientParser.parse(text)
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val parsed = IngredientParser.parse(text, vocab.culinaryMeasurementUnits)
         if (parsed.quantity != null && (parsed.name.isBlank() || parsed.name.matches(Regex("(?i)^(?:soupe|café|c\\.?\\s*[àa]\\s*(?:soupe|café)|g|kg|cl|ml|l)$")))) {
             return true
         }
 
-        val connectors = if (customConnectors.isNotEmpty()) customConnectors else DEFAULT_INGREDIENTS_CONNECTORS
+        val connectors = if (customConnectors.isNotEmpty()) customConnectors else vocab.ingredientConnectors
         val endsWithConnector = connectors.any { lower.endsWith(" $it") || lower.endsWith("$it") }
-        val endsWithHangingNoun = HANGING_NOUNS.any { lower.endsWith(" $it") || lower == it || lower.endsWith("soupe") || lower.endsWith("café") }
+
+        val hangingNouns = (vocab.mandatoryComplementIngredients + vocab.culinaryMeasurementUnits).map { it.lowercase().trim() }
+        val endsWithHangingNoun = hangingNouns.any { lower.endsWith(" $it") || lower == it }
         return endsWithConnector || endsWithHangingNoun
     }
 
@@ -230,10 +231,11 @@ object Ocr4Merger {
      * Détermine si le texte commence par un connecteur de liaison d'ingrédients (ex: *"de"*, *"du"*, *"d'"*, *"au"*).
      *
      * @param text La ligne à analyser.
+     * @param customConnectors Liste de connecteurs personnalisés optionnelle.
      * @return `true` si la ligne commence par un connecteur, `false` sinon.
      */
     internal fun startsWithConnector(text: String, customConnectors: List<String> = emptyList()): Boolean {
-        val connectors = if (customConnectors.isNotEmpty()) customConnectors else DEFAULT_INGREDIENTS_CONNECTORS
+        val connectors = if (customConnectors.isNotEmpty()) customConnectors else OcrVocabularyLoader.loadFromProjectResources().ingredientConnectors
         val lower = text.lowercase().trim()
         return connectors.any { lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
     }
@@ -271,9 +273,12 @@ object Ocr4Merger {
      * Détermine si la ligne marque le début d'une nouvelle étape de consigne d'instructions.
      *
      * @param line La ligne d'instruction à évaluer.
+     * @param vocabulary Le vocabulaire métier OCR.
      * @return `true` s'il s'agit du début d'une nouvelle étape, `false` sinon.
      */
-    private fun isNewStep(line: String): Boolean {
-        return Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*|Faites\\b|Pendant\\b|Mélangez\\b|Plongez\\b|Egoutez\\b|Égouttez\\b|Servez\\b|Coupez\\b|Préparez\\b|Lavez\\b|Disposez\\b|Ajoutez\\b|Répartissez\\b|Garnissez\\b|Salez\\b|Mettez\\b)", RegexOption.IGNORE_CASE).containsMatchIn(line)
+    private fun isNewStep(line: String, vocabulary: OcrVocabulary? = null): Boolean {
+        val vocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
+        val regex = OcrRegexes.getInstructionPrefixPattern(vocab.stepStartVerbs)
+        return regex.containsMatchIn(line)
     }
 }

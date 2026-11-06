@@ -53,6 +53,11 @@ import com.chefinventory.app.R
  * @property ocr2TechnicalDimensionKeywords Mots-clés de contexte de dimensions techniques (Étape 2).
  * @property orphanNounNumberWords Mots numériques et nombres exprimés en toutes lettres disqualifiant les noms orphelins.
  * @property orphanNounStopWords Mots-morts et bruits sémantiques exclus pour le complétement des noms orphelins.
+ * @property narrativeStopWords Mots-morts exclus pour l'extraction d'ingrédients implicites des recettes narratives.
+ * @property durationUnits Unités et abréviations de durée temporelle.
+ * @property stepStartVerbs Verbes d'action au mode impératif marquant le début d'une nouvelle étape.
+ * @property stepSecondaryVerbs Verbes d'action secondaires en forme infinitive ou interne.
+ * @property stepContextWords Mots et expressions de contexte d'instructions.
  * @property ocr1CanonicalIngredientsHeader Cible canonique de remplacement de l'en-tête d'ingrédients (Étape 1).
  * @property ocr1CanonicalInstructionsHeader Cible canonique de remplacement de l'en-tête d'instructions (Étape 1).
  * @property ocr1IngredientsSuffixPrefix Préfixe de détection du suffixe ingrédients (Étape 1).
@@ -81,6 +86,16 @@ import com.chefinventory.app.R
  * @property logOcr3HeaderSubheaderDetected Message de log pour la détection de sous-en-tête.
  * @property logOcr3UnfinishedIngrStillEmpty Message de log pour l'ingrédient inachevé toujours vide.
  * @property logOcr3UnfinishedIngrFused Message de log pour la fusion d'ingrédient inachevé.
+ * @property logOcr3InvertedIsInverted Message de log pour la détection de recette inversée.
+ * @property logOcr3InvertedStart Message de log pour le début de catégorisation inversée.
+ * @property logOcr3InvertedEnd Message de log pour la fin de catégorisation inversée.
+ * @property logOcr3InvertedBottomIngrSwitch Message de log pour la bascule en ingrédients du bas.
+ * @property logOcr3NarrativeIsNarrative Message de log pour la détection de recette narrative.
+ * @property logOcr3NarrativeStart Message de log pour le début de catégorisation narrative.
+ * @property logOcr3NarrativeEnd Message de log pour la fin de catégorisation narrative.
+ * @property logOcr3NarrativeExtractedImpliedIngr Message de log pour un ingrédient implicite extrait.
+ * @property logOcr3NarrativeExtractedSeasoning Message de log pour un assaisonnement implicite extrait.
+ * @property logOcr3NarrativeSeasoningAlreadyPresent Message de log lorsqu'un assaisonnement est déjà présent.
  * @property logOcr3TitleExtractorStart Message de log pour le début d'extraction de titre d'étape 3.
  * @property logOcr3TitleExtractorEnd Message de log pour la fin d'extraction de titre d'étape 3.
  * @property logOcr3TitleExtractorRetained Message de log pour le titre retenu d'étape 3.
@@ -96,7 +111,7 @@ import com.chefinventory.app.R
  * @property logOcr3TitleOrphanNounCompleted Message de log pour le titre complété par un nom orphelin.
  * @property logOcr3TitleNoOrphanNounFound Message de log lorsqu'aucun nom orphelin n'est trouvé.
  * @property logOcr3TitleStripRecipeNumberEmpty Message de log pour une chaîne vide après suppression du numéro de fiche.
- * @property logOcr3WineDuplicateIgnored Message de log pour la ligne de vin doublon ignorée d'étape 3.
+ * @property logOcr3WineDuplicateIgnored Message de log pour la ligne de vin ignorée d'étape 3.
  * @property logOcr3WineEmptyIgnored Message de log pour la ligne de vin vide ignorée d'étape 3.
  * @property logOcr3WineSectionClosed Message de log pour la fermeture de section vin d'étape 3.
  * @property logOcr3WineSectionActive Message de log pour le maintien de section vin d'étape 3.
@@ -155,6 +170,11 @@ data class OcrVocabulary(
     val ocr2TechnicalDimensionKeywords: List<String> = emptyList(),
     val orphanNounNumberWords: List<String> = emptyList(),
     val orphanNounStopWords: List<String> = emptyList(),
+    val narrativeStopWords: List<String> = emptyList(),
+    val durationUnits: List<String> = emptyList(),
+    val stepStartVerbs: List<String> = emptyList(),
+    val stepSecondaryVerbs: List<String> = emptyList(),
+    val stepContextWords: List<String> = emptyList(),
     val ocr1CanonicalIngredientsHeader: String = "ingrédients",
     val ocr1CanonicalInstructionsHeader: String = "instructions",
     val ocr1IngredientsSuffixPrefix: String = "ng",
@@ -183,6 +203,16 @@ data class OcrVocabulary(
     val logOcr3HeaderSubheaderDetected: String = "  [!] SOUS-EN-TÊTE D'INGRÉDIENT DÉTECTÉ ('%1\$s')",
     val logOcr3UnfinishedIngrStillEmpty: String = "  [FUSION UNITÉ INCOMPLÈTE] Nom d'ingrédient toujours vide après fusion ('%1\$s')",
     val logOcr3UnfinishedIngrFused: String = "  [FUSION UNITÉ INCOMPLÈTE] Fusionné : '%1\$s' ➔ Nouvelle ligne : '%2\$s'",
+    val logOcr3InvertedIsInverted: String = "isInvertedRecipe = %1\$b",
+    val logOcr3InvertedStart: String = "--- DÉBUT CATÉGORISATION INVERSÉE (TYPE 3) ---",
+    val logOcr3InvertedEnd: String = "--- FIN CATÉGORISATION INVERSÉE (TYPE 3) ---",
+    val logOcr3InvertedBottomIngrSwitch: String = "  [!] BASCULE SECTION INGRÉDIENTS DU BAS DÉTECTÉE (Ligne : '%1\$s')",
+    val logOcr3NarrativeIsNarrative: String = "isNarrativeInstructionOnlyRecipe = %1\$b (première ligne d'instruction='%2\$s')",
+    val logOcr3NarrativeStart: String = "--- DÉBUT CATÉGORISATION NARRATIVE (TYPE 2) ---",
+    val logOcr3NarrativeEnd: String = "--- FIN CATÉGORISATION NARRATIVE (TYPE 2) ---",
+    val logOcr3NarrativeExtractedImpliedIngr: String = "  [INGRÉDIENT IMPLICITE EXTRAIT] ➔ '%1\$s'",
+    val logOcr3NarrativeExtractedSeasoning: String = "  [ASSAISONNEMENT IMPLICITE EXTRAIT] ➔ '%1\$s'",
+    val logOcr3NarrativeSeasoningAlreadyPresent: String = "  [ASSAISONNEMENT IMPLICITE] Sel ou poivre déjà présent dans la recette",
     val logOcr3TitleExtractorStart: String = "=== DEBUT EXTRACTION DU TITRE PAR SCORING ===",
     val logOcr3TitleExtractorEnd: String = "=== FIN EXTRACTION DU TITRE PAR SCORING ===",
     val logOcr3TitleExtractorRetained: String = ">>> TITRE RETENU INITIALEMENT: '%1\$s' avec SCORE MAX: %2\$d",
@@ -220,7 +250,7 @@ data class OcrVocabulary(
          */
         fun fromResources(res: Resources): OcrVocabulary {
             return OcrVocabulary(
-                stepActionKeywords = getStringArraySafely(res, R.array.step_action_keywords) + getStringArraySafely(res, R.array.step_action_keywords_complement),
+                stepActionKeywords = getStringArraySafely(res, R.array.step_start_verbs) + getStringArraySafely(res, R.array.step_secondary_verbs) + getStringArraySafely(res, R.array.step_context_words) + getStringArraySafely(res, R.array.step_action_keywords_complement),
                 commonIngredientsNoQty = getStringArraySafely(res, R.array.common_ingredients_no_qty),
                 excludedOcrKeywords = getStringArraySafely(res, R.array.excluded_ocr_keywords),
                 ingredientPreparationModifiers = getStringArraySafely(res, R.array.ingredient_preparation_modifiers),
@@ -264,6 +294,11 @@ data class OcrVocabulary(
                 ocr2TechnicalDimensionKeywords = getStringArraySafely(res, R.array.ocr2_technical_dimension_keywords),
                 orphanNounNumberWords = getStringArraySafely(res, R.array.orphan_noun_number_words),
                 orphanNounStopWords = getStringArraySafely(res, R.array.orphan_noun_stop_words),
+                narrativeStopWords = getStringArraySafely(res, R.array.narrative_stop_words),
+                durationUnits = getStringArraySafely(res, R.array.duration_units),
+                stepStartVerbs = getStringArraySafely(res, R.array.step_start_verbs),
+                stepSecondaryVerbs = getStringArraySafely(res, R.array.step_secondary_verbs),
+                stepContextWords = getStringArraySafely(res, R.array.step_context_words),
                 ocr1CanonicalIngredientsHeader = getStringSafely(res, R.string.ocr1_canonical_ingredients_header),
                 ocr1CanonicalInstructionsHeader = getStringSafely(res, R.string.ocr1_canonical_instructions_header),
                 ocr1IngredientsSuffixPrefix = getStringSafely(res, R.string.ocr1_ingredients_suffix_prefix),
@@ -292,6 +327,16 @@ data class OcrVocabulary(
                 logOcr3HeaderSubheaderDetected = getStringSafely(res, R.string.log_ocr3_header_subheader_detected),
                 logOcr3UnfinishedIngrStillEmpty = getStringSafely(res, R.string.log_ocr3_unfinished_ingr_still_empty),
                 logOcr3UnfinishedIngrFused = getStringSafely(res, R.string.log_ocr3_unfinished_ingr_fused),
+                logOcr3InvertedIsInverted = getStringSafely(res, R.string.log_ocr3_inverted_is_inverted),
+                logOcr3InvertedStart = getStringSafely(res, R.string.log_ocr3_inverted_start),
+                logOcr3InvertedEnd = getStringSafely(res, R.string.log_ocr3_inverted_end),
+                logOcr3InvertedBottomIngrSwitch = getStringSafely(res, R.string.log_ocr3_inverted_bottom_ingr_switch),
+                logOcr3NarrativeIsNarrative = getStringSafely(res, R.string.log_ocr3_narrative_is_narrative),
+                logOcr3NarrativeStart = getStringSafely(res, R.string.log_ocr3_narrative_start),
+                logOcr3NarrativeEnd = getStringSafely(res, R.string.log_ocr3_narrative_end),
+                logOcr3NarrativeExtractedImpliedIngr = getStringSafely(res, R.string.log_ocr3_narrative_extracted_implied_ingr),
+                logOcr3NarrativeExtractedSeasoning = getStringSafely(res, R.string.log_ocr3_narrative_extracted_seasoning),
+                logOcr3NarrativeSeasoningAlreadyPresent = getStringSafely(res, R.string.log_ocr3_narrative_seasoning_already_present),
                 logOcr3TitleExtractorStart = getStringSafely(res, R.string.log_ocr3_title_extractor_start),
                 logOcr3TitleExtractorEnd = getStringSafely(res, R.string.log_ocr3_title_extractor_end),
                 logOcr3TitleExtractorRetained = getStringSafely(res, R.string.log_ocr3_title_extractor_retained),

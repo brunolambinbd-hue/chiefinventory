@@ -49,7 +49,11 @@ object OcrVocabularyLoader {
             parseResDirectory(resDir, stringArrays, strings)
         }
 
-        val combinedStepActionKeywords = getList(stringArrays, "step_action_keywords") + getList(stringArrays, "step_action_keywords_complement")
+        val combinedStepActionKeywords = getList(stringArrays, "step_start_verbs") +
+                getList(stringArrays, "step_secondary_verbs") +
+                getList(stringArrays, "step_context_words") +
+                getList(stringArrays, "step_action_keywords") +
+                getList(stringArrays, "step_action_keywords_complement")
 
         val vocabulary = OcrVocabulary(
             stepActionKeywords = combinedStepActionKeywords,
@@ -96,6 +100,11 @@ object OcrVocabularyLoader {
             ocr2TechnicalDimensionKeywords = getList(stringArrays, "ocr2_technical_dimension_keywords"),
             orphanNounNumberWords = getList(stringArrays, "orphan_noun_number_words"),
             orphanNounStopWords = getList(stringArrays, "orphan_noun_stop_words"),
+            narrativeStopWords = getList(stringArrays, "narrative_stop_words"),
+            durationUnits = getList(stringArrays, "duration_units"),
+            stepStartVerbs = getList(stringArrays, "step_start_verbs"),
+            stepSecondaryVerbs = getList(stringArrays, "step_secondary_verbs"),
+            stepContextWords = getList(stringArrays, "step_context_words"),
             ocr1CanonicalIngredientsHeader = getStringVal(strings, "ocr1_canonical_ingredients_header"),
             ocr1CanonicalInstructionsHeader = getStringVal(strings, "ocr1_canonical_instructions_header"),
             ocr1IngredientsSuffixPrefix = getStringVal(strings, "ocr1_ingredients_suffix_prefix"),
@@ -124,6 +133,16 @@ object OcrVocabularyLoader {
             logOcr3HeaderSubheaderDetected = getStringVal(strings, "log_ocr3_header_subheader_detected"),
             logOcr3UnfinishedIngrStillEmpty = getStringVal(strings, "log_ocr3_unfinished_ingr_still_empty"),
             logOcr3UnfinishedIngrFused = getStringVal(strings, "log_ocr3_unfinished_ingr_fused"),
+            logOcr3InvertedIsInverted = getStringVal(strings, "log_ocr3_inverted_is_inverted"),
+            logOcr3InvertedStart = getStringVal(strings, "log_ocr3_inverted_start"),
+            logOcr3InvertedEnd = getStringVal(strings, "log_ocr3_inverted_end"),
+            logOcr3InvertedBottomIngrSwitch = getStringVal(strings, "log_ocr3_inverted_bottom_ingr_switch"),
+            logOcr3NarrativeIsNarrative = getStringVal(strings, "log_ocr3_narrative_is_narrative"),
+            logOcr3NarrativeStart = getStringVal(strings, "log_ocr3_narrative_start"),
+            logOcr3NarrativeEnd = getStringVal(strings, "log_ocr3_narrative_end"),
+            logOcr3NarrativeExtractedImpliedIngr = getStringVal(strings, "log_ocr3_narrative_extracted_implied_ingr"),
+            logOcr3NarrativeExtractedSeasoning = getStringVal(strings, "log_ocr3_narrative_extracted_seasoning"),
+            logOcr3NarrativeSeasoningAlreadyPresent = getStringVal(strings, "log_ocr3_narrative_seasoning_already_present"),
             logOcr3TitleExtractorStart = getStringVal(strings, "log_ocr3_title_extractor_start"),
             logOcr3TitleExtractorEnd = getStringVal(strings, "log_ocr3_title_extractor_end"),
             logOcr3TitleExtractorRetained = getStringVal(strings, "log_ocr3_title_extractor_retained"),

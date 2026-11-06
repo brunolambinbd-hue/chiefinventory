@@ -530,4 +530,22 @@ object OcrRegexes {
             Regex("^${Pattern.quote(unit)}(?:\\s+|de\\s+|d['’]\\s*|\\.|\\b)", RegexOption.IGNORE_CASE)
         }
     }
+
+    /**
+     * Génère et pré-compile une expression régulière de détection de motifs de durée temporelle isolée (ex: "5 mn", "3 h", "15 minutes").
+     *
+     * @param units La liste des unités et abréviations de durée temporelle issue de `duration_units`.
+     * @return L'expression régulière pré-compilée.
+     */
+    fun getDurationPrefixPattern(units: List<String>): Regex {
+        val escapedUnits = units.filter { it.isNotBlank() }
+            .sortedByDescending { it.length }
+            .joinToString("|") { Pattern.quote(it) }
+        val pattern = if (escapedUnits.isNotEmpty()) {
+            "^\\d+(?:[/.,]\\d+)?\\s*(?:$escapedUnits)\\b"
+        } else {
+            "^\\d+(?:[/.,]\\d+)?\\s*(?:mn|min|sec|h)\\b"
+        }
+        return Regex("(?i)$pattern")
+    }
 }
