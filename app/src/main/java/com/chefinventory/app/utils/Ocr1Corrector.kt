@@ -61,7 +61,8 @@ object Ocr1Corrector {
             return ""
         }
 
-        var text = input.trim()
+        // 1. Normalisation Unicode NFC universelle (précomposée) dès l'entrée du pipeline :
+        var text = java.text.Normalizer.normalize(input.trim(), java.text.Normalizer.Form.NFC)
 
         // 2. Sélection de la table de diacritiques (reçue ou par défaut depuis diacritic_repairs.xml)
         val activeDiacritics = diacriticRepairs.ifEmpty { defaultDiacriticRepairs }

@@ -205,4 +205,27 @@ class Ocr5BeautifierInstructionTest {
             "Laissez mariner au réfrigérateur."
         )
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_FiltersOutShortStandaloneOrphanScanNoise() {
+        val input = listOf(
+            "e t",
+            "e",
+            "r",
+            "Délayez le curry avec la mayonnaise.",
+            "e t"
+        )
+
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
+            input,
+            vocabulary.stepActionKeywords,
+            vocabulary.hangingConnectors
+        )
+
+        assertThat(result).containsExactly("Délayez le curry avec la mayonnaise.")
+        assertThat(result).doesNotContain("E t.")
+        assertThat(result).doesNotContain("E.")
+        assertThat(result).doesNotContain("R.")
+    }
 }

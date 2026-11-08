@@ -62,4 +62,17 @@ class Ocr1CorrectorTest {
         // Trailing hyphen should be preserved for hyphenated multi-line instructions
         assertThat(Ocr1Corrector.correct("Hachez finement le surimi ou-")).isEqualTo("Hachez finement le surimi ou-")
     }
+
+    @Test
+    fun testCorrect_NfcUnicodeNormalization() {
+        // Forme NFD décomposée ('a' + U+0300)
+        val nfdInput = "1 mangue a\u0300 point"
+        val expectedNfc = "1 mangue à point"
+
+        val result = Ocr1Corrector.correct(nfdInput, vocabulary.ocrSpellingRepairs, vocabulary.ocrDiacriticRepairs)
+
+        // Prouve que Ocr1Corrector normalise la chaîne NFD vers NFC ('à' U+00E0)
+        assertThat(result).isEqualTo(expectedNfc)
+        assertThat(result.length).isEqualTo(expectedNfc.length)
+    }
 }

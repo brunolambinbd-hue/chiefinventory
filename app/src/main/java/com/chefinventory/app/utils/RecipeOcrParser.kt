@@ -3,6 +3,7 @@ package com.chefinventory.app.utils
 import android.content.res.Resources
 import android.util.Log
 import com.google.mlkit.vision.text.Text
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Façade orchestratrice principale du pipeline OCR de recettes culinaires.
@@ -88,9 +89,15 @@ object RecipeOcrParser {
      * @return L'objet [RecipeOcrResult] alimenté avec les données extraites et nettoyées.
      */
     private fun executePipeline(rawLines: List<String>, vocabulary: OcrVocabulary): RecipeOcrResult {
+        if (rawLines.isEmpty()) return RecipeOcrResult()
 
-        // LOG [0] : TEXTE BRUT INITIAL
-        Log.d(TAG, "[0] AVANT NORMALISATION: texte brut:\n${rawLines.joinToString("\n")}")
+        // LOG [0.0] : TRACÉ DÉDIÉ COPIER-COLLER AU FORMAT KOTLIN LIST FOR TESTS
+        Log.d(TAG, "=== DÉBUT RAW SCAN ML KIT (FORMAT KOTLIN LIST) ===")
+        rawLines.forEachIndexed { index, line ->
+            val comma = if (index < rawLines.lastIndex) "," else ""
+            Log.d(TAG, "\"$line\"$comma")
+        }
+        Log.d(TAG, "=== FIN RAW SCAN ML KIT ===")
 
         val preparationModifiers = vocabulary.ingredientPreparationModifiers
         val commonIngredients = vocabulary.commonIngredientsNoQty

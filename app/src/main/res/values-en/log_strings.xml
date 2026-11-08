@@ -72,4 +72,6 @@
     <string name="log_ocr5_beautifier_variety_merged">VARIETY MERGER: Merged variety \'%1$s\' with \'%2$s\' ➔ \'%3$s\'</string>
     <string name="log_ocr5_beautifier_wine_formatted">WINE BEAUTIFIER: \'%1$s\' ➔ \'%2$s\'</string>
     <string name="log_ocr5_beautifier_source_formatted">SOURCE BEAUTIFIER: \'%1$s\' ➔ \'%2$s\'</string>
+    <string name="log_ocr0_raw_copy_paste_start">=== START ML KIT OCR RAW TEXT (READY FOR COPY/PASTE) ===</string>
+    <string name="log_ocr0_raw_copy_paste_end">=== END ML KIT OCR RAW TEXT ===</string>
 </resources>

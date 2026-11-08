@@ -252,6 +252,8 @@ data class OcrVocabulary(
     val logOcr5BeautifierVarietyMerged: String = "VARIETY MERGER : Fusion de la variété '%1\$s' avec '%2\$s' ➔ '%3\$s'",
     val logOcr5BeautifierWineFormatted: String = "WINE BEAUTIFIER : '%1\$s' ➔ '%2\$s'",
     val logOcr5BeautifierSourceFormatted: String = "SOURCE BEAUTIFIER : '%1\$s' ➔ '%2\$s'",
+    val logOcr0RawCopyPasteStart: String = "=== DÉBUT TEXTE BRUT OCR ML KIT (PRÊT POUR COPIER/COLLER) ===",
+    val logOcr0RawCopyPasteEnd: String = "=== FIN TEXTE BRUT OCR ML KIT ===",
     val logOcrVocabLoaderCustomDirNoCache: String = "Répertoire personnalisé '%1\$s', non mis en cache",
     val logErrDiacriticRepairs: String = "Échec du chargement des réparations diacritiques par défaut"
 ) {
@@ -383,6 +385,8 @@ data class OcrVocabulary(
                 logOcr5BeautifierVarietyMerged = getStringSafely(res, R.string.log_ocr5_beautifier_variety_merged),
                 logOcr5BeautifierWineFormatted = getStringSafely(res, R.string.log_ocr5_beautifier_wine_formatted),
                 logOcr5BeautifierSourceFormatted = getStringSafely(res, R.string.log_ocr5_beautifier_source_formatted),
+                logOcr0RawCopyPasteStart = getStringSafely(res, R.string.log_ocr0_raw_copy_paste_start),
+                logOcr0RawCopyPasteEnd = getStringSafely(res, R.string.log_ocr0_raw_copy_paste_end),
                 logOcrVocabLoaderCustomDirNoCache = getStringSafely(res, R.string.log_ocr_vocab_loader_custom_dir_no_cache),
                 logErrDiacriticRepairs = getStringSafely(res, R.string.log_err_diacritic_repairs)
             )

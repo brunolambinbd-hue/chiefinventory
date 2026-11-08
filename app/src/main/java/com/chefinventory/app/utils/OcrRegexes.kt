@@ -436,7 +436,9 @@ object OcrRegexes {
      */
     fun getSpellingRepairPattern(wrong: String): Pattern {
         return spellingRepairCache.getOrPut(wrong) {
-            Pattern.compile("(?<!\\p{L})" + Pattern.quote(wrong) + "(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+            // Ligne d'origine en commentaire affectée par le bogue JDK-8032926 sur JVM (\Q...\E) :
+            // Pattern.compile("(?<!\\p{L})" + Pattern.quote(wrong) + "(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+            Pattern.compile("(?<!\\p{L})" + Regex.escape(wrong) + "(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
         }
     }
 
@@ -448,7 +450,9 @@ object OcrRegexes {
      */
     fun getStemWordPattern(stem: String): Regex {
         return stemWordCache.getOrPut(stem) {
-            Regex("(?i)\\b${Regex.escape(stem)}(?:s|x)?\\b")
+            // Ligne d'origine en commentaire affectée par la limite ASCII \b sur JVM (épinards, artichauts) :
+            // Regex("(?i)\\b${Regex.escape(stem)}(?:s|x)?\\b")
+            Regex("(?i)(?<!\\p{L})${Regex.escape(stem)}(?:s|x)?(?!\\p{L})")
         }
     }
 

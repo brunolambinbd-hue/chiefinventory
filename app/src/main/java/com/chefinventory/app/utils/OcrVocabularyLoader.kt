@@ -31,7 +31,7 @@ object OcrVocabularyLoader {
      * @throws IllegalStateException si aucun répertoire res-values n'est localisé.
      */
     fun loadFromProjectResources(projectDir: File = File(".")): OcrVocabulary {
-        if ((projectDir.path == ".") && (cachedDefaultVocabulary != null) && cachedDefaultVocabulary!!.durationUnits.isNotEmpty()) {
+        if ((projectDir.path == ".") && (cachedDefaultVocabulary != null) && cachedDefaultVocabulary!!.titleKeywords.size > 20) {
             return cachedDefaultVocabulary!!
         }
 
@@ -177,6 +177,8 @@ object OcrVocabularyLoader {
             logOcr5BeautifierVarietyMerged = getStringVal(strings, "log_ocr5_beautifier_variety_merged"),
             logOcr5BeautifierWineFormatted = getStringVal(strings, "log_ocr5_beautifier_wine_formatted"),
             logOcr5BeautifierSourceFormatted = getStringVal(strings, "log_ocr5_beautifier_source_formatted"),
+            logOcr0RawCopyPasteStart = getStringVal(strings, "log_ocr0_raw_copy_paste_start"),
+            logOcr0RawCopyPasteEnd = getStringVal(strings, "log_ocr0_raw_copy_paste_end"),
             logOcrVocabLoaderCustomDirNoCache = getStringVal(strings, "log_ocr_vocab_loader_custom_dir_no_cache"),
             logErrDiacriticRepairs = getStringVal(strings, "log_err_diacritic_repairs")
         )
@@ -192,7 +194,7 @@ object OcrVocabularyLoader {
      * @param vocabulary L'instance [OcrVocabulary] à mettre en cache.
      */
     internal fun cacheVocabularyIfNeeded(projectDir: File, vocabulary: OcrVocabulary) {
-        if (projectDir.path == "." && vocabulary.durationUnits.isNotEmpty()) {
+        if (projectDir.path == "." && vocabulary.titleKeywords.size > 20) {
             cachedDefaultVocabulary = vocabulary
         } else {
             val format = vocabulary.logOcrVocabLoaderCustomDirNoCache
@@ -303,7 +305,8 @@ object OcrVocabularyLoader {
                 val items = mutableListOf<String>()
                 val itemNodes = elem.getElementsByTagName("item")
                 for (j in 0 until itemNodes.length) {
-                    val itemText = itemNodes.item(j).textContent.trim().replace("\\'", "'")
+                    // Purge des retours chariot Windows (\r) lors du parsing XML DOM :
+                    val itemText = itemNodes.item(j).textContent.replace("\r", "").trim().replace("\\'", "'")
                     val parts = itemText.split("|")
                     if (parts.size == 2 && parts[0].trim().equals(parts[1].trim(), ignoreCase = true)) {
                         continue
@@ -326,7 +329,7 @@ object OcrVocabularyLoader {
             if (node.nodeType == Node.ELEMENT_NODE) {
                 val elem = node as Element
                 val stringName = elem.getAttribute("name")
-                val rawText = elem.textContent.trim()
+                val rawText = elem.textContent.replace("\r", "").trim()
                 if (stringName.isNotBlank()) {
                     strings[stringName] = rawText.replace("\\'", "'")
                 }

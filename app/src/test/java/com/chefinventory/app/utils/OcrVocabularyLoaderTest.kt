@@ -102,6 +102,40 @@ class OcrVocabularyLoaderTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testParseXmlResourceFile_StripsWindowsCarriageReturnsFromXml() {
+        val tempFile = File.createTempFile("xml_windows_crlf", ".xml")
+        tempFile.writeText(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" +
+            "<resources>\r\n" +
+            "    <string-array name=\"crlf_test_array\">\r\n" +
+            "        <item>mot1\r</item>\r\n" +
+            "        <item>mot2\r\n</item>\r\n" +
+            "    </string-array>\r\n" +
+            "    <string name=\"crlf_test_string\">valeur1\r</string>\r\n" +
+            "</resources>"
+        )
+
+        val stringArrays = mutableMapOf<String, List<String>>()
+        val strings = mutableMapOf<String, String>()
+
+        OcrVocabularyLoader.parseXmlResourceFile(tempFile, stringArrays, strings)
+
+        val items = stringArrays["crlf_test_array"] ?: emptyList()
+        val stringVal = strings["crlf_test_string"] ?: ""
+
+        assertThat(items).containsExactly("mot1", "mot2")
+        assertThat(stringVal).isEqualTo("valeur1")
+
+        for (item in items) {
+            assertThat(item).doesNotContain("\r")
+        }
+        assertThat(stringVal).doesNotContain("\r")
+
+        tempFile.delete()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testOcr3ExplicitWineHeadersLoaded() {
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
         assertThat(vocab.ocr3ExplicitWineHeaders).isNotEmpty()
@@ -164,6 +198,33 @@ class OcrVocabularyLoaderTest {
         OcrVocabularyLoader.clearCache()
         val vocab3 = OcrVocabularyLoader.loadFromProjectResources()
         assertThat(vocab3).isNotSameInstanceAs(vocab1)
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testCacheVocabularyIfNeeded_IgnoresMockWithSmallTitleKeywordsSize() {
+        OcrVocabularyLoader.clearCache()
+
+        // Mock vocab avec seulement 2 titleKeywords (<= 20)
+        val mockVocabSmall = OcrVocabulary(titleKeywords = listOf("t1", "t2"))
+        OcrVocabularyLoader.cacheVocabularyIfNeeded(File("."), mockVocabSmall)
+
+        // Vérifie que la mise en cache a été refusée pour le petit mock
+        val loaded1 = OcrVocabularyLoader.loadFromProjectResources()
+        assertThat(loaded1).isNotSameInstanceAs(mockVocabSmall)
+
+        // Real vocab avec 25 titleKeywords (> 20)
+        val realVocabLarge = OcrVocabulary(
+            titleKeywords = List(25) { "title_$it" },
+            durationUnits = listOf("min")
+        )
+        OcrVocabularyLoader.cacheVocabularyIfNeeded(File("."), realVocabLarge)
+
+        // Vérifie que le grand vocabulaire a été accepté en cache
+        val loaded2 = OcrVocabularyLoader.loadFromProjectResources()
+        assertThat(loaded2).isSameInstanceAs(realVocabLarge)
+
+        OcrVocabularyLoader.clearCache()
     }
 
     @Test

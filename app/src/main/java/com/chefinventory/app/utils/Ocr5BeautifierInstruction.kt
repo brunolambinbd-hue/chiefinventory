@@ -58,13 +58,15 @@ object Ocr5BeautifierInstruction {
             cleaned
         }.filter { line ->
             val lower = line.lowercase().trim().removeSuffix(".")
+            val lowerCondensed = lower.replace(" ", "")
             val hasAction = OcrInstructionUtils.hasActionVerb(line, stepActionKeywords)
             val isRecipeHeaderTrash = if (!hasAction) {
                 lower.contains("recette") || line.contains("Ə")
             } else {
                 false
             }
-            line.isNotEmpty() && lower !in headerTrashWords && lower !in standaloneTrashWords && !isRecipeHeaderTrash
+            val isShortNoise = !hasAction && line.none { it.isDigit() } && (lowerCondensed.length <= 3 || lowerCondensed in standaloneTrashWords)
+            line.isNotEmpty() && lower !in headerTrashWords && lower !in standaloneTrashWords && !isRecipeHeaderTrash && !isShortNoise
         }
 
         // 2. Fusion des phrases se terminant par une conjonction (" et.", " ou.", ",.") ou une unité isolée

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Developer English assertion message templates for OCR unit and integration tests -->
+    <string name="test_header_expected">EXPECTED</string>
+    <string name="test_header_actual">ACTUAL (IN REALITY)</string>
+
+    <string name="test_title_mismatch">Recipe title extraction mismatch</string>
+    <string name="test_servings_mismatch">Recipe servings / servings count extraction mismatch</string>
+    <string name="test_wine_varietal_mismatch">Recommended wine varietal name extraction mismatch</string>
+    <string name="test_wine_producer_mismatch">Recommended wine estate / producer extraction mismatch</string>
+    <string name="test_wine_vintage_mismatch">Recommended wine vintage year extraction mismatch</string>
+    <string name="test_wine_volume_mismatch">Recommended wine volume / capacity extraction mismatch</string>
+
+    <string name="test_source_mismatch">Recipe source / brand extraction mismatch</string>
+    <string name="test_prep_time_mismatch">Recipe preparation time extraction mismatch</string>
+    <string name="test_cook_time_mismatch">Recipe cooking time extraction mismatch</string>
+    <string name="test_resting_time_mismatch">Recipe resting time extraction mismatch</string>
+    <string name="test_kcal_mismatch">Recipe calories per serving extraction mismatch</string>
+    <string name="test_difficulty_mismatch">Recipe difficulty level extraction mismatch</string>
+
+    <string name="test_ingredients_mismatch">Recipe ingredients extraction mismatch</string>
+    <string name="test_instructions_mismatch">Recipe instructions extraction mismatch</string>
+    <string name="test_step4_merge_mismatch">Step 4 ingredients merge mismatch</string>
+</resources>
