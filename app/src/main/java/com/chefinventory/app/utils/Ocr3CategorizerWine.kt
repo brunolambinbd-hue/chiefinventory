@@ -25,7 +25,8 @@ object Ocr3CategorizerWine {
         val producers: List<String>,
         val keywords: List<String>,
         val titleKeywords: List<String>,
-        val removePattern: String
+        val removePattern: String,
+        val genericWineWords: List<String> = emptyList()
     )
 
     /**
@@ -37,7 +38,8 @@ object Ocr3CategorizerWine {
             producers = try { res.getStringArray(R.array.wine_producers).toList() } catch (_: Exception) { emptyList() },
             keywords = try { res.getStringArray(R.array.wine_keywords).toList() } catch (_: Exception) { emptyList() },
             titleKeywords = try { res.getStringArray(R.array.wine_title_keywords).toList() } catch (_: Exception) { emptyList() },
-            removePattern = try { res.getString(R.string.wine_remove_pattern) } catch (_: Exception) { "" }
+            removePattern = try { res.getString(R.string.wine_remove_pattern) } catch (_: Exception) { "" },
+            genericWineWords = try { res.getStringArray(R.array.generic_wine_words).toList() } catch (_: Exception) { emptyList() }
         )
     }
 
@@ -61,7 +63,8 @@ object Ocr3CategorizerWine {
                 producers = vocabulary.wineProducers,
                 keywords = vocabulary.wineKeywords,
                 titleKeywords = vocabulary.wineTitleKeywords,
-                removePattern = vocabulary.wineRemovePattern
+                removePattern = vocabulary.wineRemovePattern,
+                genericWineWords = vocabulary.genericWineWords
             )
         )
     }
@@ -71,8 +74,8 @@ object Ocr3CategorizerWine {
      */
     fun isWineLine(line: String, resources: WineResources): Boolean {
         val lower = line.lowercase().trim()
-        val genericWineWords = setOf("vin", "vin blanc", "vin rouge", "du vin blanc", "du vin rouge")
-        if (lower in genericWineWords) return false
+        val genericWords = resources.genericWineWords.ifEmpty { listOf("vin", "vin blanc", "vin rouge", "du vin blanc", "du vin rouge") }.map { it.lowercase().trim() }.toSet()
+        if (lower in genericWords) return false
 
         // 1. Exclusion si contient un ingrédient culinaire ou une unité culinaire
         if (OcrRegexes.Wines.CULINARY_EXCLUSIONS.containsMatchIn(line)) return false

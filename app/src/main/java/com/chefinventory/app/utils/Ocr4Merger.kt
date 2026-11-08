@@ -143,10 +143,12 @@ object Ocr4Merger {
             val currentEndsWithPeriod = !endsWithParasiteArticle && currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }
             val currentEndsWithConjunction = currentBlock.trimEnd().let { cleanBlock ->
                 val lowerClean = cleanBlock.lowercase()
-                lowerClean.endsWith(" et") || lowerClean.endsWith(" et-") || 
-                lowerClean.endsWith(" ou") || lowerClean.endsWith(" ou-") || 
-                lowerClean.endsWith(",") ||
-                endsWithParasiteArticle
+                val sentenceConjunctions = vocab.ocrSentenceConjunctions
+                val matchesConj = sentenceConjunctions.any { conj ->
+                    val lc = conj.trim().lowercase()
+                    lowerClean.endsWith(" $lc") || lowerClean.endsWith(" $lc-")
+                }
+                matchesConj || lowerClean.endsWith(",") || endsWithParasiteArticle
             }
             val hasExplicitStepMarker = Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(line) || Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(normalizedLine)
             val lineStartsWithConjunction = Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(line) || Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(normalizedLine)
@@ -176,7 +178,11 @@ object Ocr4Merger {
                     }
                 } else {
                     val blockClean = currentBlock.trimEnd()
-                    val endsWithConjunctionDot = blockClean.endsWith(" et.") || blockClean.endsWith(" ou.") || blockClean.endsWith(",.") || (endsWithParasiteArticle && blockClean.endsWith("."))
+                    val sentenceConjunctions = vocab.ocrSentenceConjunctions
+                    val matchesConjDot = sentenceConjunctions.any { conj ->
+                        blockClean.endsWith(" ${conj.trim().lowercase()}.")
+                    }
+                    val endsWithConjunctionDot = matchesConjDot || blockClean.endsWith(",.") || (endsWithParasiteArticle && blockClean.endsWith("."))
                     val base = if (endsWithConjunctionDot) blockClean.dropLast(1).trimEnd() else blockClean
                     val nextText = if (endsWithConjunctionDot && normalizedLine.isNotEmpty() && normalizedLine[0].isUpperCase()) {
                         normalizedLine[0].lowercase() + normalizedLine.substring(1)

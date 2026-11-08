@@ -5,6 +5,7 @@ package com.chefinventory.app.utils
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3CategorizerTitleExtractor0_Context {
+    private const val MIN_SIGNIFICANT_WORD_LENGTH = 3
 
     /**
      * Extraie les mots des noms d'ingrédients présents sur la fiche scannée de la recette.
@@ -28,7 +29,7 @@ object Ocr3CategorizerTitleExtractor0_Context {
                 if (parsed.name.isNotBlank()) {
                     val words = parsed.name.split(OcrRegexes.Titles.PUNCTUATION_SPLIT)
                         .map { it.lowercase().trim() }
-                        .filter { it.length >= 3 && it !in ignoreWords }
+                        .filter { it.length >= MIN_SIGNIFICANT_WORD_LENGTH && it !in ignoreWords }
                     ingredientNameWords.addAll(words)
                     words.forEach { w ->
                         if (w.endsWith("s") || w.endsWith("x")) {
@@ -53,7 +54,7 @@ object Ocr3CategorizerTitleExtractor0_Context {
 
         val words = trimmedName.split(OcrRegexes.Titles.PUNCTUATION_SPLIT)
             .map { it.lowercase().trim() }
-            .filter { it.length >= 3 && it !in stopWords }
+            .filter { it.length >= MIN_SIGNIFICANT_WORD_LENGTH && it !in stopWords }
 
         val hasWords = words.isNotEmpty()
         if (hasWords) {

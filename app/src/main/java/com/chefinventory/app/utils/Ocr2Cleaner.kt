@@ -27,6 +27,8 @@ data class CleaningResult(
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr2Cleaner {
     private const val TAG = "RecipeOCR"
+    private const val MAX_PAGE_NUMBER_DIGITS = 3
+    private const val MAX_AD_PREFIX_REMAINING_LENGTH = 8
 
     /**
      * Nettoie une liste de lignes de texte OCR en utilisant les ressources [Resources] Android pour charger les exclusions.
@@ -143,7 +145,7 @@ object Ocr2Cleaner {
                     if (prefixRegex.containsMatchIn(trimmed)) {
                         val remaining = prefixRegex.replace(trimmed, "").trim()
 
-                        if (remaining.isEmpty() || remaining.length <= 8) {
+                        if (remaining.isEmpty() || remaining.length <= MAX_AD_PREFIX_REMAINING_LENGTH) {
                             isFullAdLine = true
                             LogManager.d(TAG, String.format(vocabulary.logOcr2CleanerAdLineRemoved, trimmed))
                             break
@@ -173,7 +175,7 @@ object Ocr2Cleaner {
             }
 
             // 4. Suppression des numéros de page isolés (bruit OCR courant)
-            if (trimmed.length <= 3 && trimmed.all { it.isDigit() }) continue
+            if (trimmed.length <= MAX_PAGE_NUMBER_DIGITS && trimmed.all { it.isDigit() }) continue
 
             cleanedLines.add(trimmed)
         }

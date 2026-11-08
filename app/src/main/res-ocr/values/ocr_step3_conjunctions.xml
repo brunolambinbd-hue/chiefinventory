@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Conjonctions de coordination de phrases pour le rattrapage de lignes suspendues (Étape 3) -->
+    <string-array name="ocr_sentence_conjunctions">
+        <item>et</item>
+        <item>ou</item>
+        <item>et/ou</item>
+    </string-array>
+</resources>

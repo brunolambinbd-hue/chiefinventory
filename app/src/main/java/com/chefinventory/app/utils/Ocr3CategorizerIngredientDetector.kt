@@ -5,6 +5,7 @@ package com.chefinventory.app.utils
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3CategorizerIngredientDetector {
+    private const val MIN_CLEANED_INGREDIENT_LENGTH = 1
 
     /**
      * Détermine si une ligne contient un poids ou un volume d'ingrédient explicite (ex: 200 g, 1 kg, 5 cl, 250 ml).
@@ -57,7 +58,7 @@ object Ocr3CategorizerIngredientDetector {
         standaloneArticles: List<String> = emptyList()
     ): String {
         val cleaned = text.trim().replace(Regex("^[•\\-*]\\s*"), "")
-        if (!cleaned.any { it.isLetter() } || cleaned.length <= 1) return ""
+        if (!cleaned.any { it.isLetter() } || cleaned.length <= MIN_CLEANED_INGREDIENT_LENGTH) return ""
         if (Ocr3CategorizerProperNameDetector.isLikelyProperNameOrSource(cleaned)) return ""
         
         if (OcrTextUtils.isExcluded(cleaned, excludedKeywords)) return ""

@@ -13,6 +13,7 @@ import android.util.Log
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3Categorizer {
     private const val TAG = "Ocr3Categorizer"
+    private const val MIN_KEYWORD_LENGTH = 3
 
     internal const val SECTION_NONE = 0
     internal const val SECTION_INGREDIENTS = 1
@@ -155,7 +156,7 @@ object Ocr3Categorizer {
         val units = setOf("grammes", "kilos", "litres", "centilitres", "millilitres", "cuillere", "soupe", "cafe", "pincee", "gousse", "boite", "boites", "pot", "pots", "cl", "ml", "kg")
         
         val combinedText = if (supplementalInfo != null) "$name $supplementalInfo" else name
-        return combinedText.lowercase().split(Regex("[\\s,.'’()\\-*•/0-9]+")).filter { it.length >= 3 && it !in stopWords && it !in units && it !in fillers }
+        return combinedText.lowercase().split(Regex("[\\s,.'’()\\-*•/0-9]+")).filter { it.length >= MIN_KEYWORD_LENGTH && it !in stopWords && it !in units && it !in fillers }
     }
 
 }

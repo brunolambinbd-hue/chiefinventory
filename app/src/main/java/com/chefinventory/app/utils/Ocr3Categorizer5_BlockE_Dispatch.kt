@@ -133,9 +133,9 @@ object Ocr3Categorizer5_BlockE_Dispatch {
 
                 val isCommonIngredient = vocabulary.commonIngredientsNoQty.any { lowerLine.contains(it.lowercase()) }
                 val endsWithDash = workingLine.trimEnd().endsWith("-")
-                val endsWithEt = lowerLine.trimEnd().endsWith(" et")
-                val endsWithOu = lowerLine.trimEnd().endsWith(" ou")
-                val isHyphenatedInstruction = endsWithDash || endsWithEt || endsWithOu
+                val conjunctions = vocabulary.ocrSentenceConjunctions.map { " ${it.lowercase().trim()}" }
+                val endsWithConjunction = conjunctions.any { lowerLine.trimEnd().endsWith(it) }
+                val isHyphenatedInstruction = endsWithDash || endsWithConjunction
 
                 val hasHardOrWeight = if (hasHardQuantity) true else hasWeight
                 val isStrictWithQty = isStrictIngredient && hasHardOrWeight

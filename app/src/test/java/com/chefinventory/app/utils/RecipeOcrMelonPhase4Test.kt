@@ -52,7 +52,7 @@ class RecipeOcrMelonPhase4Test {
         "Décorez de brins d'aneth.",
         "VIN CONSEILLĖ",
         "Atinum, Bordeaux Graves",
-        "MO, 1992, 75 cl",
+        "MO, 1995, 75 cl",
         "AtN",
         "ATINUM",
         "GRAVES"

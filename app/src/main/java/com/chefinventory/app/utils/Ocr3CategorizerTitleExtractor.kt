@@ -13,6 +13,7 @@ import com.parabd.lib.traceability.utils.LogManager
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3CategorizerTitleExtractor {
     private const val TAG = "RecipeOCR"
+    private const val MIN_TITLE_SCORE_THRESHOLD = 35
 
     /**
      * Extrait le titre principal de la recette d'après la liste des lignes nettoyées [lines] et le vocabulaire [vocabulary].
@@ -94,7 +95,6 @@ object Ocr3CategorizerTitleExtractor {
             }
         }
 
-        val MIN_TITLE_SCORE_THRESHOLD = 35
         val topCandidate = candidates.maxByOrNull { it.score }
         val bestCandidate = if (topCandidate != null && topCandidate.score >= MIN_TITLE_SCORE_THRESHOLD) topCandidate else null
 

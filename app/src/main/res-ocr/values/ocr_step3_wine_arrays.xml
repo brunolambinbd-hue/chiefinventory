@@ -146,6 +146,17 @@
 <item>DO</item>
     </string-array>
 
+    <!-- Termes de vins génériques culinaires à ne pas classifier isolément comme recommandation de vin -->
+    <string-array name="generic_wine_words">
+        <item>vin</item>
+        <item>vin blanc</item>
+        <item>vin rouge</item>
+        <item>du vin blanc</item>
+        <item>du vin rouge</item>
+        <item>vin rosé</item>
+        <item>du vin rosé</item>
+    </string-array>
+
     <!-- En-têtes explicites déclencheurs d'ouverture de la section Vin (Étape 3) -->
     <string-array name="ocr3_explicit_wine_headers">
 <item>suggestion vin</item>

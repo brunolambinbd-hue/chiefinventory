@@ -16,6 +16,8 @@ import com.parabd.lib.traceability.utils.LogManager
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr5BeautifierInstruction {
     private const val TAG = "RecipeOCR"
+    private const val TRAILING_COMMA_DOT = ",."
+    private const val TRAILING_COMMA = ","
 
     /**
      * Effectue la beautification et le recollage sémantique final des consignes d'instructions.
@@ -60,8 +62,11 @@ object Ocr5BeautifierInstruction {
             val lower = line.lowercase().trim().removeSuffix(".")
             val lowerCondensed = lower.replace(" ", "")
             val hasAction = OcrInstructionUtils.hasActionVerb(line, stepActionKeywords)
+            val isOcrNoise = OcrVocabularyLoader.loadFromProjectResources().ocrNoiseExclusions.any { noise ->
+                noise.isNotBlank() && line.contains(noise, ignoreCase = true)
+            }
             val isRecipeHeaderTrash = if (!hasAction) {
-                lower.contains("recette") || line.contains("Ə")
+                lower.contains("recette") || isOcrNoise
             } else {
                 false
             }
@@ -80,9 +85,13 @@ object Ocr5BeautifierInstruction {
                 val currentClean = current.trim()
                 val currentLower = currentClean.lowercase()
 
-                val endsWithConjunction = currentClean.endsWith(" et.") || currentClean.endsWith(" et") ||
-                        currentClean.endsWith(" ou.") || currentClean.endsWith(" ou") ||
-                        currentClean.endsWith(",.") || currentClean.endsWith(",") ||
+                val sentenceConjunctions = OcrVocabularyLoader.loadFromProjectResources().ocrSentenceConjunctions.map { it.trim().lowercase() }
+                val matchesConj = sentenceConjunctions.any { conj ->
+                    currentClean.endsWith(" $conj.") || currentClean.endsWith(" $conj")
+                }
+
+                val endsWithConjunction = matchesConj ||
+                        currentClean.endsWith(TRAILING_COMMA_DOT) || currentClean.endsWith(TRAILING_COMMA) ||
                         standaloneTrashWords.any { word -> currentLower.endsWith(" $word") || currentLower.endsWith(" $word.") }
 
                 val endsWithUnit = activeUnits.any { unit ->

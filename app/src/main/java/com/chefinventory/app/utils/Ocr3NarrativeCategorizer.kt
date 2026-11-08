@@ -37,7 +37,8 @@ object Ocr3NarrativeCategorizer {
         // 1.5 Si la fiche contient un en-tête d'instructions ET un ingrédient quantifié -> Type 1 !
         val hasInstructionHeader = lines.any { line ->
             val lower = line.lowercase().trim().trimEnd(':', '.')
-            vocabulary.ocr1ProtectedInstructionsHeaders.any { lower.startsWith(it.lowercase()) } && "mn" !in lower && "min" !in lower
+            vocabulary.ocr1ProtectedInstructionsHeaders.any { lower.startsWith(it.lowercase()) } &&
+                    vocabulary.durationUnits.none { lower.contains(it.lowercase()) }
         }
         val durationUnits = vocabulary.culinaryMeasurementUnits.map { it.lowercase() }.toSet()
         val durationEndings = vocabulary.timeHeaderKeywords.map { " ${it.trim().lowercase()}" }

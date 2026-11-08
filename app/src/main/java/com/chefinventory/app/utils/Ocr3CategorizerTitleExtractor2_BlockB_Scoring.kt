@@ -5,6 +5,16 @@ package com.chefinventory.app.utils
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
+    private const val MIN_TITLE_LENGTH_CHARS = 5
+    private const val MAX_TITLE_LENGTH_CHARS = 80
+    private const val MIN_TITLE_WORDS_COUNT = 2
+
+    private const val SCORE_NO_TRAILING_PERIOD = 10
+    private const val SCORE_TITLE_KEYWORD_MATCH = 30
+    private const val SCORE_CONNECTOR_MATCH = 10
+    private const val SCORE_MULTI_WORD_BONUS = 10
+    private const val SCORE_RECIPE_INGREDIENT_MATCH = 15
+    private const val SCORE_FIRST_INGREDIENT_MATCH = 30
 
     /**
      * Détermine si la ligne constitue une ébauche de candidat titre valide d'après les critères fondamentaux.
@@ -22,9 +32,9 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         val trimmed = line.trim()
         val lower = trimmed.lowercase()
 
-        if (trimmed.length < 5 || trimmed.length > 80) return false
+        if (trimmed.length < MIN_TITLE_LENGTH_CHARS || trimmed.length > MAX_TITLE_LENGTH_CHARS) return false
         val wordList = trimmed.split(Regex("\\s+"))
-        val isSingleWord = wordList.size < 2
+        val isSingleWord = wordList.size < MIN_TITLE_WORDS_COUNT
         val matchesTitleKeyword = vocabulary.titleKeywords.any { it.equals(trimmed, ignoreCase = true) }
         if (isSingleWord && !matchesTitleKeyword) return false
 
@@ -115,38 +125,34 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         val lower = trimmed.lowercase()
 
         // Critère 1 : Ponctuation de fin (Un titre ne finit pas par un point)
-        score += 10
-        details.add("sans_point_fin:+10")
+        score += SCORE_NO_TRAILING_PERIOD
+        details.add("sans_point_fin:+$SCORE_NO_TRAILING_PERIOD")
 
         // Critère 2 : Mots-clés de titre (fichiers XML : ocr_shared_title_keywords.xml)
         val matchedTitleKeywords = vocabulary.titleKeywords.filter { kw ->
             OcrRegexes.getSpellingRepairPattern(kw).matcher(trimmed).find()
         }
         if (matchedTitleKeywords.isNotEmpty()) {
-            val pts = matchedTitleKeywords.size * 30
+            val pts = matchedTitleKeywords.size * SCORE_TITLE_KEYWORD_MATCH
             score += pts
             details.add("mots_clés_titre($matchedTitleKeywords):+$pts")
         }
 
         // Critère 3 : Connecteurs de titre (et, aux, à la, au)
-        val connectorsList = if (vocabulary.titleMultilineConnectors.isNotEmpty()) {
-            vocabulary.titleMultilineConnectors
-        } else {
-            listOf("et", "aux", "à la", "au", "d'", "de")
-        }
+        val connectorsList = vocabulary.titleMultilineConnectors
         val connectors = connectorsList.map { " ${it.trim().lowercase()} " }
         val matchedConnectors = connectors.filter { lower.contains(it) }
         if (matchedConnectors.isNotEmpty()) {
-            val pts = matchedConnectors.size * 10
+            val pts = matchedConnectors.size * SCORE_CONNECTOR_MATCH
             score += pts
             details.add("connecteurs_titre($matchedConnectors):+$pts")
         }
 
         // Critère 4 : Longueur en mots (Un titre comporte au moins 2 mots)
         val wordCount = trimmed.split(Regex("\\s+")).size
-        if (wordCount >= 2) {
-            score += 10
-            details.add("plus_de_2_mots:+10")
+        if (wordCount >= MIN_TITLE_WORDS_COUNT) {
+            score += SCORE_MULTI_WORD_BONUS
+            details.add("plus_de_2_mots:+$SCORE_MULTI_WORD_BONUS")
         }
 
         // Critère 5 : Mots d'ingrédients présents sur la fiche scannée de la recette (+15 pts par ingrédient)
@@ -155,7 +161,7 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
             OcrRegexes.getStemWordPattern(stem).containsMatchIn(trimmed)
         }
         if (matchedRecipeIngredients.isNotEmpty()) {
-            val pts = matchedRecipeIngredients.size * 15
+            val pts = matchedRecipeIngredients.size * SCORE_RECIPE_INGREDIENT_MATCH
             score += pts
             details.add("ingrédient_fiche_recette($matchedRecipeIngredients):+$pts")
         }
@@ -164,8 +170,8 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         if (firstIngredientWord != null) {
             val stem = firstIngredientWord.removeSuffix("s").removeSuffix("x")
             if (OcrRegexes.getStemWordPattern(stem).containsMatchIn(trimmed)) {
-                score += 30
-                details.add("premier_ingrédient($firstIngredientWord):+30")
+                score += SCORE_FIRST_INGREDIENT_MATCH
+                details.add("premier_ingrédient($firstIngredientWord):+$SCORE_FIRST_INGREDIENT_MATCH")
             }
         }
 
