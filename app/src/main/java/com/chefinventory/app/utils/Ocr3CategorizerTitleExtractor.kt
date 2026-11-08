@@ -94,7 +94,9 @@ object Ocr3CategorizerTitleExtractor {
             }
         }
 
-        val bestCandidate = candidates.maxByOrNull { it.score }
+        val MIN_TITLE_SCORE_THRESHOLD = 35
+        val topCandidate = candidates.maxByOrNull { it.score }
+        val bestCandidate = if (topCandidate != null && topCandidate.score >= MIN_TITLE_SCORE_THRESHOLD) topCandidate else null
 
         var extractedTitle: String? = null
         val remainingLines = mutableListOf<String>()

@@ -92,12 +92,7 @@ object RecipeOcrParser {
         if (rawLines.isEmpty()) return RecipeOcrResult()
 
         // LOG [0.0] : TRACÉ DÉDIÉ COPIER-COLLER AU FORMAT KOTLIN LIST FOR TESTS
-        Log.d(TAG, "=== DÉBUT RAW SCAN ML KIT (FORMAT KOTLIN LIST) ===")
-        rawLines.forEachIndexed { index, line ->
-            val comma = if (index < rawLines.lastIndex) "," else ""
-            Log.d(TAG, "\"$line\"$comma")
-        }
-        Log.d(TAG, "=== FIN RAW SCAN ML KIT ===")
+        logKotlinList("[0] RAW SCAN ML KIT", rawLines)
 
         val preparationModifiers = vocabulary.ingredientPreparationModifiers
         val commonIngredients = vocabulary.commonIngredientsNoQty
@@ -105,12 +100,12 @@ object RecipeOcrParser {
 
         // ÉTAPE 1 : Correction et Normalisation
         val normalizedLines = rawLines.map { Ocr1Corrector.normalize(it, repairs) }
-        Log.d(TAG, "[1] APRÈS NORMALISATION:\n${normalizedLines.joinToString("\n")}")
+        logKotlinList("[1] APRÈS NORMALISATION", normalizedLines)
 
         // ÉTAPE 2 : Nettoyage (Suppression du bruit de scan, pubs et mots exclus + capture précoce des sources)
         val cleaningResult = Ocr2Cleaner.cleanWithVocabulary(normalizedLines, vocabulary)
         val cleanedLines = cleaningResult.cleanedLines
-        Log.d(TAG, "[2] APRÈS NETTOYAGE:\n${cleanedLines.joinToString("\n")}")
+        logKotlinList("[2] APRÈS NETTOYAGE", cleanedLines)
 
         // ÉTAPE 3 : Extraction du Titre et Catégorisation
         val titleResult = Ocr3CategorizerTitleExtractor.extractTitle(cleanedLines, vocabulary)
@@ -145,13 +140,8 @@ object RecipeOcrParser {
         }
         Log.d(TAG, "[3] CATÉGORISATION TERMINÉE")
 
-        // LOG [3.1] : DÉTAIL DES INGRÉDIENTS APRÈS TRI
-        Log.d(TAG, "[3.1] INVENTAIRE DES MOTS-CLÉS (seenIngredientKeywords): ${sections.ingredientKeywords}")
-        Log.d(TAG, "[3.1] DÉCOMPOSITION DES INGRÉDIENTS BRUTS:")
-        sections.rawIngredientsList.forEachIndexed { i, ing ->
-            val parsed = IngredientParser.parse(ing)
-            Log.d(TAG, "        RAW_ING[$i]: $ing -> Q=${parsed.quantity}, U=${parsed.unit}, N='${parsed.name}'")
-        }
+        logKotlinList("[3] INGRÉDIENTS BRUTS CATÉGORISÉS", sections.rawIngredientsList)
+        logKotlinList("[3] INSTRUCTIONS BRUTES CATÉGORISÉES", sections.rawInstructionsList)
 
         // ÉTAPE 4 : Fusion (Merger)
         val mergedIngredients = Ocr4Merger.mergeIngredients(
@@ -162,6 +152,9 @@ object RecipeOcrParser {
             vocabulary.ingredientConnectors
         )
         val mergedInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
+
+        logKotlinList("[4] INGRÉDIENTS FUSIONNÉS", mergedIngredients)
+        logKotlinList("[4] INSTRUCTIONS FUSIONNÉES", mergedInstructions)
 
         // ÉTAPE 5 : Beautification (Présentation finale à l'écran)
         val finalIngredients = Ocr5Beautifier.beautifyIngredients(
@@ -178,6 +171,9 @@ object RecipeOcrParser {
         )
         val finalWines = Ocr5Beautifier.beautifyWines(sections.detectedWineList)
         val finalSources = Ocr5Beautifier.beautifySources(sections.detectedSourceList)
+
+        logKotlinList("[5] INGRÉDIENTS FINAUX BEAUTIFIED", finalIngredients)
+        logKotlinList("[5] INSTRUCTIONS FINALES BEAUTIFIED", finalInstructions)
 
         Log.d(TAG, "[4-5] RÉSULTATS FINAUX (BEAUTIFIED):")
         Log.d(TAG, "    TITRE FINAL: ${sections.detectedTitle}")
@@ -218,5 +214,17 @@ object RecipeOcrParser {
         Log.d(TAG, "=== FIN PIPELINE OCR ===")
 
         return result
+    }
+
+    /**
+     * Imprime une liste de chaînes dans Logcat sous la forme d'un tableau Kotlin copier-coller pour les tests unitaires.
+     */
+    private fun logKotlinList(phaseTitle: String, lines: List<String>) {
+        Log.d(TAG, "=== DÉBUT $phaseTitle (FORMAT KOTLIN LIST) ===")
+        lines.forEachIndexed { index, line ->
+            val comma = if (index < lines.lastIndex) "," else ""
+            Log.d(TAG, "\"$line\"$comma")
+        }
+        Log.d(TAG, "=== FIN $phaseTitle ===")
     }
 }

@@ -1,85 +1,151 @@
 package com.chefinventory.app.utils
 
-import android.util.Log
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.MockedStatic
-import org.mockito.Mockito
 
+/**
+ * Suite de tests unitaires d'intégration anti-régression dédiée à la recette des Salades d'Aubergines.
+ */
 class RecipeOcrParserAubergineTest {
 
-    private lateinit var mockedLog: MockedStatic<Log>
-    private lateinit var vocabulary: OcrVocabulary
+    /** Capture brute réelle ML Kit du scan caméra (écrite une seule fois). */
+    private val rawOcrScanText = listOf(
+        "CONRAD|",
+        "BR",
+        "Nahit YILMAZ",
+        "Hôtel Conrad International",
+        "avenue Louise 7I",
+        "1050 BRUXELLES",
+        "Tél. : 02/542.42.42",
+        "saveur de",
+        "alade d'aubergines",
+        "1 Plongez les aubergines dans l'eau bouillante et retirez la peau. Hachez la chair et faites-la suer dans",
+        "un peu de beurre avec l'ail haché et le piment émincé fin. Assaisonnez. Ajoutez le jus de citron et",
+        "le persil haché. Servez frais, décorez de tomates et accompagnez de tranches de pain grillé.",
+        "23",
+        "20",
+        "Ingrédients pour 4 personnes",
+        "6 aubergines moyennes (t 1 kg)",
+        "1 ou 2 citrons",
+        "150 g de beurre",
+        "I piment rouge",
+        "persil haché",
+        "2 gousses d'ail",
+        "sel, poivre",
+        "Pour la décoration: tomates",
+        "Notre vin conseillé",
+        "Rousse Région Merlot",
+        "(vìn rouge de Bulgarie)",
+        "M.O."
+    ).joinToString("\n")
 
     @Before
-    fun setup() {
-        mockedLog = Mockito.mockStatic(Log::class.java)
-        mockedLog.`when`<Int> { Log.d(anyString(), anyString()) }.thenAnswer { invocation ->
-            println("LOG D [${invocation.getArgument<String>(0)}]: ${invocation.getArgument<String>(1)}")
-            0
-        }
-
-        vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+    fun setUp() {
+        OcrVocabularyLoader.clearCache()
     }
 
     @After
     fun tearDown() {
-        mockedLog.close()
+        OcrVocabularyLoader.clearCache()
+    }
+
+    private fun assertLinesMatch(actual: List<String>, expected: List<String>, description: String) {
+        if (actual != expected) {
+            val message = "$description :\n\n" +
+                "${OcrTestStrings.HEADER_EXPECTED} (${expected.size} lines) :\n" +
+                expected.mapIndexed { i, s -> "  [$i] $s" }.joinToString("\n") + "\n\n" +
+                "${OcrTestStrings.HEADER_ACTUAL} (${actual.size} lines) :\n" +
+                actual.mapIndexed { i, s -> "  [$i] $s" }.joinToString("\n")
+            fail(message)
+        }
     }
 
     @Test
-    fun `test first scenario salade aubergine Conrad from screen`() {
-        val ocrText = """
-            CONRAD
-            BR
-            LS
-            Nahit YILMAZ
-            Hôtel Conrad International
-            avenue Louise 71
-            1050 BRUXELLES
-            Tél. : 02/542.42.42
-            e
-            175
-            saveur de
-            alade d'aubergines
-            Plongez les aubergines dans l'eau bouillante et retirez la peau, Hachez la chair et faites-la suer dans
-            un peu de beurre avec l'ail haché et le piment émincé fin. Assaisonnez. Ajoutez le jus de citron et
-            le persil haché. Servez frais, décorez de tomates et accompagnez de tranches de pain grillé.
-            23
-            20
-            Ingrédients pour 4 personnes
-            6 aubergines moyennes (t l kg)
-            1 ou 2 citrons
-            150 g de beurre
-            I piment rouge
-            persil haché
-            2 gousses d'ail
-            sel, poivre
-            Pour la décoration: tomates
-            Notre vin conseillé
-            Rousse Région Merlot
-            (vin rouge de Bulgarie)
-            M.O.
-        """.trimIndent()
+    fun testAubergineRecipeExactOcrRawScanParse() {
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+        val result = RecipeOcrParser.parse(rawOcrScanText, vocabulary)
 
-        val result = RecipeOcrParser.parse(ocrText, vocabulary)
+        // 1. Validation du Titre
+        assertWithMessage(OcrTestStrings.TITLE_MISMATCH)
+            .that(result.title)
+            .ignoringCase()
+            .isEqualTo("Salade d'aubergines")
 
-        // Test uniquement du vin et de la source sur la recette aubergines
-        assertThat(result.wine).ignoringCase().contains("Merlot")
-        assertThat(result.source).ignoringCase().contains("Hôtel")
-        assertThat(result.source).contains("Nahit YILMAZ")
-        assertThat(result.source).contains("02/542.42.42")
+        // 2. Validation des Portions / Nombre de Personnes
+        assertWithMessage(OcrTestStrings.SERVINGS_MISMATCH)
+            .that(result.servings)
+            .isEqualTo("4")
 
-        val ingNorm = (result.ingredients ?: "").replace("\n", " ")
-        assertThat(ingNorm).ignoringCase().contains("aubergines moyennes")
-        assertThat(ingNorm).contains("1 ou 2 citrons")
-        assertThat(ingNorm).contains("150 g de beurre")
-        assertThat(ingNorm).ignoringCase().contains("persil haché")
-        assertThat(ingNorm).contains("2 gousses d'ail")
+        // 3. Validation de la Source / Établissement / Chef
+        assertWithMessage(OcrTestStrings.SOURCE_MISMATCH)
+            .that(result.source)
+            .contains("Nahit YILMAZ")
 
-        assertThat(result.servings).isEqualTo("4")
+        assertWithMessage(OcrTestStrings.SOURCE_MISMATCH)
+            .that(result.source)
+            .contains("Hôtel Conrad International")
+
+        assertWithMessage(OcrTestStrings.SOURCE_MISMATCH)
+            .that(result.source)
+            .contains("02/542.42.42")
+
+        // 4. Validation du Vin Conseillé
+        assertWithMessage(OcrTestStrings.WINE_VARIETAL_MISMATCH)
+            .that(result.wine)
+            .contains("Rousse Région Merlot")
+
+        assertWithMessage(OcrTestStrings.WINE_VARIETAL_MISMATCH)
+            .that(result.wine)
+            .contains("vin rouge de Bulgarie")
+
+        // 5. Validation des Champs Sans Données (Modèle Neutre)
+        assertWithMessage(OcrTestStrings.PREP_TIME_MISMATCH)
+            .that(result.prepTime)
+            .isNull()
+
+        assertWithMessage(OcrTestStrings.COOK_TIME_MISMATCH)
+            .that(result.cookTime)
+            .isNull()
+
+        assertWithMessage(OcrTestStrings.RESTING_TIME_MISMATCH)
+            .that(result.restingTime)
+            .isNull()
+
+        assertWithMessage(OcrTestStrings.KCAL_MISMATCH)
+            .that(result.kcalPerServing)
+            .isNull()
+
+        assertWithMessage(OcrTestStrings.DIFFICULTY_MISMATCH)
+            .that(result.difficulty)
+            .isNull()
+
+        // 6. Validation des Ingrédients
+        val ingredientLines = result.ingredients?.split("\n") ?: emptyList()
+        val expectedIngredients = listOf(
+            "6 aubergines moyennes (1 kg)",
+            "1 ou 2 citrons",
+            "150 g de beurre",
+            "1 piment rouge",
+            "Persil haché",
+            "2 gousses d'ail",
+            "Sel",
+            "Poivre"
+        )
+        assertLinesMatch(ingredientLines, expectedIngredients, OcrTestStrings.INGREDIENTS_MISMATCH)
+
+        // 7. Validation des Instructions
+        val instructionLines = result.instructions?.split("\n") ?: emptyList()
+        val expectedInstructions = listOf(
+            "Plongez les aubergines dans l'eau bouillante et retirez la peau.",
+            "Hachez la chair et faites-la suer dans un peu de beurre avec l'ail haché et le piment émincé fin.",
+            "Assaisonnez.",
+            "Ajoutez le jus de citron et le persil haché.",
+            "Servez frais, décorez de tomates et accompagnez de tranches de pain grillé.",
+            "Pour la décoration: tomates."
+        )
+        assertLinesMatch(instructionLines, expectedInstructions, OcrTestStrings.INSTRUCTIONS_MISMATCH)
     }
 }

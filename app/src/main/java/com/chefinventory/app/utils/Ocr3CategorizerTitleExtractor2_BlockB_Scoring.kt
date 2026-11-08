@@ -54,7 +54,8 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
 
         val cleanIngName = trimmed.replace(OcrRegexes.Titles.DE_PREFIX_FULL, "").trim()
         val isCommonIngr = vocabulary.commonIngredientsNoQty.any { it.equals(trimmed, ignoreCase = true) || it.equals(cleanIngName, ignoreCase = true) }
-        if (isCommonIngr) return false
+        val isEndMarkerLine = vocabulary.ingredientEndMarkers.any { marker -> lower.contains(marker.lowercase()) }
+        if (isCommonIngr || isEndMarkerLine) return false
 
         val hasTitleKeyword = vocabulary.titleKeywords.any { OcrRegexes.getSpellingRepairPattern(it).matcher(trimmed).find() }
         val isModifierOnly = vocabulary.ingredientPreparationModifiers.any { OcrRegexes.getSpellingRepairPattern(it).matcher(trimmed).find() }

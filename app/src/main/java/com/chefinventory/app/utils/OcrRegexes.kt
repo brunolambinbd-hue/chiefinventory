@@ -407,26 +407,7 @@ object OcrRegexes {
         val BRACKET_COMMENT: Regex = Regex("\\s+\\[[^\\]]+\\]$")
     }
 
-    /** Cache memoized pour les Regexes d'unités culinaires pour ne jamais compiler deux fois le même motif. */
-    private val unitRegexCache = mutableMapOf<String, Regex>()
 
-    /** Cache memoized pour les Regexes de préfixes publicitaires pour ne jamais re-compiler le même motif. */
-    private val adPrefixCache = mutableMapOf<String, Regex>()
-
-    /** Cache memoized pour les Regexes de préfixes téléphoniques pour ne jamais re-compiler le même motif. */
-    private val phonePrefixCache = mutableMapOf<String, Regex>()
-
-    /** Cache memoized pour les Regexes de préfixes d'instructions pour ne jamais re-compiler le même motif dynamique. */
-    private val instructionPrefixCache = mutableMapOf<String, Regex>()
-
-    /** Cache memoized pour les Patterns de réparations orthographiques d'Étape 1 pour ne jamais re-compiler le même motif. */
-    private val spellingRepairCache = mutableMapOf<String, Pattern>()
-
-    /** Cache memoized pour les Regexes de racines de mots d'ingrédients de titres pour ne jamais re-compiler le même motif. */
-    private val stemWordCache = mutableMapOf<String, Regex>()
-
-    /** Cache memoized pour les Regexes de mots entiers pour ne jamais re-compiler le même motif. */
-    private val wholeWordCache = mutableMapOf<String, Regex>()
 
     /**
      * Retourne le motif Pattern pré-compilé et mis en cache pour les réparations orthographiques d'Étape 1 ([Ocr1Normalizer]).
@@ -434,13 +415,7 @@ object OcrRegexes {
      * @param wrong Le terme fautif à rechercher.
      * @return L'expression régulière Pattern compilée correspondante.
      */
-    fun getSpellingRepairPattern(wrong: String): Pattern {
-        return spellingRepairCache.getOrPut(wrong) {
-            // Ligne d'origine en commentaire affectée par le bogue JDK-8032926 sur JVM (\Q...\E) :
-            // Pattern.compile("(?<!\\p{L})" + Pattern.quote(wrong) + "(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
-            Pattern.compile("(?<!\\p{L})" + Regex.escape(wrong) + "(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
-        }
-    }
+    fun getSpellingRepairPattern(wrong: String): Pattern = OcrRegexesDynamicHelpers.getSpellingRepairPattern(wrong)
 
     /**
      * Retourne le motif Regex pré-compilé et mis en cache pour la recherche de racine de mots d'ingrédients ([OcrTitleExtractor]).
@@ -448,13 +423,7 @@ object OcrRegexes {
      * @param stem La racine du mot d'ingrédient (ex: "mangue", "crabe").
      * @return L'expression régulière compilée correspondante.
      */
-    fun getStemWordPattern(stem: String): Regex {
-        return stemWordCache.getOrPut(stem) {
-            // Ligne d'origine en commentaire affectée par la limite ASCII \b sur JVM (épinards, artichauts) :
-            // Regex("(?i)\\b${Regex.escape(stem)}(?:s|x)?\\b")
-            Regex("(?i)(?<!\\p{L})${Regex.escape(stem)}(?:s|x)?(?!\\p{L})")
-        }
-    }
+    fun getStemWordPattern(stem: String): Regex = OcrRegexesDynamicHelpers.getStemWordPattern(stem)
 
     /**
      * Retourne le motif Regex pré-compilé et mis en cache pour la vérification de mots entiers ([WineParser]).
@@ -462,11 +431,7 @@ object OcrRegexes {
      * @param keyword Le mot-clé à rechercher.
      * @return L'expression régulière compilée correspondante.
      */
-    fun getWholeWordPattern(keyword: String): Regex {
-        return wholeWordCache.getOrPut(keyword) {
-            Regex("(?iu)(?<![\\p{L}\\p{N}])${Regex.escape(keyword)}(?![\\p{L}\\p{N}])")
-        }
-    }
+    fun getWholeWordPattern(keyword: String): Regex = OcrRegexesDynamicHelpers.getWholeWordPattern(keyword)
 
     /**
      * Retourne le motif Regex pré-compilé et mis en cache pour les préfixes de consignes basés sur les verbes d'action.
@@ -474,21 +439,7 @@ object OcrRegexes {
      * @param stepActionKeywords La liste des verbes d'action culinaires issue de `step_keywords.xml`.
      * @return L'expression régulière compilée correspondante.
      */
-    fun getInstructionPrefixPattern(stepActionKeywords: List<String>): Regex {
-        val cacheKey = stepActionKeywords.joinToString(",")
-        return instructionPrefixCache.getOrPut(cacheKey) {
-            val timeExclusions = setOf("minutes", "heures", "secondes", "environ")
-            val actionVerbsRegex = if (stepActionKeywords.isNotEmpty()) {
-                val distinctKeywords = stepActionKeywords
-                    .map { it.replace(Beautifier.BRACKET_COMMENT, "") }
-                    .filter { it.length >= 3 && it.lowercase() !in timeExclusions }
-                distinctKeywords.joinToString("|") { Regex.escape(it) }
-            } else {
-                "(?!minutes\\b|heures\\b)[\\p{Lu}][\\p{Ll}]+"
-            }
-            Regex("^(?:[\\p{L}]{1,3}\\s+)?(?:\\d{1,2}[.)\\-]?\\s+)*(?=(?:$actionVerbsRegex)\\b)", RegexOption.IGNORE_CASE)
-        }
-    }
+    fun getInstructionPrefixPattern(stepActionKeywords: List<String>): Regex = OcrRegexesDynamicHelpers.getInstructionPrefixPattern(stepActionKeywords)
 
     /**
      * Retourne le motif Regex pré-compilé et mis en cache pour un préfixe téléphonique donné.
@@ -496,11 +447,7 @@ object OcrRegexes {
      * @param prefix Le préfixe téléphonique (ex: "Tel", "Fax", "GSM").
      * @return L'expression régulière compilée correspondante.
      */
-    fun getPhonePrefixPattern(prefix: String): Regex {
-        return phonePrefixCache.getOrPut(prefix) {
-            Regex("(?i)(?<!\\p{L})$prefix\\b\\s*[:\\-.]?")
-        }
-    }
+    fun getPhonePrefixPattern(prefix: String): Regex = OcrRegexesDynamicHelpers.getPhonePrefixPattern(prefix)
 
     /**
      * Retourne le motif Regex pré-compilé et mis en cache pour un motif publicitaire donné.
@@ -508,11 +455,7 @@ object OcrRegexes {
      * @param rawPattern La chaîne du motif publicitaire issu de `ads_exclusions.xml`.
      * @return L'expression régulière compilée correspondante.
      */
-    fun getAdPrefixPattern(rawPattern: String): Regex {
-        return adPrefixCache.getOrPut(rawPattern) {
-            Regex("(?i)^.*?" + rawPattern + "\\s*")
-        }
-    }
+    fun getAdPrefixPattern(rawPattern: String): Regex = OcrRegexesDynamicHelpers.getAdPrefixPattern(rawPattern)
 
     /**
      * Retourne le motif Regex pré-compilé et mis en cache pour une unité culinaire donnée.
@@ -529,11 +472,7 @@ object OcrRegexes {
      * @param unit Le nom ou l'abréviation de l'unité culinaire (ex: "c. à soupe", "g", "cl").
      * @return L'expression régulière compilée correspondante.
      */
-    fun getUnitPattern(unit: String): Regex {
-        return unitRegexCache.getOrPut(unit) {
-            Regex("^${Pattern.quote(unit)}(?:\\s+|de\\s+|d['’]\\s*|\\.|\\b)", RegexOption.IGNORE_CASE)
-        }
-    }
+    fun getUnitPattern(unit: String): Regex = OcrRegexesDynamicHelpers.getUnitPattern(unit)
 
     /**
      * Génère et pré-compile une expression régulière de détection de motifs de durée temporelle isolée (ex: "5 mn", "3 h", "15 minutes").
