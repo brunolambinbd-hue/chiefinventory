@@ -3,7 +3,7 @@ package com.chefinventory.app.utils
 import com.chefinventory.app.dao.RecipeWithIngredients
 import com.chefinventory.app.model.Recipe
 import com.chefinventory.app.model.RecipeIngredient
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Test
 
@@ -17,9 +17,17 @@ class RecipeAuditEngineTest {
 
         val report = RecipeAuditEngine.auditRecipes(listOf(itemNullInst))
 
-        assertThat(report.totalRecipes).isEqualTo(1)
-        assertThat(report.missingInstructionsList).containsExactly(itemNullInst)
-        assertThat(report.missingCategoryList).isEmpty()
+        assertWithMessage("Le nombre total de recettes auditées doit être de 1")
+            .that(report.totalRecipes)
+            .isEqualTo(1)
+
+        assertWithMessage("La recette sans instruction doit figurer dans missingInstructionsList")
+            .that(report.missingInstructionsList)
+            .containsExactly(itemNullInst)
+
+        assertWithMessage("La liste des catégories manquantes doit être vide car la source définit la catégorie")
+            .that(report.missingCategoryList)
+            .isEmpty()
     }
 
     @Test
@@ -31,8 +39,13 @@ class RecipeAuditEngineTest {
         // Call auditRecipes with 1 argument (uses default parameter locationNamesMap = emptyMap())
         val report = RecipeAuditEngine.auditRecipes(listOf(item))
 
-        assertThat(report.totalRecipes).isEqualTo(1)
-        assertThat(report.drinkRecipesList).containsExactly(item)
+        assertWithMessage("Le total de recettes doit valoir 1")
+            .that(report.totalRecipes)
+            .isEqualTo(1)
+
+        assertWithMessage("La recette de cocktail 'Cocktail Mojito' doit être classifiée dans drinkRecipesList")
+            .that(report.drinkRecipesList)
+            .containsExactly(item)
     }
 
     @Test
@@ -61,12 +74,32 @@ class RecipeAuditEngineTest {
             locationMap
         )
 
-        assertThat(report.totalRecipes).isEqualTo(5)
-        assertThat(report.validRecipesCount).isEqualTo(3) // valid, drink, side
-        assertThat(report.missingIngredientsList).containsExactly(itemNoIngr)
-        assertThat(report.missingInstructionsList).containsExactly(itemNoInst)
-        assertThat(report.missingCategoryList).containsExactly(itemNoIngr, itemNoInst)
-        assertThat(report.drinkRecipesList).containsExactly(itemDrink)
-        assertThat(report.sideRecipesList).containsExactly(itemSide)
+        assertWithMessage("Le total des recettes auditées doit valoir 5")
+            .that(report.totalRecipes)
+            .isEqualTo(5)
+
+        assertWithMessage("Le nombre de recettes conformes doit être de 3 (valide, boisson, accompagnement)")
+            .that(report.validRecipesCount)
+            .isEqualTo(3)
+
+        assertWithMessage("La recette sans ingrédient doit figurer dans missingIngredientsList")
+            .that(report.missingIngredientsList)
+            .containsExactly(itemNoIngr)
+
+        assertWithMessage("La recette sans instruction doit figurer dans missingInstructionsList")
+            .that(report.missingInstructionsList)
+            .containsExactly(itemNoInst)
+
+        assertWithMessage("Les recettes sans catégorie doivent contenir itemNoIngr et itemNoInst")
+            .that(report.missingCategoryList)
+            .containsExactly(itemNoIngr, itemNoInst)
+
+        assertWithMessage("La recette de boisson doit figurer dans drinkRecipesList")
+            .that(report.drinkRecipesList)
+            .containsExactly(itemDrink)
+
+        assertWithMessage("La recette de sauce doit figurer dans sideRecipesList")
+            .that(report.sideRecipesList)
+            .containsExactly(itemSide)
     }
 }

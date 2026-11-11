@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -25,7 +25,9 @@ class OcrRegexesDynamicHelpersTest {
         val pattern = OcrRegexesDynamicHelpers.getUnitPattern("c. à café")
         val input = "c. à café"
 
-        assertThat(pattern.containsMatchIn(input)).isTrue()
+        assertWithMessage("Le motif d'unité dynamique doit matcher l'unité accentuée 'c. à café' en fin de ligne")
+            .that(pattern.containsMatchIn(input))
+            .isTrue()
     }
 
     @Test
@@ -33,7 +35,9 @@ class OcrRegexesDynamicHelpersTest {
         val pattern = OcrRegexesDynamicHelpers.getPhonePrefixPattern("Tél")
         val input = "Tél: 02/542.42.42"
 
-        assertThat(pattern.containsMatchIn(input)).isTrue()
+        assertWithMessage("Le motif de préfixe téléphonique doit matcher 'Tél:'")
+            .that(pattern.containsMatchIn(input))
+            .isTrue()
     }
 
     @Test
@@ -41,7 +45,9 @@ class OcrRegexesDynamicHelpersTest {
         val pattern = OcrRegexesDynamicHelpers.getAdPrefixPattern("Maxi GB")
         val input = "Plat disponible chez Maxi GB"
 
-        assertThat(pattern.containsMatchIn(input)).isTrue()
+        assertWithMessage("Le motif de préfixe publicitaire doit matcher l'enseigne 'Maxi GB'")
+            .that(pattern.containsMatchIn(input))
+            .isTrue()
     }
 
     @Test
@@ -49,7 +55,9 @@ class OcrRegexesDynamicHelpersTest {
         val keywords = listOf("Coupez", "Plongez", "Mélangez")
         val pattern = OcrRegexesDynamicHelpers.getInstructionPrefixPattern(keywords)
 
-        assertThat(pattern.containsMatchIn("1. Coupez les légumes")).isTrue()
+        assertWithMessage("Le motif de préfixe d'instruction doit matcher la consigne '1. Coupez les légumes'")
+            .that(pattern.containsMatchIn("1. Coupez les légumes"))
+            .isTrue()
     }
 
     @Test
@@ -57,7 +65,9 @@ class OcrRegexesDynamicHelpersTest {
         val pattern = OcrRegexesDynamicHelpers.getSpellingRepairPattern("salade")
         val input = "SALADE DE LANGOUSTINES AU CURRY"
 
-        assertThat(pattern.matcher(input).find()).isTrue()
+        assertWithMessage("Le motif de réparation orthographique doit matcher le mot majuscule 'SALADE' sur la JVM")
+            .that(pattern.matcher(input).find())
+            .isTrue()
     }
 
     @Test
@@ -65,7 +75,9 @@ class OcrRegexesDynamicHelpersTest {
         val pattern = OcrRegexesDynamicHelpers.getStemWordPattern("épinards")
         val input = "Crevettes grises aux épinards"
 
-        assertThat(pattern.containsMatchIn(input)).isTrue()
+        assertWithMessage("Le motif de radical d'ingrédient doit matcher le mot accentué 'épinards'")
+            .that(pattern.containsMatchIn(input))
+            .isTrue()
     }
 
     @Test
@@ -73,6 +85,8 @@ class OcrRegexesDynamicHelpersTest {
         val pattern = OcrRegexesDynamicHelpers.getWholeWordPattern("Bordeaux")
         val input = "Un bon vin de Bordeaux"
 
-        assertThat(pattern.containsMatchIn(input)).isTrue()
+        assertWithMessage("Le motif de mot entier doit matcher 'Bordeaux'")
+            .that(pattern.containsMatchIn(input))
+            .isTrue()
     }
 }

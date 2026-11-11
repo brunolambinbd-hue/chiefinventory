@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,10 +21,21 @@ class RecipeMetadataParser1_BlockA_ServingsDiffTest {
         val rawLine = "250 kcal Facile Pour 4 personnes"
         val remaining = RecipeMetadataParser1_BlockA_ServingsDiff.processServingsAndDifficulty(rawLine, rawLine, results)
 
-        assertThat(results.detectedKcal).isEqualTo("250")
-        assertThat(results.detectedDifficulty).isEqualTo("facile")
-        assertThat(results.detectedServings).isEqualTo("4")
-        assertThat(remaining).isEmpty()
+        assertWithMessage("Les kilocalories '250' doivent être extraites dans detectedKcal")
+            .that(results.detectedKcal)
+            .isEqualTo("250")
+
+        assertWithMessage("La difficulté 'facile' doit être extraite dans detectedDifficulty")
+            .that(results.detectedDifficulty)
+            .isEqualTo("facile")
+
+        assertWithMessage("Le nombre de portions '4' doit être extrait dans detectedServings")
+            .that(results.detectedServings)
+            .isEqualTo("4")
+
+        assertWithMessage("La chaîne restante nettoyée doit être vide après extraction")
+            .that(remaining)
+            .isEmpty()
     }
 
     @Test
@@ -36,8 +47,13 @@ class RecipeMetadataParser1_BlockA_ServingsDiffTest {
             line = "Pour 4 personnes - Ingrédients",
             results = resultsIngr
         )
-        assertThat(resultsIngr.detectedServings).isEqualTo("4")
-        assertThat(remainingIngr).isEqualTo("ingrédients")
+        assertWithMessage("Le nombre de portions '4' doit être extrait")
+            .that(resultsIngr.detectedServings)
+            .isEqualTo("4")
+
+        assertWithMessage("Le reste de la ligne doit conserver l'en-tête 'ingrédients'")
+            .that(remainingIngr)
+            .isEqualTo("ingrédients")
 
         val resultsInstr = RawSections()
         val remainingInstr = RecipeMetadataParser1_BlockA_ServingsDiff.processServingsAndDifficulty(
@@ -45,8 +61,13 @@ class RecipeMetadataParser1_BlockA_ServingsDiffTest {
             line = "Pour 4 personnes - Préparation",
             results = resultsInstr
         )
-        assertThat(resultsInstr.detectedServings).isEqualTo("4")
-        assertThat(remainingInstr).isEqualTo("préparation")
+        assertWithMessage("Le nombre de portions '4' doit être extrait")
+            .that(resultsInstr.detectedServings)
+            .isEqualTo("4")
+
+        assertWithMessage("Le reste de la ligne doit conserver l'en-tête 'préparation'")
+            .that(remainingInstr)
+            .isEqualTo("préparation")
     }
 
     @Test
@@ -60,9 +81,17 @@ class RecipeMetadataParser1_BlockA_ServingsDiffTest {
         val line = "250 kcal Facile Pour 4 personnes"
         RecipeMetadataParser1_BlockA_ServingsDiff.processServingsAndDifficulty(line, line, results)
 
-        assertThat(results.detectedKcal).isEqualTo("300")
-        assertThat(results.detectedDifficulty).isEqualTo("moyen")
-        assertThat(results.detectedServings).isEqualTo("2")
+        assertWithMessage("Des kilocalories déjà renseignées '300' doivent être conservées")
+            .that(results.detectedKcal)
+            .isEqualTo("300")
+
+        assertWithMessage("Une difficulté déjà renseignée 'moyen' doit être conservée")
+            .that(results.detectedDifficulty)
+            .isEqualTo("moyen")
+
+        assertWithMessage("Un nombre de portions déjà renseigné '2' doit être conservé")
+            .that(results.detectedServings)
+            .isEqualTo("2")
 
         // Unaccented "ingredients" and "instructions"
         val resultsIngr = RawSections()
@@ -71,7 +100,9 @@ class RecipeMetadataParser1_BlockA_ServingsDiffTest {
             line = "ingredients pour 4 personnes",
             results = resultsIngr
         )
-        assertThat(remainingIngr).isEqualTo("ingrédients")
+        assertWithMessage("L'en-tête sans accent 'ingredients' doit être normalisé en 'ingrédients'")
+            .that(remainingIngr)
+            .isEqualTo("ingrédients")
 
         val resultsInstr = RawSections()
         val remainingInstr = RecipeMetadataParser1_BlockA_ServingsDiff.processServingsAndDifficulty(
@@ -79,6 +110,8 @@ class RecipeMetadataParser1_BlockA_ServingsDiffTest {
             line = "instructions pour 4 personnes",
             results = resultsInstr
         )
-        assertThat(remainingInstr).isEqualTo("préparation")
+        assertWithMessage("L'en-tête 'instructions' doit être normalisé en 'préparation'")
+            .that(remainingInstr)
+            .isEqualTo("préparation")
     }
 }

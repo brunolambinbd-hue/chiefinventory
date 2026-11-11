@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -28,32 +28,62 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
         val seen = setOf("farine")
 
         // 1. startsWithConnector = true -> false
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("de farine", false, false, false, true, seen)).isFalse()
+        assertWithMessage("Une ligne démarrant par un connecteur ne doit pas être qualifiée de réapparition")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("de farine", false, false, false, true, seen))
+            .isFalse()
 
         // 2. match = true, closed = true -> true
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("ajouter la farine", true, false, false, false, seen)).isTrue()
+        assertWithMessage("Un mot-clé d'ingrédient déjà vu dans une liste fermée doit être qualifié de réapparition")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("ajouter la farine", true, false, false, false, seen))
+            .isTrue()
 
         // 3. match = true, closed = false, noQty = true -> true
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("farine fluide", false, false, false, false, seen)).isTrue()
+        assertWithMessage("Un mot-clé d'ingrédient sans quantité dans une liste ouverte doit être qualifié de réapparition")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("farine fluide", false, false, false, false, seen))
+            .isTrue()
 
         // 4. match = true, closed = false, hasHardQuantity = true -> false
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("200 g de farine", false, true, false, false, seen)).isFalse()
+        assertWithMessage("Un mot-clé avec une quantité stricte ne doit pas être qualifié de réapparition")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("200 g de farine", false, true, false, false, seen))
+            .isFalse()
 
         // 5. match = true, closed = false, hasWeight = true -> false
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("(50 g) de farine", false, false, true, false, seen)).isFalse()
+        assertWithMessage("Un mot-clé avec un poids entre parenthèses ne doit pas être qualifié de réapparition")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.evaluateIsReappearance("(50 g) de farine", false, false, true, false, seen))
+            .isFalse()
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testIsIsolatedModifier_DirectCall() {
         val mods = listOf("haché")
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("haché", mods)).isTrue()
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("haché fin", mods)).isTrue()
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("hachéd'oignons", mods)).isTrue()
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("hachéde persil", mods)).isTrue()
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("hachédu sel", mods)).isTrue()
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("hachédes poivrons", mods)).isTrue()
-        assertThat(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("moulu", mods)).isFalse()
+        assertWithMessage("Le modificateur 'haché' seul doit être reconnu comme modificateur isolé")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("haché", mods))
+            .isTrue()
+
+        assertWithMessage("Le modificateur 'haché fin' doit être reconnu comme modificateur isolé")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("haché fin", mods))
+            .isTrue()
+
+        assertWithMessage("Le modificateur 'hachéd'oignons' doit être reconnu comme modificateur isolé")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("hachéd'oignons", mods))
+            .isTrue()
+
+        assertWithMessage("Le modificateur 'hachéde persil' doit être reconnu comme modificateur isolé")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("hachéde persil", mods))
+            .isTrue()
+
+        assertWithMessage("Le modificateur 'hachédu sel' doit être reconnu comme modificateur isolé")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("hachédu sel", mods))
+            .isTrue()
+
+        assertWithMessage("Le modificateur 'hachédes poivrons' doit être reconnu comme modificateur isolé")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("hachédes poivrons", mods))
+            .isTrue()
+
+        assertWithMessage("Un modificateur non présent dans la liste ne doit pas être reconnu comme isolé")
+            .that(Ocr3Categorizer3_BlockC_Reappearance.isIsolatedModifier("moulu", mods))
+            .isFalse()
     }
 
     @Test
@@ -74,22 +104,62 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
         val res2 = res1.copy()
         val res3 = res1.copy(isReappearance = true)
 
-        assertThat(res1).isEqualTo(res2)
-        assertThat(res1).isNotEqualTo(res3)
-        assertThat(res1.hashCode()).isEqualTo(res2.hashCode())
-        assertThat(res1.toString()).contains("BlockCResult")
+        assertWithMessage("Les copies de BlockCResult avec des valeurs identiques doivent être égales")
+            .that(res1)
+            .isEqualTo(res2)
+
+        assertWithMessage("Les objets BlockCResult avec une propriété différente ne doivent pas être égaux")
+            .that(res1)
+            .isNotEqualTo(res3)
+
+        assertWithMessage("Le hashcode de la copie de BlockCResult doit correspondre à l'original")
+            .that(res1.hashCode())
+            .isEqualTo(res2.hashCode())
+
+        assertWithMessage("La méthode toString de BlockCResult doit contenir le nom de la classe")
+            .that(res1.toString())
+            .contains("BlockCResult")
 
         val (lower, action, bullet, weight, hardQ, reappear, instTrig, looksIng, sec, closed) = res1
-        assertThat(lower).isEqualTo("200 g de farine")
-        assertThat(action).isFalse()
-        assertThat(bullet).isFalse()
-        assertThat(weight).isFalse()
-        assertThat(hardQ).isTrue()
-        assertThat(reappear).isFalse()
-        assertThat(instTrig).isFalse()
-        assertThat(looksIng).isTrue()
-        assertThat(sec).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
-        assertThat(closed).isFalse()
+        assertWithMessage("Le composant lowerLine déconstruit doit correspondre")
+            .that(lower)
+            .isEqualTo("200 g de farine")
+
+        assertWithMessage("Le composant containsAction déconstruit doit être faux")
+            .that(action)
+            .isFalse()
+
+        assertWithMessage("Le composant startsWithBullet déconstruit doit être faux")
+            .that(bullet)
+            .isFalse()
+
+        assertWithMessage("Le composant hasWeight déconstruit doit être faux")
+            .that(weight)
+            .isFalse()
+
+        assertWithMessage("Le composant hasHardQuantity déconstruit doit être vrai")
+            .that(hardQ)
+            .isTrue()
+
+        assertWithMessage("Le composant isReappearance déconstruit doit être faux")
+            .that(reappear)
+            .isFalse()
+
+        assertWithMessage("Le composant hasInstructionTrigger déconstruit doit être faux")
+            .that(instTrig)
+            .isFalse()
+
+        assertWithMessage("Le composant looksLikeIngredient déconstruit doit être vrai")
+            .that(looksIng)
+            .isTrue()
+
+        assertWithMessage("Le composant updatedSection déconstruit doit correspondre à SECTION_INGREDIENTS")
+            .that(sec)
+            .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        assertWithMessage("Le composant updatedIngredientListClosed déconstruit doit être faux")
+            .that(closed)
+            .isFalse()
     }
 
     @Test
@@ -112,7 +182,9 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resInstrHeader.updatedSection).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+        assertWithMessage("L'en-tête 'Préparation' doit faire basculer la section courante vers SECTION_INSTRUCTIONS")
+            .that(resInstrHeader.updatedSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
 
         // 2. Ingredient Header ("Ingrédients")
         val resIngrHeader = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
@@ -127,8 +199,13 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resIngrHeader.updatedSection).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
-        assertThat(resIngrHeader.updatedIngredientListClosed).isFalse()
+        assertWithMessage("L'en-tête 'Ingrédients' doit faire basculer la section courante vers SECTION_INGREDIENTS")
+            .that(resIngrHeader.updatedSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        assertWithMessage("L'en-tête 'Ingrédients' doit ré-ouvrir la liste des ingrédients")
+            .that(resIngrHeader.updatedIngredientListClosed)
+            .isFalse()
 
         // 3. Composition Header ("composition")
         val resCompositionHeader = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
@@ -143,8 +220,13 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resCompositionHeader.updatedSection).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
-        assertThat(resCompositionHeader.updatedIngredientListClosed).isFalse()
+        assertWithMessage("L'en-tête 'composition' doit faire basculer la section courante vers SECTION_INGREDIENTS")
+            .that(resCompositionHeader.updatedSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        assertWithMessage("L'en-tête 'composition' doit ré-ouvrir la liste des ingrédients")
+            .that(resCompositionHeader.updatedIngredientListClosed)
+            .isFalse()
 
         // 4. Instruction Trigger Header ("étape")
         val customVocabTrig = vocabulary.copy(instructionSwitchKeywords = listOf("étape"))
@@ -160,7 +242,9 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resTrigHeader.updatedSection).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+        assertWithMessage("Le déclencheur d'instruction 'étape' doit basculer vers SECTION_INSTRUCTIONS")
+            .that(resTrigHeader.updatedSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
     }
 
     @Test
@@ -183,8 +267,13 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resNullRegex.containsAction).isFalse()
-        assertThat(resNullRegex.startsWithBullet).isFalse()
+        assertWithMessage("Une ligne brute d'ingrédient sans verbe d'action ne doit pas contenir d'action")
+            .that(resNullRegex.containsAction)
+            .isFalse()
+
+        assertWithMessage("Une ligne brute sans puce initiale ne doit pas démarrer par une puce")
+            .that(resNullRegex.startsWithBullet)
+            .isFalse()
 
         // Dash bullet line ("- 200 g de farine")
         val resDashBullet = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
@@ -199,7 +288,9 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resDashBullet.startsWithBullet).isTrue()
+        assertWithMessage("Une ligne d'ingrédient débutant par un tiret '-' doit être détectée comme puce")
+            .that(resDashBullet.startsWithBullet)
+            .isTrue()
 
         // Reappearance matching keyword "farine"
         val resReappear = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
@@ -214,7 +305,9 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resReappear.isReappearance).isTrue()
+        assertWithMessage("Le mot 'farine' déjà vu dans la liste fermée doit être qualifié de réapparition")
+            .that(resReappear.isReappearance)
+            .isTrue()
 
         // Isolated modifiers with prefixes ("haché", "d'oignons", "de persil", "du sel", "des poivrons")
         val customVocab = vocabulary.copy(
@@ -234,7 +327,9 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resMod1.looksLikeIngredient).isTrue()
+        assertWithMessage("Le modificateur 'haché' seul doit ressembler à un ingrédient")
+            .that(resMod1.looksLikeIngredient)
+            .isTrue()
 
         val resMod2 = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
             workingLine = "hachéd'oignons",
@@ -248,7 +343,9 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resMod2.looksLikeIngredient).isTrue()
+        assertWithMessage("Le modificateur 'hachéd'oignons' doit ressembler à un ingrédient")
+            .that(resMod2.looksLikeIngredient)
+            .isTrue()
 
         val resMod3 = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
             workingLine = "hachéde persil",
@@ -262,7 +359,9 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resMod3.looksLikeIngredient).isTrue()
+        assertWithMessage("Le modificateur 'hachéde persil' doit ressembler à un ingrédient")
+            .that(resMod3.looksLikeIngredient)
+            .isTrue()
 
         val resMod4 = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
             workingLine = "hachédu sel",
@@ -276,7 +375,9 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resMod4.looksLikeIngredient).isTrue()
+        assertWithMessage("Le modificateur 'hachédu sel' doit ressembler à un ingrédient")
+            .that(resMod4.looksLikeIngredient)
+            .isTrue()
 
         val resMod5 = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
             workingLine = "hachédes poivrons",
@@ -290,7 +391,9 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resMod5.looksLikeIngredient).isTrue()
+        assertWithMessage("Le modificateur 'hachédes poivrons' doit ressembler à un ingrédient")
+            .that(resMod5.looksLikeIngredient)
+            .isTrue()
 
         val resSubHeader = Ocr3Categorizer3_BlockC_Reappearance.processBlockC_ReappearanceAndHeaders(
             workingLine = "Pour la pâte",
@@ -304,6 +407,8 @@ class Ocr3Categorizer3_BlockC_ReappearanceTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resSubHeader.updatedSection).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+        assertWithMessage("Le sous-en-tête 'Pour la pâte' doit faire basculer la section vers SECTION_INGREDIENTS")
+            .that(resSubHeader.updatedSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
     }
 }

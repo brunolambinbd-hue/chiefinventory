@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 
 /**
@@ -15,9 +15,12 @@ class Ocr5BeautifierTest {
     fun beautifyInstructions_removesStepNumbersAndPunctuation() {
         val input = listOf("1. Couper les oignons", "2) Ajouter le sel", "3- Mélanger", "10 minutes au four")
         val expected = listOf("Couper les oignons.", "Ajouter le sel.", "Mélanger.", "10 minutes au four.")
-        
+
         val result = Ocr5Beautifier.beautifyInstructions(input)
-        assertThat(result).containsExactlyElementsIn(expected).inOrder()
+        assertWithMessage("Les numéros d'étapes ('1.', '2)', '3-') doivent être supprimés et les consignes majusculées et ponctuées")
+            .that(result)
+            .containsExactlyElementsIn(expected)
+            .inOrder()
     }
 
     /**
@@ -27,9 +30,11 @@ class Ocr5BeautifierTest {
     fun beautifyInstructions_removesIsolatedDigitsBeforeUppercaseWords() {
         val input = listOf("1 Plongez les légumes")
         val expected = listOf("Plongez les légumes.")
-        
+
         val result = Ocr5Beautifier.beautifyInstructions(input)
-        assertThat(result).containsExactlyElementsIn(expected)
+        assertWithMessage("Le chiffre isolé '1' devant le mot majusculé 'Plongez' doit être retiré")
+            .that(result)
+            .containsExactlyElementsIn(expected)
     }
 
     /**
@@ -39,9 +44,12 @@ class Ocr5BeautifierTest {
     fun beautifyInstructions_removesBullets() {
         val input = listOf("• Faire cuire", "- Saler", "* Poivrer")
         val expected = listOf("Faire cuire.", "Saler.", "Poivrer.")
-        
+
         val result = Ocr5Beautifier.beautifyInstructions(input)
-        assertThat(result).containsExactlyElementsIn(expected).inOrder()
+        assertWithMessage("Les puces '•', '-', '*' doivent être retirées en début de ligne")
+            .that(result)
+            .containsExactlyElementsIn(expected)
+            .inOrder()
     }
 
     /**
@@ -51,8 +59,11 @@ class Ocr5BeautifierTest {
     fun beautifyIngredients_capitalizesFirstLetter() {
         val input = listOf("sel", "poivre", "2 carottes")
         val expected = listOf("Sel", "Poivre", "2 carottes")
-        
+
         val result = Ocr5Beautifier.beautifyIngredients(input)
-        assertThat(result).containsExactlyElementsIn(expected).inOrder()
+        assertWithMessage("Chaque ingrédient en minuscules doit recevoir une majuscule initiale")
+            .that(result)
+            .containsExactlyElementsIn(expected)
+            .inOrder()
     }
 }

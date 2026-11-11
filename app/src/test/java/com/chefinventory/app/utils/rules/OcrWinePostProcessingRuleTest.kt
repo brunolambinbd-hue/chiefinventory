@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -32,13 +32,21 @@ class OcrWinePostProcessingRuleTest {
 
         val wine = result.wine ?: ""
 
-        // 1. Validation de la correction du millésime (I996 -> 1996)
-        assertThat(wine).contains("1996")
-        assertThat(wine).doesNotContain("I996")
+        assertWithMessage("Le millésime corrompu 'I996' doit être réparé en '1996'")
+            .that(wine)
+            .contains("1996")
 
-        // 2. Validation de la correction de l'accent ("vìn" -> "vin")
-        assertThat(wine).contains("vin rouge")
-        assertThat(wine).doesNotContain("vìn")
+        assertWithMessage("Le millésime corrompu 'I996' ne doit plus figurer")
+            .that(wine)
+            .doesNotContain("I996")
+
+        assertWithMessage("L'accentuation corrompue 'vìn' doit être réparée en 'vin rouge'")
+            .that(wine)
+            .contains("vin rouge")
+
+        assertWithMessage("Le mot fautif 'vìn' ne doit plus figurer")
+            .that(wine)
+            .doesNotContain("vìn")
     }
 
     @Test
@@ -57,8 +65,13 @@ class OcrWinePostProcessingRuleTest {
 
         val wine = result.wine ?: ""
 
-        assertThat(wine).contains("75 cl")
-        assertThat(wine).doesNotContain("75 d")
+        assertWithMessage("La faute d'unité '75 d' doit être réparée en '75 cl'")
+            .that(wine)
+            .contains("75 cl")
+
+        assertWithMessage("L'unité fautive '75 d' ne doit plus figurer")
+            .that(wine)
+            .doesNotContain("75 d")
     }
 
     @Test
@@ -77,13 +90,29 @@ class OcrWinePostProcessingRuleTest {
 
         val wine = result.wine ?: ""
 
-        assertThat(wine).contains("Atinium")
-        assertThat(wine).contains("Bordeaux")
-        assertThat(wine).contains("Château")
+        assertWithMessage("Le terme 'Atinum' doit être réparé en 'Atinium'")
+            .that(wine)
+            .contains("Atinium")
+
+        assertWithMessage("Le terme 'Bordeau' doit être réparé en 'Bordeaux'")
+            .that(wine)
+            .contains("Bordeaux")
+
+        assertWithMessage("Le terme 'Chậteau' doit être réparé en 'Château'")
+            .that(wine)
+            .contains("Château")
 
         val wineTokens = wine.lowercase().split(Regex("[\\s,]+"))
-        assertThat(wineTokens).doesNotContain("atinum")
-        assertThat(wineTokens).doesNotContain("bordeau")
-        assertThat(wineTokens).doesNotContain("chậteau")
+        assertWithMessage("Le jeton 'atinum' ne doit plus figurer")
+            .that(wineTokens)
+            .doesNotContain("atinum")
+
+        assertWithMessage("Le jeton 'bordeau' ne doit plus figurer")
+            .that(wineTokens)
+            .doesNotContain("bordeau")
+
+        assertWithMessage("Le jeton 'chậteau' ne doit plus figurer")
+            .that(wineTokens)
+            .doesNotContain("chậteau")
     }
 }

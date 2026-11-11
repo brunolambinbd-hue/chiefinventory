@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -34,8 +34,12 @@ class OcrStandaloneArticleCleanupRuleTest {
 
         val ing = result.ingredients ?: ""
 
-        // Validation : "Du" isolé doit être filtré et ne pas figurer dans les ingrédients
-        assertThat(ing).contains("6 branches de céleri blanc")
-        assertThat(ing.lowercase().split(Regex("[\\s\n]+"))).doesNotContain("du")
+        assertWithMessage("L'ingrédient '6 branches de céleri blanc' doit être conservé")
+            .that(ing)
+            .contains("6 branches de céleri blanc")
+
+        assertWithMessage("L'article orphelin de début de section 'Du' doit être filtré")
+            .that(ing.lowercase().split(Regex("[\\s\n]+")))
+            .doesNotContain("du")
     }
 }

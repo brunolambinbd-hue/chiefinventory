@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.Ocr1Corrector
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -25,7 +25,10 @@ class OcrRepairRuleTest {
                 val expected = parts[1].trim().replace("\\'", "'")
 
                 val normalized = Ocr1Corrector.normalize(wrong, baseVocabulary.ocrSpellingRepairs)
-                assertThat(normalized).ignoringCase().contains(expected.lowercase())
+                assertWithMessage("La chaîne fautive '$wrong' doit être corrigée en '$expected'")
+                    .that(normalized)
+                    .ignoringCase()
+                    .contains(expected.lowercase())
             }
         }
     }
@@ -35,6 +38,8 @@ class OcrRepairRuleTest {
         val customRepairs = baseVocabulary.ocrSpellingRepairs + "mot_invalide_test|mot_corrige_test"
         val result = Ocr1Corrector.normalize("Ceci est un mot_invalide_test", customRepairs)
 
-        assertThat(result).contains("mot_corrige_test")
+        assertWithMessage("La règle personnalisée 'mot_invalide_test' doit être remplacée par 'mot_corrige_test'")
+            .that(result)
+            .contains("mot_corrige_test")
     }
 }

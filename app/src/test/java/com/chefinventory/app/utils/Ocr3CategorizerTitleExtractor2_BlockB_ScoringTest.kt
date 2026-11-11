@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -26,37 +26,67 @@ class Ocr3CategorizerTitleExtractor2_BlockB_ScoringTest {
     @CoveredRequirement("6.1.1.9")
     fun testIsBaseCandidate_ValidAndDisqualifiedCases() {
         // Valid candidate
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates", vocabulary, null)).isTrue()
+        assertWithMessage("La ligne 'Salade de tomates' doit être qualifiée comme candidat titre valide")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates", vocabulary, null))
+            .isTrue()
 
         // Disqualified by length/single-word without title keyword (< 2 words)
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Petit", vocabulary, null)).isFalse()
+        assertWithMessage("Le mot unique 'Petit' (< 2 mots) doit être disqualifié")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Petit", vocabulary, null))
+            .isFalse()
 
         // Disqualified by ending punctuation (., !, ?)
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates.", vocabulary, null)).isFalse()
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates!", vocabulary, null)).isFalse()
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates?", vocabulary, null)).isFalse()
+        assertWithMessage("Une ligne se terminant par un point '.' doit être disqualifiée")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates.", vocabulary, null))
+            .isFalse()
+
+        assertWithMessage("Une ligne se terminant par un point d'exclamation '!' doit être disqualifiée")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates!", vocabulary, null))
+            .isFalse()
+
+        assertWithMessage("Une ligne se terminant par un point d'interrogation '?' doit être disqualifiée")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates?", vocabulary, null))
+            .isFalse()
 
         // Disqualified by invalid characters "("
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade (de tomates)", vocabulary, null)).isFalse()
+        assertWithMessage("Une ligne contenant une parenthèse '(' doit être disqualifiée")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade (de tomates)", vocabulary, null))
+            .isFalse()
 
         // Disqualified by quantity
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("200 g de tomates", vocabulary, null)).isFalse()
+        assertWithMessage("Une ligne contenant une quantité '200 g de tomates' doit être disqualifiée")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("200 g de tomates", vocabulary, null))
+            .isFalse()
 
         // Disqualified by excluded keywords (length >= 5 and >= 2 words so not caught by length/single-word check)
         val customVocab = vocabulary.copy(excludedOcrKeywords = listOf("publicité commerciale"))
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Publicité commerciale", customVocab, null)).isFalse()
+        assertWithMessage("Une ligne contenant le mot d'exclusion 'publicité commerciale' doit être disqualifiée")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Publicité commerciale", customVocab, null))
+            .isFalse()
 
         // Empty excluded keywords
         val emptyExcludedVocab = vocabulary.copy(excludedOcrKeywords = emptyList())
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates", emptyExcludedVocab, null)).isTrue()
+        assertWithMessage("Un candidat valide sans mots d'exclusion doit être conservé")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade de tomates", emptyExcludedVocab, null))
+            .isTrue()
 
         // Disqualified by personnes/portions (not starting with "pour ")
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Recette 4 personnes", vocabulary, null)).isFalse()
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Recette 4 portions", vocabulary, null)).isFalse()
+        assertWithMessage("La mention 'Recette 4 personnes' doit être disqualifiée des candidats titres")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Recette 4 personnes", vocabulary, null))
+            .isFalse()
+
+        assertWithMessage("La mention 'Recette 4 portions' doit être disqualifiée des candidats titres")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Recette 4 portions", vocabulary, null))
+            .isFalse()
 
         // Disqualified by letter/digit counts
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Ab 12", vocabulary, null)).isFalse()
-        assertThat(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade 123", vocabulary, null)).isFalse()
+        assertWithMessage("Une ligne 'Ab 12' avec trop peu de lettres doit être disqualifiée")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Ab 12", vocabulary, null))
+            .isFalse()
+
+        assertWithMessage("Une ligne 'Salade 123' avec des nombres parasites doit être disqualifiée")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade 123", vocabulary, null))
+            .isFalse()
     }
 
     @Test
@@ -69,9 +99,20 @@ class Ocr3CategorizerTitleExtractor2_BlockB_ScoringTest {
             firstIngredientWord = "tomates"
         )
 
-        assertThat(score).isGreaterThan(50)
-        assertThat(details).contains("mots_clés_titre")
-        assertThat(details).contains("connecteurs_titre")
-        assertThat(details).contains("premier_ingrédient")
+        assertWithMessage("Le score d'un candidat titre complet doit être supérieur à 50")
+            .that(score)
+            .isGreaterThan(50)
+
+        assertWithMessage("Le détail explicatif du score doit mentionner les mots-clés de titre")
+            .that(details)
+            .contains("mots_clés_titre")
+
+        assertWithMessage("Le détail explicatif du score doit mentionner les connecteurs de titre")
+            .that(details)
+            .contains("connecteurs_titre")
+
+        assertWithMessage("Le détail explicatif du score doit mentionner le bonus de premier ingrédient")
+            .that(details)
+            .contains("premier_ingrédient")
     }
 }

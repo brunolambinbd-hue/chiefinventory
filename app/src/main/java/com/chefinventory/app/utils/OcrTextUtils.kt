@@ -42,6 +42,69 @@ object OcrTextUtils {
     }
 
     /**
+     * S'assure qu'une chaîne de texte se termine par une ponctuation de fin de phrase (. ! ?).
+     *
+     * @param text Le texte à vérifier et ponctuer.
+     * @param terminators La liste des caractères de ponctuation de fin de phrase issue de `ocr_shared_punctuation.xml`.
+     * @return Le texte ponctué.
+     */
+    fun ensureSentenceEndingPunctuation(text: String, terminators: List<String> = emptyList()): String {
+        val trimmed = text.trim()
+        if (trimmed.isEmpty()) return ""
+        val activeTerminators = if (terminators.isNotEmpty()) {
+            terminators
+        } else {
+            OcrVocabularyLoader.loadFromProjectResources().sentenceEndingPunctuation
+        }
+        val lastCharStr = trimmed.last().toString()
+        val hasTerminator = activeTerminators.any { it == lastCharStr }
+        return if (hasTerminator) trimmed else "$trimmed."
+    }
+
+    /**
+     * Détermine si un caractère appartient au répertoire des lettres de l'alphabet français (avec accents) ou des chiffres.
+     *
+     * @param c Le caractère à évaluer.
+     * @return `true` si le caractère est une lettre française ou un chiffre, `false` sinon.
+     */
+    fun isFrenchLetterOrDigit(c: Char): Boolean {
+        if (c in 'a'..'z' || c in 'A'..'Z' || c in '0'..'9') return true
+        val lower = c.lowercaseChar()
+        return lower in "àâäéèêëîïôöùûüÿçæœ"
+    }
+
+    /**
+     * Détermine si une ligne ne contient aucune lettre française ni aucun chiffre (bruit de symboles ou glyphes étrangers purs).
+     *
+     * @param line La ligne de texte à évaluer.
+     * @return `true` si la ligne ne contient ni lettre française ni chiffre, `false` sinon.
+     */
+    fun isNonAlphanumericNoise(line: String): Boolean {
+        val trimmed = line.trim()
+        if (trimmed.isEmpty()) return false
+        return trimmed.none { isFrenchLetterOrDigit(it) }
+    }
+
+    /**
+     * Détermine si une ligne de texte représente un bruit court orphelin (longueur condensée <= 3 sans chiffres).
+     *
+     * @param line La ligne de texte à évaluer.
+     * @param standaloneTrashWords La liste des articles/prépositions isolés à rejeter.
+     * @param hasActionVerb `true` si la ligne contient un verbe d'action culinaire.
+     * @return `true` si la ligne est un bruit court orphelin, `false` sinon.
+     */
+    fun isShortNoise(
+        line: String,
+        standaloneTrashWords: Set<String> = emptySet(),
+        hasActionVerb: Boolean = false
+    ): Boolean {
+        if (hasActionVerb || line.isBlank()) return false
+        if (line.any { it.isDigit() }) return false
+        val lowerCondensed = line.lowercase().replace(" ", "").removeSuffix(".")
+        return lowerCondensed.length <= 3 || lowerCondensed in standaloneTrashWords
+    }
+
+    /**
      * Détermine si une ligne courte sans chiffres (2 à 4 mots majuscules) ressemble à un nom propre d'auteur ou d'établissement.
      */
     fun isLikelyProperNameOrSource(line: String, vocabulary: OcrVocabulary? = null): Boolean {

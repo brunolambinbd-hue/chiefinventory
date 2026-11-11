@@ -2,9 +2,8 @@ package com.chefinventory.app.utils
 
 import android.content.res.Resources
 import com.chefinventory.app.R
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -291,14 +290,37 @@ class OcrVocabularyTest {
 
         val vocab = OcrVocabulary.fromResources(mockRes)
 
-        assertEquals(listOf("val1", "val2", "val1", "val2", "val1", "val2"), vocab.stepActionKeywords)
-        assertEquals(listOf("val1", "val2"), vocab.commonIngredientsNoQty)
-        assertEquals(listOf("val1", "val2"), vocab.excludedOcrKeywords)
-        assertEquals(listOf("val1", "val2"), vocab.ocr1ProtectedIngredientsHeaders)
-        assertEquals(listOf("val1", "val2"), vocab.ocr1ProtectedInstructionsHeaders)
-        assertEquals("ng", vocab.ocr1IngredientsSuffixPrefix)
-        assertEquals("pattern", vocab.wineRemovePattern)
-        assertEquals("Échec du chargement des réparations diacritiques par défaut", vocab.logErrDiacriticRepairs)
+        assertWithMessage("Les verbes d'action du vocabulaire chargé par ressources doivent correspondre")
+            .that(vocab.stepActionKeywords)
+            .isEqualTo(listOf("val1", "val2", "val1", "val2", "val1", "val2"))
+
+        assertWithMessage("Les ingrédients connus doivent correspondre")
+            .that(vocab.commonIngredientsNoQty)
+            .isEqualTo(listOf("val1", "val2"))
+
+        assertWithMessage("Les mots-clés d'exclusion doivent correspondre")
+            .that(vocab.excludedOcrKeywords)
+            .isEqualTo(listOf("val1", "val2"))
+
+        assertWithMessage("Les en-têtes d'ingrédients protégés de l'Étape 1 doivent correspondre")
+            .that(vocab.ocr1ProtectedIngredientsHeaders)
+            .isEqualTo(listOf("val1", "val2"))
+
+        assertWithMessage("Les en-têtes d'instructions protégés de l'Étape 1 doivent correspondre")
+            .that(vocab.ocr1ProtectedInstructionsHeaders)
+            .isEqualTo(listOf("val1", "val2"))
+
+        assertWithMessage("Le suffixe d'ingrédient doit valoir 'ng'")
+            .that(vocab.ocr1IngredientsSuffixPrefix)
+            .isEqualTo("ng")
+
+        assertWithMessage("Le motif de suppression de vin doit valoir 'pattern'")
+            .that(vocab.wineRemovePattern)
+            .isEqualTo("pattern")
+
+        assertWithMessage("Le message d'erreur de chargement diacritique doit correspondre")
+            .that(vocab.logErrDiacriticRepairs)
+            .isEqualTo("Échec du chargement des réparations diacritiques par défaut")
 
         OcrVocabularyLoader.clearCache()
     }
@@ -344,10 +366,21 @@ class OcrVocabularyTest {
 
         val vocab = OcrVocabulary.fromResources(mockRes)
 
-        assertTrue(vocab.stepActionKeywords.isEmpty())
-        assertEquals("", vocab.wineRemovePattern)
-        assertEquals("", vocab.ocr1IngredientsSuffixPrefix)
-        assertEquals("", vocab.logErrDiacriticRepairs)
+        assertWithMessage("En cas de ressources manquantes, les verbes d'action doivent être une liste vide")
+            .that(vocab.stepActionKeywords)
+            .isEmpty()
+
+        assertWithMessage("Le motif de suppression de vin doit être une chaîne vide")
+            .that(vocab.wineRemovePattern)
+            .isEmpty()
+
+        assertWithMessage("Le suffixe d'ingrédient doit être une chaîne vide")
+            .that(vocab.ocr1IngredientsSuffixPrefix)
+            .isEmpty()
+
+        assertWithMessage("Le message d'erreur de chargement de diacritique doit être vide")
+            .that(vocab.logErrDiacriticRepairs)
+            .isEmpty()
 
         OcrVocabularyLoader.clearCache()
     }

@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -35,7 +35,9 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             looksLikeIngredient = false,
             startsWithConnector = false
         )
-        assertThat(sec1).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+        assertWithMessage("Un signal d'instruction doit classifier vers SECTION_INSTRUCTIONS")
+            .that(sec1)
+            .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
 
         // 2. isClosedNoQtyNoWeight = true -> SECTION_INSTRUCTIONS
         val sec2 = Ocr3Categorizer4_BlockD_Classification.classifySection(
@@ -47,7 +49,9 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             looksLikeIngredient = false,
             startsWithConnector = false
         )
-        assertThat(sec2).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+        assertWithMessage("Une liste fermée sans quantité ni poids doit classifier vers SECTION_INSTRUCTIONS")
+            .that(sec2)
+            .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
 
         // 3. SECTION_NONE with startsWithConnector = true -> SECTION_INGREDIENTS
         val sec3 = Ocr3Categorizer4_BlockD_Classification.classifySection(
@@ -59,7 +63,9 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             looksLikeIngredient = false,
             startsWithConnector = true
         )
-        assertThat(sec3).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+        assertWithMessage("Une ligne démarrant par un connecteur doit classifier vers SECTION_INGREDIENTS")
+            .that(sec3)
+            .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
 
         // 4. SECTION_INGREDIENTS with looksLikeIngredient = false -> remains SECTION_INGREDIENTS
         val sec4 = Ocr3Categorizer4_BlockD_Classification.classifySection(
@@ -71,47 +77,61 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             looksLikeIngredient = false,
             startsWithConnector = false
         )
-        assertThat(sec4).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+        assertWithMessage("La section INGREDIENTS doit rester inchangée si aucun signal inverse n'est détecté")
+            .that(sec4)
+            .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testIsInstructionSignal_DirectCallAllBranches() {
         // 1. hasUnclosedParenthesis = true -> false
-        assertThat(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
-            hasUnclosedParenthesis = true, hasInstructionTrigger = true, isReappearance = true,
-            isStepNumber = true, containsAction = true, workingLineLength = 30, startsWithBullet = true
-        )).isFalse()
+        assertWithMessage("Une parenthèse non refermée doit disqualifier le signal d'instruction")
+            .that(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
+                hasUnclosedParenthesis = true, hasInstructionTrigger = true, isReappearance = true,
+                isStepNumber = true, containsAction = true, workingLineLength = 30, startsWithBullet = true
+            ))
+            .isFalse()
 
         // 2. hasInstructionTrigger = true -> true
-        assertThat(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
-            hasUnclosedParenthesis = false, hasInstructionTrigger = true, isReappearance = false,
-            isStepNumber = false, containsAction = false, workingLineLength = 10, startsWithBullet = false
-        )).isTrue()
+        assertWithMessage("Un déclencheur d'instruction doit valider le signal d'instruction")
+            .that(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
+                hasUnclosedParenthesis = false, hasInstructionTrigger = true, isReappearance = false,
+                isStepNumber = false, containsAction = false, workingLineLength = 10, startsWithBullet = false
+            ))
+            .isTrue()
 
         // 3. isReappearance = true -> true
-        assertThat(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
-            hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = true,
-            isStepNumber = false, containsAction = false, workingLineLength = 10, startsWithBullet = false
-        )).isTrue()
+        assertWithMessage("Une réapparition d'ingrédient doit valider le signal d'instruction")
+            .that(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
+                hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = true,
+                isStepNumber = false, containsAction = false, workingLineLength = 10, startsWithBullet = false
+            ))
+            .isTrue()
 
         // 4. isStepNumber = true -> true
-        assertThat(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
-            hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = false,
-            isStepNumber = true, containsAction = false, workingLineLength = 10, startsWithBullet = false
-        )).isTrue()
+        assertWithMessage("Un numéro d'étape doit valider le signal d'instruction")
+            .that(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
+                hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = false,
+                isStepNumber = true, containsAction = false, workingLineLength = 10, startsWithBullet = false
+            ))
+            .isTrue()
 
         // 5. containsAction = true and workingLineLength > 25 -> true
-        assertThat(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
-            hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = false,
-            isStepNumber = false, containsAction = true, workingLineLength = 30, startsWithBullet = false
-        )).isTrue()
+        assertWithMessage("Un verbe d'action dans une ligne longue (> 25) doit valider le signal d'instruction")
+            .that(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
+                hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = false,
+                isStepNumber = false, containsAction = true, workingLineLength = 30, startsWithBullet = false
+            ))
+            .isTrue()
 
         // 6. containsAction = false -> false
-        assertThat(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
-            hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = false,
-            isStepNumber = false, containsAction = false, workingLineLength = 10, startsWithBullet = false
-        )).isFalse()
+        assertWithMessage("L'absence d'action et de déclencheur doit retourner un signal d'instruction faux")
+            .that(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
+                hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = false,
+                isStepNumber = false, containsAction = false, workingLineLength = 10, startsWithBullet = false
+            ))
+            .isFalse()
     }
 
     @Test
@@ -121,15 +141,34 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
         val res2 = res1.copy()
         val res3 = res1.copy(shouldContinue = true)
 
-        assertThat(res1).isEqualTo(res2)
-        assertThat(res1).isNotEqualTo(res3)
-        assertThat(res1.hashCode()).isEqualTo(res2.hashCode())
-        assertThat(res1.toString()).contains("BlockDResult")
+        assertWithMessage("Les objets BlockDResult identiques doivent être égaux")
+            .that(res1)
+            .isEqualTo(res2)
+
+        assertWithMessage("Les objets BlockDResult avec une propriété différente ne doivent pas être égaux")
+            .that(res1)
+            .isNotEqualTo(res3)
+
+        assertWithMessage("Le hashcode de la copie doit correspondre à l'original")
+            .that(res1.hashCode())
+            .isEqualTo(res2.hashCode())
+
+        assertWithMessage("La méthode toString doit contenir le nom de la classe")
+            .that(res1.toString())
+            .contains("BlockDResult")
 
         val (cont, line, sec) = res1
-        assertThat(cont).isFalse()
-        assertThat(line).isEqualTo("Couper les pommes")
-        assertThat(sec).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+        assertWithMessage("Le composant shouldContinue déconstruit doit être faux")
+            .that(cont)
+            .isFalse()
+
+        assertWithMessage("Le composant workingLine déconstruit doit correspondre à 'Couper les pommes'")
+            .that(line)
+            .isEqualTo("Couper les pommes")
+
+        assertWithMessage("Le composant updatedSection déconstruit doit correspondre à SECTION_INSTRUCTIONS")
+            .that(sec)
+            .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
     }
 
     @Test
@@ -155,7 +194,9 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             vocabulary = vocabulary,
             results = results
         )
-        assertThat(resNoise.shouldContinue).isTrue()
+        assertWithMessage("Une ligne de bruit sans lettres doit continuer le pipeline")
+            .that(resNoise.shouldContinue)
+            .isTrue()
 
         // 2. Closed wine section noise line
         wineState.isWineSectionClosed = true
@@ -175,7 +216,9 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             vocabulary = vocabulary,
             results = results
         )
-        assertThat(resWineClosedNoise.shouldContinue).isTrue()
+        assertWithMessage("Une ligne de bruit dans une section vin fermée doit continuer le pipeline")
+            .that(resWineClosedNoise.shouldContinue)
+            .isTrue()
 
         // 3. Instruction signal (step number "1. Couper")
         wineState.isWineSectionClosed = false
@@ -195,8 +238,13 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             vocabulary = vocabulary,
             results = results
         )
-        assertThat(resStep.shouldContinue).isFalse()
-        assertThat(resStep.updatedSection).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+        assertWithMessage("Un numéro d'étape avec verbe d'action ne doit pas continuer sans classification")
+            .that(resStep.shouldContinue)
+            .isFalse()
+
+        assertWithMessage("La section mise à jour doit basculer vers SECTION_INSTRUCTIONS")
+            .that(resStep.updatedSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
     }
 
     @Test
@@ -223,7 +271,9 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             vocabulary = vocabulary,
             results = results
         )
-        assertThat(resUnclosed.shouldContinue).isFalse()
+        assertWithMessage("Une parenthèse non refermée dans le dernier ingrédient doit bloquer la bascule")
+            .that(resUnclosed.shouldContinue)
+            .isFalse()
 
         // 2. Looks like ingredient in SECTION_NONE -> becomes SECTION_INGREDIENTS
         val resIngrBranch = Ocr3Categorizer4_BlockD_Classification.processBlockD_SectionClassification(
@@ -242,8 +292,13 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             vocabulary = vocabulary,
             results = results
         )
-        assertThat(resIngrBranch.shouldContinue).isFalse()
-        assertThat(resIngrBranch.updatedSection).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+        assertWithMessage("Une ligne ressemblant à un ingrédient doit classifier vers SECTION_INGREDIENTS")
+            .that(resIngrBranch.shouldContinue)
+            .isFalse()
+
+        assertWithMessage("La section mise à jour doit être SECTION_INGREDIENTS")
+            .that(resIngrBranch.updatedSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
 
         // 3. Closed wine section with containsAction = true (should NOT continue)
         wineState.isWineSectionClosed = true
@@ -263,7 +318,9 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             vocabulary = vocabulary,
             results = results
         )
-        assertThat(resWineClosedWithAction.shouldContinue).isFalse()
+        assertWithMessage("Une section vin fermée avec verbe d'action ne doit pas continuer sans traitement")
+            .that(resWineClosedWithAction.shouldContinue)
+            .isFalse()
 
         // 4. Closed wine section with startsWithBullet = true (should NOT continue)
         val resWineClosedWithBullet = Ocr3Categorizer4_BlockD_Classification.processBlockD_SectionClassification(
@@ -282,6 +339,8 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             vocabulary = vocabulary,
             results = results
         )
-        assertThat(resWineClosedWithBullet.shouldContinue).isFalse()
+        assertWithMessage("Une section vin fermée démarrant par une puce ne doit pas continuer sans traitement")
+            .that(resWineClosedWithBullet.shouldContinue)
+            .isFalse()
     }
 }

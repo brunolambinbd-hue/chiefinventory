@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -29,14 +29,30 @@ class Ocr3Categorizer2_BlockB_WineSourceTest {
         val res2 = res1.copy()
         val res3 = res1.copy(shouldContinue = false)
 
-        assertThat(res1).isEqualTo(res2)
-        assertThat(res1).isNotEqualTo(res3)
-        assertThat(res1.hashCode()).isEqualTo(res2.hashCode())
-        assertThat(res1.toString()).contains("BlockBResult")
+        assertWithMessage("Les objets BlockBResult avec des valeurs identiques doivent être égaux")
+            .that(res1)
+            .isEqualTo(res2)
+
+        assertWithMessage("Les objets BlockBResult avec une propriété différente ne doivent pas être égaux")
+            .that(res1)
+            .isNotEqualTo(res3)
+
+        assertWithMessage("Le hashcode de la copie de BlockBResult doit correspondre à l'original")
+            .that(res1.hashCode())
+            .isEqualTo(res2.hashCode())
+
+        assertWithMessage("La méthode toString de BlockBResult doit contenir le nom de la classe")
+            .that(res1.toString())
+            .contains("BlockBResult")
 
         val (cont, line) = res1
-        assertThat(cont).isTrue()
-        assertThat(line).isEqualTo("1 cuillère à soupe")
+        assertWithMessage("Le composant shouldContinue déconstruit doit être vrai")
+            .that(cont)
+            .isTrue()
+
+        assertWithMessage("Le composant workingLine déconstruit doit correspondre à '1 cuillère à soupe'")
+            .that(line)
+            .isEqualTo("1 cuillère à soupe")
     }
 
     @Test
@@ -60,8 +76,13 @@ class Ocr3Categorizer2_BlockB_WineSourceTest {
             seenIngredientKeywords = seenKeywords,
             wineState = wineState
         )
-        assertThat(resUnfinished.shouldContinue).isTrue()
-        assertThat(results.rawIngredientsList.last()).isEqualTo("1 cuillère à soupe de moutarde")
+        assertWithMessage("Le rattrapage d'ingrédient inachevé doit continuer le pipeline")
+            .that(resUnfinished.shouldContinue)
+            .isTrue()
+
+        assertWithMessage("La quantité inachevée '1 cuillère à soupe' doit fusionner avec 'de moutarde'")
+            .that(results.rawIngredientsList.last())
+            .isEqualTo("1 cuillère à soupe de moutarde")
 
         // 2. Source line ("Tel: 01 45 67 89 10")
         val resSource = Ocr3Categorizer2_BlockB_WineSource.processBlockB_UnfinishedWineAndExcludedKeywords(
@@ -76,8 +97,13 @@ class Ocr3Categorizer2_BlockB_WineSourceTest {
             seenIngredientKeywords = seenKeywords,
             wineState = wineState
         )
-        assertThat(resSource.shouldContinue).isTrue()
-        assertThat(results.detectedSourceList).contains("01 45 67 89 10")
+        assertWithMessage("Le traitement de ligne de source doit continuer le pipeline")
+            .that(resSource.shouldContinue)
+            .isTrue()
+
+        assertWithMessage("Le numéro de téléphone doit être extrait dans detectedSourceList")
+            .that(results.detectedSourceList)
+            .contains("01 45 67 89 10")
 
         // 3. Excluded keywords purge ("200 g de farine pub") -> "200 g de farine"
         val resPurge = Ocr3Categorizer2_BlockB_WineSource.processBlockB_UnfinishedWineAndExcludedKeywords(
@@ -92,7 +118,12 @@ class Ocr3Categorizer2_BlockB_WineSourceTest {
             seenIngredientKeywords = seenKeywords,
             wineState = wineState
         )
-        assertThat(resPurge.shouldContinue).isFalse()
-        assertThat(resPurge.workingLine).isEqualTo("200 g de farine")
+        assertWithMessage("La ligne purgée d'ingrédients ne doit pas s'arrêter prématurément")
+            .that(resPurge.shouldContinue)
+            .isFalse()
+
+        assertWithMessage("La ligne nettoyée '200 g de farine' doit être retournée inchangée")
+            .that(resPurge.workingLine)
+            .isEqualTo("200 g de farine")
     }
 }

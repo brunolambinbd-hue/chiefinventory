@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -32,8 +32,13 @@ class RecipeOcrCuillereSoupeRuleTest {
 
         val ing = result.ingredients ?: ""
 
-        // Validation : "1 cuillère à soupe" + "de moutarde" -> "1 cuillère à soupe de moutarde"
-        assertThat(ing).ignoringCase().contains("1 cuillère à soupe de moutarde")
-        assertThat(ing).doesNotContain("1 cuillère à soupe\n")
+        assertWithMessage("L'unité seule '1 cuillère à soupe' doit fusionner avec 'de moutarde'")
+            .that(ing)
+            .ignoringCase()
+            .contains("1 cuillère à soupe de moutarde")
+
+        assertWithMessage("L'ingrédient ne doit pas rester tronqué sur une ligne séparée")
+            .that(ing)
+            .doesNotContain("1 cuillère à soupe\n")
     }
 }

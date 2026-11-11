@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -74,16 +74,41 @@ class RecipeOcrEpinardsRuleTest {
         val inst = result.instructions ?: ""
 
         // 1. Validation du titre réparé (orevettes grises... -> Crevettes grises aux épinards)
-        assertThat(result.title).ignoringCase().contains("Crevettes grises aux épinards")
+        assertWithMessage("La lettrine/faute 'orevettes grises' doit être réparée en 'Crevettes grises aux épinards'")
+            .that(result.title)
+            .ignoringCase()
+            .contains("Crevettes grises aux épinards")
 
         // 2. Validation des ingrédients (vinaigre de vin blanc doit être fusionné et intact)
-        assertThat(ing).ignoringCase().contains("400 g de crevettes grises décortiquées")
-        assertThat(ing).ignoringCase().contains("200 g d'épinards frais")
-        assertThat(ing).ignoringCase().contains("1 c. à soupe de vinaigre de vin blanc")
-        assertThat(ing).ignoringCase().contains("150 g de beurre")
+        assertWithMessage("Les ingrédients doivent contenir '400 g de crevettes grises décortiquées'")
+            .that(ing)
+            .ignoringCase()
+            .contains("400 g de crevettes grises décortiquées")
+
+        assertWithMessage("Les ingrédients doivent contenir '200 g d'épinards frais'")
+            .that(ing)
+            .ignoringCase()
+            .contains("200 g d'épinards frais")
+
+        assertWithMessage("Les ingrédients doivent contenir '1 c. à soupe de vinaigre de vin blanc'")
+            .that(ing)
+            .ignoringCase()
+            .contains("1 c. à soupe de vinaigre de vin blanc")
+
+        assertWithMessage("Les ingrédients doivent contenir '150 g de beurre'")
+            .that(ing)
+            .ignoringCase()
+            .contains("150 g de beurre")
 
         // 3. Validation des consignes
-        assertThat(inst).ignoringCase().contains("Lavez et coupez les épinards")
-        assertThat(inst).ignoringCase().doesNotContain("1 c. à soupe de vinaigre de vin blanc")
+        assertWithMessage("Les consignes doivent contenir 'Lavez et coupez les épinards'")
+            .that(inst)
+            .ignoringCase()
+            .contains("Lavez et coupez les épinards")
+
+        assertWithMessage("Les ingrédients ne doivent pas fuiter dans les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("1 c. à soupe de vinaigre de vin blanc")
     }
 }

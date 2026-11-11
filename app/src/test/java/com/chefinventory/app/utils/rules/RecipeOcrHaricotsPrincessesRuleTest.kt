@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -38,8 +38,10 @@ class RecipeOcrHaricotsPrincessesRuleTest {
 
         val ing = result.ingredients ?: ""
 
-        // Validation : "200 g de haricots" + "princesses" doivent être fusionnés en "200 g de haricots princesses"
-        assertThat(ing).ignoringCase().contains("200 g de haricots princesses")
+        assertWithMessage("L'ingrédient de base '200 g de haricots' et la variété 'princesses' doivent être fusionnés")
+            .that(ing)
+            .ignoringCase()
+            .contains("200 g de haricots princesses")
     }
 
     @Test
@@ -70,10 +72,14 @@ class RecipeOcrHaricotsPrincessesRuleTest {
         val ing = result.ingredients ?: ""
         val inst = result.instructions ?: ""
 
-        // Validation A : L'instruction ne doit pas baver dans les ingrédients
-        assertThat(ing).ignoringCase().doesNotContain("obteniez")
+        assertWithMessage("La consigne 'obteniez une belle salade' ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("obteniez")
 
-        // Validation B : L'instruction doit être fusionnée en une phrase complète
-        assertThat(inst).ignoringCase().contains("jusqu'à ce que vous obteniez une belle salade mêlée")
+        assertWithMessage("Les lignes d'instruction doivent être fusionnées en 'jusqu'à ce que vous obteniez une belle salade mêlée'")
+            .that(inst)
+            .ignoringCase()
+            .contains("jusqu'à ce que vous obteniez une belle salade mêlée")
     }
 }

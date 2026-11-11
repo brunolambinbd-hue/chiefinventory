@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 import java.util.Locale
@@ -27,9 +27,13 @@ class OcrLocaleIndependenceTest {
             val vocab = OcrVocabularyLoader.loadFromProjectResources()
             val result = Ocr1Corrector.correct(input, vocab.ocrSpellingRepairs, vocab.ocrDiacriticRepairs)
 
-            // Prouve que même sous une locale système turque sur la JVM, le mot devient 'ingrédients' avec un 'i' standard (U+0069)
-            assertThat(result.lowercase(Locale.ROOT)).isEqualTo("ingrédients")
-            assertThat(result.contains("ı")).isFalse()
+            assertWithMessage("Sous n'importe quelle locale JVM hôte, 'INGRÉDIENTS' doit être corrigé en 'ingrédients' avec le 'i' standard")
+                .that(result.lowercase(Locale.ROOT))
+                .isEqualTo("ingrédients")
+
+            assertWithMessage("Le résultat ne doit pas contenir la lettre turque 'ı'")
+                .that(result.contains("ı"))
+                .isFalse()
         } finally {
             // Restauration de la locale système d'origine
             Locale.setDefault(originalLocale)

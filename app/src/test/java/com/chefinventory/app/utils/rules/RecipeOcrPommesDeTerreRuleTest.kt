@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -41,10 +41,15 @@ class RecipeOcrPommesDeTerreRuleTest {
         val result = RecipeOcrParser.parse(ocrText, vocabulary)
 
         // 1. Validation de la réparation orthographique de Donmes -> Pommes et berbes -> herbes
-        assertThat(result.title).ignoringCase().contains("Pommes de terre farcies aux radis et aux herbes")
+        assertWithMessage("Le titre corrompu 'Donmes... berbes' doit être réparé en 'Pommes de terre farcies aux radis et aux herbes'")
+            .that(result.title)
+            .ignoringCase()
+            .contains("Pommes de terre farcies aux radis et aux herbes")
 
         // 2. Validation du temps
-        assertThat(result.prepTime).isEqualTo("40")
+        assertWithMessage("Le temps de préparation extrait doit être de 40 minutes")
+            .that(result.prepTime)
+            .isEqualTo("40")
     }
 
     @Test
@@ -63,6 +68,8 @@ class RecipeOcrPommesDeTerreRuleTest {
         val result = RecipeOcrParser.parse(ocrText, vocabulary)
         val inst = result.instructions ?: ""
 
-        assertThat(inst).contains("hachez fin les radis et les gousses d'ail et mélangez-les à la crème")
+        assertWithMessage("La consigne tronquée par 'et-' doit être fusionnée sans tiret parasite en 'et mélangez-les'")
+            .that(inst)
+            .contains("hachez fin les radis et les gousses d'ail et mélangez-les à la crème")
     }
 }

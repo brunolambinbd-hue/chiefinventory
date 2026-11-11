@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -38,8 +38,10 @@ class RecipeOcrMelonCrevettesRuleTest {
 
         val ing = result.ingredients ?: ""
 
-        // Validation : "4 tranches" + "de jambon séché" doivent être fusionnés en "4 tranches de jambon séché"
-        assertThat(ing).ignoringCase().contains("4 tranches de jambon séché")
+        assertWithMessage("Les '4 tranches' et 'de jambon séché' doivent être fusionnées en '4 tranches de jambon séché'")
+            .that(ing)
+            .ignoringCase()
+            .contains("4 tranches de jambon séché")
     }
 
     @Test
@@ -96,22 +98,54 @@ class RecipeOcrMelonCrevettesRuleTest {
         val ing = result.ingredients ?: ""
         val inst = result.instructions ?: ""
 
-        System.err.println("=== USER LOGCAT RESULT TITLE ===\n" + result.title)
-        System.err.println("=== USER LOGCAT RESULT INGREDIENTS ===\n" + ing)
-        System.err.println("=== USER LOGCAT RESULT INSTRUCTIONS ===\n" + inst)
+        assertWithMessage("Le titre 'Melon aux crevettes et au jambon séché' doit être extrait")
+            .that(result.title)
+            .ignoringCase()
+            .contains("Melon aux crevettes et au jambon séché")
 
-        assertThat(result.title).ignoringCase().contains("Melon aux crevettes et au jambon séché")
-        assertThat(ing).ignoringCase().contains("1 petite salade frisée")
-        assertThat(ing).ignoringCase().contains("1 melon galia")
-        assertThat(ing).ignoringCase().contains("4 tranches de jambon séché")
-        assertThat(ing).ignoringCase().contains("le jus de 1/2 citron")
+        assertWithMessage("Les ingrédients doivent contenir '1 petite salade frisée'")
+            .that(ing)
+            .ignoringCase()
+            .contains("1 petite salade frisée")
 
-        // Validation que Temps de \n préparation est éliminé et ne pollue pas le début des instructions
-        assertThat(inst).ignoringCase().doesNotContain("Préparation 1")
-        assertThat(inst).ignoringCase().doesNotContain("Temps de préparation")
-        assertThat(ing).ignoringCase().doesNotContain("Temps de")
+        assertWithMessage("Les ingrédients doivent contenir '1 melon galia'")
+            .that(ing)
+            .ignoringCase()
+            .contains("1 melon galia")
 
-        assertThat(inst).ignoringCase().contains("Coupez le melon en deux et épépinez-le")
-        assertThat(inst).ignoringCase().doesNotContain("1 petite salade frisée")
+        assertWithMessage("Les ingrédients doivent contenir '4 tranches de jambon séché'")
+            .that(ing)
+            .ignoringCase()
+            .contains("4 tranches de jambon séché")
+
+        assertWithMessage("Les ingrédients doivent contenir 'le jus de 1/2 citron'")
+            .that(ing)
+            .ignoringCase()
+            .contains("le jus de 1/2 citron")
+
+        assertWithMessage("L'en-tête de temps ne doit pas polluer les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("Préparation 1")
+
+        assertWithMessage("L'en-tête de temps ne doit pas figurer dans les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("Temps de préparation")
+
+        assertWithMessage("L'en-tête de temps ne doit pas figurer dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("Temps de")
+
+        assertWithMessage("Les instructions doivent démarrer par 'Coupez le melon en deux et épépinez-le'")
+            .that(inst)
+            .ignoringCase()
+            .contains("Coupez le melon en deux et épépinez-le")
+
+        assertWithMessage("Les ingrédients ne doivent pas fuiter dans les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("1 petite salade frisée")
     }
 }

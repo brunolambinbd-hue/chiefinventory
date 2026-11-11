@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -33,10 +33,12 @@ class OcrUnclosedParenthesisRuleTest {
         val ing = result.ingredients ?: ""
         val inst = result.instructions ?: ""
 
-        // Validation A : L'ingrédient doit être fusionné sur une seule ligne complète
-        assertThat(ing).contains("1 citron (1/2 pour le jus - 1/2 pour la décoration)")
+        assertWithMessage("L'ingrédient découpé avec parenthèse non refermée doit être fusionné")
+            .that(ing)
+            .contains("1 citron (1/2 pour le jus - 1/2 pour la décoration)")
 
-        // Validation B : L'ingrédient ne doit pas baver dans les instructions
-        assertThat(inst).doesNotContain("décoration")
+        assertWithMessage("La suite de la parenthèse 'décoration' ne doit pas fuiter dans les instructions")
+            .that(inst)
+            .doesNotContain("décoration")
     }
 }

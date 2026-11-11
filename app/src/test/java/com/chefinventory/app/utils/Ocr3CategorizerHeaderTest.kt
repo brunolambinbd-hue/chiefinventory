@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -33,7 +33,9 @@ class Ocr3CategorizerHeaderTest {
             state = state,
             seenIngredientKeywords = mutableSetOf()
         )
-        assertThat(isLongIngr).isFalse()
+        assertWithMessage("Un en-tête d'ingrédients trop long (>= 35 caractères) ne doit pas être validé comme en-tête")
+            .that(isLongIngr)
+            .isFalse()
 
         // 2. Ingredients header containing action verb -> returns false
         val actionIngr = "Ingrédients : épluchez les légumes"
@@ -45,7 +47,9 @@ class Ocr3CategorizerHeaderTest {
             state = state,
             seenIngredientKeywords = mutableSetOf()
         )
-        assertThat(isActionIngr).isFalse()
+        assertWithMessage("Un en-tête d'ingrédients contenant un verbe d'action doit être rejeté")
+            .that(isActionIngr)
+            .isFalse()
 
         // 3. Instruction header too long (length >= 40) -> returns false
         val longInstr = "Préparation de la pâte à tarte aux pommes de terre et aux légumes d'été"
@@ -57,7 +61,9 @@ class Ocr3CategorizerHeaderTest {
             state = state,
             seenIngredientKeywords = mutableSetOf()
         )
-        assertThat(isLongInstr).isFalse()
+        assertWithMessage("Un en-tête d'instructions trop long (>= 40 caractères) ne doit pas être validé comme en-tête")
+            .that(isLongInstr)
+            .isFalse()
 
         // 4. Instruction header containing action verb -> returns false
         val actionInstr = "Préparation de la sauce en mélangeant"
@@ -69,7 +75,9 @@ class Ocr3CategorizerHeaderTest {
             state = state,
             seenIngredientKeywords = mutableSetOf()
         )
-        assertThat(isActionInstr).isFalse()
+        assertWithMessage("Un en-tête d'instructions contenant un verbe d'action doit être rejeté")
+            .that(isActionInstr)
+            .isFalse()
     }
 
     @Test
@@ -87,10 +95,21 @@ class Ocr3CategorizerHeaderTest {
             seenIngredientKeywords = seenKeywords
         )
 
-        assertThat(isHeader).isTrue()
-        assertThat(state.currentSection).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
-        assertThat(state.isIngredientListClosed).isFalse()
-        assertThat(seenKeywords).isEmpty()
+        assertWithMessage("La ligne 'ingrédients pour 4 personnes' doit être reconnue comme en-tête d'ingrédients")
+            .that(isHeader)
+            .isTrue()
+
+        assertWithMessage("L'état de la section courante doit passer à SECTION_INGREDIENTS")
+            .that(state.currentSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        assertWithMessage("La liste des ingrédients ne doit plus être marquée comme fermée")
+            .that(state.isIngredientListClosed)
+            .isFalse()
+
+        assertWithMessage("La liste des mots-clés d'ingrédients déjà vus doit être réinitialisée")
+            .that(seenKeywords)
+            .isEmpty()
     }
 
     @Test
@@ -108,8 +127,13 @@ class Ocr3CategorizerHeaderTest {
             seenIngredientKeywords = seenKeywords
         )
 
-        assertThat(isHeader).isTrue()
-        assertThat(state.currentSection).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+        assertWithMessage("La ligne 'Préparation :' doit être reconnue comme en-tête d'instructions")
+            .that(isHeader)
+            .isTrue()
+
+        assertWithMessage("L'état de la section courante doit passer à SECTION_INSTRUCTIONS")
+            .that(state.currentSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
     }
 
     @Test
@@ -142,8 +166,13 @@ class Ocr3CategorizerHeaderTest {
                 state = state,
                 seenIngredientKeywords = mutableSetOf()
             )
-            assertThat(isHeader).isTrue()
-            assertThat(state.currentSection).isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+            assertWithMessage("La variante d'en-tête '$headerText' doit être détectée comme en-tête d'instructions")
+                .that(isHeader)
+                .isTrue()
+
+            assertWithMessage("La variante '$headerText' doit basculer vers SECTION_INSTRUCTIONS")
+                .that(state.currentSection)
+                .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
         }
 
         val ingredientVariants = listOf(
@@ -162,8 +191,13 @@ class Ocr3CategorizerHeaderTest {
                 state = state,
                 seenIngredientKeywords = mutableSetOf()
             )
-            assertThat(isHeader).isTrue()
-            assertThat(state.currentSection).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+            assertWithMessage("La variante d'en-tête '$headerText' doit être détectée comme en-tête d'ingrédients")
+                .that(isHeader)
+                .isTrue()
+
+            assertWithMessage("La variante '$headerText' doit basculer vers SECTION_INGREDIENTS")
+                .that(state.currentSection)
+                .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
         }
     }
 
@@ -182,8 +216,13 @@ class Ocr3CategorizerHeaderTest {
             seenIngredientKeywords = mutableSetOf()
         )
 
-        assertThat(isSubHeader).isFalse()
-        assertThat(stateSub.currentSection).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+        assertWithMessage("Le sous-en-tête 'Pour la sauce :' ne doit pas être confondu avec un en-tête principal")
+            .that(isSubHeader)
+            .isFalse()
+
+        assertWithMessage("La section courante pour le sous-en-tête doit passer à SECTION_INGREDIENTS")
+            .that(stateSub.currentSection)
+            .isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
 
         // Non-header normal line
         val stateNormal = Ocr3CategorizerHeader.HeaderState()
@@ -196,6 +235,8 @@ class Ocr3CategorizerHeaderTest {
             seenIngredientKeywords = mutableSetOf()
         )
 
-        assertThat(isNormal).isFalse()
+        assertWithMessage("La ligne '200 g de farine' ne doit pas être qualifiée d'en-tête")
+            .that(isNormal)
+            .isFalse()
     }
 }

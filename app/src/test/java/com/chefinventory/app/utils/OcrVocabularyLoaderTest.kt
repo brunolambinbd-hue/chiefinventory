@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -33,8 +33,14 @@ class OcrVocabularyLoaderTest {
 
         OcrVocabularyLoader.parseResDirectory(dummyNonDirFile, stringArrays, strings)
 
-        assertThat(stringArrays).isEmpty()
-        assertThat(strings).isEmpty()
+        assertWithMessage("Le parsing d'un fichier non-répertoire doit laisser les cartes de résultats vides")
+            .that(stringArrays)
+            .isEmpty()
+
+        assertWithMessage("Le parsing d'un fichier non-répertoire doit laisser les cartes de chaînes vides")
+            .that(strings)
+            .isEmpty()
+
         dummyNonDirFile.delete()
     }
 
@@ -60,16 +66,22 @@ class OcrVocabularyLoaderTest {
 
         OcrVocabularyLoader.parseXmlDocument(mockDoc, stringArrays, strings)
 
-        assertThat(stringArrays).isEmpty()
-        assertThat(strings).isEmpty()
+        assertWithMessage("Les nœuds non-éléments doivent être ignorés sans remplir la carte stringArrays")
+            .that(stringArrays)
+            .isEmpty()
+
+        assertWithMessage("Les nœuds non-éléments doivent être ignorés sans remplir la carte strings")
+            .that(strings)
+            .isEmpty()
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testLoadFromProjectResources_NonDotProjectPath_ExecutesElseBranch() {
-        // Path is "./" (not equals to ".") -> executes else branch in loadFromProjectResources
         val vocab = OcrVocabularyLoader.loadFromProjectResources(File("./"))
-        assertThat(vocab.stepActionKeywords).isNotEmpty()
+        assertWithMessage("Le chargement à partir de './' doit charger les verbes d'action du projet")
+            .that(vocab.stepActionKeywords)
+            .isNotEmpty()
     }
 
     @Test
@@ -94,8 +106,13 @@ class OcrVocabularyLoaderTest {
 
         OcrVocabularyLoader.parseXmlResourceFile(tempFile, stringArrays, strings)
 
-        assertThat(stringArrays["test_array"]).containsExactly("val1")
-        assertThat(strings["test_string"]).isEqualTo("val2")
+        assertWithMessage("Le tableau XML 'test_array' doit contenir 'val1'")
+            .that(stringArrays["test_array"])
+            .containsExactly("val1")
+
+        assertWithMessage("La chaîne XML 'test_string' doit valoir 'val2'")
+            .that(strings["test_string"])
+            .isEqualTo("val2")
 
         tempFile.delete()
     }
@@ -123,13 +140,22 @@ class OcrVocabularyLoaderTest {
         val items = stringArrays["crlf_test_array"] ?: emptyList()
         val stringVal = strings["crlf_test_string"] ?: ""
 
-        assertThat(items).containsExactly("mot1", "mot2")
-        assertThat(stringVal).isEqualTo("valeur1")
+        assertWithMessage("Les éléments du tableau XML doivent être nettoyés des retours chariot \\r\\n")
+            .that(items)
+            .containsExactly("mot1", "mot2")
+
+        assertWithMessage("La chaîne XML doit être nettoyée du retour chariot \\r")
+            .that(stringVal)
+            .isEqualTo("valeur1")
 
         for (item in items) {
-            assertThat(item).doesNotContain("\r")
+            assertWithMessage("L'élément '$item' ne doit pas contenir de retour chariot \\r")
+                .that(item)
+                .doesNotContain("\r")
         }
-        assertThat(stringVal).doesNotContain("\r")
+        assertWithMessage("La valeur de chaîne '$stringVal' ne doit pas contenir de retour chariot \\r")
+            .that(stringVal)
+            .doesNotContain("\r")
 
         tempFile.delete()
     }
@@ -138,8 +164,13 @@ class OcrVocabularyLoaderTest {
     @CoveredRequirement("6.1.1.9")
     fun testOcr3ExplicitWineHeadersLoaded() {
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
-        assertThat(vocab.ocr3ExplicitWineHeaders).isNotEmpty()
-        assertThat(vocab.ocr3ExplicitWineHeaders).contains("conseil vin")
+        assertWithMessage("Les en-têtes explicites de vins ne doivent pas être vides")
+            .that(vocab.ocr3ExplicitWineHeaders)
+            .isNotEmpty()
+
+        assertWithMessage("Les en-têtes explicites de vins doivent contenir 'conseil vin'")
+            .that(vocab.ocr3ExplicitWineHeaders)
+            .contains("conseil vin")
     }
 
     @Test
@@ -148,42 +179,149 @@ class OcrVocabularyLoaderTest {
         OcrVocabularyLoader.clearCache()
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
 
-        assertThat(vocab.stepActionKeywords).isNotEmpty()
-        assertThat(vocab.ingredientEndMarkers).isNotEmpty()
-        assertThat(vocab.ingredientSubHeaders).isNotEmpty()
-        assertThat(vocab.sourceKeywords).isNotEmpty()
-        assertThat(vocab.knownSourceBrands).isNotEmpty()
-        assertThat(vocab.phonePrefixes).isNotEmpty()
-        assertThat(vocab.wineAppellations).isNotEmpty()
-        assertThat(vocab.wineProducers).isNotEmpty()
-        assertThat(vocab.wineKeywords).isNotEmpty()
-        assertThat(vocab.wineTitleKeywords).isNotEmpty()
-        assertThat(vocab.ocr3ExplicitWineHeaders).isNotEmpty()
-        assertThat(vocab.wineRemovePattern).isNotEmpty()
-        assertThat(vocab.ocrSpellingRepairs).isNotEmpty()
-        assertThat(vocab.adExclusions).isNotEmpty()
-        assertThat(vocab.ocrNoiseExclusions).isNotEmpty()
-        assertThat(vocab.titleKeywords).isNotEmpty()
-        assertThat(vocab.mandatoryComplementIngredients).isNotEmpty()
-        assertThat(vocab.hangingConnectors).isNotEmpty()
-        assertThat(vocab.ingredientVarietyQualifiers).isNotEmpty()
-        assertThat(vocab.baseIngredientsExpectingVariety).isNotEmpty()
-        assertThat(vocab.standaloneArticles).isNotEmpty()
-        assertThat(vocab.culinaryMeasurementUnits).isNotEmpty()
-        assertThat(vocab.titleSpellingRepairs).isNotEmpty()
-        assertThat(vocab.titleMultilineConnectors).isNotEmpty()
-        assertThat(vocab.ingredientSplitterConnectors).isNotEmpty()
-        assertThat(vocab.ocrDiacriticRepairs).isNotEmpty()
-        assertThat(vocab.priceTitleKeywords).isNotEmpty()
-        assertThat(vocab.priceCategoriesLow).isNotEmpty()
-        assertThat(vocab.priceCategoriesMedium).isNotEmpty()
-        assertThat(vocab.priceCategoriesHigh).isNotEmpty()
-        assertThat(vocab.ingredientConnectors).isNotEmpty()
-        assertThat(vocab.protectedSectionHeaders).isNotEmpty()
-        assertThat(vocab.timeHeaderPrefixes).isNotEmpty()
-        assertThat(vocab.timeHeaderKeywords).isNotEmpty()
-        assertThat(vocab.ocr1ProtectedIngredientsHeaders).isNotEmpty()
-        assertThat(vocab.ocr1ProtectedInstructionsHeaders).isNotEmpty()
+        assertWithMessage("Les verbes d'action culinaires du vocabulaire de production doivent être chargés")
+            .that(vocab.stepActionKeywords)
+            .isNotEmpty()
+
+        assertWithMessage("Les marqueurs de fin d'ingrédients doivent être chargés")
+            .that(vocab.ingredientEndMarkers)
+            .isNotEmpty()
+
+        assertWithMessage("Les sous-en-têtes d'ingrédients doivent être chargés")
+            .that(vocab.ingredientSubHeaders)
+            .isNotEmpty()
+
+        assertWithMessage("Les mots-clés de sources doivent être chargés")
+            .that(vocab.sourceKeywords)
+            .isNotEmpty()
+
+        assertWithMessage("Les enseignes sources connues doivent être chargées")
+            .that(vocab.knownSourceBrands)
+            .isNotEmpty()
+
+        assertWithMessage("Les préfixes téléphoniques doivent être chargés")
+            .that(vocab.phonePrefixes)
+            .isNotEmpty()
+
+        assertWithMessage("Les appellations de vins doivent être chargées")
+            .that(vocab.wineAppellations)
+            .isNotEmpty()
+
+        assertWithMessage("Les producteurs de vins doivent être chargés")
+            .that(vocab.wineProducers)
+            .isNotEmpty()
+
+        assertWithMessage("Les mots-clés de vins doivent être chargés")
+            .that(vocab.wineKeywords)
+            .isNotEmpty()
+
+        assertWithMessage("Les mots-clés de titres de vins doivent être chargés")
+            .that(vocab.wineTitleKeywords)
+            .isNotEmpty()
+
+        assertWithMessage("Les en-têtes explicites de vins doivent être chargés")
+            .that(vocab.ocr3ExplicitWineHeaders)
+            .isNotEmpty()
+
+        assertWithMessage("Le motif de suppression de vins doit être chargé")
+            .that(vocab.wineRemovePattern)
+            .isNotEmpty()
+
+        assertWithMessage("Les réparations orthographiques doivent être chargées")
+            .that(vocab.ocrSpellingRepairs)
+            .isNotEmpty()
+
+        assertWithMessage("Les exclusions publicitaires doivent être chargées")
+            .that(vocab.adExclusions)
+            .isNotEmpty()
+
+        assertWithMessage("Les exclusions de bruits OCR doivent être chargées")
+            .that(vocab.ocrNoiseExclusions)
+            .isNotEmpty()
+
+        assertWithMessage("Les mots-clés de titres doivent être chargés")
+            .that(vocab.titleKeywords)
+            .isNotEmpty()
+
+        assertWithMessage("Les compléments d'ingrédients obligatoires doivent être chargés")
+            .that(vocab.mandatoryComplementIngredients)
+            .isNotEmpty()
+
+        assertWithMessage("Les connecteurs suspendus doivent être chargés")
+            .that(vocab.hangingConnectors)
+            .isNotEmpty()
+
+        assertWithMessage("Les qualificatifs de variétés d'ingrédients doivent être chargés")
+            .that(vocab.ingredientVarietyQualifiers)
+            .isNotEmpty()
+
+        assertWithMessage("Les ingrédients de base attendant variété doivent être chargés")
+            .that(vocab.baseIngredientsExpectingVariety)
+            .isNotEmpty()
+
+        assertWithMessage("Les articles isolés doivent être chargés")
+            .that(vocab.standaloneArticles)
+            .isNotEmpty()
+
+        assertWithMessage("Les unités de mesure culinaires doivent être chargées")
+            .that(vocab.culinaryMeasurementUnits)
+            .isNotEmpty()
+
+        assertWithMessage("Les réparations orthographiques de titres doivent être chargées")
+            .that(vocab.titleSpellingRepairs)
+            .isNotEmpty()
+
+        assertWithMessage("Les connecteurs multilignes de titres doivent être chargés")
+            .that(vocab.titleMultilineConnectors)
+            .isNotEmpty()
+
+        assertWithMessage("Les connecteurs de scission d'ingrédients doivent être chargés")
+            .that(vocab.ingredientSplitterConnectors)
+            .isNotEmpty()
+
+        assertWithMessage("Les réparations de diacritiques doivent être chargées")
+            .that(vocab.ocrDiacriticRepairs)
+            .isNotEmpty()
+
+        assertWithMessage("Les mots-clés de prix doivent être chargés")
+            .that(vocab.priceTitleKeywords)
+            .isNotEmpty()
+
+        assertWithMessage("Les catégories de prix bas doivent être chargées")
+            .that(vocab.priceCategoriesLow)
+            .isNotEmpty()
+
+        assertWithMessage("Les catégories de prix moyens doivent être chargées")
+            .that(vocab.priceCategoriesMedium)
+            .isNotEmpty()
+
+        assertWithMessage("Les catégories de prix élevés doivent être chargées")
+            .that(vocab.priceCategoriesHigh)
+            .isNotEmpty()
+
+        assertWithMessage("Les connecteurs d'ingrédients doivent être chargés")
+            .that(vocab.ingredientConnectors)
+            .isNotEmpty()
+
+        assertWithMessage("Les en-têtes de sections protégés doivent être chargés")
+            .that(vocab.protectedSectionHeaders)
+            .isNotEmpty()
+
+        assertWithMessage("Les préfixes d'en-têtes de temps doivent être chargés")
+            .that(vocab.timeHeaderPrefixes)
+            .isNotEmpty()
+
+        assertWithMessage("Les mots-clés d'en-têtes de temps doivent être chargés")
+            .that(vocab.timeHeaderKeywords)
+            .isNotEmpty()
+
+        assertWithMessage("Les en-têtes d'ingrédients protégés de l'Étape 1 doivent être chargés")
+            .that(vocab.ocr1ProtectedIngredientsHeaders)
+            .isNotEmpty()
+
+        assertWithMessage("Les en-têtes d'instructions protégés de l'Étape 1 doivent être chargés")
+            .that(vocab.ocr1ProtectedInstructionsHeaders)
+            .isNotEmpty()
     }
 
     @Test
@@ -193,11 +331,15 @@ class OcrVocabularyLoaderTest {
         val vocab1 = OcrVocabularyLoader.loadFromProjectResources()
         val vocab2 = OcrVocabularyLoader.loadFromProjectResources()
 
-        assertThat(vocab1).isSameInstanceAs(vocab2)
+        assertWithMessage("Le deuxième appel à loadFromProjectResources doit retourner la même instance en cache")
+            .that(vocab1)
+            .isSameInstanceAs(vocab2)
 
         OcrVocabularyLoader.clearCache()
         val vocab3 = OcrVocabularyLoader.loadFromProjectResources()
-        assertThat(vocab3).isNotSameInstanceAs(vocab1)
+        assertWithMessage("Après réinitialisation du cache, une nouvelle instance doit être créée")
+            .that(vocab3)
+            .isNotSameInstanceAs(vocab1)
     }
 
     @Test
@@ -211,7 +353,9 @@ class OcrVocabularyLoaderTest {
 
         // Vérifie que la mise en cache a été refusée pour le petit mock
         val loaded1 = OcrVocabularyLoader.loadFromProjectResources()
-        assertThat(loaded1).isNotSameInstanceAs(mockVocabSmall)
+        assertWithMessage("Un vocabulaire partiel avec peu de mots-clés ne doit pas remplacer le cache réel")
+            .that(loaded1)
+            .isNotSameInstanceAs(mockVocabSmall)
 
         // Real vocab avec 25 titleKeywords (> 20)
         val realVocabLarge = OcrVocabulary(
@@ -222,7 +366,9 @@ class OcrVocabularyLoaderTest {
 
         // Vérifie que le grand vocabulaire a été accepté en cache
         val loaded2 = OcrVocabularyLoader.loadFromProjectResources()
-        assertThat(loaded2).isSameInstanceAs(realVocabLarge)
+        assertWithMessage("Un grand vocabulaire complet doit être accepté en cache")
+            .that(loaded2)
+            .isSameInstanceAs(realVocabLarge)
 
         OcrVocabularyLoader.clearCache()
     }
@@ -233,8 +379,13 @@ class OcrVocabularyLoaderTest {
         val list = OcrVocabularyLoader.getList(emptyMap(), "missing")
         val str = OcrVocabularyLoader.getStringVal(emptyMap(), "missing")
 
-        assertThat(list).isEmpty()
-        assertThat(str).isEmpty()
+        assertWithMessage("Une clé absente pour getList doit retourner une liste vide")
+            .that(list)
+            .isEmpty()
+
+        assertWithMessage("Une clé absente pour getStringVal doit retourner une chaîne vide")
+            .that(str)
+            .isEmpty()
     }
 
     @Test

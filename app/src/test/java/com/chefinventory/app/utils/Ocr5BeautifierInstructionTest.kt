@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -32,8 +32,13 @@ class Ocr5BeautifierInstructionTest {
             vocabulary.hangingConnectors
         )
 
-        assertThat(result).contains("Incorporez les oeufs selon la recette.")
-        assertThat(result).contains("Servir chaud.")
+        assertWithMessage("Une ligne contenant un verbe d'action 'Incorporez' doit être conservée même si elle contient le mot 'recette'")
+            .that(result)
+            .contains("Incorporez les oeufs selon la recette.")
+
+        assertWithMessage("La consigne finale 'Servir chaud.' doit être conservée")
+            .that(result)
+            .contains("Servir chaud.")
     }
 
     @Test
@@ -51,7 +56,9 @@ class Ocr5BeautifierInstructionTest {
             vocabulary.hangingConnectors
         )
 
-        assertThat(result).containsExactly("Mélangez le sucre et ajoutez la farine.")
+        assertWithMessage("La consigne tronquée se terminant par 'et.' doit fusionner avec 'ajoutez la farine' et éliminer le mot-poubelle 'pour.'")
+            .that(result)
+            .containsExactly("Mélangez le sucre et ajoutez la farine.")
     }
 
     @Test
@@ -72,9 +79,17 @@ class Ocr5BeautifierInstructionTest {
             vocabulary.culinaryMeasurementUnits
         )
 
-        assertThat(result).contains("Mélangez le sucre et ajoutez la farine.")
-        assertThat(result).contains("Faire revenir ou faire mijoter à feu doux.")
-        assertThat(result).doesNotContain("FICHE RECETTES")
+        assertWithMessage("Les consignes tronquées par 'et' doivent être majusculées et fusionnées")
+            .that(result)
+            .contains("Mélangez le sucre et ajoutez la farine.")
+
+        assertWithMessage("Les consignes tronquées par 'ou' doivent être fusionnées et majusculées")
+            .that(result)
+            .contains("Faire revenir ou faire mijoter à feu doux.")
+
+        assertWithMessage("L'en-tête 'FICHE RECETTES' sans verbe d'action doit être éliminé")
+            .that(result)
+            .doesNotContain("FICHE RECETTES")
     }
 
     @Test
@@ -100,9 +115,17 @@ class Ocr5BeautifierInstructionTest {
             vocabulary.ocrSpellingRepairs
         )
 
-        assertThat(result).contains("Mélanger les ingrédients ou ajoutez du sel, poivrez.")
-        assertThat(result).contains("Servir chaud !")
-        assertThat(result).contains("Déguster chaud ?")
+        assertWithMessage("Les consignes séparées par 'ou.' et ',.' doivent être fusionnées en une seule phrase fluide")
+            .that(result)
+            .contains("Mélanger les ingrédients ou ajoutez du sel, poivrez.")
+
+        assertWithMessage("Le point d'exclamation final doit être conservé")
+            .that(result)
+            .contains("Servir chaud !")
+
+        assertWithMessage("Le point d'interrogation final doit être conservé")
+            .that(result)
+            .contains("Déguster chaud ?")
     }
 
     @Test
@@ -120,12 +143,19 @@ class Ocr5BeautifierInstructionTest {
             "laissez mariner au réfrigérateur"
         )
 
-        // Test with default arguments
         val result = Ocr5BeautifierInstruction.beautifyInstructions(input)
 
-        assertThat(result).contains("Mélangez l'huile d'olive.")
-        assertThat(result).contains("Laissez mariner au réfrigérateur.")
-        assertThat(result).doesNotContain("PRÉPARATION")
+        assertWithMessage("La consigne 'mélangez l'huile d'olive' doit être majusculée et ponctuée")
+            .that(result)
+            .contains("Mélangez l'huile d'olive.")
+
+        assertWithMessage("La consigne 'laissez mariner au réfrigérateur' doit être majusculée et ponctuée")
+            .that(result)
+            .contains("Laissez mariner au réfrigérateur.")
+
+        assertWithMessage("L'en-tête de section 'PRÉPARATION' doit être éliminé")
+            .that(result)
+            .doesNotContain("PRÉPARATION")
     }
 
     @Test
@@ -142,9 +172,11 @@ class Ocr5BeautifierInstructionTest {
             vocabulary.hangingConnectors
         )
 
-        assertThat(result).containsExactly(
-            "Nappez de la sauce au yaourt et à la mayonnaise et garnissez de quelques branches de cerfeuil."
-        )
+        assertWithMessage("La consigne tronquée par 'et.' doit être fusionnée et 'Garnissez' passé en minuscules 'garnissez'")
+            .that(result)
+            .containsExactly(
+                "Nappez de la sauce au yaourt et à la mayonnaise et garnissez de quelques branches de cerfeuil."
+            )
     }
 
     @Test
@@ -162,9 +194,11 @@ class Ocr5BeautifierInstructionTest {
             vocabulary.culinaryMeasurementUnits
         )
 
-        assertThat(result).containsExactly(
-            "Mélangez les légumes, la feta et l'estragon haché aux 4 c. à soupe de yaourt."
-        )
+        assertWithMessage("L'abréviation d'unité 'c.' ne doit pas couper la phrase et doit fusionner avec 'À soupe'")
+            .that(result)
+            .containsExactly(
+                "Mélangez les légumes, la feta et l'estragon haché aux 4 c. à soupe de yaourt."
+            )
     }
 
     @Test
@@ -181,9 +215,11 @@ class Ocr5BeautifierInstructionTest {
             vocabulary.hangingConnectors
         )
 
-        assertThat(result).containsExactly(
-            "Mélangez l'huile d'olive, le piment, le thym et le romarin effeuillé."
-        )
+        assertWithMessage("Une virgule de fin de ligne doit fusionner la phrase et passer 'Le' en minuscules 'le'")
+            .that(result)
+            .containsExactly(
+                "Mélangez l'huile d'olive, le piment, le thym et le romarin effeuillé."
+            )
     }
 
     @Test
@@ -200,10 +236,12 @@ class Ocr5BeautifierInstructionTest {
             vocabulary.hangingConnectors
         )
 
-        assertThat(result).containsExactly(
-            "Mélangez l'huile d'olive et le thym.",
-            "Laissez mariner au réfrigérateur."
-        )
+        assertWithMessage("Deux phrases complètes se terminant par des points doivent rester séparées")
+            .that(result)
+            .containsExactly(
+                "Mélangez l'huile d'olive et le thym.",
+                "Laissez mariner au réfrigérateur."
+            )
     }
 
     @Test
@@ -223,9 +261,20 @@ class Ocr5BeautifierInstructionTest {
             vocabulary.hangingConnectors
         )
 
-        assertThat(result).containsExactly("Délayez le curry avec la mayonnaise.")
-        assertThat(result).doesNotContain("E t.")
-        assertThat(result).doesNotContain("E.")
-        assertThat(result).doesNotContain("R.")
+        assertWithMessage("Les bruits de lettres isolées 'e t', 'e', 'r' doivent être éliminés")
+            .that(result)
+            .containsExactly("Délayez le curry avec la mayonnaise.")
+
+        assertWithMessage("Le bruit 'E t.' ne doit pas figurer dans le résultat")
+            .that(result)
+            .doesNotContain("E t.")
+
+        assertWithMessage("Le bruit 'E.' ne doit pas figurer dans le résultat")
+            .that(result)
+            .doesNotContain("E.")
+
+        assertWithMessage("Le bruit 'R.' ne doit pas figurer dans le résultat")
+            .that(result)
+            .doesNotContain("R.")
     }
 }

@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -59,11 +59,30 @@ class RecipeOcrAubergineRuleTest {
         // ==========================================
         // 1. VALIDATION ET EXCLUSIVITÉ DU TITRE
         // ==========================================
-        assertThat(title).ignoringCase().contains("Salade d'aubergines")
-        assertThat(ing).ignoringCase().doesNotContain("Salade d'aubergines")
-        assertThat(inst).ignoringCase().doesNotContain("Salade d'aubergines")
-        assertThat(wine).ignoringCase().doesNotContain("Salade d'aubergines")
-        assertThat(source).ignoringCase().doesNotContain("Salade d'aubergines")
+        assertWithMessage("Le titre extrait doit contenir 'Salade d'aubergines'")
+            .that(title)
+            .ignoringCase()
+            .contains("Salade d'aubergines")
+
+        assertWithMessage("Le titre ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("Salade d'aubergines")
+
+        assertWithMessage("Le titre ne doit pas fuiter dans les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("Salade d'aubergines")
+
+        assertWithMessage("Le titre ne doit pas fuiter dans le vin")
+            .that(wine)
+            .ignoringCase()
+            .doesNotContain("Salade d'aubergines")
+
+        assertWithMessage("Le titre ne doit pas fuiter dans la source")
+            .that(source)
+            .ignoringCase()
+            .doesNotContain("Salade d'aubergines")
 
         // ==========================================
         // 2. VALIDATION ET EXCLUSIVITÉ DES INGRÉDIENTS (Lignes avec quantité)
@@ -77,16 +96,46 @@ class RecipeOcrAubergineRuleTest {
         )
 
         for (item in expectedIngredientsWithQty) {
-            assertThat(ing).ignoringCase().contains(item)
-            assertThat(inst).ignoringCase().doesNotContain(item)
-            assertThat(title).ignoringCase().doesNotContain(item)
-            assertThat(wine).ignoringCase().doesNotContain(item)
-            assertThat(source).ignoringCase().doesNotContain(item)
+            assertWithMessage("L'ingrédient '$item' doit être extrait dans la liste des ingrédients")
+                .that(ing)
+                .ignoringCase()
+                .contains(item)
+
+            assertWithMessage("L'ingrédient '$item' ne doit pas fuiter dans les instructions")
+                .that(inst)
+                .ignoringCase()
+                .doesNotContain(item)
+
+            assertWithMessage("L'ingrédient '$item' ne doit pas fuiter dans le titre")
+                .that(title)
+                .ignoringCase()
+                .doesNotContain(item)
+
+            assertWithMessage("L'ingrédient '$item' ne doit pas fuiter dans le vin")
+                .that(wine)
+                .ignoringCase()
+                .doesNotContain(item)
+
+            assertWithMessage("L'ingrédient '$item' ne doit pas fuiter dans la source")
+                .that(source)
+                .ignoringCase()
+                .doesNotContain(item)
         }
 
-        assertThat(ing).ignoringCase().contains("persil haché")
-        assertThat(ing).ignoringCase().contains("sel")
-        assertThat(ing).ignoringCase().contains("poivre")
+        assertWithMessage("L'ingrédient 'persil haché' doit figurer dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .contains("persil haché")
+
+        assertWithMessage("L'assaisonnement 'sel' doit figurer dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .contains("sel")
+
+        assertWithMessage("L'assaisonnement 'poivre' doit figurer dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .contains("poivre")
 
         // ==========================================
         // 3. VALIDATION EXACTE DES INSTRUCTIONS
@@ -101,23 +150,61 @@ class RecipeOcrAubergineRuleTest {
         )
 
         for (line in expectedInstructionLines) {
-            assertThat(inst).ignoringCase().contains(line)
-            assertThat(ing).ignoringCase().doesNotContain(line)
+            assertWithMessage("La consigne '$line' doit figurer dans les instructions")
+                .that(inst)
+                .ignoringCase()
+                .contains(line)
+
+            assertWithMessage("La consigne '$line' ne doit pas fuiter dans les ingrédients")
+                .that(ing)
+                .ignoringCase()
+                .doesNotContain(line)
         }
 
         // ==========================================
         // 4. METADONNÉES (Portions, Vin, Source)
         // ==========================================
-        assertThat(result.servings).isEqualTo("4")
+        assertWithMessage("Le nombre de portions extrait doit être de 4")
+            .that(result.servings)
+            .isEqualTo("4")
 
-        assertThat(wine).ignoringCase().contains("Rousse Région Merlot")
-        assertThat(wine).ignoringCase().contains("Bulgarie")
-        assertThat(ing).ignoringCase().doesNotContain("Merlot")
-        assertThat(inst).ignoringCase().doesNotContain("Merlot")
+        assertWithMessage("Le vin doit contenir 'Rousse Région Merlot'")
+            .that(wine)
+            .ignoringCase()
+            .contains("Rousse Région Merlot")
 
-        assertThat(source).ignoringCase().contains("Nahit YILMAZ")
-        assertThat(source).contains("02/542.42.42")
-        assertThat(ing).ignoringCase().doesNotContain("Nahit YILMAZ")
-        assertThat(inst).ignoringCase().doesNotContain("Nahit YILMAZ")
+        assertWithMessage("Le vin doit contenir 'Bulgarie'")
+            .that(wine)
+            .ignoringCase()
+            .contains("Bulgarie")
+
+        assertWithMessage("Le nom de vin 'Merlot' ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("Merlot")
+
+        assertWithMessage("Le nom de vin 'Merlot' ne doit pas fuiter dans les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("Merlot")
+
+        assertWithMessage("La source doit contenir le chef 'Nahit YILMAZ'")
+            .that(source)
+            .ignoringCase()
+            .contains("Nahit YILMAZ")
+
+        assertWithMessage("La source doit contenir le téléphone '02/542.42.42'")
+            .that(source)
+            .contains("02/542.42.42")
+
+        assertWithMessage("La source 'Nahit YILMAZ' ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("Nahit YILMAZ")
+
+        assertWithMessage("La source 'Nahit YILMAZ' ne doit pas fuiter dans les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("Nahit YILMAZ")
     }
 }

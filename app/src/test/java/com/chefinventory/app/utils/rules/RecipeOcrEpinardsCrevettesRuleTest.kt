@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -73,11 +73,25 @@ class RecipeOcrEpinardsCrevettesRuleTest {
         val inst = result.instructions ?: ""
 
         // 1. Validation de l'instruction complète (fines herbes ne doit pas être tronqué ni mis dans les ingrédients)
-        assertThat(inst).ignoringCase().contains("Nappez les épinards et les crevettes de la mousseline aux fines herbes.")
-        assertThat(inst).ignoringCase().doesNotContain("mousseline aux.")
+        assertWithMessage("La consigne tronquée doit être fusionnée en 'Nappez les épinards et les crevettes de la mousseline aux fines herbes.'")
+            .that(inst)
+            .ignoringCase()
+            .contains("Nappez les épinards et les crevettes de la mousseline aux fines herbes.")
+
+        assertWithMessage("La consigne ne doit pas être tronquée en 'mousseline aux.'")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("mousseline aux.")
 
         // 2. Validation que fines herbes n'apparaît pas comme ingrédient seul
-        assertThat(ing).ignoringCase().doesNotContain("fines herbes\n")
-        assertThat(ing).ignoringCase().doesNotContain("\nfines herbes")
+        assertWithMessage("Le complément 'fines herbes' ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("fines herbes\n")
+
+        assertWithMessage("Le complément 'fines herbes' ne doit pas fuiter comme ligne d'ingrédient isolée")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("\nfines herbes")
     }
 }

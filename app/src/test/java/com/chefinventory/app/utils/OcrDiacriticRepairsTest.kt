@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -20,24 +20,45 @@ class OcrDiacriticRepairsTest {
     @Test
     fun `defaultDiacriticRepairs should convert accented characters correctly`() {
         val diacritics = vocabulary.ocrDiacriticRepairs
-        assertThat(Ocr1Corrector.correct("ế", diacriticRepairs = diacritics)).isEqualTo("é")
-        assertThat(Ocr1Corrector.correct("ề", diacriticRepairs = diacritics)).isEqualTo("è")
-        assertThat(Ocr1Corrector.correct("ấ", diacriticRepairs = diacritics)).isEqualTo("â")
-        assertThat(Ocr1Corrector.correct("ầ", diacriticRepairs = diacritics)).isEqualTo("à")
-        assertThat(Ocr1Corrector.correct("ặ", diacriticRepairs = diacritics)).isEqualTo("a")
+        assertWithMessage("Le diacritique corrompu 'ế' doit être réparé en 'é'")
+            .that(Ocr1Corrector.correct("ế", diacriticRepairs = diacritics))
+            .isEqualTo("é")
+
+        assertWithMessage("Le diacritique corrompu 'ề' doit être réparé en 'è'")
+            .that(Ocr1Corrector.correct("ề", diacriticRepairs = diacritics))
+            .isEqualTo("è")
+
+        assertWithMessage("Le diacritique corrompu 'ấ' doit être réparé en 'â'")
+            .that(Ocr1Corrector.correct("ấ", diacriticRepairs = diacritics))
+            .isEqualTo("â")
+
+        assertWithMessage("Le diacritique corrompu 'ầ' doit être réparé en 'à'")
+            .that(Ocr1Corrector.correct("ầ", diacriticRepairs = diacritics))
+            .isEqualTo("à")
+
+        assertWithMessage("Le diacritique corrompu 'ặ' doit être réparé en 'a'")
+            .that(Ocr1Corrector.correct("ặ", diacriticRepairs = diacritics))
+            .isEqualTo("a")
     }
 
     @Test
     fun `applyDiacriticRepairs should fallback gracefully on empty list or invalid format`() {
-        assertThat(Ocr1Corrector.applyDiacriticRepairs("test", emptyList())).isEqualTo("test")
+        assertWithMessage("Une liste de diacritiques vide doit retourner le texte d'origine")
+            .that(Ocr1Corrector.applyDiacriticRepairs("test", emptyList()))
+            .isEqualTo("test")
+
         val withInvalidDiacritic = Ocr1Corrector.correct("ế", diacriticRepairs = listOf("invalid_no_pipe"))
-        assertThat(withInvalidDiacritic).isEqualTo("ế")
+        assertWithMessage("Une règle de diacritique invalide sans pipe '|' doit être ignorée")
+            .that(withInvalidDiacritic)
+            .isEqualTo("ế")
     }
 
     @Test
     fun testNormalize_EmptyHeaderListsAndHeaderMatchNoChange() {
         val emptyVocab = OcrVocabulary()
         val result = Ocr1Corrector.correct("ingrédients", diacriticRepairs = emptyVocab.ocrDiacriticRepairs)
-        assertThat(result).isEqualTo("ingrédients")
+        assertWithMessage("Un en-tête canonique 'ingrédients' doit être conservé tel quel")
+            .that(result)
+            .isEqualTo("ingrédients")
     }
 }

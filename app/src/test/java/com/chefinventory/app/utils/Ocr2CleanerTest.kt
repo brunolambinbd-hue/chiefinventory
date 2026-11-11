@@ -2,7 +2,7 @@ package com.chefinventory.app.utils
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -28,12 +28,19 @@ class Ocr2CleanerTest {
     @CoveredRequirement("6.1.1.9")
     fun testCleaningResultDataClass_InstantiatesWithProperties() {
         val result = CleaningResult(cleanedLines = listOf("100 g de beurre"), earlyDetectedSources = listOf("Hôtel Hilton"))
-        assertThat(result.cleanedLines).containsExactly("100 g de beurre")
-        assertThat(result.earlyDetectedSources).containsExactly("Hôtel Hilton")
+        assertWithMessage("Le résultat de dépollution doit contenir la ligne d'ingrédient nettoyée")
+            .that(result.cleanedLines)
+            .containsExactly("100 g de beurre")
+
+        assertWithMessage("Le résultat de dépollution doit contenir la source capturée au vol")
+            .that(result.earlyDetectedSources)
+            .containsExactly("Hôtel Hilton")
 
         // Test default constructor parameter
         val resultDefault = CleaningResult(cleanedLines = listOf("100 g de beurre"))
-        assertThat(resultDefault.earlyDetectedSources).isEmpty()
+        assertWithMessage("Le constructeur par défaut doit initialiser la liste des sources capturées à vide")
+            .that(resultDefault.earlyDetectedSources)
+            .isEmpty()
     }
 
     @Test
@@ -43,15 +50,21 @@ class Ocr2CleanerTest {
 
         // 1. empty remaining
         val res1 = Ocr2Cleaner.cleanWithVocabulary(listOf("Sponsor :"), vocabAd)
-        assertThat(res1.cleanedLines).isEmpty()
+        assertWithMessage("Une ligne ne contenant qu'un préfixe publicitaire doit être éliminée")
+            .that(res1.cleanedLines)
+            .isEmpty()
 
         // 2. short remaining <= 8 chars
         val res2 = Ocr2Cleaner.cleanWithVocabulary(listOf("Sponsor : 12345"), vocabAd)
-        assertThat(res2.cleanedLines).isEmpty()
+        assertWithMessage("Un résidu publicitaire court de 8 caractères ou moins doit être éliminé")
+            .that(res2.cleanedLines)
+            .isEmpty()
 
         // 3. long remaining > 8 chars
         val res3 = Ocr2Cleaner.cleanWithVocabulary(listOf("Sponsor : 200 g de farine bio"), vocabAd)
-        assertThat(res3.cleanedLines).containsExactly("200 g de farine bio")
+        assertWithMessage("Un résidu publicitaire valide de plus de 8 caractères doit être conservé")
+            .that(res3.cleanedLines)
+            .containsExactly("200 g de farine bio")
     }
 
     @Test
@@ -71,7 +84,9 @@ class Ocr2CleanerTest {
         )
 
         val result = Ocr2Cleaner.clean(input, context.resources)
-        assertThat(result).contains("100 g de beurre")
+        assertWithMessage("L'ingrédient valide '100 g de beurre' doit être conservé après dépollution Android")
+            .that(result)
+            .contains("100 g de beurre")
     }
 
     @Test
@@ -93,10 +108,21 @@ class Ocr2CleanerTest {
         )
 
         val result = Ocr2Cleaner.clean(input, emptyList(), emptyList(), emptyList())
-        assertThat(result).contains("temps de préparation : 15 min")
-        assertThat(result).contains("durée de preparation : 10 min")
-        assertThat(result).contains("temps cuisson : 20 min")
-        assertThat(result).contains("durée repos : 1 heure")
+        assertWithMessage("Le préfixe 'temps de' doit fusionner avec 'préparation : 15 min'")
+            .that(result)
+            .contains("temps de préparation : 15 min")
+
+        assertWithMessage("Le préfixe 'durée de' doit fusionner avec 'preparation : 10 min'")
+            .that(result)
+            .contains("durée de preparation : 10 min")
+
+        assertWithMessage("Le préfixe 'temps' doit fusionner avec 'cuisson : 20 min'")
+            .that(result)
+            .contains("temps cuisson : 20 min")
+
+        assertWithMessage("Le préfixe 'durée' doit fusionner avec 'repos : 1 heure'")
+            .that(result)
+            .contains("durée repos : 1 heure")
     }
 
     @Test
@@ -119,7 +145,9 @@ class Ocr2CleanerTest {
             noiseExclusions
         )
 
-        assertThat(result).containsExactly("100 g de beurre")
+        assertWithMessage("Les lignes de bruit de scan OCR du dictionnaire doivent être éliminées")
+            .that(result)
+            .containsExactly("100 g de beurre")
     }
 
     @Test
@@ -127,7 +155,9 @@ class Ocr2CleanerTest {
     fun testClean_EmptyLineAndFullAdLine() {
         val input = listOf("   ", "100 g de beurre")
         val result = Ocr2Cleaner.clean(input, emptyList(), emptyList(), emptyList())
-        assertThat(result).containsExactly("100 g de beurre")
+        assertWithMessage("Les lignes vides et blanches doivent être ignorées")
+            .that(result)
+            .containsExactly("100 g de beurre")
     }
 
     @Test
@@ -158,8 +188,13 @@ class Ocr2CleanerTest {
 
         val result = Ocr2Cleaner.cleanWithVocabulary(input, vocabWithSpecialPatterns)
 
-        assertThat(result.cleanedLines).contains("1 avocat")
-        assertThat(result.earlyDetectedSources).contains("Hilton")
+        assertWithMessage("L'ingrédient '1 avocat' doit être conservé dans les lignes nettoyées")
+            .that(result.cleanedLines)
+            .contains("1 avocat")
+
+        assertWithMessage("L'enseigne 'Hilton' doit être capturée au vol dans les sources précoces")
+            .that(result.earlyDetectedSources)
+            .contains("Hilton")
     }
 
     @Test
@@ -179,9 +214,17 @@ class Ocr2CleanerTest {
             emptyList()
         )
 
-        assertThat(result).contains("INGRÉDIENTS")
-        assertThat(result).contains("INSTRUCTIONS")
-        assertThat(result).contains("PRÉPARATION")
+        assertWithMessage("L'en-tête de section 'INGRÉDIENTS' doit être préservé")
+            .that(result)
+            .contains("INGRÉDIENTS")
+
+        assertWithMessage("L'en-tête de section 'INSTRUCTIONS' doit être préservé")
+            .that(result)
+            .contains("INSTRUCTIONS")
+
+        assertWithMessage("L'en-tête de section 'PRÉPARATION' doit être préservé")
+            .that(result)
+            .contains("PRÉPARATION")
     }
 
     @Test
@@ -195,7 +238,9 @@ class Ocr2CleanerTest {
 
         val result = Ocr2Cleaner.clean(input, vocabulary.excludedOcrKeywords, vocabulary.adExclusions, vocabulary.ocrNoiseExclusions)
 
-        assertThat(result).containsExactly("100 g de beurre")
+        assertWithMessage("Les mots-clés d'exclusion stricte et les numéros de page doivent être éliminés")
+            .that(result)
+            .containsExactly("100 g de beurre")
     }
 
     @Test
@@ -217,7 +262,9 @@ class Ocr2CleanerTest {
             vocabulary.ocrNoiseExclusions
         )
 
-        assertThat(result).containsExactly("100 g de beurre")
+        assertWithMessage("Les mots d'exclusion de production doivent être filtrés pour ne conserver que l'ingrédient")
+            .that(result)
+            .containsExactly("100 g de beurre")
     }
 
     @Test
@@ -238,7 +285,9 @@ class Ocr2CleanerTest {
             "10 cm troncon"
         )
         validDimensions.forEach { line ->
-            assertThat(Ocr2Cleaner.isTechnicalDimension(line)).isTrue()
+            assertWithMessage("La ligne '$line' doit être reconnue comme une dimension technique")
+                .that(Ocr2Cleaner.isTechnicalDimension(line))
+                .isTrue()
         }
 
         val invalidLines = listOf(
@@ -252,7 +301,9 @@ class Ocr2CleanerTest {
             "Mettre au four sur 200°C"
         )
         invalidLines.forEach { line ->
-            assertThat(Ocr2Cleaner.isTechnicalDimension(line)).isFalse()
+            assertWithMessage("La ligne '$line' ne doit pas être qualifiée de dimension technique")
+                .that(Ocr2Cleaner.isTechnicalDimension(line))
+                .isFalse()
         }
     }
 }

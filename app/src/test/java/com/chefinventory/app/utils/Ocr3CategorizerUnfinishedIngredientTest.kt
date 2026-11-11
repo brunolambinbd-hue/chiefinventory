@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -33,8 +33,13 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             seenIngredientKeywords = keywords
         )
 
-        assertThat(merged).isTrue()
-        assertThat(rawList).containsExactly("200 g de frais haché")
+        assertWithMessage("Le modificateur 'haché' se terminant par un suffixe doit être fusionné")
+            .that(merged)
+            .isTrue()
+
+        assertWithMessage("La ligne d'ingrédient fusionnée doit correspondre à '200 g de frais haché'")
+            .that(rawList)
+            .containsExactly("200 g de frais haché")
     }
 
     @Test
@@ -54,8 +59,13 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             seenIngredientKeywords = keywords1
         )
 
-        assertThat(merged1).isTrue()
-        assertThat(rawList1).containsExactly("2 petites feuilles de chicon")
+        assertWithMessage("La quantité au pluriel '2 petites' doit fusionner avec 'feuilles de chicon'")
+            .that(merged1)
+            .isTrue()
+
+        assertWithMessage("La ligne d'ingrédient fusionnée doit être '2 petites feuilles de chicon'")
+            .that(rawList1)
+            .containsExactly("2 petites feuilles de chicon")
 
         // 2. Quantity merge with blank line producing blank parsed name ("1" + "   " -> "1   ")
         val rawList2 = mutableListOf("1")
@@ -71,8 +81,13 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             seenIngredientKeywords = keywords2
         )
 
-        assertThat(merged2).isTrue()
-        assertThat(keywords2).isEmpty()
+        assertWithMessage("La fusion avec une ligne blanche doit retourner vrai sans ajouter de mots-clés")
+            .that(merged2)
+            .isTrue()
+
+        assertWithMessage("Aucun mot-clé ne doit être ajouté pour un nom d'ingrédient blanc")
+            .that(keywords2)
+            .isEmpty()
     }
 
     @Test
@@ -91,10 +106,21 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             seenIngredientKeywords = keywords
         )
 
-        assertThat(merged).isTrue()
-        assertThat(rawList).containsExactly("1 cuillère à soupe de farine de blé")
-        assertThat(keywords).contains("farine")
-        assertThat(keywords).contains("blé")
+        assertWithMessage("L'unité seule '1 cuillère à soupe' doit fusionner avec la suite 'de farine de blé'")
+            .that(merged)
+            .isTrue()
+
+        assertWithMessage("La ligne fusionnée doit correspondre à '1 cuillère à soupe de farine de blé'")
+            .that(rawList)
+            .containsExactly("1 cuillère à soupe de farine de blé")
+
+        assertWithMessage("Le mot-clé 'farine' doit être enregistré")
+            .that(keywords)
+            .contains("farine")
+
+        assertWithMessage("Le mot-clé 'blé' doit être enregistré")
+            .that(keywords)
+            .contains("blé")
     }
 
     @Test
@@ -116,8 +142,13 @@ class Ocr3CategorizerUnfinishedIngredientTest {
                 seenIngredientKeywords = keywords
             )
 
-            assertThat(merged).isTrue()
-            assertThat(rawList.last()).contains("d'ail haché")
+            assertWithMessage("L'unité inachevée '$unfinishedLine' doit fusionner avec 'd'ail haché'")
+                .that(merged)
+                .isTrue()
+
+            assertWithMessage("La ligne d'ingrédient fusionnée pour '$unfinishedLine' doit contenir 'd'ail haché'")
+                .that(rawList.last())
+                .contains("d'ail haché")
         }
     }
 
@@ -137,8 +168,13 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             seenIngredientKeywords = keywords
         )
 
-        assertThat(merged).isTrue()
-        assertThat(rawList).containsExactly("1 petite salade frisée")
+        assertWithMessage("L'adjectif seul '1 petite' doit fusionner avec la suite 'salade frisée'")
+            .that(merged)
+            .isTrue()
+
+        assertWithMessage("La ligne fusionnée doit correspondre à '1 petite salade frisée'")
+            .that(rawList)
+            .containsExactly("1 petite salade frisée")
     }
 
     @Test
@@ -157,8 +193,13 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             seenIngredientKeywords = keywords
         )
 
-        assertThat(merged).isFalse()
-        assertThat(rawList).containsExactly("200 g de farine")
+        assertWithMessage("Un ingrédient déjà complet '200 g de farine' ne doit pas fusionner avec le suivant")
+            .that(merged)
+            .isFalse()
+
+        assertWithMessage("La liste des ingrédients bruts doit rester inchangée")
+            .that(rawList)
+            .containsExactly("200 g de farine")
     }
 
     @Test
@@ -177,7 +218,9 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             rawIngredientsList = rawList,
             seenIngredientKeywords = keywords
         )
-        assertThat(merged1).isFalse()
+        assertWithMessage("Une section non-ingrédient doit disqualifier la fusion")
+            .that(merged1)
+            .isFalse()
 
         // 2. Contains action verb or bullet
         val merged2 = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
@@ -189,7 +232,9 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             rawIngredientsList = rawList,
             seenIngredientKeywords = keywords
         )
-        assertThat(merged2).isFalse()
+        assertWithMessage("Une ligne contenant un verbe d'action ne doit pas être fusionnée")
+            .that(merged2)
+            .isFalse()
 
         // 3. Raw list is empty
         val merged3 = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
@@ -201,6 +246,8 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             rawIngredientsList = mutableListOf(),
             seenIngredientKeywords = keywords
         )
-        assertThat(merged3).isFalse()
+        assertWithMessage("Une liste d'ingrédients bruts vide doit disqualifier la fusion")
+            .that(merged3)
+            .isFalse()
     }
 }

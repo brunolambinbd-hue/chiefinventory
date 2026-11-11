@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -20,7 +20,9 @@ class Ocr3CategorizerInstructionTriggerDetectorTest {
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testObjectGeneratedMethodsCoverage() {
-        assertThat(Ocr3CategorizerInstructionTriggerDetector.toString()).contains("Ocr3CategorizerInstructionTriggerDetector")
+        assertWithMessage("Le composant Ocr3CategorizerInstructionTriggerDetector doit générer une représentation textuelle valide")
+            .that(Ocr3CategorizerInstructionTriggerDetector.toString())
+            .contains("Ocr3CategorizerInstructionTriggerDetector")
     }
 
     @Test
@@ -29,17 +31,31 @@ class Ocr3CategorizerInstructionTriggerDetectorTest {
         val triggers = listOf("préparation", "instructions", "étapes", "consignes")
 
         // 1. Line with instruction trigger
-        assertThat(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("Préparation :", triggers)).isTrue()
-        assertThat(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("Instructions pour la cuisson", triggers)).isTrue()
+        assertWithMessage("La ligne 'Préparation :' doit être reconnue comme déclencheur d'instruction")
+            .that(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("Préparation :", triggers))
+            .isTrue()
+
+        assertWithMessage("La ligne 'Instructions pour la cuisson' doit être reconnue comme déclencheur d'instruction")
+            .that(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("Instructions pour la cuisson", triggers))
+            .isTrue()
 
         // 2. Line without trigger
-        assertThat(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("200 g de farine", triggers)).isFalse()
+        assertWithMessage("La ligne '200 g de farine' ne doit pas être qualifiée de déclencheur d'instruction")
+            .that(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("200 g de farine", triggers))
+            .isFalse()
 
         // 3. Blank or empty line -> false
-        assertThat(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("", triggers)).isFalse()
-        assertThat(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("   ", triggers)).isFalse()
+        assertWithMessage("Une ligne vide ne doit pas être qualifiée de déclencheur d'instruction")
+            .that(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("", triggers))
+            .isFalse()
+
+        assertWithMessage("Une ligne d'espaces ne doit pas être qualifiée de déclencheur d'instruction")
+            .that(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("   ", triggers))
+            .isFalse()
 
         // 4. Empty triggers list -> false
-        assertThat(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("Préparation", emptyList())).isFalse()
+        assertWithMessage("Une liste de déclencheurs vide doit retourner faux")
+            .that(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("Préparation", emptyList()))
+            .isFalse()
     }
 }

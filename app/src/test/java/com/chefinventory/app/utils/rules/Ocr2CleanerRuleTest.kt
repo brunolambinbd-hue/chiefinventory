@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.Ocr2Cleaner
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -27,7 +27,9 @@ class Ocr2CleanerRuleTest {
     fun `clean should filter out empty or blank lines`() {
         val input = listOf("", "   ", "\t", "\n", "Sel")
         val result = Ocr2Cleaner.clean(input, excludedKeywords = emptyList())
-        assertThat(result).containsExactly("Sel")
+        assertWithMessage("Les lignes vides et blanches doivent être éliminées pour ne garder que 'Sel'")
+            .that(result)
+            .containsExactly("Sel")
     }
 
     /**
@@ -37,7 +39,9 @@ class Ocr2CleanerRuleTest {
     fun `clean should filter out strict excluded keywords using production XML`() {
         val input = listOf("Page", "Saveur", "Oignon")
         val result = Ocr2Cleaner.clean(input, excludedKeywords = baseVocabulary.excludedOcrKeywords)
-        assertThat(result).containsExactly("Oignon")
+        assertWithMessage("Les mots-clés d'exclusion 'Page' et 'Saveur' doivent être éliminés pour ne garder que 'Oignon'")
+            .that(result)
+            .containsExactly("Oignon")
     }
 
     /**
@@ -48,7 +52,9 @@ class Ocr2CleanerRuleTest {
         val adExclusions = listOf(".*promo.*", ".*pub.*")
         val input = listOf("Super promo ici", "100 g de beurre")
         val result = Ocr2Cleaner.clean(input, excludedKeywords = emptyList(), adExclusions = adExclusions)
-        assertThat(result).containsExactly("100 g de beurre")
+        assertWithMessage("La ligne publicitaire 'Super promo ici' doit être éliminée")
+            .that(result)
+            .containsExactly("100 g de beurre")
     }
 
     /**
@@ -63,7 +69,9 @@ class Ocr2CleanerRuleTest {
             "100 g de beurre"
         )
         val result = Ocr2Cleaner.clean(input, excludedKeywords = emptyList(), adExclusions = adExclusions)
-        assertThat(result).containsExactly("100 g de beurre")
+        assertWithMessage("Les lignes de bannières de présentoirs doivent être éliminées")
+            .that(result)
+            .containsExactly("100 g de beurre")
     }
 
     /**
@@ -76,7 +84,9 @@ class Ocr2CleanerRuleTest {
             "Assiette de présentation disponible dans les Maxi GB Pendant ce temps, préparez la vinaigrette."
         )
         val result = Ocr2Cleaner.clean(input, excludedKeywords = emptyList(), adExclusions = adExclusions)
-        assertThat(result).containsExactly("Pendant ce temps, préparez la vinaigrette.")
+        assertWithMessage("Le préfixe publicitaire collé en début d'instruction doit être effacé")
+            .that(result)
+            .containsExactly("Pendant ce temps, préparez la vinaigrette.")
     }
 
     /**
@@ -86,7 +96,10 @@ class Ocr2CleanerRuleTest {
     fun `clean should filter out isolated digits up to 3 chars`() {
         val input = listOf("1", "12", "123", "2024", "Sel")
         val result = Ocr2Cleaner.clean(input, excludedKeywords = emptyList())
-        assertThat(result).containsExactly("2024", "Sel").inOrder()
+        assertWithMessage("Les numéros de page isolés jusqu'à 3 chiffres doivent être éliminés")
+            .that(result)
+            .containsExactly("2024", "Sel")
+            .inOrder()
     }
 
     /**
@@ -94,11 +107,25 @@ class Ocr2CleanerRuleTest {
      */
     @Test
     fun `isTechnicalDimension should identify dimensions with connectors`() {
-        assertThat(Ocr2Cleaner.isTechnicalDimension("5 mm sur 5 mm")).isTrue()
-        assertThat(Ocr2Cleaner.isTechnicalDimension("10x10cm")).isTrue()
-        assertThat(Ocr2Cleaner.isTechnicalDimension("100 cm2 x 50 cm2")).isTrue()
-        assertThat(Ocr2Cleaner.isTechnicalDimension("5 mm")).isFalse()
-        assertThat(Ocr2Cleaner.isTechnicalDimension("250 g")).isFalse()
+        assertWithMessage("La dimension '5 mm sur 5 mm' doit être reconnue")
+            .that(Ocr2Cleaner.isTechnicalDimension("5 mm sur 5 mm"))
+            .isTrue()
+
+        assertWithMessage("La dimension '10x10cm' doit être reconnue")
+            .that(Ocr2Cleaner.isTechnicalDimension("10x10cm"))
+            .isTrue()
+
+        assertWithMessage("La dimension '100 cm2 x 50 cm2' doit être reconnue")
+            .that(Ocr2Cleaner.isTechnicalDimension("100 cm2 x 50 cm2"))
+            .isTrue()
+
+        assertWithMessage("Le texte '5 mm' sans connecteur ne doit pas être qualifié de dimension technique")
+            .that(Ocr2Cleaner.isTechnicalDimension("5 mm"))
+            .isFalse()
+
+        assertWithMessage("La quantité '250 g' ne doit pas être qualifiée de dimension technique")
+            .that(Ocr2Cleaner.isTechnicalDimension("250 g"))
+            .isFalse()
     }
 
     /**
@@ -108,6 +135,9 @@ class Ocr2CleanerRuleTest {
     fun `cleanWithVocabulary should merge multi-line time header Temps de and preparation into single line`() {
         val input = listOf("Temps de", "préparation", "100 g de beurre")
         val result = Ocr2Cleaner.cleanWithVocabulary(input, baseVocabulary)
-        assertThat(result.cleanedLines).containsExactly("Temps de préparation", "100 g de beurre").inOrder()
+        assertWithMessage("L'en-tête de temps suspendu 'Temps de' et 'préparation' doivent fusionner")
+            .that(result.cleanedLines)
+            .containsExactly("Temps de préparation", "100 g de beurre")
+            .inOrder()
     }
 }

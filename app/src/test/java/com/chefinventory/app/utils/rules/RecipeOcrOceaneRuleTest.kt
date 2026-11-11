@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -76,9 +76,20 @@ class RecipeOcrOceaneRuleTest {
         // ==========================================
         // 1. VALIDATION ET EXCLUSIVITÉ DU TITRE
         // ==========================================
-        assertThat(title).ignoringCase().contains("Salade océane")
-        assertThat(ing).ignoringCase().doesNotContain("Salade océane")
-        assertThat(wine).ignoringCase().doesNotContain("Salade océane")
+        assertWithMessage("Le titre extrait doit contenir 'Salade océane'")
+            .that(title)
+            .ignoringCase()
+            .contains("Salade océane")
+
+        assertWithMessage("Le titre ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("Salade océane")
+
+        assertWithMessage("Le titre ne doit pas fuiter dans le vin")
+            .that(wine)
+            .ignoringCase()
+            .doesNotContain("Salade océane")
 
         // ==========================================
         // 2. VALIDATION ET EXCLUSIVITÉ DES INGRÉDIENTS
@@ -96,14 +107,36 @@ class RecipeOcrOceaneRuleTest {
         )
 
         for (item in expectedIngredientsWithQty) {
-            assertThat(ing).ignoringCase().contains(item)
-            assertThat(inst).ignoringCase().doesNotContain(item) // 👈 Aucune ligne d'ingrédient avec quantité ne fuit vers les instructions !
-            assertThat(title).ignoringCase().doesNotContain(item)
-            assertThat(wine).ignoringCase().doesNotContain(item)
+            assertWithMessage("L'ingrédient '$item' doit figurer dans les ingrédients")
+                .that(ing)
+                .ignoringCase()
+                .contains(item)
+
+            assertWithMessage("L'ingrédient '$item' ne doit pas fuiter dans les instructions")
+                .that(inst)
+                .ignoringCase()
+                .doesNotContain(item)
+
+            assertWithMessage("L'ingrédient '$item' ne doit pas fuiter dans le titre")
+                .that(title)
+                .ignoringCase()
+                .doesNotContain(item)
+
+            assertWithMessage("L'ingrédient '$item' ne doit pas fuiter dans le vin")
+                .that(wine)
+                .ignoringCase()
+                .doesNotContain(item)
         }
 
-        assertThat(ing).ignoringCase().contains("Tabasco")
-        assertThat(ing).ignoringCase().contains("sel et poivre")
+        assertWithMessage("L'ingrédient 'Tabasco' doit figurer dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .contains("Tabasco")
+
+        assertWithMessage("L'assaisonnement 'sel et poivre' doit figurer dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .contains("sel et poivre")
 
         // ==========================================
         // 3. VALIDATION ET EXCLUSIVITÉ DES INSTRUCTIONS
@@ -123,18 +156,42 @@ class RecipeOcrOceaneRuleTest {
         )
 
         for (line in expectedInstructions) {
-            assertThat(inst).ignoringCase().contains(line)
-            assertThat(ing).ignoringCase().doesNotContain(line) // 👈 Aucune consigne ne fuit vers les ingrédients !
+            assertWithMessage("La consigne '$line' doit figurer dans les instructions")
+                .that(inst)
+                .ignoringCase()
+                .contains(line)
+
+            assertWithMessage("La consigne '$line' ne doit pas fuiter dans les ingrédients")
+                .that(ing)
+                .ignoringCase()
+                .doesNotContain(line)
         }
 
         // ==========================================
         // 4. METADONNÉES (Portions, Vin)
         // ==========================================
-        assertThat(result.servings).isEqualTo("4")
+        assertWithMessage("Le nombre de portions doit être de 4")
+            .that(result.servings)
+            .isEqualTo("4")
 
-        assertThat(wine).ignoringCase().contains("Touraine")
-        assertThat(wine).ignoringCase().contains("Sauvignon blanc")
-        assertThat(ing).ignoringCase().doesNotContain("Touraine")
-        assertThat(inst).ignoringCase().doesNotContain("Touraine")
+        assertWithMessage("Le vin doit contenir 'Touraine'")
+            .that(wine)
+            .ignoringCase()
+            .contains("Touraine")
+
+        assertWithMessage("Le vin doit contenir 'Sauvignon blanc'")
+            .that(wine)
+            .ignoringCase()
+            .contains("Sauvignon blanc")
+
+        assertWithMessage("Le vin ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("Touraine")
+
+        assertWithMessage("Le vin ne doit pas fuiter dans les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("Touraine")
     }
 }

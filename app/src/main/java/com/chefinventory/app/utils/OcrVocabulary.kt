@@ -177,6 +177,7 @@ data class OcrVocabulary(
     val ocr1ProtectedIngredientsHeaders: List<String> = emptyList(),
     val ocr1ProtectedInstructionsHeaders: List<String> = emptyList(),
     val ocrSentenceConjunctions: List<String> = emptyList(),
+    val sentenceEndingPunctuation: List<String> = emptyList(),
     val ocr2TechnicalDimensionKeywords: List<String> = emptyList(),
     val genericWineWords: List<String> = emptyList(),
     val orphanNounNumberWords: List<String> = emptyList(),

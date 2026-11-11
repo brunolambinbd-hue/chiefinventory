@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.Ocr3CategorizerTitleExtractor
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -21,6 +21,8 @@ class OcrTitleDessertUnitRuleTest {
         val input = listOf("1 c. à dessert de rhum", "C. à dessert de rhum")
         val result = Ocr3CategorizerTitleExtractor.extractTitle(input, baseVocabulary)
 
-        assertThat(result.title).isNull()
+        assertWithMessage("Une ligne d'unité 'C. à dessert de rhum' ne doit pas être qualifiée de candidat titre")
+            .that(result.title)
+            .isNull()
     }
 }

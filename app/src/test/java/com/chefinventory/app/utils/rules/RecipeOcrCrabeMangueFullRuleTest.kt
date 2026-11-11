@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -45,15 +45,35 @@ class RecipeOcrCrabeMangueFullRuleTest {
         val inst = result.instructions ?: ""
 
         // 1. Validation du nombre de personnes
-        assertThat(result.servings).isEqualTo("4")
+        assertWithMessage("Le nombre de personnes extrait doit être de 4")
+            .that(result.servings)
+            .isEqualTo("4")
 
         // 2. Validation des ingrédients (incluant des petites feuilles de chicon et 1 branche d'aneth)
-        assertThat(ing).ignoringCase().contains("100 g de chair de crabe")
-        assertThat(ing).ignoringCase().contains("des petites feuilles de chicon")
-        assertThat(ing).ignoringCase().contains("1 branche d'aneth")
+        assertWithMessage("Les ingrédients doivent contenir '100 g de chair de crabe'")
+            .that(ing)
+            .ignoringCase()
+            .contains("100 g de chair de crabe")
+
+        assertWithMessage("Les ingrédients doivent contenir 'des petites feuilles de chicon'")
+            .that(ing)
+            .ignoringCase()
+            .contains("des petites feuilles de chicon")
+
+        assertWithMessage("Les ingrédients doivent contenir '1 branche d'aneth'")
+            .that(ing)
+            .ignoringCase()
+            .contains("1 branche d'aneth")
 
         // 3. Validation des instructions (les consignes du haut doivent être dans les instructions)
-        assertThat(inst).ignoringCase().contains("Epluchez et dénoyautez les mangues")
-        assertThat(inst).ignoringCase().doesNotContain("des petites feuilles de chicon")
+        assertWithMessage("Les instructions doivent contenir 'Epluchez et dénoyautez les mangues'")
+            .that(inst)
+            .ignoringCase()
+            .contains("Epluchez et dénoyautez les mangues")
+
+        assertWithMessage("Les ingrédients du bas ne doivent pas fuiter dans les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("des petites feuilles de chicon")
     }
 }

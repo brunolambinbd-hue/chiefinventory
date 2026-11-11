@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -16,8 +16,13 @@ class OcrRepairScenarioTest {
 
     @Test
     fun `pipeline should verify that all ocr_repairs from production XML are loaded`() {
-        assertThat(vocabulary.ocrSpellingRepairs).isNotEmpty()
-        assertThat(vocabulary.ocrSpellingRepairs.size).isAtLeast(70)
+        assertWithMessage("La liste des réparations orthographiques XML ne doit pas être vide")
+            .that(vocabulary.ocrSpellingRepairs)
+            .isNotEmpty()
+
+        assertWithMessage("La liste des réparations orthographiques doit contenir au moins 70 règles de production")
+            .that(vocabulary.ocrSpellingRepairs.size)
+            .isAtLeast(70)
     }
 
     @Test
@@ -29,7 +34,10 @@ class OcrRepairScenarioTest {
                 val expected = parts[1].trim().replace("\\'", "'")
 
                 val normalized = Ocr1Corrector.normalize("200 g de $wrong", vocabulary.ocrSpellingRepairs)
-                assertThat(normalized).ignoringCase().contains(expected.lowercase())
+                assertWithMessage("La réparation orthographique pour '$wrong' doit produire '$expected'")
+                    .that(normalized)
+                    .ignoringCase()
+                    .contains(expected.lowercase())
             }
         }
     }
@@ -49,13 +57,30 @@ class OcrRepairScenarioTest {
         val result = RecipeOcrParser.parse(rawOcrWithTypos, vocabulary)
 
         // Vérification sur les ingrédients finaux (Niveau B - Intégration)
-        assertThat(result.ingredients).contains("poisson au goût de crabe")
-        assertThat(result.ingredients).contains("4 toasts")
-        assertThat(result.ingredients).contains("l'ail")
-        assertThat(result.ingredients).contains("pincée")
+        assertWithMessage("L'ingrédient 'goit' doit être réparé en 'goût'")
+            .that(result.ingredients)
+            .contains("poisson au goût de crabe")
+
+        assertWithMessage("La quantité '4 1 oasts' doit être réparée en '4 toasts'")
+            .that(result.ingredients)
+            .contains("4 toasts")
+
+        assertWithMessage("La liaison 'lail' doit être réparée en 'l'ail'")
+            .that(result.ingredients)
+            .contains("l'ail")
+
+        assertWithMessage("Le mot 'pin cée' doit être réparé en 'pincée'")
+            .that(result.ingredients)
+            .contains("pincée")
 
         // Vérification sur les instructions finales
-        assertThat(result.instructions).contains("Coupez les toasts en deux.")
-        assertThat(result.instructions).ignoringCase().contains("laissez")
+        assertWithMessage("La consigne '1 oasts' doit être réparée en 'toasts'")
+            .that(result.instructions)
+            .contains("Coupez les toasts en deux.")
+
+        assertWithMessage("La consigne 'lais sez' doit être fusionnée en 'laissez'")
+            .that(result.instructions)
+            .ignoringCase()
+            .contains("laissez")
     }
 }

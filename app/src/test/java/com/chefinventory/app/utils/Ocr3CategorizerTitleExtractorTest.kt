@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -25,7 +25,9 @@ class Ocr3CategorizerTitleExtractorTest {
         val emptyActionsVocab = vocabulary.copy(stepActionKeywords = emptyList())
         val noIngLines = listOf("Salade grecque aux olives", "Mélanger et servir")
         val resNoIng = Ocr3CategorizerTitleExtractor.extractTitle(noIngLines, emptyActionsVocab)
-        assertThat(resNoIng.title).contains("Salade grecque aux olives")
+        assertWithMessage("Le titre 'Salade grecque aux olives' doit être extrait en l'absence d'ingrédients")
+            .that(resNoIng.title)
+            .contains("Salade grecque aux olives")
 
         // 2. Attached title after "sel et poivre" with connector " de" (L80)
         val attachedTitleLines = listOf(
@@ -33,17 +35,23 @@ class Ocr3CategorizerTitleExtractorTest {
             "pommes fraîches"
         )
         val resAttached = Ocr3CategorizerTitleExtractor.extractTitle(attachedTitleLines, vocabulary)
-        assertThat(resAttached.title).contains("Tarte de pommes fraîches")
+        assertWithMessage("Le titre accolé 'Tarte de pommes fraîches' après 'sel et poivre' doit être extrait")
+            .that(resAttached.title)
+            .contains("Tarte de pommes fraîches")
 
         // 3. Orphan noun completions with "petite", "grande", "façon" (L165-174)
         val fasonLines = listOf("Poissons façon", "meunière", "200 g de poisson")
         val resFason = Ocr3CategorizerTitleExtractor.extractTitle(fasonLines, vocabulary)
-        assertThat(resFason.title).contains("meunière")
+        assertWithMessage("Le titre 'Poissons façon' doit être complété par 'meunière'")
+            .that(resFason.title)
+            .contains("meunière")
 
         // 4. Score penalty for ending period (L366-367)
         val periodLines = listOf("Tarte aux pommes.", "Tarte aux pommes fraîches")
         val resPeriod = Ocr3CategorizerTitleExtractor.extractTitle(periodLines, vocabulary)
-        assertThat(resPeriod.title).isEqualTo("Tarte aux pommes fraîches")
+        assertWithMessage("Le titre sans point final doit l'emporter sur le titre se terminant par un point")
+            .that(resPeriod.title)
+            .isEqualTo("Tarte aux pommes fraîches")
 
         // 5. Disqualifying guards: "portions", trailing stop words, digit limits (L472, L478, L480)
         val disqLines = listOf(
@@ -53,7 +61,9 @@ class Ocr3CategorizerTitleExtractorTest {
             "Tarte Tatin"
         )
         val resDisq = Ocr3CategorizerTitleExtractor.extractTitle(disqLines, vocabulary)
-        assertThat(resDisq.title).isEqualTo("Tarte Tatin")
+        assertWithMessage("Les candidats invalides doivent être disqualifiés au profit de 'Tarte Tatin'")
+            .that(resDisq.title)
+            .isEqualTo("Tarte Tatin")
     }
 
     @Test
@@ -66,7 +76,9 @@ class Ocr3CategorizerTitleExtractorTest {
             "200 g de farine"
         )
         val resultFem = Ocr3CategorizerTitleExtractor.extractTitle(linesFeminine, vocabulary)
-        assertThat(resultFem.title).contains("salade")
+        assertWithMessage("L'adjectif féminin 'grande' doit récupérer le nom 'salade'")
+            .that(resultFem.title)
+            .contains("salade")
 
         // 2. Disqualified lines with parentheses or bullets
         val linesDisqualified = listOf(
@@ -76,7 +88,9 @@ class Ocr3CategorizerTitleExtractorTest {
             "Tarte aux cerises"
         )
         val resultDisq = Ocr3CategorizerTitleExtractor.extractTitle(linesDisqualified, vocabulary)
-        assertThat(resultDisq.title).isEqualTo("Tarte aux cerises")
+        assertWithMessage("Les lignes avec parenthèses et puces doivent être disqualifiées pour extraire 'Tarte aux cerises'")
+            .that(resultDisq.title)
+            .isEqualTo("Tarte aux cerises")
     }
 
     @Test
@@ -84,27 +98,43 @@ class Ocr3CategorizerTitleExtractorTest {
     fun testFindFirstIngredientWord_DirectAndDefaultParameterOverloads() {
         // 1. Default parameter overload (vocabulary = null)
         val word1 = Ocr3CategorizerTitleExtractor0_Context.findFirstIngredientWord(listOf("250 g de farine"))
-        assertThat(word1).isEqualTo("farine")
+        assertWithMessage("Le premier mot d'ingrédient doit être 'farine'")
+            .that(word1)
+            .isEqualTo("farine")
 
         // 2. Explicit vocabulary overload
         val word2 = Ocr3CategorizerTitleExtractor0_Context.findFirstIngredientWord(listOf("1/2 l d'eau"), vocabulary)
-        assertThat(word2).isEqualTo("eau")
+        assertWithMessage("Le premier mot d'ingrédient de '1/2 l d'eau' doit être 'eau'")
+            .that(word2)
+            .isEqualTo("eau")
 
         // 3. Empty list -> returns null
         val word3 = Ocr3CategorizerTitleExtractor0_Context.findFirstIngredientWord(emptyList(), vocabulary)
-        assertThat(word3).isNull()
+        assertWithMessage("Une liste vide doit retourner null pour le premier ingrédient")
+            .that(word3)
+            .isNull()
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testIsMultiLineTitleConnector_ExhaustiveOverloads() {
         // 1. Default parameter overload (vocabulary = null)
-        assertThat(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("au jambon")).isTrue()
-        assertThat(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("salade verte")).isFalse()
+        assertWithMessage("Le connecteur 'au jambon' doit être reconnu par défaut")
+            .that(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("au jambon"))
+            .isTrue()
+
+        assertWithMessage("Le texte 'salade verte' ne doit pas être qualifié de connecteur multiligne")
+            .that(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("salade verte"))
+            .isFalse()
 
         // 2. Explicit vocabulary overload
-        assertThat(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("aux crevettes", vocabulary)).isTrue()
-        assertThat(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("soupe à l'oignon", vocabulary)).isFalse()
+        assertWithMessage("Le connecteur 'aux crevettes' doit être reconnu avec le vocabulaire explicit")
+            .that(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("aux crevettes", vocabulary))
+            .isTrue()
+
+        assertWithMessage("Le texte 'soupe à l'oignon' ne doit pas être qualifié de connecteur multiligne")
+            .that(Ocr3CategorizerTitleExtractor.isMultiLineTitleConnector("soupe à l'oignon", vocabulary))
+            .isFalse()
     }
 
     @Test
@@ -117,7 +147,9 @@ class Ocr3CategorizerTitleExtractorTest {
 
         val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, vocabulary)
 
-        assertThat(result.title).contains("Salade d'avocat et princesses aux crevettes")
+        assertWithMessage("Le titre multiligne accolé à 'sel et poivre' doit être reconstruit")
+            .that(result.title)
+            .contains("Salade d'avocat et princesses aux crevettes")
     }
 
     @Test
@@ -130,7 +162,9 @@ class Ocr3CategorizerTitleExtractorTest {
 
         val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, vocabulary)
 
-        assertThat(result.title).isNull()
+        assertWithMessage("Un titre se terminant par un point doit être disqualifié par pénalité de score")
+            .that(result.title)
+            .isNull()
     }
 
     @Test
@@ -145,7 +179,9 @@ class Ocr3CategorizerTitleExtractorTest {
 
         val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, emptyConnectorsVocab)
 
-        assertThat(result.title).isEqualTo("Salade de fruits au sirop d'érable")
+        assertWithMessage("Un dictionnaire de connecteurs vide doit utiliser les connecteurs de secours")
+            .that(result.title)
+            .isEqualTo("Salade de fruits au sirop d'érable")
     }
 
     @Test
@@ -154,16 +190,22 @@ class Ocr3CategorizerTitleExtractorTest {
         // 1. List with empty strings
         val linesWithEmpty = listOf("", "Salade de tomates", "")
         val resEmpty = Ocr3CategorizerTitleExtractor.extractTitle(linesWithEmpty, vocabulary)
-        assertThat(resEmpty.title).isEqualTo("Salade de tomates")
+        assertWithMessage("Les lignes vides doivent être ignorées pour extraire 'Salade de tomates'")
+            .that(resEmpty.title)
+            .isEqualTo("Salade de tomates")
 
         // 2. Candidates with score <= 0
         val linesLowScore = listOf("10. Etape 1")
         val resLowScore = Ocr3CategorizerTitleExtractor.extractTitle(linesLowScore, vocabulary)
-        assertThat(resLowScore.title).isNull()
+        assertWithMessage("Les candidats avec un score <= 0 doivent retourner un titre null")
+            .that(resLowScore.title)
+            .isNull()
 
         // 3. Completely empty list
         val resNoCandidates = Ocr3CategorizerTitleExtractor.extractTitle(emptyList(), vocabulary)
-        assertThat(resNoCandidates.title).isNull()
+        assertWithMessage("Une liste totalement vide doit retourner un titre null")
+            .that(resNoCandidates.title)
+            .isNull()
     }
 
     /**
@@ -184,7 +226,9 @@ class Ocr3CategorizerTitleExtractorTest {
 
         val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, vocabulary)
 
-        assertThat(result.title).isEqualTo("Bûchettes de melon au jambon italien et au porto")
+        assertWithMessage("Le titre sur 2 lignes avec lettrine 'Büchettes' doit être réparé en 'Bûchettes de melon au jambon italien et au porto'")
+            .that(result.title)
+            .isEqualTo("Bûchettes de melon au jambon italien et au porto")
     }
 
     /**
@@ -201,6 +245,8 @@ class Ocr3CategorizerTitleExtractorTest {
 
         val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, vocabulary)
 
-        assertThat(result.title).isEqualTo("Fondue à la bière")
+        assertWithMessage("La consigne avec verbe d'action/connecteur suspendu doit être disqualifiée pour extraire 'Fondue à la bière'")
+            .that(result.title)
+            .isEqualTo("Fondue à la bière")
     }
 }

@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 
 /**
@@ -46,8 +46,16 @@ class RecipeAuditCopyFormatterTypeBTest {
 
         val text = formatAuditReportText(report)
 
-        assertThat(text).contains("=== RAPPORT D'AUDIT DES RECETTES ===")
-        assertThat(text).contains("Santé globale : 8 / 10 conformes (80%)")
-        assertThat(text).contains("• Aucune")
+        assertWithMessage("Le rapport d'audit formaté doit contenir le titre de bannière")
+            .that(text)
+            .contains("=== RAPPORT D'AUDIT DES RECETTES ===")
+
+        assertWithMessage("Le rapport d'audit doit afficher le pourcentage de santé globale '8 / 10 conformes (80%)'")
+            .that(text)
+            .contains("Santé globale : 8 / 10 conformes (80%)")
+
+        assertWithMessage("Le rapport d'audit doit afficher '• Aucune' en l'absence de recettes manquantes")
+            .that(text)
+            .contains("• Aucune")
     }
 }

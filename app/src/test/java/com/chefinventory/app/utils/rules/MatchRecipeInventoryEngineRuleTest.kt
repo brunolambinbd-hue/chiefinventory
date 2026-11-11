@@ -4,7 +4,7 @@ import com.chefinventory.app.model.Ingredient
 import com.chefinventory.app.model.Recipe
 import com.chefinventory.app.model.RecipeIngredient
 import com.chefinventory.app.utils.MatchRecipeInventoryEngine
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 
 /**
@@ -42,18 +42,36 @@ class MatchRecipeInventoryEngineRuleTest {
             pantryIngredients = pantry
         )
 
-        assertThat(matches).hasSize(2)
+        assertWithMessage("Les 2 recettes doivent être évaluées pour leur faisabilité")
+            .that(matches)
+            .hasSize(2)
 
         // Recipe 1 (Tarte aux chicons) has 2/2 ingredients in stock -> 100%
         val topMatch = matches.first()
-        assertThat(topMatch.recipe.title).isEqualTo("Tarte aux chicons")
-        assertThat(topMatch.matchPercentage).isEqualTo(100.0)
-        assertThat(topMatch.missingIngredients).isEmpty()
+        assertWithMessage("La recette à 100% 'Tarte aux chicons' doit figurer en première position")
+            .that(topMatch.recipe.title)
+            .isEqualTo("Tarte aux chicons")
+
+        assertWithMessage("Le pourcentage de correspondance de la première recette doit valoir 100.0%")
+            .that(topMatch.matchPercentage)
+            .isEqualTo(100.0)
+
+        assertWithMessage("La liste des ingrédients manquants pour la première recette doit être vide")
+            .that(topMatch.missingIngredients)
+            .isEmpty()
 
         // Recipe 2 (Roulade de jambon) has 0/2 ingredients in stock -> 0%
         val secondMatch = matches[1]
-        assertThat(secondMatch.recipe.title).isEqualTo("Roulade de jambon de Parme")
-        assertThat(secondMatch.matchPercentage).isEqualTo(0.0)
-        assertThat(secondMatch.missingIngredients.first()).contains("jambon de Parme")
+        assertWithMessage("La recette à 0% 'Roulade de jambon de Parme' doit figurer en seconde position")
+            .that(secondMatch.recipe.title)
+            .isEqualTo("Roulade de jambon de Parme")
+
+        assertWithMessage("Le pourcentage de correspondance de la seconde recette doit valoir 0.0%")
+            .that(secondMatch.matchPercentage)
+            .isEqualTo(0.0)
+
+        assertWithMessage("L'ingrédient manquant 'jambon de Parme' doit être indiqué")
+            .that(secondMatch.missingIngredients.first())
+            .contains("jambon de Parme")
     }
 }

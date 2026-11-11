@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Test
 
@@ -13,17 +13,23 @@ class Ocr4MergerIngredientSplitterTest {
     @CoveredRequirement("6.1.1.9")
     fun testSplitCombinedIngredients_DefaultArgumentsOverloadsAndBlankLine() {
         val result1 = Ocr4MergerIngredientSplitter.splitCombinedIngredients("200 g de farine", listOf("farine"))
-        assertThat(result1).containsExactly("200 g de farine")
+        assertWithMessage("Un ingrédient unique '200 g de farine' ne doit pas être scindé")
+            .that(result1)
+            .containsExactly("200 g de farine")
 
         val result2 = Ocr4MergerIngredientSplitter.splitCombinedIngredients("   ", emptyList())
-        assertThat(result2).isEmpty()
+        assertWithMessage("Une ligne d'ingrédients vide doit retourner une liste vide")
+            .that(result2)
+            .isEmpty()
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testSplitCombinedIngredients_ParenthesisAndPrefixNumbers() {
         val result = Ocr4MergerIngredientSplitter.splitCombinedIngredients("200 g de beurre (doux) 100 g de sucre", listOf("beurre", "sucre"))
-        assertThat(result).containsExactly("200 g de beurre (doux)", "100 g de sucre")
+        assertWithMessage("Les deux ingrédients combinés avec parenthèses doivent être scindés proprement")
+            .that(result)
+            .containsExactly("200 g de beurre (doux)", "100 g de sucre")
     }
 
     @Test
@@ -34,6 +40,8 @@ class Ocr4MergerIngredientSplitterTest {
             listOf("salade"),
             preparationModifiers = listOf("petite", "frisée")
         )
-        assertThat(result).containsExactly("1 petite salade frisée")
+        assertWithMessage("L'adjectif de taille 'petite' ne doit pas séparer le nom de l'ingrédient")
+            .that(result)
+            .containsExactly("1 petite salade frisée")
     }
 }

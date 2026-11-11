@@ -3,7 +3,7 @@ package com.chefinventory.app.utils
 import android.content.Context
 import android.content.res.Resources
 import com.chefinventory.app.R
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -35,8 +35,13 @@ class ResourceHealthCheckerTest {
         whenever(mockRes.getString(R.string.ocr1_canonical_instructions_header)).thenReturn("instructions")
 
         val report = ResourceHealthChecker.check(mockContext)
-        assertThat(report.isHealthy).isTrue()
-        assertThat(report.issues).isEmpty()
+        assertWithMessage("Le rapport de santé doit être valide (isHealthy == true)")
+            .that(report.isHealthy)
+            .isTrue()
+
+        assertWithMessage("La liste des anomalies de ressources doit être vide")
+            .that(report.issues)
+            .isEmpty()
     }
 
     @Test
@@ -49,7 +54,12 @@ class ResourceHealthCheckerTest {
         whenever(mockRes.getString(R.string.ocr1_canonical_ingredients_header)).thenReturn("")
 
         val report = ResourceHealthChecker.check(mockContext)
-        assertThat(report.isHealthy).isFalse()
-        assertThat(report.issues).isNotEmpty()
+        assertWithMessage("Le rapport de santé doit être invalide (isHealthy == false) en cas de ressources manquantes")
+            .that(report.isHealthy)
+            .isFalse()
+
+        assertWithMessage("La liste des anomalies de ressources doit être renseignée")
+            .that(report.issues)
+            .isNotEmpty()
     }
 }

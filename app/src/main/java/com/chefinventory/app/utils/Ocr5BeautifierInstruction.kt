@@ -1,17 +1,18 @@
 package com.chefinventory.app.utils
 
+import com.chefinventory.app.utils.Ocr5Beautifier.filterBeautifierNoise
 import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Assistant de l'Étape 5 (Embellissement) dédié à la beautification et au recollage sémantique final des consignes d'instructions.
  *
  * Responsabilités :
- * - Empêcher la terminaison artificielle d'une consigne par une conjonction (" et.", " ou.", ",.").
- * - Supprimer le point artificiel derrière la conjonction, passer le mot suivant en minuscule ("Garnissez" -> "garnissez"),
+ * Empêcher la terminaison artificielle d'une consigne par une conjonction (" et.", " ou.", ",.").
+ * Supprimer le point artificiel derrière la conjonction, passer le mot suivant en minuscule ("Garnissez" -> "garnissez"),
  *   et fusionner les deux consignes en une seule phrase fluide.
- * - Nettoyer les préfixes parasites d'en-tête devant les verbes d'action.
- * - Filtrer les mots d'en-tête de section isolés ("Préparation.", "Instructions.").
- * - Consommer les expressions régulières pré-compilées de [OcrRegexes.Beautifier].
+ * Nettoyer les préfixes parasites d'en-tête devant les verbes d'action.
+ * Filtrer les mots d'en-tête de section isolés ("Préparation.", "Instructions.").
+ * Consommer les expressions régulières pré-compilées de [OcrRegexes.Beautifier].
  */
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object Ocr5BeautifierInstruction {
@@ -35,7 +36,8 @@ object Ocr5BeautifierInstruction {
         culinaryUnits: List<String> = emptyList(),
         spellingRepairs: List<String> = emptyList()
     ): List<String> {
-        if (instructions.isEmpty()) return emptyList()
+        val baseInstructions = instructions.filterBeautifierNoise()
+        if (baseInstructions.isEmpty()) return emptyList()
 
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
         val activeUnits = (if (culinaryUnits.isNotEmpty()) culinaryUnits else vocab.culinaryMeasurementUnits)
@@ -47,31 +49,25 @@ object Ocr5BeautifierInstruction {
         val standaloneTrashWords = (vocab.standaloneArticles + vocab.hangingConnectors).map { it.lowercase().trim() }.toSet()
         val headerTrashWords = vocab.ocr1ProtectedInstructionsHeaders.map { it.lowercase().trim() }.toSet()
 
-        // 1. Nettoyage initial de chaque ligne
-        val cleanedLines = instructions.map { line ->
-            var cleaned = line.trim()
-            if (spellingRepairs.isNotEmpty()) {
-                cleaned = Ocr1Corrector.applySpellingRepairs(cleaned, spellingRepairs)
-            }
-            cleaned = cleaned.replace(prefixPattern, "")
-            cleaned = cleaned.replace(OcrRegexes.Beautifier.STEP_DIGIT_PREFIX, "")
-            cleaned = cleaned.replace(OcrRegexes.Beautifier.STEP_NUMBER_BEFORE_CAPITAL, "")
-            cleaned = cleaned.replace(OcrRegexes.Beautifier.BULLET_PREFIX, "")
-            cleaned
-        }.filter { line ->
-            val lower = line.lowercase().trim().removeSuffix(".")
-            val lowerCondensed = lower.replace(" ", "")
+        val prefixPatterns = listOf(
+            OcrRegexes.Beautifier.BULLET_PREFIX,
+            prefixPattern,
+            OcrRegexes.Beautifier.STEP_DIGIT_PREFIX,
+            OcrRegexes.Beautifier.STEP_NUMBER_BEFORE_CAPITAL
+        )
+
+        // 1. Nettoyage et assainissement initial de chaque ligne
+        val cleanedLines = baseInstructions.mapNotNull { line ->
             val hasAction = OcrInstructionUtils.hasActionVerb(line, stepActionKeywords)
-            val isOcrNoise = OcrVocabularyLoader.loadFromProjectResources().ocrNoiseExclusions.any { noise ->
-                noise.isNotBlank() && line.contains(noise, ignoreCase = true)
-            }
-            val isRecipeHeaderTrash = if (!hasAction) {
-                lower.contains("recette") || isOcrNoise
-            } else {
-                false
-            }
-            val isShortNoise = !hasAction && line.none { it.isDigit() } && (lowerCondensed.length <= 3 || lowerCondensed in standaloneTrashWords)
-            line.isNotEmpty() && lower !in headerTrashWords && lower !in standaloneTrashWords && !isRecipeHeaderTrash && !isShortNoise
+            Ocr5Beautifier.sanitizeLine(
+                line = line,
+                spellingRepairs = spellingRepairs,
+                prefixPatterns = prefixPatterns,
+                vocab = vocab,
+                standaloneTrashWords = standaloneTrashWords,
+                headerTrashWords = headerTrashWords,
+                hasActionVerb = hasAction
+            )
         }
 
         // 2. Fusion des phrases se terminant par une conjonction (" et.", " ou.", ",.") ou une unité isolée
@@ -125,10 +121,7 @@ object Ocr5BeautifierInstruction {
                 // Le premier caractère est déjà une majuscule
             }
 
-            val lastChar = current.last()
-            if (lastChar != '.' && lastChar != '!' && lastChar != '?') {
-                current += "."
-            }
+            current = OcrTextUtils.ensureSentenceEndingPunctuation(current, vocab.sentenceEndingPunctuation)
 
             mergedInstructions.add(current)
             i++

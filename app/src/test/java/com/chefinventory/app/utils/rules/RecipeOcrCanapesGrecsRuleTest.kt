@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -42,19 +42,37 @@ class RecipeOcrCanapesGrecsRuleTest {
         val ing = result.ingredients ?: ""
         val inst = result.instructions ?: ""
 
-        System.err.println("=== DEBUG INGREDIENTS ===\n$ing")
-
         // 1. Validation du nombre de personnes
-        assertThat(result.servings).isEqualTo("4")
+        assertWithMessage("Le nombre de personnes extrait doit être de 4")
+            .that(result.servings)
+            .isEqualTo("4")
 
         // 2. Validation des ingrédients
-        assertThat(ing).ignoringCase().contains("180 g de feta")
-        assertThat(ing).ignoringCase().contains("du thym et du romarin frais")
-        assertThat(ing).ignoringCase().contains("sel et poivre du moulin")
+        assertWithMessage("Les ingrédients doivent contenir '180 g de feta'")
+            .that(ing)
+            .ignoringCase()
+            .contains("180 g de feta")
+
+        assertWithMessage("Les ingrédients doivent contenir 'du thym et du romarin frais'")
+            .that(ing)
+            .ignoringCase()
+            .contains("du thym et du romarin frais")
+
+        assertWithMessage("Les ingrédients doivent contenir 'sel et poivre du moulin'")
+            .that(ing)
+            .ignoringCase()
+            .contains("sel et poivre du moulin")
 
         // 3. Validation des instructions (les consignes du haut doivent être dans les instructions)
-        assertThat(inst).ignoringCase().contains("Mélangez l'huile d'olive")
-        assertThat(inst).ignoringCase().doesNotContain("du thym et du romarin frais")
+        assertWithMessage("Les instructions doivent contenir 'Mélangez l'huile d'olive'")
+            .that(inst)
+            .ignoringCase()
+            .contains("Mélangez l'huile d'olive")
+
+        assertWithMessage("Les ingrédients ne doivent pas fuiter dans les instructions")
+            .that(inst)
+            .ignoringCase()
+            .doesNotContain("du thym et du romarin frais")
     }
 
     @Test
@@ -78,7 +96,10 @@ class RecipeOcrCanapesGrecsRuleTest {
         """.trimIndent()
 
         val result = RecipeOcrParser.parse(ocrTextWithoutTitleAtTop, vocabulary)
-        System.err.println("=== INGREDIENTS WITHOUT TITLE AT TOP ===\n" + result.ingredients)
-        assertThat(result.ingredients).ignoringCase().contains("du thym et du romarin frais")
+
+        assertWithMessage("Les ingrédients doivent contenir 'du thym et du romarin frais' même sans titre au sommet")
+            .that(result.ingredients)
+            .ignoringCase()
+            .contains("du thym et du romarin frais")
     }
 }

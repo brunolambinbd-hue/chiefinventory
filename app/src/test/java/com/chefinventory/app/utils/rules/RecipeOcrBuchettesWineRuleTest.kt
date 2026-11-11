@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -40,9 +40,24 @@ class RecipeOcrBuchettesWineRuleTest {
         val wine = result.wine ?: ""
 
         // Validation de la recommandation Vin complète sur plusieurs lignes
-        assertThat(wine).ignoringCase().contains("Atinium")
-        assertThat(wine).ignoringCase().contains("Bordeaux Graves")
-        assertThat(wine).ignoringCase().contains("1996")
-        assertThat(wine).ignoringCase().contains("75 cl")
+        assertWithMessage("Le terme 'Atinum' doit être réparé en 'Atinium' dans le vin")
+            .that(wine)
+            .ignoringCase()
+            .contains("Atinium")
+
+        assertWithMessage("L'appellation 'Bordeaux Graves' doit figurer dans le vin")
+            .that(wine)
+            .ignoringCase()
+            .contains("Bordeaux Graves")
+
+        assertWithMessage("Le millésime '1996' doit figurer dans le vin")
+            .that(wine)
+            .ignoringCase()
+            .contains("1996")
+
+        assertWithMessage("Le volume '75 cl' doit figurer dans le vin")
+            .that(wine)
+            .ignoringCase()
+            .contains("75 cl")
     }
 }

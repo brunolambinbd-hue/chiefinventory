@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ponctuations et terminaisons de phrases pour le pipeline OCR (Beautifier & Merger) -->
+    <string-array name="sentence_ending_punctuation">
+        <item>.</item>
+        <item>!</item>
+        <item>\?</item>
+    </string-array>
+</resources>

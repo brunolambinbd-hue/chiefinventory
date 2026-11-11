@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Test
 
@@ -23,10 +23,13 @@ class Ocr5BeautifierIngredientVarietyMergerTest {
 
         val result = Ocr5BeautifierIngredientVarietyMerger.beautifyIngredientVarieties(input, baseIngredients, qualifiers)
 
-        assertThat(result).containsExactly(
-            "200 g de haricots princesses",
-            "100 g de sucre"
-        ).inOrder()
+        assertWithMessage("Le qualificatif de variété orphelin 'princesses' doit être regroupé avec '200 g de haricots'")
+            .that(result)
+            .containsExactly(
+                "200 g de haricots princesses",
+                "100 g de sucre"
+            )
+            .inOrder()
     }
 
     @Test
@@ -40,17 +43,22 @@ class Ocr5BeautifierIngredientVarietyMergerTest {
 
         val result = Ocr5BeautifierIngredientVarietyMerger.beautifyIngredientVarieties(input, baseIngredients, qualifiers)
 
-        assertThat(result).containsExactly(
-            "200 g de haricots princesses",
-            "100 g de sucre"
-        ).inOrder()
+        assertWithMessage("Le qualificatif majusculé 'Princesses' doit être passé en minuscules lors du regroupement")
+            .that(result)
+            .containsExactly(
+                "200 g de haricots princesses",
+                "100 g de sucre"
+            )
+            .inOrder()
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun `beautifyIngredientVarieties should return empty list for empty input`() {
         val result = Ocr5BeautifierIngredientVarietyMerger.beautifyIngredientVarieties(emptyList(), baseIngredients, qualifiers)
-        assertThat(result).isEmpty()
+        assertWithMessage("Une liste d'ingrédients vide doit retourner une liste vide")
+            .that(result)
+            .isEmpty()
     }
 
     @Test
@@ -63,10 +71,13 @@ class Ocr5BeautifierIngredientVarietyMergerTest {
 
         val result = Ocr5BeautifierIngredientVarietyMerger.beautifyIngredientVarieties(input, baseIngredients, qualifiers)
 
-        assertThat(result).containsExactly(
-            "200 g de farine",
-            "princesses"
-        ).inOrder()
+        assertWithMessage("L'ingrédient 'farine' qui n'attend pas de variété ne doit pas être regroupé avec 'princesses'")
+            .that(result)
+            .containsExactly(
+                "200 g de farine",
+                "princesses"
+            )
+            .inOrder()
     }
 
     @Test
@@ -79,26 +90,48 @@ class Ocr5BeautifierIngredientVarietyMergerTest {
 
         val result = Ocr5BeautifierIngredientVarietyMerger.beautifyIngredientVarieties(input, baseIngredients, qualifiers)
 
-        assertThat(result).containsExactly(
-            "200 g de haricots",
-            "200 g de farine"
-        ).inOrder()
+        assertWithMessage("Une ligne suivante ne correspondant pas à un qualificatif ne doit pas être regroupée")
+            .that(result)
+            .containsExactly(
+                "200 g de haricots",
+                "200 g de farine"
+            )
+            .inOrder()
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun `isBaseExpectingVariety should identify base ingredients`() {
-        assertThat(Ocr5BeautifierIngredientVarietyMerger.isBaseExpectingVariety("200 g de haricots", baseIngredients)).isTrue()
-        assertThat(Ocr5BeautifierIngredientVarietyMerger.isBaseExpectingVariety("haricots", baseIngredients)).isTrue()
-        assertThat(Ocr5BeautifierIngredientVarietyMerger.isBaseExpectingVariety("200 g de farine", baseIngredients)).isFalse()
+        assertWithMessage("La ligne '200 g de haricots' doit être reconnue comme ingrédient de base attendant une variété")
+            .that(Ocr5BeautifierIngredientVarietyMerger.isBaseExpectingVariety("200 g de haricots", baseIngredients))
+            .isTrue()
+
+        assertWithMessage("Le mot seul 'haricots' doit être reconnu comme ingrédient de base")
+            .that(Ocr5BeautifierIngredientVarietyMerger.isBaseExpectingVariety("haricots", baseIngredients))
+            .isTrue()
+
+        assertWithMessage("La ligne '200 g de farine' ne doit pas être reconnue comme ingrédient de base pour variété")
+            .that(Ocr5BeautifierIngredientVarietyMerger.isBaseExpectingVariety("200 g de farine", baseIngredients))
+            .isFalse()
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun `isVarietyQualifier should identify variety qualifiers`() {
-        assertThat(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("princesses", qualifiers)).isTrue()
-        assertThat(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("frais et bio", qualifiers)).isTrue()
-        assertThat(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("• princesses", qualifiers)).isTrue()
-        assertThat(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("farine", qualifiers)).isFalse()
+        assertWithMessage("Le qualificatif 'princesses' doit être reconnu")
+            .that(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("princesses", qualifiers))
+            .isTrue()
+
+        assertWithMessage("Le qualificatif complexe 'frais et bio' doit être reconnu")
+            .that(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("frais et bio", qualifiers))
+            .isTrue()
+
+        assertWithMessage("Le qualificatif avec puce '• princesses' doit être reconnu")
+            .that(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("• princesses", qualifiers))
+            .isTrue()
+
+        assertWithMessage("Le mot d'ingrédient 'farine' ne doit pas être reconnu comme qualificatif de variété")
+            .that(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("farine", qualifiers))
+            .isFalse()
     }
 }

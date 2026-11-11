@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 import javax.xml.parsers.DocumentBuilderFactory
@@ -41,14 +41,26 @@ class OcrJvmWindowsCrLfTest {
         val items = stringArrays["test_crlf_array"] ?: emptyList()
         val stringVal = strings["test_crlf_string"] ?: ""
 
-        assertThat(items).containsExactly("mot1", "mot2")
-        assertThat(stringVal).isEqualTo("valeur1")
+        assertWithMessage("Les éléments du tableau XML doivent être nettoyés des retours chariot \\r\\n")
+            .that(items)
+            .containsExactly("mot1", "mot2")
+
+        assertWithMessage("La chaîne XML doit être nettoyée du retour chariot \\r")
+            .that(stringVal)
+            .isEqualTo("valeur1")
 
         // Vérifie qu'aucun \r ne persiste dans les chaînes extraites du XML
         for (item in items) {
-            assertThat(item).doesNotContain("\r")
-            assertThat(item.length).isEqualTo(4) // "mot1" et "mot2" font exactement 4 caractères
+            assertWithMessage("L'élément '$item' ne doit pas contenir de retour chariot \\r")
+                .that(item)
+                .doesNotContain("\r")
+
+            assertWithMessage("La longueur de l'élément '$item' doit être de 4 caractères")
+                .that(item.length)
+                .isEqualTo(4)
         }
-        assertThat(stringVal).doesNotContain("\r")
+        assertWithMessage("La valeur de chaîne '$stringVal' ne doit pas contenir de retour chariot \\r")
+            .that(stringVal)
+            .doesNotContain("\r")
     }
 }

@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 import java.util.regex.Pattern
@@ -28,8 +28,9 @@ class OcrJvmPatternQuoteBugTest {
 
         val matcherEscape = patternWithEscape.matcher(uppercaseInput)
 
-        // Avec Regex.escape, (?i) matche 100% des majuscules sur la JVM !
-        assertThat(matcherEscape.find()).isTrue()
+        assertWithMessage("Regex.escape doit permettre le matching insensible à la casse de 'SALADE' en majuscules sur la JVM")
+            .that(matcherEscape.find())
+            .isTrue()
     }
 
     @Test
@@ -37,7 +38,8 @@ class OcrJvmPatternQuoteBugTest {
         val pattern = OcrRegexes.getSpellingRepairPattern("salade")
         val input = "SALADE DE LANGOUSTINES AU CURRY"
 
-        // Vérifie que OcrRegexes.getSpellingRepairPattern matche le mot-clé majuscule sur la JVM
-        assertThat(pattern.matcher(input).find()).isTrue()
+        assertWithMessage("OcrRegexes.getSpellingRepairPattern doit matcher le mot-clé majuscule 'SALADE' sur la JVM")
+            .that(pattern.matcher(input).find())
+            .isTrue()
     }
 }

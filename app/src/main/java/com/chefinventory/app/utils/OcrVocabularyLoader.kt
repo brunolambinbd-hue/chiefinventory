@@ -97,6 +97,7 @@ object OcrVocabularyLoader {
             priceCategoriesHigh = getList(stringArrays, "price_categories_high"),
             ingredientConnectors = getList(stringArrays, "ingredient_connectors"),
             ocrSentenceConjunctions = getList(stringArrays, "ocr_sentence_conjunctions"),
+            sentenceEndingPunctuation = getList(stringArrays, "sentence_ending_punctuation"),
             protectedSectionHeaders = getList(stringArrays, "ocr_protected_section_headers"),
             timeHeaderPrefixes = getList(stringArrays, "ocr_time_header_prefixes"),
             timeHeaderKeywords = getList(stringArrays, "ocr_time_header_keywords"),
@@ -308,7 +309,9 @@ object OcrVocabularyLoader {
                 val itemNodes = elem.getElementsByTagName("item")
                 for (j in 0 until itemNodes.length) {
                     // Purge des retours chariot Windows (\r) lors du parsing XML DOM :
-                    val itemText = itemNodes.item(j).textContent.replace("\r", "").trim().replace("\\'", "'")
+                    val itemText = itemNodes.item(j).textContent.replace("\r", "").trim()
+                    .replace("\\'", "'")
+                    .replace("\\?", "?")
                     val parts = itemText.split("|")
                     if (parts.size == 2 && parts[0].trim().equals(parts[1].trim(), ignoreCase = true)) {
                         continue

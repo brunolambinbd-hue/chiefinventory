@@ -24,14 +24,18 @@ object Ocr5BeautifierWine {
         if (wines.isEmpty()) return emptyList()
 
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val standaloneTrashWords = (vocab.standaloneArticles + vocab.hangingConnectors).map { it.lowercase().trim() }.toSet()
         val beautifiedList = mutableListOf<String>()
 
         for (wine in wines) {
-            var cleaned = wine.trim()
-            if (cleaned.isBlank()) continue
+            var cleaned = Ocr5Beautifier.sanitizeLine(
+                line = wine,
+                prefixPatterns = listOf(OcrRegexes.Wines.LEADING_PUNCTUATION),
+                vocab = vocab,
+                standaloneTrashWords = standaloneTrashWords
+            ) ?: continue
 
-            // Nettoyage des ponctuations orphelines en début/fin de ligne
-            cleaned = cleaned.replace(OcrRegexes.Wines.LEADING_PUNCTUATION, "").trim()
+            // Nettoyage des ponctuations orphelines en fin de ligne
             cleaned = cleaned.replace(OcrRegexes.Normalizer.TRAILING_PUNCTUATION, "").trim()
             if (cleaned.isBlank()) continue
 
@@ -39,8 +43,6 @@ object Ocr5BeautifierWine {
             val first = cleaned[0]
             if (first.isLowerCase()) {
                 cleaned = first.titlecase() + cleaned.substring(1)
-            } else {
-                // Le premier caractère est déjà une majuscule ou un chiffre
             }
 
             if (cleaned !in beautifiedList) {

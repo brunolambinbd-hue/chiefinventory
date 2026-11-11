@@ -24,14 +24,18 @@ object Ocr5BeautifierSource {
         if (sources.isEmpty()) return emptyList()
 
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val standaloneTrashWords = (vocab.standaloneArticles + vocab.hangingConnectors).map { it.lowercase().trim() }.toSet()
         val beautifiedList = mutableListOf<String>()
 
         for (source in sources) {
-            var cleaned = source.trim()
-            if (cleaned.isBlank()) continue
+            var cleaned = Ocr5Beautifier.sanitizeLine(
+                line = source,
+                prefixPatterns = listOf(OcrRegexes.Sources.LEADING_PUNCTUATION),
+                vocab = vocab,
+                standaloneTrashWords = standaloneTrashWords
+            ) ?: continue
 
-            // Nettoyage des ponctuations orphelines en début/fin de ligne
-            cleaned = cleaned.replace(OcrRegexes.Sources.LEADING_PUNCTUATION, "").trim()
+            // Nettoyage des ponctuations orphelines en fin de ligne
             cleaned = cleaned.replace(OcrRegexes.Normalizer.TRAILING_PUNCTUATION, "").trim()
             if (cleaned.isBlank()) continue
 
@@ -39,8 +43,6 @@ object Ocr5BeautifierSource {
             val first = cleaned[0]
             if (first.isLowerCase()) {
                 cleaned = first.titlecase() + cleaned.substring(1)
-            } else {
-                // Le premier caractère est déjà une majuscule ou un chiffre
             }
 
             if (cleaned !in beautifiedList) {

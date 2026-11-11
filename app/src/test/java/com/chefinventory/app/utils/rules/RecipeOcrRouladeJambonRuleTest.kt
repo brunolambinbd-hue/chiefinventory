@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -67,35 +67,86 @@ class RecipeOcrRouladeJambonRuleTest {
         """.trimIndent()
 
         val result = RecipeOcrParser.parse(ocrText, vocabulary)
-        System.err.println("=== DEBUG RESULT TITLE = " + result.title)
 
         val ing = result.ingredients ?: ""
         val inst = result.instructions ?: ""
 
         // 1. Validation du Titre reconstitué et réparé
-        assertThat(result.title).ignoringCase().contains("Roulade de jambon de Parme et sa petite salade")
+        assertWithMessage("Le titre corrompu 'Koulade... s' doit être réparé en 'Roulade de jambon de Parme et sa petite salade'")
+            .that(result.title)
+            .ignoringCase()
+            .contains("Roulade de jambon de Parme et sa petite salade")
 
         // 2. Validation des portions et temps
-        assertThat(result.servings).isEqualTo("4")
-        assertThat(result.prepTime).isEqualTo("15")
+        assertWithMessage("Le nombre de personnes extrait doit valoir '4'")
+            .that(result.servings)
+            .isEqualTo("4")
 
-        // 3. Validation des ingrédients de la section du bas (sans pollution d'instructions ni de vin)
-        System.err.println("=== REAL INGREDIENTS RESULT ===\n" + ing)
-        assertThat(ing).ignoringCase().contains("2 ou 3 paquets")
-        assertThat(ing).ignoringCase().contains("jambon de Parme en fines tranches")
-        assertThat(ing).ignoringCase().contains("ravier de salade de blé")
-        assertThat(ing).ignoringCase().contains("croûtons")
-        assertThat(ing).ignoringCase().contains("3 c. à soupe")
-        assertThat(ing).ignoringCase().doesNotContain("Répartissez")
-        assertThat(ing).ignoringCase().doesNotContain("roulées")
-        assertThat(ing).ignoringCase().doesNotContain("Notre")
-        assertThat(ing).ignoringCase().doesNotContain("Conseil vin")
+        assertWithMessage("Le temps de préparation extrait doit valoir 15 minutes")
+            .that(result.prepTime)
+            .isEqualTo("15")
+
+        // 3. Validation des ingrédients de la section du bas
+        assertWithMessage("Les ingrédients doivent contenir '2 ou 3 paquets'")
+            .that(ing)
+            .ignoringCase()
+            .contains("2 ou 3 paquets")
+
+        assertWithMessage("Les ingrédients doivent contenir 'jambon de Parme en fines tranches'")
+            .that(ing)
+            .ignoringCase()
+            .contains("jambon de Parme en fines tranches")
+
+        assertWithMessage("Les ingrédients doivent contenir 'ravier de salade de blé'")
+            .that(ing)
+            .ignoringCase()
+            .contains("ravier de salade de blé")
+
+        assertWithMessage("Les ingrédients doivent contenir 'croûtons'")
+            .that(ing)
+            .ignoringCase()
+            .contains("croûtons")
+
+        assertWithMessage("Les ingrédients doivent contenir '3 c. à soupe'")
+            .that(ing)
+            .ignoringCase()
+            .contains("3 c. à soupe")
+
+        assertWithMessage("L'instruction 'Répartissez' ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("Répartissez")
+
+        assertWithMessage("La consigne 'roulées' ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("roulées")
+
+        assertWithMessage("Le mot 'Notre' ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("Notre")
+
+        assertWithMessage("L'en-tête 'Conseil vin' ne doit pas fuiter dans les ingrédients")
+            .that(ing)
+            .ignoringCase()
+            .doesNotContain("Conseil vin")
 
         // 4. Validation des instructions fluides du haut
-        assertThat(inst).ignoringCase().contains("Nettoyez la salade de blé")
-        assertThat(inst).ignoringCase().contains("Egouttez les petites boules de melon")
+        assertWithMessage("Les instructions doivent contenir 'Nettoyez la salade de blé'")
+            .that(inst)
+            .ignoringCase()
+            .contains("Nettoyez la salade de blé")
+
+        assertWithMessage("Les instructions doivent contenir 'Egouttez les petites boules de melon'")
+            .that(inst)
+            .ignoringCase()
+            .contains("Egouttez les petites boules de melon")
 
         // 5. Validation de la recommandation de vin
-        assertThat(result.wine).ignoringCase().contains("MDC")
+        assertWithMessage("La recommandation de vin doit contenir 'MDC'")
+            .that(result.wine)
+            .ignoringCase()
+            .contains("MDC")
     }
 }

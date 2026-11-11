@@ -75,4 +75,59 @@ object Ocr5Beautifier {
     fun beautifySources(sources: List<String>): List<String> {
         return Ocr5BeautifierSource.beautifySources(sources)
     }
+
+    /**
+     * Filtre les bruits de symboles et glyphes non-alphanumériques de l'Étape 5 pour tous les embellisseurs.
+     *
+     * @return La liste nettoyée des lignes exemptes de bruits de symboles purs.
+     */
+    internal fun List<String>.filterBeautifierNoise(): List<String> =
+        filterNot { OcrTextUtils.isNonAlphanumericNoise(it) }
+
+    /**
+     * Assainit, dépollue et valide une ligne de texte individuelle pour la Phase 5 (Beautifier).
+     *
+     * @return La ligne nettoyée, ou `null` si la ligne est du bruit à éliminer.
+     */
+    internal fun sanitizeLine(
+        line: String,
+        spellingRepairs: List<String> = emptyList(),
+        prefixPatterns: List<Regex> = emptyList(),
+        vocab: OcrVocabulary = OcrVocabularyLoader.loadFromProjectResources(),
+        standaloneTrashWords: Set<String> = emptySet(),
+        headerTrashWords: Set<String> = emptySet(),
+        hasActionVerb: Boolean = false
+    ): String? {
+        var cleaned = line.trim()
+        if (spellingRepairs.isNotEmpty()) {
+            cleaned = Ocr1Corrector.applySpellingRepairs(cleaned, spellingRepairs)
+        }
+        for (pattern in prefixPatterns) {
+            cleaned = cleaned.replace(pattern, "")
+        }
+        cleaned = cleaned.trim()
+        if (cleaned.isEmpty()) return null
+
+        val lower = cleaned.lowercase().removeSuffix(".")
+
+        val isOcrNoise = OcrTextUtils.isNonAlphanumericNoise(cleaned) ||
+                vocab.ocrNoiseExclusions.any { noise -> noise.isNotBlank() && cleaned.contains(noise, ignoreCase = true) }
+
+        val isRecipeHeaderTrash = if (!hasActionVerb && headerTrashWords.isNotEmpty()) {
+            vocab.excludedOcrKeywords.any { kw ->
+                val cleanKw = kw.trim()
+                cleanKw.isNotEmpty() && Regex("(?i)(?<![\\p{L}\\p{N}])${Regex.escape(cleanKw)}(?![\\p{L}\\p{N}])").containsMatchIn(cleaned)
+            } || isOcrNoise
+        } else {
+            false
+        }
+
+        val isShortNoise = OcrTextUtils.isShortNoise(cleaned, standaloneTrashWords, hasActionVerb)
+
+        if (lower in headerTrashWords || lower in standaloneTrashWords || isRecipeHeaderTrash || isShortNoise) {
+            return null
+        }
+
+        return cleaned
+    }
 }

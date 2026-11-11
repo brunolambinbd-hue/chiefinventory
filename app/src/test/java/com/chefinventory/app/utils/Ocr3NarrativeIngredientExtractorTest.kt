@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -22,11 +22,15 @@ class Ocr3NarrativeIngredientExtractorTest {
     fun testFormatImpliedIngredient_NullQuantityAndShortName_ReturnsNull() {
         val parsedNullQty = IngredientParser.ParsedIngredient(name = "farine", quantity = null)
         val resNull = Ocr3NarrativeIngredientExtractor.formatImpliedIngredient(parsedNullQty, emptySet())
-        assertThat(resNull).isNull()
+        assertWithMessage("Un ingrédient implicite sans quantité doit retourner null")
+            .that(resNull)
+            .isNull()
 
         val parsedBlankName = IngredientParser.ParsedIngredient(name = "  ", quantity = 1.0)
         val resBlank = Ocr3NarrativeIngredientExtractor.formatImpliedIngredient(parsedBlankName, emptySet())
-        assertThat(resBlank).isNull()
+        assertWithMessage("Un ingrédient implicite avec nom blanc doit retourner null")
+            .that(resBlank)
+            .isNull()
     }
 
     @Test
@@ -36,7 +40,9 @@ class Ocr3NarrativeIngredientExtractorTest {
         val vocabShortAction = vocabulary.copy(stepActionKeywords = listOf("va", "couper", "mélanger"))
         val results1 = RawSections()
         Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(listOf("Incorporez 2 g de va farine."), vocabShortAction, results1)
-        assertThat(results1.rawIngredientsList).contains("2 g farine")
+        assertWithMessage("L'ingrédient implicite '2 g farine' doit être extrait après purge du verbe court")
+            .that(results1.rawIngredientsList)
+            .contains("2 g farine")
 
         // 2. Technical dimension in parsed.name (covers isTechName == true, L129)
         val results2 = RawSections()
@@ -45,14 +51,24 @@ class Ocr3NarrativeIngredientExtractorTest {
         // 3. Partial seasoning where "poivre" is already in seenKeywords from Step 2
         val results3 = RawSections()
         Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(listOf("Ajoutez 2 g de poivre.", "Assaisonnez avec du sel et du poivre."), vocabulary, results3)
-        assertThat(results3.rawIngredientsList).contains("2 g poivre")
-        assertThat(results3.rawIngredientsList).doesNotContain("Sel et poivre")
+        assertWithMessage("L'ingrédient '2 g poivre' doit être conservé")
+            .that(results3.rawIngredientsList)
+            .contains("2 g poivre")
+
+        assertWithMessage("Le doublon 'Sel et poivre' ne doit pas être ré-ajouté")
+            .that(results3.rawIngredientsList)
+            .doesNotContain("Sel et poivre")
 
         // 4. Partial seasoning where "sel" is already in seenKeywords from Step 2
         val results4 = RawSections()
         Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(listOf("Ajoutez 2 g de sel.", "Assaisonnez avec du sel et du poivre."), vocabulary, results4)
-        assertThat(results4.rawIngredientsList).contains("2 g sel")
-        assertThat(results4.rawIngredientsList).doesNotContain("Sel et poivre")
+        assertWithMessage("L'ingrédient '2 g sel' doit être conservé")
+            .that(results4.rawIngredientsList)
+            .contains("2 g sel")
+
+        assertWithMessage("Le doublon 'Sel et poivre' ne doit pas être ré-ajouté")
+            .that(results4.rawIngredientsList)
+            .doesNotContain("Sel et poivre")
     }
 
     @Test
@@ -67,19 +83,41 @@ class Ocr3NarrativeIngredientExtractorTest {
 
         Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(instructions, vocabulary, results)
 
-        assertThat(results.rawIngredientsList).contains("2 g farine de blé")
+        assertWithMessage("L'ingrédient implicite '2 g farine de blé' doit être extrait")
+            .that(results.rawIngredientsList)
+            .contains("2 g farine de blé")
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testIsDurationOrTime_DetectsDurationsAndTemperaturesAndRejectsFood() {
-        assertThat(Ocr3NarrativeIngredientExtractor.isDurationOrTime("15 min", "min", "minutes")).isTrue()
-        assertThat(Ocr3NarrativeIngredientExtractor.isDurationOrTime("20 mn", "mn", "mn")).isTrue()
-        assertThat(Ocr3NarrativeIngredientExtractor.isDurationOrTime("30 sec", "sec", "secondes")).isTrue()
-        assertThat(Ocr3NarrativeIngredientExtractor.isDurationOrTime("2 h", "h", "heures")).isTrue()
-        assertThat(Ocr3NarrativeIngredientExtractor.isDurationOrTime("180°C", null, "180°C")).isTrue()
-        assertThat(Ocr3NarrativeIngredientExtractor.isDurationOrTime("200 °", null, "200 °")).isTrue()
-        assertThat(Ocr3NarrativeIngredientExtractor.isDurationOrTime("200 g de farine", "g", "farine")).isFalse()
+        assertWithMessage("La durée '15 min' doit être qualifiée de temps")
+            .that(Ocr3NarrativeIngredientExtractor.isDurationOrTime("15 min", "min", "minutes"))
+            .isTrue()
+
+        assertWithMessage("La durée '20 mn' doit être qualifiée de temps")
+            .that(Ocr3NarrativeIngredientExtractor.isDurationOrTime("20 mn", "mn", "mn"))
+            .isTrue()
+
+        assertWithMessage("La durée '30 sec' doit être qualifiée de temps")
+            .that(Ocr3NarrativeIngredientExtractor.isDurationOrTime("30 sec", "sec", "secondes"))
+            .isTrue()
+
+        assertWithMessage("La durée '2 h' doit être qualifiée de temps")
+            .that(Ocr3NarrativeIngredientExtractor.isDurationOrTime("2 h", "h", "heures"))
+            .isTrue()
+
+        assertWithMessage("La température '180°C' doit être qualifiée de temps/température")
+            .that(Ocr3NarrativeIngredientExtractor.isDurationOrTime("180°C", null, "180°C"))
+            .isTrue()
+
+        assertWithMessage("La température '200 °' doit être qualifiée de temps/température")
+            .that(Ocr3NarrativeIngredientExtractor.isDurationOrTime("200 °", null, "200 °"))
+            .isTrue()
+
+        assertWithMessage("La quantité d'aliment '200 g de farine' ne doit pas être qualifiée de durée/température")
+            .that(Ocr3NarrativeIngredientExtractor.isDurationOrTime("200 g de farine", "g", "farine"))
+            .isFalse()
     }
 
     @Test
@@ -95,10 +133,21 @@ class Ocr3NarrativeIngredientExtractorTest {
 
         Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(instructions, vocabulary, results)
 
-        assertThat(results.rawIngredientsList).contains("0.5 l lait")
-        assertThat(results.rawIngredientsList).contains("3 oeufs")
-        assertThat(results.rawIngredientsList).contains("250 g farine")
-        assertThat(results.rawIngredientsList).contains("Sel")
+        assertWithMessage("L'ingrédient implicite '0.5 l lait' doit être extrait")
+            .that(results.rawIngredientsList)
+            .contains("0.5 l lait")
+
+        assertWithMessage("L'ingrédient implicite '3 oeufs' doit être extrait")
+            .that(results.rawIngredientsList)
+            .contains("3 oeufs")
+
+        assertWithMessage("L'ingrédient implicite '250 g farine' doit être extrait")
+            .that(results.rawIngredientsList)
+            .contains("250 g farine")
+
+        assertWithMessage("L'assaisonnement implicite 'Sel' doit être extrait")
+            .that(results.rawIngredientsList)
+            .contains("Sel")
     }
 
     @Test
@@ -118,8 +167,13 @@ class Ocr3NarrativeIngredientExtractorTest {
 
         Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(instructions, vocabulary, results)
 
-        assertThat(results.rawIngredientsList).contains("2 g ail et sur")
-        assertThat(results.rawIngredientsList).contains("Poivre")
+        assertWithMessage("L'ingrédient implicite '2 g ail et sur' doit être extrait")
+            .that(results.rawIngredientsList)
+            .contains("2 g ail et sur")
+
+        assertWithMessage("L'assaisonnement implicite 'Poivre' doit être extrait")
+            .that(results.rawIngredientsList)
+            .contains("Poivre")
     }
 
     @Test
@@ -128,6 +182,8 @@ class Ocr3NarrativeIngredientExtractorTest {
         val results = RawSections()
         Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(emptyList(), vocabulary, results)
 
-        assertThat(results.rawIngredientsList).isEmpty()
+        assertWithMessage("Une liste d'instructions vide doit laisser la liste d'ingrédients bruts vide")
+            .that(results.rawIngredientsList)
+            .isEmpty()
     }
 }

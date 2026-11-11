@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -31,9 +31,13 @@ class OcrBeautifierInstructionPrefixRuleTest {
 
         val inst = result.instructions ?: ""
 
-        // Validation : "De 1 Plongez..." doit être nettoyé en "Plongez..."
-        assertThat(inst).startsWith("Plongez les aubergines")
-        assertThat(inst).doesNotContain("De 1 Plongez")
+        assertWithMessage("Les instructions doivent démarrer par 'Plongez les aubergines'")
+            .that(inst)
+            .startsWith("Plongez les aubergines")
+
+        assertWithMessage("Le préfixe parasite 'De 1 Plongez' doit être effacé")
+            .that(inst)
+            .doesNotContain("De 1 Plongez")
     }
 
     @Test
@@ -53,15 +57,37 @@ class OcrBeautifierInstructionPrefixRuleTest {
 
         val inst = result.instructions ?: ""
 
-        assertThat(inst).contains("Hachez finement le surimi")
-        assertThat(inst).contains("Mélangez avec la mayonnaise")
-        assertThat(inst).contains("Disposez un peu de salade")
-        assertThat(inst).contains("Servez avec les toasts")
+        assertWithMessage("La consigne nettoyée doit contenir 'Hachez finement le surimi'")
+            .that(inst)
+            .contains("Hachez finement le surimi")
 
-        assertThat(inst).doesNotContain("Du 2 Hachez")
-        assertThat(inst).doesNotContain("Des 3 Mélangez")
-        assertThat(inst).doesNotContain("Le 10 Disposez")
-        assertThat(inst).doesNotContain("e 1 Servez")
+        assertWithMessage("La consigne nettoyée doit contenir 'Mélangez avec la mayonnaise'")
+            .that(inst)
+            .contains("Mélangez avec la mayonnaise")
+
+        assertWithMessage("La consigne nettoyée doit contenir 'Disposez un peu de salade'")
+            .that(inst)
+            .contains("Disposez un peu de salade")
+
+        assertWithMessage("La consigne nettoyée doit contenir 'Servez avec les toasts'")
+            .that(inst)
+            .contains("Servez avec les toasts")
+
+        assertWithMessage("Le préfixe parasite 'Du 2 Hachez' doit être éliminé")
+            .that(inst)
+            .doesNotContain("Du 2 Hachez")
+
+        assertWithMessage("Le préfixe parasite 'Des 3 Mélangez' doit être éliminé")
+            .that(inst)
+            .doesNotContain("Des 3 Mélangez")
+
+        assertWithMessage("Le préfixe parasite 'Le 10 Disposez' doit être éliminé")
+            .that(inst)
+            .doesNotContain("Le 10 Disposez")
+
+        assertWithMessage("Le préfixe parasite 'e 1 Servez' doit être éliminé")
+            .that(inst)
+            .doesNotContain("e 1 Servez")
     }
 
     @Test
@@ -79,9 +105,17 @@ class OcrBeautifierInstructionPrefixRuleTest {
 
         val inst = result.instructions ?: ""
 
-        assertThat(inst).contains("Décorez éventuellement de quelques brins de ciboulette.")
-        assertThat(inst).doesNotContain("Les.")
-        assertThat(inst).doesNotContain("Les")
+        assertWithMessage("La consigne valide 'Décorez éventuellement de quelques brins de ciboulette.' doit être conservée")
+            .that(inst)
+            .contains("Décorez éventuellement de quelques brins de ciboulette.")
+
+        assertWithMessage("L'article orphelin de fin de page 'Les.' ne doit pas figurer")
+            .that(inst)
+            .doesNotContain("Les.")
+
+        assertWithMessage("L'article orphelin 'Les' ne doit pas figurer")
+            .that(inst)
+            .doesNotContain("Les")
     }
 
     @Test
@@ -99,8 +133,16 @@ class OcrBeautifierInstructionPrefixRuleTest {
 
         val inst = result.instructions ?: ""
 
-        assertThat(inst).contains("Décorez éventuellement de quelques brins de ciboulette.")
-        assertThat(inst).doesNotContain("Əgo1928")
-        assertThat(inst).doesNotContain("RECETTES")
+        assertWithMessage("La consigne valide 'Décorez éventuellement de quelques brins de ciboulette.' doit être conservée")
+            .that(inst)
+            .contains("Décorez éventuellement de quelques brins de ciboulette.")
+
+        assertWithMessage("Le bruit de numérisation 'Əgo1928' doit être éliminé")
+            .that(inst)
+            .doesNotContain("Əgo1928")
+
+        assertWithMessage("Le mot-clé d'en-tête 'RECETTES' doit être éliminé")
+            .that(inst)
+            .doesNotContain("RECETTES")
     }
 }

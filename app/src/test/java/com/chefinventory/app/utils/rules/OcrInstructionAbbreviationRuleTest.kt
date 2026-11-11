@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -31,9 +31,16 @@ class OcrInstructionAbbreviationRuleTest {
 
         val inst = result.instructions ?: ""
 
-        // Validation : "aux 4 c." + "À soupe de yaourt." doivent être recollés en "aux 4 c. à soupe de yaourt."
-        assertThat(inst).contains("aux 4 c. à soupe de yaourt.")
-        assertThat(inst).doesNotContain("aux 4 c.\n")
-        assertThat(inst).doesNotContain("À soupe")
+        assertWithMessage("L'abréviation 'c.' ne doit pas couper la phrase et doit être recollée en 'aux 4 c. à soupe de yaourt.'")
+            .that(inst)
+            .contains("aux 4 c. à soupe de yaourt.")
+
+        assertWithMessage("La consigne ne doit pas être coupée après 'c.'")
+            .that(inst)
+            .doesNotContain("aux 4 c.\n")
+
+        assertWithMessage("La majuscule 'À' de 'À soupe' doit passer en minuscule 'à'")
+            .that(inst)
+            .doesNotContain("À soupe")
     }
 }

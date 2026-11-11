@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -43,7 +43,9 @@ class RecipeOcrCrabeMangueRuleTest {
 
         val result = RecipeOcrParser.parse(ocrText, vocabulary)
 
-        // Validation du titre réparé : "Drabe mangue" -> "Crabe mangue"
-        assertThat(result.title).ignoringCase().contains("Crabe mangue")
+        assertWithMessage("La lettrine/faute du titre 'Drabe mangue' doit être réparée en 'Crabe mangue'")
+            .that(result.title)
+            .ignoringCase()
+            .contains("Crabe mangue")
     }
 }

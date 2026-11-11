@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.Ocr3Categorizer
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -21,7 +21,9 @@ class Ocr3CategorizerRuleTest {
         val input = listOf("Chef Nahit YILMAZ")
         val result = Ocr3Categorizer.categorize(input, baseVocabulary)
 
-        assertThat(result.detectedSourceList).isNotEmpty()
+        assertWithMessage("Le nom propre de chef 'Chef Nahit YILMAZ' doit être préservé dans la liste des sources")
+            .that(result.detectedSourceList)
+            .isNotEmpty()
     }
 
     @Test
@@ -29,8 +31,13 @@ class Ocr3CategorizerRuleTest {
         val input = listOf("6 aubergines 150 g de beurre M.O.")
         val result = Ocr3Categorizer.categorize(input, baseVocabulary)
 
-        assertThat(result.detectedWineList).isEmpty()
-        assertThat(result.rawIngredientsList).contains("6 aubergines 150 g de beurre M.O.")
+        assertWithMessage("Une ligne d'ingrédients quantifiés avec M.O. ne doit pas être classée comme vin")
+            .that(result.detectedWineList)
+            .isEmpty()
+
+        assertWithMessage("La ligne doit être conservée dans les ingrédients bruts")
+            .that(result.rawIngredientsList)
+            .contains("6 aubergines 150 g de beurre M.O.")
     }
 
     @Test
@@ -44,11 +51,14 @@ class Ocr3CategorizerRuleTest {
         )
         val result = Ocr3Categorizer.categorize(input, baseVocabulary)
 
-        assertThat(result.detectedWineList).containsExactly(
-            "Château de la Fossardière",
-            "Muscadet de Sèvre-et-Maine sur Lie",
-            "MDC, 1996, 75 cl"
-        ).inOrder()
+        assertWithMessage("La section vin doit extraire les 3 lignes de recommandation de vin")
+            .that(result.detectedWineList)
+            .containsExactly(
+                "Château de la Fossardière",
+                "Muscadet de Sèvre-et-Maine sur Lie",
+                "MDC, 1996, 75 cl"
+            )
+            .inOrder()
     }
 
     @Test
@@ -61,11 +71,17 @@ class Ocr3CategorizerRuleTest {
         )
         val result = Ocr3Categorizer.categorize(input, baseVocabulary)
 
-        assertThat(result.detectedWineList).containsExactly(
-            "Château de la Fossardière",
-            "MDC, 1996, 75 cl"
-        ).inOrder()
-        assertThat(result.rawInstructionsList).doesNotContain("CHATEAU ala FoSARDJERE")
+        assertWithMessage("La section vin doit être fermée après la ligne de volume '75 cl'")
+            .that(result.detectedWineList)
+            .containsExactly(
+                "Château de la Fossardière",
+                "MDC, 1996, 75 cl"
+            )
+            .inOrder()
+
+        assertWithMessage("Le bruit d'étiquette de bouteille ne doit pas fuiter vers les instructions")
+            .that(result.rawInstructionsList)
+            .doesNotContain("CHATEAU ala FoSARDJERE")
     }
 
     @Test
@@ -79,12 +95,21 @@ class Ocr3CategorizerRuleTest {
         )
         val result = Ocr3Categorizer.categorize(input, baseVocabulary)
 
-        assertThat(result.rawInstructionsList).containsExactly("Servez avec la vinaigrette dans laquelle vous tremperez les feuilles et le cœur.")
-        assertThat(result.detectedWineList).containsExactly(
-            "Château de la Fossardière",
-            "MDC, 1996, 75 cl"
-        ).inOrder()
-        assertThat(result.rawInstructionsList).doesNotContain("ala FoSARDJERE")
+        assertWithMessage("La consigne d'instruction doit être conservée")
+            .that(result.rawInstructionsList)
+            .containsExactly("Servez avec la vinaigrette dans laquelle vous tremperez les feuilles et le cœur.")
+
+        assertWithMessage("Le bloc de vin doit être extrait dans detectedWineList")
+            .that(result.detectedWineList)
+            .containsExactly(
+                "Château de la Fossardière",
+                "MDC, 1996, 75 cl"
+            )
+            .inOrder()
+
+        assertWithMessage("Le bruit de bas de page ne doit pas figurer dans les instructions")
+            .that(result.rawInstructionsList)
+            .doesNotContain("ala FoSARDJERE")
     }
 
     @Test
@@ -97,8 +122,13 @@ class Ocr3CategorizerRuleTest {
         )
         val result = Ocr3Categorizer.categorize(input, baseVocabulary)
 
-        assertThat(result.detectedWineList).isEmpty()
-        assertThat(result.rawIngredientsList).contains("4 c. à soupe de vinaigre de vin blanc")
+        assertWithMessage("L'ingrédient 'vinaigre de vin blanc' ne doit pas être classé comme vin")
+            .that(result.detectedWineList)
+            .isEmpty()
+
+        assertWithMessage("L'ingrédient complet '4 c. à soupe de vinaigre de vin blanc' doit figurer dans rawIngredientsList")
+            .that(result.rawIngredientsList)
+            .contains("4 c. à soupe de vinaigre de vin blanc")
     }
 
     @Test
@@ -111,8 +141,13 @@ class Ocr3CategorizerRuleTest {
         )
         val result = Ocr3Categorizer.categorize(input, baseVocabulary)
 
-        assertThat(result.rawIngredientsList).doesNotContain("les feuilles et le cœur.")
-        assertThat(result.rawInstructionsList).contains("les feuilles et le cœur.")
+        assertWithMessage("La suite de la consigne d'instruction ne doit pas être volée par les ingrédients")
+            .that(result.rawIngredientsList)
+            .doesNotContain("les feuilles et le cœur.")
+
+        assertWithMessage("La suite de la consigne doit rester dans rawInstructionsList")
+            .that(result.rawInstructionsList)
+            .contains("les feuilles et le cœur.")
     }
 
     @Test
@@ -123,6 +158,8 @@ class Ocr3CategorizerRuleTest {
         val input = listOf("flamber_test les crêpes")
         val result = Ocr3Categorizer.categorize(input, customVocabulary)
 
-        assertThat(result.rawInstructionsList).contains("flamber_test les crêpes")
+        assertWithMessage("Le mot-clé personnalisé 'flamber_test' doit orienter la ligne vers les instructions")
+            .that(result.rawInstructionsList)
+            .contains("flamber_test les crêpes")
     }
 }

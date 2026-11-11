@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -20,17 +20,33 @@ class Ocr3CategorizerWineCleanerTest {
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testObjectGeneratedMethodsCoverage() {
-        assertThat(Ocr3CategorizerWineCleaner.toString()).contains("Ocr3CategorizerWineCleaner")
+        assertWithMessage("Le composant Ocr3CategorizerWineCleaner doit générer une représentation textuelle valide")
+            .that(Ocr3CategorizerWineCleaner.toString())
+            .contains("Ocr3CategorizerWineCleaner")
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testHasWineVolume_AllCases() {
-        assertThat(Ocr3CategorizerWineCleaner.hasWineVolume("Bouteille de 75 cl")).isTrue()
-        assertThat(Ocr3CategorizerWineCleaner.hasWineVolume("75cl")).isTrue()
-        assertThat(Ocr3CategorizerWineCleaner.hasWineVolume("37.5 cl")).isTrue()
-        assertThat(Ocr3CategorizerWineCleaner.hasWineVolume("1.5 l")).isTrue()
-        assertThat(Ocr3CategorizerWineCleaner.hasWineVolume("Farine")).isFalse()
+        assertWithMessage("La ligne 'Bouteille de 75 cl' doit être reconnue comme ayant un volume de vin")
+            .that(Ocr3CategorizerWineCleaner.hasWineVolume("Bouteille de 75 cl"))
+            .isTrue()
+
+        assertWithMessage("Le volume collé '75cl' doit être reconnu")
+            .that(Ocr3CategorizerWineCleaner.hasWineVolume("75cl"))
+            .isTrue()
+
+        assertWithMessage("Le volume décimal '37.5 cl' doit être reconnu")
+            .that(Ocr3CategorizerWineCleaner.hasWineVolume("37.5 cl"))
+            .isTrue()
+
+        assertWithMessage("Le volume en litres '1.5 l' doit être reconnu")
+            .that(Ocr3CategorizerWineCleaner.hasWineVolume("1.5 l"))
+            .isTrue()
+
+        assertWithMessage("Le mot 'Farine' sans volume doit retourner faux")
+            .that(Ocr3CategorizerWineCleaner.hasWineVolume("Farine"))
+            .isFalse()
     }
 
     @Test
@@ -38,7 +54,9 @@ class Ocr3CategorizerWineCleanerTest {
     fun testCleanWineLine_HeaderRemovalAndSpellingCorrections() {
         val input = "Notre vin conseillé : Un Bordeau 1996 75 cl"
         val cleaned = Ocr3CategorizerWineCleaner.cleanWineLine(input, vocabulary)
-        assertThat(cleaned).isEqualTo("Un Bordeaux 1996 75 cl")
+        assertWithMessage("L'en-tête 'Notre vin conseillé :' doit être nettoyé et la faute 'Bordeau' réparée en 'Bordeaux'")
+            .that(cleaned)
+            .isEqualTo("Un Bordeaux 1996 75 cl")
     }
 
     @Test
@@ -52,13 +70,17 @@ class Ocr3CategorizerWineCleanerTest {
             removePattern = ""
         )
         val cleaned = Ocr3CategorizerWineCleaner.cleanWineLine("Un Bordeau 1996", emptyRemovePatternRes)
-        assertThat(cleaned).isEqualTo("Un Bordeaux 1996")
+        assertWithMessage("Le nettoyage de vin avec un motif de suppression vide doit réparer 'Bordeau' sans erreur")
+            .that(cleaned)
+            .isEqualTo("Un Bordeaux 1996")
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testApplySpellingCorrections_DirectCall() {
         val corrected = Ocr3CategorizerWineCleaner.applySpellingCorrections("Un Bordeau Atinum")
-        assertThat(corrected).contains("Bordeaux")
+        assertWithMessage("Les corrections orthographiques doivent réparer 'Bordeau' en 'Bordeaux'")
+            .that(corrected)
+            .contains("Bordeaux")
     }
 }

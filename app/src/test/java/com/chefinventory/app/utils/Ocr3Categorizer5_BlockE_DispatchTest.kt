@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -25,45 +25,69 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testIsEndMarkerLine_AllVariants() {
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("sel et poivre")).isTrue()
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("sel, poivre")).isTrue()
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("sel")).isTrue()
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("poivre")).isTrue()
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("farine")).isFalse()
+        assertWithMessage("La ligne 'sel et poivre' doit être reconnue comme marqueur de fin")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("sel et poivre"))
+            .isTrue()
+
+        assertWithMessage("La ligne 'sel, poivre' doit être reconnue comme marqueur de fin")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("sel, poivre"))
+            .isTrue()
+
+        assertWithMessage("Le mot 'sel' seul doit être reconnu comme marqueur de fin")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("sel"))
+            .isTrue()
+
+        assertWithMessage("Le mot 'poivre' seul doit être reconnu comme marqueur de fin")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("poivre"))
+            .isTrue()
+
+        assertWithMessage("Le mot 'farine' ne doit pas être reconnu comme marqueur de fin")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine("farine"))
+            .isFalse()
     }
 
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testEvaluateShouldPullBack_AllBranches() {
         // 1. isReappearance = true -> false
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
-            isReappearance = true, isHyphenatedInstruction = false, isEndMarkerLine = false,
-            containsAction = false, closedState = false, isStrictWithQty = true, isCommonWithNoAction = true
-        )).isFalse()
+        assertWithMessage("Une réapparition d'ingrédient ne doit pas provoquer de recul vers la section précédente")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
+                isReappearance = true, isHyphenatedInstruction = false, isEndMarkerLine = false,
+                containsAction = false, closedState = false, isStrictWithQty = true, isCommonWithNoAction = true
+            ))
+            .isFalse()
 
         // 2. isHyphenatedInstruction = true -> false
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
-            isReappearance = false, isHyphenatedInstruction = true, isEndMarkerLine = false,
-            containsAction = false, closedState = false, isStrictWithQty = true, isCommonWithNoAction = true
-        )).isFalse()
+        assertWithMessage("Une instruction avec césure ne doit pas provoquer de recul")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
+                isReappearance = false, isHyphenatedInstruction = true, isEndMarkerLine = false,
+                containsAction = false, closedState = false, isStrictWithQty = true, isCommonWithNoAction = true
+            ))
+            .isFalse()
 
         // 3. isEndMarkerLine && !containsAction -> true
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
-            isReappearance = false, isHyphenatedInstruction = false, isEndMarkerLine = true,
-            containsAction = false, closedState = false, isStrictWithQty = false, isCommonWithNoAction = false
-        )).isTrue()
+        assertWithMessage("Un marqueur de fin sans action doit provoquer le recul de classification vers les ingrédients")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
+                isReappearance = false, isHyphenatedInstruction = false, isEndMarkerLine = true,
+                containsAction = false, closedState = false, isStrictWithQty = false, isCommonWithNoAction = false
+            ))
+            .isTrue()
 
         // 4. closedState = true with isCommonWithNoAction = true
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
-            isReappearance = false, isHyphenatedInstruction = false, isEndMarkerLine = false,
-            containsAction = false, closedState = true, isStrictWithQty = false, isCommonWithNoAction = true
-        )).isTrue()
+        assertWithMessage("Un ingrédient connu sans action dans une liste fermée doit provoquer le recul")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
+                isReappearance = false, isHyphenatedInstruction = false, isEndMarkerLine = false,
+                containsAction = false, closedState = true, isStrictWithQty = false, isCommonWithNoAction = true
+            ))
+            .isTrue()
 
         // 5. closedState = false with isStrictWithQty = true
-        assertThat(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
-            isReappearance = false, isHyphenatedInstruction = false, isEndMarkerLine = false,
-            containsAction = false, closedState = false, isStrictWithQty = true, isCommonWithNoAction = false
-        )).isTrue()
+        assertWithMessage("Un ingrédient avec quantité stricte doit provoquer le recul vers la section ingrédients")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
+                isReappearance = false, isHyphenatedInstruction = false, isEndMarkerLine = false,
+                containsAction = false, closedState = false, isStrictWithQty = true, isCommonWithNoAction = false
+            ))
+            .isTrue()
     }
 
     @Test
@@ -90,8 +114,13 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closed1).isFalse()
-        assertThat(results.rawIngredientsList).contains("200 g de farine")
+        assertWithMessage("L'ingrédient '200 g de farine' ne doit pas fermer la liste des ingrédients")
+            .that(closed1)
+            .isFalse()
+
+        assertWithMessage("L'ingrédient doit être ajouté dans rawIngredientsList")
+            .that(results.rawIngredientsList)
+            .contains("200 g de farine")
 
         // 2. Dispatch INGREDIENTS section end-marker ("sel et poivre")
         val closed2 = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
@@ -111,7 +140,9 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closed2).isTrue()
+        assertWithMessage("Le marqueur de fin 'sel et poivre' doit fermer la liste des ingrédients")
+            .that(closed2)
+            .isTrue()
 
         // 3. Dispatch INGREDIENTS section with containsAction = true
         val closedActionIngr = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
@@ -131,7 +162,9 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedActionIngr).isFalse()
+        assertWithMessage("Une ligne avec verbe d'action ne doit pas fermer immédiatement la liste")
+            .that(closedActionIngr)
+            .isFalse()
 
         // 4. Dispatch INSTRUCTIONS section ("Faire cuire au four")
         val closed3 = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
@@ -151,8 +184,13 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closed3).isTrue()
-        assertThat(results.rawInstructionsList).contains("Faire cuire au four")
+        assertWithMessage("Une instruction de cuisson doit marquer la liste des ingrédients comme fermée")
+            .that(closed3)
+            .isTrue()
+
+        assertWithMessage("L'instruction doit être ajoutée dans rawInstructionsList")
+            .that(results.rawInstructionsList)
+            .contains("Faire cuire au four")
     }
 
     @Test
@@ -179,7 +217,9 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedTech).isFalse()
+        assertWithMessage("Une dimension technique ne doit pas fermer la liste des ingrédients")
+            .that(closedTech)
+            .isFalse()
 
         // 2. Hyphenated instruction in SECTION_INSTRUCTIONS ("verser -")
         val closedHyphen = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
@@ -199,8 +239,13 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedHyphen).isFalse()
-        assertThat(results.rawInstructionsList).contains("verser -")
+        assertWithMessage("Une consigne d'instruction avec césure ne doit pas fermer la liste")
+            .that(closedHyphen)
+            .isFalse()
+
+        assertWithMessage("La consigne tronquée doit être ajoutée à rawInstructionsList")
+            .that(results.rawInstructionsList)
+            .contains("verser -")
 
         // 3. Technical dimension in SECTION_INSTRUCTIONS ("5 cm x 10 cm")
         val closedTechInInstructions = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
@@ -220,7 +265,9 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedTechInInstructions).isFalse()
+        assertWithMessage("Une dimension technique en section d'instructions ne doit pas fermer la liste")
+            .that(closedTechInInstructions)
+            .isFalse()
 
         // 4. Fallback SECTION_NONE looksLikeIngredient = true
         val closedNoneIngr = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
@@ -240,8 +287,13 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedNoneIngr).isFalse()
-        assertThat(results.rawIngredientsList).contains("100 g de sucre")
+        assertWithMessage("Un ingrédient en section neutre (NONE) ne doit pas fermer la liste")
+            .that(closedNoneIngr)
+            .isFalse()
+
+        assertWithMessage("L'ingrédient doit être ajouté à rawIngredientsList en fallback")
+            .that(results.rawIngredientsList)
+            .contains("100 g de sucre")
 
         // 5. Fallback SECTION_NONE startsWithConnector = true
         val closedConnectorNone = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
@@ -261,7 +313,9 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedConnectorNone).isFalse()
+        assertWithMessage("Un connecteur en section neutre ne doit pas fermer la liste")
+            .that(closedConnectorNone)
+            .isFalse()
 
         // 6. Fallback SECTION_NONE looksLikeIngredient = false
         val closedNoneInstr = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
@@ -281,8 +335,13 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedNoneInstr).isFalse()
-        assertThat(results.rawInstructionsList).contains("Remuer énergiquement")
+        assertWithMessage("Une consigne en section neutre ne doit pas fermer la liste")
+            .that(closedNoneInstr)
+            .isFalse()
+
+        assertWithMessage("La consigne d'instruction doit être ajoutée à rawInstructionsList en fallback")
+            .that(results.rawInstructionsList)
+            .contains("Remuer énergiquement")
     }
 
     @Test
@@ -309,8 +368,13 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedCommonAction).isTrue()
-        assertThat(results.rawInstructionsList).contains("couper le beurre")
+        assertWithMessage("Un ingrédient courant avec verbe d'action en section d'instructions doit maintenir la liste fermée")
+            .that(closedCommonAction)
+            .isTrue()
+
+        assertWithMessage("La consigne d'action doit être conservée dans rawInstructionsList")
+            .that(results.rawInstructionsList)
+            .contains("couper le beurre")
     }
 
     @Test
@@ -337,7 +401,9 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedTrigger).isFalse()
+        assertWithMessage("Un ingrédient ressemblant avec déclencheur d'instruction ne doit pas fermer la liste")
+            .that(closedTrigger)
+            .isFalse()
 
         // 2. startsWithBullet = true with isCommonIngredient = true in SECTION_INSTRUCTIONS ("• le beurre")
         val closedBulletBeurre = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
@@ -357,6 +423,8 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
             results = results,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(closedBulletBeurre).isFalse()
+        assertWithMessage("Un ingrédient à puce en section d'instructions ne doit pas fermer la liste")
+            .that(closedBulletBeurre)
+            .isFalse()
     }
 }

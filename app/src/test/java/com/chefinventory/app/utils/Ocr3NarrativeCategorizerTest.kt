@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -20,8 +20,13 @@ class Ocr3NarrativeCategorizerTest {
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testIsNarrativeInstructionOnlyRecipe_EmptyInput_ReturnsFalse() {
-        assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(emptyList(), vocabulary)).isFalse()
-        assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(listOf("   "), vocabulary)).isFalse()
+        assertWithMessage("Une liste de lignes vide ne doit pas être qualifiée de recette narrative")
+            .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(emptyList(), vocabulary))
+            .isFalse()
+
+        assertWithMessage("Une liste contenant uniquement un espace ne doit pas être qualifiée de recette narrative")
+            .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(listOf("   "), vocabulary))
+            .isFalse()
     }
 
     @Test
@@ -35,7 +40,9 @@ class Ocr3NarrativeCategorizerTest {
         )
 
         val isNarrative = Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(lines, vocabulary)
-        assertThat(isNarrative).isTrue()
+        assertWithMessage("Une fiche avec en-tête d'instructions sans ingrédients quantifiés doit être qualifiée de narrative")
+            .that(isNarrative)
+            .isTrue()
     }
 
     @Test
@@ -43,23 +50,35 @@ class Ocr3NarrativeCategorizerTest {
     fun testIsNarrativeInstructionOnlyRecipe_ExhaustiveHeadersAndDisqualification() {
         // Disqualified because it contains an explicit ingredient header OR instruction header + ingredient
         val linesWithIngrHeader1 = listOf("composition :", "200 g de farine", "Faire cuire au four")
-        assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithIngrHeader1, vocabulary)).isFalse()
+        assertWithMessage("L'en-tête explicite 'composition :' doit disqualifier la recette narrative")
+            .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithIngrHeader1, vocabulary))
+            .isFalse()
 
         val linesWithIngrHeader2 = listOf("ingredients :", "200 g de farine", "Faire cuire au four")
-        assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithIngrHeader2, vocabulary)).isFalse()
+        assertWithMessage("L'en-tête explicite 'ingredients :' doit disqualifier la recette narrative")
+            .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithIngrHeader2, vocabulary))
+            .isFalse()
 
         val linesWithIngrHeader3 = listOf("ngrédients :", "200 g de farine", "Faire cuire au four")
-        assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithIngrHeader3, vocabulary)).isFalse()
+        assertWithMessage("L'en-tête 'ngrédients :' doit disqualifier la recette narrative")
+            .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithIngrHeader3, vocabulary))
+            .isFalse()
 
         val linesWithBothHeaders = listOf("réalisation :", "200 g de farine", "Faire cuire")
-        assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithBothHeaders, vocabulary)).isFalse()
+        assertWithMessage("La présence d'un ingrédient quantifié avec 'réalisation :' doit disqualifier la recette narrative")
+            .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithBothHeaders, vocabulary))
+            .isFalse()
 
         // Disqualified because it has a bottom ingredient list ("pour" on line 2, "4 personnes" on line 3)
         val linesWithBottomList1 = listOf("Préparation :", "Faire cuire.", "pour 4 personnes", "200 g de farine")
-        assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithBottomList1, vocabulary)).isFalse()
+        assertWithMessage("La présence d'un bloc d'ingrédients du bas 'pour 4 personnes' doit disqualifier le mode narratif")
+            .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithBottomList1, vocabulary))
+            .isFalse()
 
         val linesWithBottomList2 = listOf("Préparation :", "Faire cuire.", "pour", "4 personnes", "200 g de farine")
-        assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithBottomList2, vocabulary)).isFalse()
+        assertWithMessage("La présence d'un bloc d'ingrédients du bas sur 2 lignes doit disqualifier le mode narratif")
+            .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithBottomList2, vocabulary))
+            .isFalse()
 
         // Test narrative headers and step number formats
         val narrativeHeaders = listOf(
@@ -68,7 +87,9 @@ class Ocr3NarrativeCategorizerTest {
             listOf("Sablé Express", "- Incorporez le beurre.")
         )
         narrativeHeaders.forEach { narrativeLines ->
-            assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(narrativeLines, vocabulary)).isTrue()
+            assertWithMessage("La variante d'instructions narratives pour '${narrativeLines[0]}' doit être qualifiée de narrative")
+                .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(narrativeLines, vocabulary))
+                .isTrue()
         }
     }
 
@@ -76,7 +97,9 @@ class Ocr3NarrativeCategorizerTest {
     @CoveredRequirement("6.1.1.9")
     fun testIsNarrativeInstructionOnlyRecipe_StandaloneLinesAndDuplicateSources() {
         val linesWithStandaloneIngr = listOf("200 g de farine", "Mélanger avec du beurre")
-        assertThat(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithStandaloneIngr, vocabulary)).isFalse()
+        assertWithMessage("Une ligne d'ingrédient autonome isolée '200 g de farine' doit disqualifier le mode narratif")
+            .that(Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithStandaloneIngr, vocabulary))
+            .isFalse()
 
         val narrativeWithDuplicates = listOf(
             "Soupe de Légumes",
@@ -85,7 +108,9 @@ class Ocr3NarrativeCategorizerTest {
             "Hôtel Hilton, Place Rogier"
         )
         val result = Ocr3NarrativeCategorizer.categorizeNarrativeRecipe(narrativeWithDuplicates, vocabulary)
-        assertThat(result.detectedSourceList).containsExactly("Hôtel Hilton, Place Rogier")
+        assertWithMessage("La liste des sources de la recette narrative doit dé-doublonner 'Hôtel Hilton, Place Rogier'")
+            .that(result.detectedSourceList)
+            .containsExactly("Hôtel Hilton, Place Rogier")
     }
 
     @Test
@@ -98,7 +123,9 @@ class Ocr3NarrativeCategorizerTest {
         )
 
         val result = Ocr3NarrativeCategorizer.categorizeNarrativeRecipe(lines, vocabulary)
-        assertThat(result.detectedSourceList).contains("Hôtel Hilton, Place Rogier")
+        assertWithMessage("La source d'établissement 'Hôtel Hilton, Place Rogier' doit être extraite dans detectedSourceList")
+            .that(result.detectedSourceList)
+            .contains("Hôtel Hilton, Place Rogier")
     }
 
     @Test
@@ -112,11 +139,18 @@ class Ocr3NarrativeCategorizerTest {
         """.trimIndent()
 
         val isNarrative = Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(ocrText.lines(), vocabulary)
-        assertThat(isNarrative).isTrue()
+        assertWithMessage("Le texte du Gâteau au chocolat express doit être qualifié de recette narrative")
+            .that(isNarrative)
+            .isTrue()
 
         val result = RecipeOcrParser.parse(ocrText, vocabulary)
-        assertThat(result.title).contains("Gâteau")
-        assertThat(result.instructions).contains("cuire au four")
+        assertWithMessage("Le titre extrait du Gâteau au chocolat express doit contenir 'Gâteau'")
+            .that(result.title)
+            .contains("Gâteau")
+
+        assertWithMessage("Les instructions doivent contenir 'cuire au four'")
+            .that(result.instructions)
+            .contains("cuire au four")
     }
 
     @Test
@@ -139,11 +173,28 @@ class Ocr3NarrativeCategorizerTest {
 
         val result = RecipeOcrParser.parse(rawOcr, vocabulary)
 
-        assertThat(result.ingredients).contains("concombre")
-        assertThat(result.ingredients).contains("yaourt")
-        assertThat(result.ingredients).contains("menthe")
-        assertThat(result.ingredients).contains("ail")
-        assertThat(result.ingredients).contains("Sel et poivre")
-        assertThat(result.instructions).contains("Versez 1 concombre")
+        assertWithMessage("L'ingrédient implicite 'concombre' doit être extrait")
+            .that(result.ingredients)
+            .contains("concombre")
+
+        assertWithMessage("L'ingrédient implicite 'yaourt' doit être extrait")
+            .that(result.ingredients)
+            .contains("yaourt")
+
+        assertWithMessage("L'ingrédient implicite 'menthe' doit être extrait")
+            .that(result.ingredients)
+            .contains("menthe")
+
+        assertWithMessage("L'ingrédient implicite 'ail' doit être extrait")
+            .that(result.ingredients)
+            .contains("ail")
+
+        assertWithMessage("L'assaisonnement implicite 'Sel et poivre' doit être extrait")
+            .that(result.ingredients)
+            .contains("Sel et poivre")
+
+        assertWithMessage("Les instructions doivent contenir 'Versez 1 concombre'")
+            .that(result.instructions)
+            .contains("Versez 1 concombre")
     }
 }

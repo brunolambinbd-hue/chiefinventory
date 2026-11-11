@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -20,8 +20,13 @@ class Ocr3InvertedCategorizerTest {
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testIsInvertedRecipe_EmptyInput_ReturnsFalse() {
-        assertThat(Ocr3InvertedCategorizer.isInvertedRecipe(emptyList(), vocabulary)).isFalse()
-        assertThat(Ocr3InvertedCategorizer.isInvertedRecipe(listOf("   "), vocabulary)).isFalse()
+        assertWithMessage("Une liste de lignes vide ne doit pas être qualifiée de recette inversée")
+            .that(Ocr3InvertedCategorizer.isInvertedRecipe(emptyList(), vocabulary))
+            .isFalse()
+
+        assertWithMessage("Une liste contenant uniquement un espace ne doit pas être qualifiée de recette inversée")
+            .that(Ocr3InvertedCategorizer.isInvertedRecipe(listOf("   "), vocabulary))
+            .isFalse()
     }
 
     @Test
@@ -37,9 +42,17 @@ class Ocr3InvertedCategorizerTest {
         )
 
         val result = Ocr3InvertedCategorizer.categorizeInvertedRecipe(lines, vocabulary)
-        assertThat(result.rawIngredientsList).contains("250 g de fraises")
-        assertThat(result.detectedSourceList).contains("Hôtel Hilton")
-        assertThat(result.detectedWineList).contains("Bordeaux 75cl")
+        assertWithMessage("Les ingrédients de la recette inversée doivent contenir '250 g de fraises'")
+            .that(result.rawIngredientsList)
+            .contains("250 g de fraises")
+
+        assertWithMessage("La source d'établissement doit être capturée ('Hôtel Hilton')")
+            .that(result.detectedSourceList)
+            .contains("Hôtel Hilton")
+
+        assertWithMessage("Le vin doit être capturé ('Bordeaux 75cl')")
+            .that(result.detectedWineList)
+            .contains("Bordeaux 75cl")
     }
 
     @Test
@@ -54,8 +67,13 @@ class Ocr3InvertedCategorizerTest {
         )
 
         val result = Ocr3InvertedCategorizer.categorizeInvertedRecipe(lines, vocabulary)
-        assertThat(result.rawIngredientsList).contains("200 g de sucre")
-        assertThat(result.detectedWineList).contains("Pinot Noir 75cl")
+        assertWithMessage("Les ingrédients doivent contenir '200 g de sucre'")
+            .that(result.rawIngredientsList)
+            .contains("200 g de sucre")
+
+        assertWithMessage("Le vin multiligne 'Pinot Noir 75cl' sous en-tête doit être capturé")
+            .that(result.detectedWineList)
+            .contains("Pinot Noir 75cl")
     }
 
     @Test
@@ -71,8 +89,9 @@ class Ocr3InvertedCategorizerTest {
 
         val result = Ocr3InvertedCategorizer.categorizeInvertedRecipe(lines, vocabulary)
 
-        // Single-line wine recommendation "Vin conseillé : Bordeaux 75cl"
-        assertThat(result.detectedWineList).contains("Bordeaux 75cl")
+        assertWithMessage("La recommandation de vin mono-ligne 'Vin conseillé : Bordeaux 75cl' doit être capturée")
+            .that(result.detectedWineList)
+            .contains("Bordeaux 75cl")
     }
 
     @Test
@@ -87,7 +106,9 @@ class Ocr3InvertedCategorizerTest {
         )
 
         val result = Ocr3InvertedCategorizer.categorizeInvertedRecipe(lines, vocabulary)
-        assertThat(result.rawIngredientsList).contains("3 pommes")
+        assertWithMessage("Les ingrédients de la recette inversée doivent contenir '3 pommes'")
+            .that(result.rawIngredientsList)
+            .contains("3 pommes")
     }
 
     @Test
@@ -115,12 +136,25 @@ class Ocr3InvertedCategorizerTest {
         """.trimIndent()
 
         val isInv = Ocr3InvertedCategorizer.isInvertedRecipe(ocrText.lines(), vocabulary)
-        assertThat(isInv).isTrue()
+        assertWithMessage("La recette 'Puits de concombre' avec instructions en premier doit être détectée comme inversée")
+            .that(isInv)
+            .isTrue()
 
         val result = RecipeOcrParser.parse(ocrText, vocabulary)
-        assertThat(result.title).ignoringCase().contains("Puits de concombre aux œufs de truite")
-        assertThat(result.ingredients).ignoringCase().contains("1 grand concombre")
-        assertThat(result.instructions).ignoringCase().contains("Découpez deux grands")
+        assertWithMessage("Le titre de la recette inversée doit être réparé en 'Puits de concombre aux œufs de truite'")
+            .that(result.title)
+            .ignoringCase()
+            .contains("Puits de concombre aux œufs de truite")
+
+        assertWithMessage("Les ingrédients doivent contenir '1 grand concombre'")
+            .that(result.ingredients)
+            .ignoringCase()
+            .contains("1 grand concombre")
+
+        assertWithMessage("Les instructions doivent contenir la première étape 'Découpez deux grands'")
+            .that(result.instructions)
+            .ignoringCase()
+            .contains("Découpez deux grands")
     }
 
     @Test
@@ -131,13 +165,17 @@ class Ocr3InvertedCategorizerTest {
             "200 g de farine",
             "100 g de beurre"
         )
-        assertThat(Ocr3InvertedCategorizer.isInvertedRecipe(lines1, vocabulary)).isFalse()
+        assertWithMessage("Une fiche avec l'en-tête explicite 'INGRÉDIENTS' ne doit pas être qualifiée d'inversée")
+            .that(Ocr3InvertedCategorizer.isInvertedRecipe(lines1, vocabulary))
+            .isFalse()
 
         val lines2 = listOf(
             "COMPOSITION",
             "200 g de farine",
             "100 g de beurre"
         )
-        assertThat(Ocr3InvertedCategorizer.isInvertedRecipe(lines2, vocabulary)).isFalse()
+        assertWithMessage("Une fiche avec l'en-tête explicite 'COMPOSITION' ne doit pas être qualifiée d'inversée")
+            .that(Ocr3InvertedCategorizer.isInvertedRecipe(lines2, vocabulary))
+            .isFalse()
     }
 }

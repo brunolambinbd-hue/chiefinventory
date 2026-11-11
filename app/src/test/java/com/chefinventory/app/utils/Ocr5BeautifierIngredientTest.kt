@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Test
 
@@ -16,7 +16,10 @@ class Ocr5BeautifierIngredientTest {
         val expected = listOf("Sel", "Poivre du moulin", "2 carottes", "Farine")
 
         val result = Ocr5BeautifierIngredient.beautifyIngredients(input)
-        assertThat(result).containsExactlyElementsIn(expected).inOrder()
+        assertWithMessage("Les ingrédients doivent être majusculés en premier caractère et les lignes vides purgées")
+            .that(result)
+            .containsExactlyElementsIn(expected)
+            .inOrder()
     }
 
     @Test
@@ -26,7 +29,9 @@ class Ocr5BeautifierIngredientTest {
         val expected = listOf("200 g de farine")
 
         val result = Ocr5BeautifierIngredient.beautifyIngredients(input)
-        assertThat(result).containsExactlyElementsIn(expected)
+        assertWithMessage("Les en-têtes d'ingrédients résiduels et articles isolés doivent être éliminés")
+            .that(result)
+            .containsExactlyElementsIn(expected)
     }
 
     @Test
@@ -41,6 +46,8 @@ class Ocr5BeautifierIngredientTest {
             vocabulary.ingredientVarietyQualifiers
         )
 
-        assertThat(result).containsExactly("200 g de haricots princesses")
+        assertWithMessage("Le qualificatif de variété orphelin 'princesses' doit être regroupé avec '200 g de haricots'")
+            .that(result)
+            .containsExactly("200 g de haricots princesses")
     }
 }

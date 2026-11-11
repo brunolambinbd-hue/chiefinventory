@@ -3,7 +3,7 @@ package com.chefinventory.app.utils.rules
 import com.chefinventory.app.utils.Ocr4Merger
 import com.chefinventory.app.utils.OcrVocabulary
 import com.chefinventory.app.utils.OcrVocabularyLoader
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 
@@ -27,34 +27,44 @@ class Ocr4MergerRuleTest {
             "mélangez-les à la crème"
         )
         val result = Ocr4Merger.mergeInstructions(input)
-        assertThat(result.first()).contains("gousses d'ail et mélangez-les")
+        assertWithMessage("La conjonction avec tiret 'et-' doit être reconnectée avec un espace 'et mélangez-les'")
+            .that(result.first())
+            .contains("gousses d'ail et mélangez-les")
     }
 
     @Test
     fun `mergeIngredients should merge range connectors 2 ou 3 paquets`() {
         val input = listOf("2 ou", "3 paquets", "de jambon de Parme")
         val result = Ocr4Merger.mergeIngredients(input, vocabulary.ingredientPreparationModifiers, vocabulary.commonIngredientsNoQty, vocabulary.mandatoryComplementIngredients)
-        assertThat(result.first()).contains("2 ou 3 paquets de jambon de Parme")
+        assertWithMessage("Le connecteur de plage '2 ou' doit être fusionné en '2 ou 3 paquets de jambon de Parme'")
+            .that(result.first())
+            .contains("2 ou 3 paquets de jambon de Parme")
     }
 
     @Test
     fun `mergeIngredients should merge unclosed parenthesis ingredient across two lines`() {
         val input = listOf("1 citron (1/2 pour le jus -", "1/2 pour la décoration)")
         val result = Ocr4Merger.mergeIngredients(input, vocabulary.ingredientPreparationModifiers, vocabulary.commonIngredientsNoQty, vocabulary.mandatoryComplementIngredients)
-        assertThat(result.first()).contains("1 citron (1/2 pour le jus - 1/2 pour la décoration)")
+        assertWithMessage("La parenthèse non refermée doit fusionner la ligne 1 avec la ligne 2")
+            .that(result.first())
+            .contains("1 citron (1/2 pour le jus - 1/2 pour la décoration)")
     }
 
     @Test
     fun `mergeIngredients should merge 4 line ingredient with parenthetical weight range`() {
         val input = listOf("2 ou 3 paquets", "de jambon de Parme", "en fines tranches", "(125 à 180 g)")
         val result = Ocr4Merger.mergeIngredients(input, vocabulary.ingredientPreparationModifiers, vocabulary.commonIngredientsNoQty, vocabulary.mandatoryComplementIngredients)
-        assertThat(result.first()).contains("2 ou 3 paquets de jambon de Parme en fines tranches (125 à 180 g)")
+        assertWithMessage("L'ingrédient découpé sur 4 lignes doit être fusionné en un ingrédient unique")
+            .that(result.first())
+            .contains("2 ou 3 paquets de jambon de Parme en fines tranches (125 à 180 g)")
     }
 
     @Test
     fun `mergeIngredients should merge pour wok subline into preceding legumes eminces line`() {
         val input = listOf("200 g de légumes émincés", "Pour wok (avec soja)")
         val result = Ocr4Merger.mergeIngredients(input, vocabulary.ingredientPreparationModifiers, vocabulary.commonIngredientsNoQty, vocabulary.mandatoryComplementIngredients, vocabulary.ingredientConnectors)
-        assertThat(result.first()).contains("200 g de légumes émincés pour wok (avec soja)")
+        assertWithMessage("La sous-ligne d'ingrédient 'Pour wok' doit être fusionnée avec la ligne précédente")
+            .that(result.first())
+            .contains("200 g de légumes émincés pour wok (avec soja)")
     }
 }

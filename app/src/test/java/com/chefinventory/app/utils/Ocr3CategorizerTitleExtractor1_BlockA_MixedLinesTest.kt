@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -25,11 +25,25 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
     @Test
     @CoveredRequirement("6.1.1.9")
     fun testHasEndingConnector_AllVariants() {
-        assertThat(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade et")).isTrue()
-        assertThat(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade d'")).isTrue()
-        assertThat(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade de")).isTrue()
-        assertThat(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade aux")).isTrue()
-        assertThat(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade verte")).isFalse()
+        assertWithMessage("Le titre partiel 'Salade et' se terminant par 'et' doit être reconnu comme ayant un connecteur de fin")
+            .that(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade et"))
+            .isTrue()
+
+        assertWithMessage("Le titre partiel 'Salade d'' se terminant par 'd'' doit être reconnu comme ayant un connecteur de fin")
+            .that(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade d'"))
+            .isTrue()
+
+        assertWithMessage("Le titre partiel 'Salade de' se terminant par 'de' doit être reconnu comme ayant un connecteur de fin")
+            .that(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade de"))
+            .isTrue()
+
+        assertWithMessage("Le titre partiel 'Salade aux' se terminant par 'aux' doit être reconnu comme ayant un connecteur de fin")
+            .that(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade aux"))
+            .isTrue()
+
+        assertWithMessage("Le titre complet 'Salade verte' sans connecteur de fin doit retourner faux")
+            .that(Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.hasEndingConnector("Salade verte"))
+            .isFalse()
     }
 
     @Test
@@ -51,9 +65,17 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
             candidates = candidates
         )
 
-        assertThat(processed).isTrue()
-        assertThat(candidates).isNotEmpty()
-        assertThat(candidates[0].candidateText).contains("Salade d'avocat et aux crevettes")
+        assertWithMessage("La ligne mixte avec 'sel et poivre' et titre accolé doit être traitée avec succès")
+            .that(processed)
+            .isTrue()
+
+        assertWithMessage("Un candidat titre doit être extrait et ajouté à la liste des candidats")
+            .that(candidates)
+            .isNotEmpty()
+
+        assertWithMessage("Le candidat titre fusionné sur 2 lignes 'Salade d'avocat et aux crevettes' doit être extrait")
+            .that(candidates[0].candidateText)
+            .contains("Salade d'avocat et aux crevettes")
     }
 
     @Test
@@ -72,7 +94,9 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
             firstIngredientWord = null,
             candidates = candidates
         )
-        assertThat(res1).isFalse()
+        assertWithMessage("Une ligne sans 'sel et poivre' ne doit pas être traitée par le bloc mixte")
+            .that(res1)
+            .isFalse()
 
         // 2. Line with sel et poivre but short (< 12)
         val res2 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
@@ -85,7 +109,9 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
             firstIngredientWord = null,
             candidates = candidates
         )
-        assertThat(res2).isFalse()
+        assertWithMessage("La ligne courte 'sel et poivre' (< 12 caractères) ne doit pas être traitée par le bloc mixte")
+            .that(res2)
+            .isFalse()
 
         // 3. Line with sel et poivre but blank second part
         val res3 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
@@ -98,7 +124,9 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
             firstIngredientWord = null,
             candidates = candidates
         )
-        assertThat(res3).isFalse()
+        assertWithMessage("Une ligne mixte avec une seconde partie vide ne doit pas être traitée")
+            .that(res3)
+            .isFalse()
 
         // 4. Line with sel et poivre where potential title has no ending connector and no next line
         val res4 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
@@ -111,8 +139,13 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
             firstIngredientWord = "tomates",
             candidates = candidates
         )
-        assertThat(res4).isTrue()
-        assertThat(candidates.last().candidateText).isEqualTo("Salade de tomates")
+        assertWithMessage("La ligne mixte avec titre complet 'Salade de tomates' doit être traitée avec succès")
+            .that(res4)
+            .isTrue()
+
+        assertWithMessage("Le titre extrait doit correspondre à 'Salade de tomates'")
+            .that(candidates.last().candidateText)
+            .isEqualTo("Salade de tomates")
 
         // 5. Line with sel et poivre ending with connector ("et") but with no next line (disqualified by hanging connector "et")
         val res5 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
@@ -125,7 +158,9 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
             firstIngredientWord = "avocat",
             candidates = candidates
         )
-        assertThat(res5).isFalse()
+        assertWithMessage("Un titre se terminant par un connecteur suspendu 'et' sans ligne suivante doit être ignoré")
+            .that(res5)
+            .isFalse()
 
         // 6. Line with sel et poivre, potential title without ending connector, but next line IS a connector
         val linesMulti = listOf("1. Ajouter du sel et poivre Salade de tomates", "au basilic")
@@ -139,7 +174,12 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
             firstIngredientWord = "tomates",
             candidates = candidates
         )
-        assertThat(res6).isTrue()
-        assertThat(candidates.last().candidateText).contains("Salade de tomates au basilic")
+        assertWithMessage("Un titre suivi d'une ligne démarrant par le connecteur 'au basilic' doit fusionner les 2 lignes")
+            .that(res6)
+            .isTrue()
+
+        assertWithMessage("Le titre fusionné doit contenir 'Salade de tomates au basilic'")
+            .that(candidates.last().candidateText)
+            .contains("Salade de tomates au basilic")
     }
 }

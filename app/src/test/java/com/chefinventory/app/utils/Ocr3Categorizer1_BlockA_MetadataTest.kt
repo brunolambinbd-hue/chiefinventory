@@ -1,6 +1,6 @@
 package com.chefinventory.app.utils
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.Before
 import org.junit.Test
@@ -36,18 +36,46 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
         val res2 = res1.copy()
         val res3 = res1.copy(shouldContinue = false)
 
-        assertThat(res1).isEqualTo(res2)
-        assertThat(res1).isNotEqualTo(res3)
-        assertThat(res1.hashCode()).isEqualTo(res2.hashCode())
-        assertThat(res1.toString()).contains("BlockAResult")
+        assertWithMessage("Les copies de BlockAResult avec des valeurs identiques doivent être égales")
+            .that(res1)
+            .isEqualTo(res2)
+
+        assertWithMessage("Les objets BlockAResult avec une propriété différente ne doivent pas être égaux")
+            .that(res1)
+            .isNotEqualTo(res3)
+
+        assertWithMessage("Le hashcode de la copie de BlockAResult doit correspondre à l'original")
+            .that(res1.hashCode())
+            .isEqualTo(res2.hashCode())
+
+        assertWithMessage("La méthode toString de BlockAResult doit contenir le nom de la classe")
+            .that(res1.toString())
+            .contains("BlockAResult")
 
         val (cont, line, lower, action, bullet, conn) = res1
-        assertThat(cont).isTrue()
-        assertThat(line).isEqualTo("200 g de farine")
-        assertThat(lower).isEqualTo("200 g de farine")
-        assertThat(action).isFalse()
-        assertThat(bullet).isFalse()
-        assertThat(conn).isFalse()
+        assertWithMessage("Le composant shouldContinue déconstruit doit être vrai")
+            .that(cont)
+            .isTrue()
+
+        assertWithMessage("Le composant workingLine déconstruit doit correspondre à '200 g de farine'")
+            .that(line)
+            .isEqualTo("200 g de farine")
+
+        assertWithMessage("Le composant lowerLine déconstruit doit correspondre à '200 g de farine'")
+            .that(lower)
+            .isEqualTo("200 g de farine")
+
+        assertWithMessage("Le composant containsAction déconstruit doit être faux")
+            .that(action)
+            .isFalse()
+
+        assertWithMessage("Le composant startsWithBullet déconstruit doit être faux")
+            .that(bullet)
+            .isFalse()
+
+        assertWithMessage("Le composant startsWithConnector déconstruit doit être faux")
+            .that(conn)
+            .isFalse()
     }
 
     @Test
@@ -66,8 +94,13 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
             currentSection = Ocr3Categorizer.SECTION_NONE,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resTech.shouldContinue).isTrue()
-        assertThat(results.rawInstructionsList).contains("5 cm x 10 cm")
+        assertWithMessage("Le traitement d'une dimension technique doit signaler de continuer")
+            .that(resTech.shouldContinue)
+            .isTrue()
+
+        assertWithMessage("La dimension technique doit être redirigée vers la liste brute d'instructions")
+            .that(results.rawInstructionsList)
+            .contains("5 cm x 10 cm")
 
         // 2. Pure metadata line
         val resMeta = Ocr3Categorizer1_BlockA_Metadata.processBlockA_MetadataAndHangingLine(
@@ -79,8 +112,13 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
             currentSection = Ocr3Categorizer.SECTION_NONE,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resMeta.shouldContinue).isTrue()
-        assertThat(results.detectedServings).isEqualTo("4")
+        assertWithMessage("Le traitement de méta-données pures (portions) doit continuer le pipeline")
+            .that(resMeta.shouldContinue)
+            .isTrue()
+
+        assertWithMessage("Le nombre de personnes '4' doit être extrait dans detectedServings")
+            .that(results.detectedServings)
+            .isEqualTo("4")
     }
 
     @Test
@@ -100,9 +138,17 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
             seenIngredientKeywords = seenKeywords
         )
 
-        assertThat(resHanging.shouldContinue).isTrue()
-        assertThat(results.rawIngredientsList.last()).isEqualTo("200 g de farine fluide")
-        assertThat(seenKeywords).contains("farine")
+        assertWithMessage("La continuation d'une ligne d'ingrédient suspendue doit continuer le pipeline")
+            .that(resHanging.shouldContinue)
+            .isTrue()
+
+        assertWithMessage("La ligne suspendue '200 g de' et la suite 'farine fluide' doivent être fusionnées")
+            .that(results.rawIngredientsList.last())
+            .isEqualTo("200 g de farine fluide")
+
+        assertWithMessage("Le mot-clé d'ingrédient 'farine' doit être enregistré dans seenKeywords")
+            .that(seenKeywords)
+            .contains("farine")
     }
 
     @Test
@@ -122,7 +168,9 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
             currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resBulletDot.startsWithBullet).isTrue()
+        assertWithMessage("Une ligne commençant par une puce '•' doit être détectée comme telle")
+            .that(resBulletDot.startsWithBullet)
+            .isTrue()
 
         val resBulletDash = Ocr3Categorizer1_BlockA_Metadata.processBlockA_MetadataAndHangingLine(
             rawLine = "- 100 g de sucre",
@@ -133,7 +181,9 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
             currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resBulletDash.startsWithBullet).isTrue()
+        assertWithMessage("Une ligne commençant par un tiret '-' doit être détectée comme puce")
+            .that(resBulletDash.startsWithBullet)
+            .isTrue()
 
         val resBulletStar = Ocr3Categorizer1_BlockA_Metadata.processBlockA_MetadataAndHangingLine(
             rawLine = "* 100 g de sucre",
@@ -144,7 +194,9 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
             currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resBulletStar.startsWithBullet).isTrue()
+        assertWithMessage("Une ligne commençant par une étoile '*' doit être détectée comme puce")
+            .that(resBulletStar.startsWithBullet)
+            .isTrue()
 
         // Continuation in SECTION_INSTRUCTIONS
         val resInstructionHanging = Ocr3Categorizer1_BlockA_Metadata.processBlockA_MetadataAndHangingLine(
@@ -156,8 +208,13 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
             currentSection = Ocr3Categorizer.SECTION_INSTRUCTIONS,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resInstructionHanging.shouldContinue).isTrue()
-        assertThat(results.rawInstructionsList.last()).isEqualTo("Verser dans un moule à gâteau")
+        assertWithMessage("La continuation de consigne d'instruction suspendue doit continuer le pipeline")
+            .that(resInstructionHanging.shouldContinue)
+            .isTrue()
+
+        assertWithMessage("La consigne suspendue 'Verser dans' et la suite 'un moule à gâteau' doivent être fusionnées")
+            .that(results.rawInstructionsList.last())
+            .isEqualTo("Verser dans un moule à gâteau")
 
         // Hanging line continuation where containsAction is true (should NOT append)
         val resHangingWithAction = Ocr3Categorizer1_BlockA_Metadata.processBlockA_MetadataAndHangingLine(
@@ -169,7 +226,9 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
             currentSection = Ocr3Categorizer.SECTION_INSTRUCTIONS,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resHangingWithAction.shouldContinue).isFalse()
+        assertWithMessage("Une ligne contenant un verbe d'action ne doit pas être fusionnée avec la précédente")
+            .that(resHangingWithAction.shouldContinue)
+            .isFalse()
 
         // Hanging line continuation where startsWithBullet is true (should NOT append L102)
         val resultsHangingBullet = RawSections()
@@ -183,6 +242,8 @@ class Ocr3Categorizer1_BlockA_MetadataTest {
             currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
             seenIngredientKeywords = seenKeywords
         )
-        assertThat(resHangingBullet.shouldContinue).isFalse()
+        assertWithMessage("Une ligne d'ingrédient commençant par une puce ne doit pas fusionner avec la précédente")
+            .that(resHangingBullet.shouldContinue)
+            .isFalse()
     }
 }
