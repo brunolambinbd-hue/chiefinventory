@@ -17,6 +17,6 @@ object Ocr3CategorizerInstructionTriggerDetector {
      */
     fun hasInstructionTrigger(line: String, instructionTriggers: List<String>): Boolean {
         if (line.isBlank() || instructionTriggers.isEmpty()) return false
-        return instructionTriggers.any { Regex("(?i)\\b${Pattern.quote(it)}\\b").containsMatchIn(line) }
+        return instructionTriggers.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(line) }
     }
 }

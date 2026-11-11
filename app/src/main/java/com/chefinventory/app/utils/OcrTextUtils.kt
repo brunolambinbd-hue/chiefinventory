@@ -100,7 +100,8 @@ object OcrTextUtils {
     ): Boolean {
         if (hasActionVerb || line.isBlank()) return false
         if (line.any { it.isDigit() }) return false
-        val lowerCondensed = line.lowercase().replace(" ", "").removeSuffix(".")
+        if (line.contains(".")) return false
+        val lowerCondensed = line.lowercase().replace(" ", "")
         return lowerCondensed.length <= 3 || lowerCondensed in standaloneTrashWords
     }
 

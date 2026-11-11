@@ -30,6 +30,7 @@ class ResourceHealthCheckerTest {
         whenever(mockRes.getStringArray(R.array.ocr_diacritic_repairs)).thenReturn(sampleArray)
         whenever(mockRes.getStringArray(R.array.duration_units)).thenReturn(sampleArray)
         whenever(mockRes.getStringArray(R.array.title_keywords)).thenReturn(sampleArray)
+        whenever(mockRes.getStringArray(R.array.sentence_ending_punctuation)).thenReturn(sampleArray)
 
         whenever(mockRes.getString(R.string.ocr1_canonical_ingredients_header)).thenReturn("ingrédients")
         whenever(mockRes.getString(R.string.ocr1_canonical_instructions_header)).thenReturn("instructions")

@@ -117,7 +117,7 @@ class RecipeOcrParserOceaneTest {
         // 4. Validation des Champs Sans Données (Modèle Neutre)
         assertWithMessage(OcrTestStrings.SOURCE_MISMATCH)
             .that(result.source)
-            .isEqualTo("VIN CONSEILLĖ")
+            .isNull()
 
         assertWithMessage(OcrTestStrings.PREP_TIME_MISMATCH)
             .that(result.prepTime)

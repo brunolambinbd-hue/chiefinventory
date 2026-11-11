@@ -131,7 +131,7 @@ object Ocr3Categorizer5_BlockE_Dispatch {
 
                 val endMarkerLine = isEndMarkerLine(lowerLine, vocabulary.ingredientEndMarkers)
 
-                val isCommonIngredient = vocabulary.commonIngredientsNoQty.any { lowerLine.contains(it.lowercase()) }
+                val isCommonIngredient = vocabulary.commonIngredientsNoQty.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(workingLine) }
                 val endsWithDash = workingLine.trimEnd().endsWith("-")
                 val conjunctions = vocabulary.ocrSentenceConjunctions.map { " ${it.lowercase().trim()}" }
                 val endsWithConjunction = conjunctions.any { lowerLine.trimEnd().endsWith(it) }

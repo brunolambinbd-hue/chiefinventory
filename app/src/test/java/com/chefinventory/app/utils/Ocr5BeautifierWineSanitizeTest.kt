@@ -88,4 +88,27 @@ class Ocr5BeautifierWineSanitizeTest {
             .that(beautified)
             .containsExactly("Muscat d'Alsace 1996")
     }
+
+    /**
+     * Cas 4 : Maintien de l'acronyme "M.O." et prévention absolue du double-point "M.O..".
+     */
+    @Test
+    fun testBeautifyWines_preservesAcronymMOAndPreventsDoublePeriods() {
+        val rawWines = listOf(
+            "Rousse Région Merlot",
+            "(vin rouge de Bulgarie)",
+            "M.O."
+        )
+
+        val beautified = Ocr5BeautifierWine.beautifyWines(rawWines)
+
+        assertWithMessage(OcrTestStrings.WINE_VARIETAL_MISMATCH)
+            .that(beautified)
+            .containsExactly(
+                "Rousse Région Merlot",
+                "(vin rouge de Bulgarie)",
+                "M.O."
+            )
+            .inOrder()
+    }
 }

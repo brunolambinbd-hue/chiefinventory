@@ -53,7 +53,7 @@ class RecipeOcrOceanePhase2Test {
         "• Servez frais (ne laissez pas trop",
         "longtemps en attente); présentez la",
         "sauce à part.",
-        "VIN CONSEILLĖ",
+        "VIN CONSEILLÉ",
         "Touraine,",
         "Sauvignon blanc, 1995, 75 cl",
         "TOCRAINE",
@@ -134,7 +134,7 @@ class RecipeOcrOceanePhase2Test {
             "• Servez frais (ne laissez pas trop",
             "longtemps en attente); présentez la",
             "sauce à part.",
-            "VIN CONSEILLĖ",
+            "VIN CONSEILLÉ",
             "Touraine",
             "Sauvignon blanc, 1995, 75 cl"
         )

@@ -161,6 +161,18 @@
     <string-array name="ocr3_explicit_wine_headers">
 <item>suggestion vin</item>
 <item>vin conseillé</item>
+<item>vin conseille</item>
+<item>VIN CONSEILLE</item>
+<item>vin conseillè</item>
+<item>VIN CONSEILLÈ</item>
+<item>vin conseillë</item>
+<item>VIN CONSEILLË</item>
+<item>vin conseillê</item>
+<item>VIN CONSEILLÊ</item>
+<item>notre vin conseille</item>
+<item>NOTRE VIN CONSEILLE</item>
+<item>VIN CONSEILLĖ</item>
+<item>vin conseillė</item>
 <item>conseil vin</item>
 <item>vin suggéré</item>
 <item>accord vin</item>
@@ -171,6 +183,10 @@
 
     <string-array name="wine_title_keywords">
 <item>vin conseillé</item>
+<item>vin conseille</item>
+<item>vin conseillè</item>
+<item>vin conseillë</item>
+<item>vin conseillê</item>
 <item>conseil vin</item>
 <item>servir avec</item>
 <item>vin suggéré</item>

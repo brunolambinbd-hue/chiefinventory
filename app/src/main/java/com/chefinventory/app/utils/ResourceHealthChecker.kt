@@ -105,6 +105,7 @@ object ResourceHealthChecker {
         checkArray("OCR - Diacritiques", "ocr_diacritic_repairs", R.array.ocr_diacritic_repairs, minExpected = 5)
         checkArray("OCR - Durées", "duration_units", R.array.duration_units, minExpected = 3)
         checkArray("OCR - Titres", "title_keywords", R.array.title_keywords, minExpected = 5)
+        checkArray("OCR - Ponctuation", "sentence_ending_punctuation", R.array.sentence_ending_punctuation, minExpected = 3)
 
         // 2. Contrôles des Cibles Canoniques
         checkString("OCR - En-têtes", "ocr1_canonical_ingredients_header", R.string.ocr1_canonical_ingredients_header)

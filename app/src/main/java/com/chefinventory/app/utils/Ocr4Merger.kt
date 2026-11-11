@@ -59,7 +59,13 @@ object Ocr4Merger {
 
             val hasUnclosedParen = current.count { it == '(' } > current.count { it == ')' }
             val prevEndsWithRangeConnector = current.lowercase().trimEnd().let { it.endsWith(" ou") || it.endsWith(" à") || it.endsWith(" a") || it.endsWith(" -") || it.endsWith("-") }
-            val allowMerge = (!isNewStart && (!isNextCommonIngredient || prevIsHanging) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || prevEndsWithRangeConnector)
+            val vocab = OcrVocabularyLoader.loadFromProjectResources()
+            val isNextSubHeader = vocab.ingredientSubHeaders.any { sub ->
+                val cleanSub = sub.lowercase().trim()
+                val cleanNext = normalizedLine.lowercase().removeSuffix(":").removeSuffix(".").trim()
+                cleanNext == cleanSub
+            }
+            val allowMerge = !isNextSubHeader && (!isNewStart && (!isNextCommonIngredient || prevIsHanging) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || prevEndsWithRangeConnector)
 
             if (allowMerge) {
                 if (prevWasHyphenated) {
@@ -140,7 +146,10 @@ object Ocr4Merger {
             val trailingWord = currentBlock.trimEnd().lowercase().split(Regex("\\s+")).lastOrNull()?.removeSuffix(".")?.removeSuffix(",") ?: ""
             val endsWithParasiteArticle = trailingWord in articlesAndConnectors
 
-            val currentEndsWithPeriod = !endsWithParasiteArticle && currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }
+            val isAbbreviationDot = vocab.culinaryMeasurementUnits.any { unit ->
+                unit.endsWith(".") && currentBlock.trimEnd().lowercase().endsWith(" ${unit.lowercase()}")
+            }
+            val currentEndsWithPeriod = !endsWithParasiteArticle && !isAbbreviationDot && currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }
             val currentEndsWithConjunction = currentBlock.trimEnd().let { cleanBlock ->
                 val lowerClean = cleanBlock.lowercase()
                 val sentenceConjunctions = vocab.ocrSentenceConjunctions
@@ -152,7 +161,7 @@ object Ocr4Merger {
             }
             val hasExplicitStepMarker = Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(line) || Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(normalizedLine)
             val lineStartsWithConjunction = Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(line) || Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(normalizedLine)
-            val isNextStep = !prevWasHyphenated && (hasExplicitStepMarker || currentEndsWithPeriod || (!currentEndsWithConjunction && !lineStartsWithConjunction && (isNewStep(line, vocab) || isNewStep(normalizedLine, vocab))))
+            val isNextStep = !prevWasHyphenated && (hasExplicitStepMarker || currentEndsWithPeriod || (!isAbbreviationDot && !currentEndsWithConjunction && !lineStartsWithConjunction && (isNewStep(line, vocab) || isNewStep(normalizedLine, vocab))))
 
             if (currentBlock.isNotEmpty() && !isNextStep) {
                 if (prevWasHyphenated) {
@@ -214,7 +223,10 @@ object Ocr4Merger {
      * @return La liste des phrases isolées.
      */
     private fun splitIntoSentences(text: String): List<String> {
-        val pattern = Regex("(?<=[.帖!?])\\s+")
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val abbrevs = vocab.culinaryMeasurementUnits.filter { it.endsWith(".") }.map { Regex.escape(it.dropLast(1)) }
+        val abbrevPattern = if (abbrevs.isNotEmpty()) "(?<!\\b(?:${abbrevs.joinToString("|")}))" else ""
+        val pattern = Regex("$abbrevPattern(?<=[.帖!?])\\s+")
         return text.split(pattern).map { it.trim() }.filter { it.isNotEmpty() }
     }
 
@@ -244,9 +256,15 @@ object Ocr4Merger {
         val connectors = if (customConnectors.isNotEmpty()) customConnectors else vocab.ingredientConnectors
         val endsWithConnector = connectors.any { lower.endsWith(" $it") || (it.endsWith("'") && lower.endsWith(it)) || lower == it }
 
+        val trailingWord = lower.split(Regex("\\s+")).lastOrNull()?.removeSuffix(".")?.removeSuffix(",") ?: ""
+        val isTrailingNumber = vocab.orphanNounNumberWords.any { it.equals(trailingWord, ignoreCase = true) } ||
+            trailingWord.matches(Regex("\\d+(?:/\\d+)?"))
+        val isMultiWordLine = lower.split(Regex("\\s+")).size >= 2
+        val endsWithNumberWord = isTrailingNumber && isMultiWordLine
+
         val hangingNouns = (vocab.mandatoryComplementIngredients + vocab.culinaryMeasurementUnits).map { it.lowercase().trim() }
         val endsWithHangingNoun = hangingNouns.any { lower.endsWith(" $it") || lower == it }
-        return endsWithConnector || endsWithHangingNoun
+        return endsWithConnector || endsWithHangingNoun || endsWithNumberWord
     }
 
     /**

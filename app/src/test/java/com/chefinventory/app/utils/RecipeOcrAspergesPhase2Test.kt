@@ -40,7 +40,7 @@ class RecipeOcrAspergesPhase2Test {
         "Saupoudrez de parmesan.",
         "• Nappez d'huile d'olive et",
         "arrosez de jus de citron.",
-        "VIN CONSEILLĖ",
+        "VIN CONSEILLÉ",
         "Muscat d'Alsace, caves de",
         "Pfaffenheim, MO, 1996, 75 cl"
     ).joinToString("\n")
@@ -102,7 +102,7 @@ class RecipeOcrAspergesPhase2Test {
             "Saupoudrez de parmesan.",
             "• Nappez d'huile d'olive et",
             "arrosez de jus de citron.",
-            "VIN CONSEILLĖ",
+            "VIN CONSEILLÉ",
             "Muscat d'Alsace, caves de",
             "Pfaffenheim, MO, 1996, 75 cl"
         )

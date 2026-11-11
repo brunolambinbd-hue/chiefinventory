@@ -18,6 +18,7 @@ package com.chefinventory.app.utils
  */
 data class RecipeOcrResult(
     val title: String? = null,
+    val category: String? = null,
     val ingredients: String? = null,
     val instructions: String? = null,
     val wine: String? = null,

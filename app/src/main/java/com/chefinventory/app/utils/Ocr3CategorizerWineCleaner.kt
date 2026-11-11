@@ -75,6 +75,6 @@ object Ocr3CategorizerWineCleaner {
         for ((pattern, replacement) in OcrRegexes.Wines.SPELLING_CORRECTIONS) {
             result = pattern.replace(result, replacement)
         }
-        return result
+        return result.replace(Regex("\\.{2,}"), ".")
     }
 }

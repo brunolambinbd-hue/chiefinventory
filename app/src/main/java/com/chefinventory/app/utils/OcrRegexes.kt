@@ -324,7 +324,7 @@ object OcrRegexes {
             Regex("(?i)\\bI(\\d{3})\\b") to "1$1",
             Regex("(?i)\\b(\\d{2})\\s*d\\b") to "$1 cl",
             Regex("(?i)\\bvìn\\b") to "vin",
-            Regex("(?i)\\bM[.\\s]*[0O]\\.?\\b") to "M.O."
+            Regex("(?i)\\bM[.\\s]*[0O]\\.?(?!\\w)") to "M.O."
         )
     }
 

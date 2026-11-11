@@ -39,6 +39,22 @@ class OcrDiacriticRepairsTest {
         assertWithMessage("Le diacritique corrompu 'ặ' doit être réparé en 'a'")
             .that(Ocr1Corrector.correct("ặ", diacriticRepairs = diacritics))
             .isEqualTo("a")
+
+        assertWithMessage("Le diacritique corrompu 'Ė' doit être réparé en 'É'")
+            .that(Ocr1Corrector.correct("Ė", diacriticRepairs = diacritics))
+            .isEqualTo("É")
+
+        assertWithMessage("Le diacritique corrompu 'ė' doit être réparé en 'é'")
+            .that(Ocr1Corrector.correct("ė", diacriticRepairs = diacritics))
+            .isEqualTo("é")
+
+        assertWithMessage("Le diacritique corrompu 'ố' doit être réparé en 'ô'")
+            .that(Ocr1Corrector.correct("ố", diacriticRepairs = diacritics))
+            .isEqualTo("ô")
+
+        assertWithMessage("Le diacritique corrompu 'ỉ' doit être réparé en 'î'")
+            .that(Ocr1Corrector.correct("ỉ", diacriticRepairs = diacritics))
+            .isEqualTo("î")
     }
 
     @Test

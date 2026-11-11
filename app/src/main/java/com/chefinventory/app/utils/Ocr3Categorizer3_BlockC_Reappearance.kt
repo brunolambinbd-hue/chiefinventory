@@ -154,7 +154,7 @@ object Ocr3Categorizer3_BlockC_Reappearance {
 
         val isolatedMod = isIsolatedModifier(lowerLine, vocabulary.ingredientPreparationModifiers)
 
-        val hasInstructionTrigger = vocabulary.instructionSwitchKeywords.any { Regex("(?i)\\b${Pattern.quote(it)}\\b").containsMatchIn(workingLine) }
+        val hasInstructionTrigger = vocabulary.instructionSwitchKeywords.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(workingLine) }
         val isSubHeader = vocabulary.ingredientSubHeaders.any { it.equals(workingLine, ignoreCase = true) }
 
         val isCommonIngrStart = vocabulary.commonIngredientsNoQty.any { lowerLine.startsWith(it.lowercase()) }

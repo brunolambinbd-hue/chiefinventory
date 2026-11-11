@@ -11,7 +11,8 @@ import com.parabd.lib.traceability.utils.LogManager
  */
 data class CleaningResult(
     val cleanedLines: List<String>,
-    val earlyDetectedSources: List<String> = emptyList()
+    val earlyDetectedSources: List<String> = emptyList(),
+    val earlyDetectedCategory: String? = null
 )
 
 /**
@@ -112,9 +113,32 @@ object Ocr2Cleaner {
 
         val protectedHeaders = vocabulary.protectedSectionHeaders
 
+        var earlyCategory: String? = null
+
         for (line in mergedLines) {
             var trimmed = line.trim()
             if (trimmed.isEmpty()) continue
+
+            // Détection et purge précoce des en-têtes de catégories (ex: "ENTRÉES ET AMUSE-BOUCHE")
+            var matchedCategory: String? = null
+            for (categoryHeaderItem in vocabulary.recipeCategoryHeaders) {
+                val parts = categoryHeaderItem.split("|")
+                if (parts.size == 2) {
+                    val headerText = parts[0].trim()
+                    val categoryName = parts[1].trim()
+                    val pattern = Regex("(?i)(?<![\\p{L}\\p{N}])${Regex.escape(headerText)}(?![\\p{L}\\p{N}])")
+                    if (pattern.containsMatchIn(trimmed)) {
+                        matchedCategory = categoryName
+                        break
+                    }
+                }
+            }
+            if (matchedCategory != null) {
+                if (earlyCategory == null) {
+                    earlyCategory = matchedCategory
+                }
+                continue // Purge la ligne d'en-tête de catégorie du texte !
+            }
 
             // Inspection précoce de la source dans la ligne publicitaire/marketing avant suppression
             val extractedSource = Ocr2CleanerAdSourceExtractor.extractSourceFromAdLine(trimmed, vocabulary)
@@ -180,7 +204,7 @@ object Ocr2Cleaner {
             cleanedLines.add(trimmed)
         }
 
-        return CleaningResult(cleanedLines, earlySources)
+        return CleaningResult(cleanedLines, earlySources, earlyCategory)
     }
 
     /**

@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_weight="1"
-            android:text="Supprimer"
+            android:text="@string/supprimer"
             android:textColor="@android:color/holo_red_dark"
             android:visibility="gone"
             tools:visibility="visible"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_weight="1"
-            android:text="Enregistrer la recette" />
+            android:text="@string/btn_save_recipe" />
     </LinearLayout>
 
     <ScrollView
@@ -78,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="4dp"
-                    android:text="Photo"
+                    android:text="@string/btn_photo"
                     app:icon="@android:drawable/ic_menu_camera" />
 
                 <Button
@@ -88,19 +88,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:text="Fichier"
+                    android:text="@string/btn_file"
                     app:icon="@android:drawable/ic_menu_save" />
-
-                <Button
-                    android:id="@+id/btn_scan_ocr"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:text="Scan"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -108,7 +97,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="Catégorie de recette">
+                android:hint="@string/hint_recipe_category">
 
                 <AutoCompleteTextView
                     android:id="@+id/actv_recipe_category"
@@ -122,13 +111,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="Titre de la recette">
+                android:hint="@string/hint_recipe_title">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapSentences" />
+                    android:inputType="textCapSentences|textNoSuggestions" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -136,14 +125,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="Ingrédients (un par ligne)">
+                android:hint="@string/hint_recipe_ingredients">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_ingredients"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top"
-                    android:inputType="textMultiLine"
+                    android:inputType="textMultiLine|textNoSuggestions"
                     android:minLines="5" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -152,14 +141,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="Instructions / Étapes">
+                android:hint="@string/hint_recipe_instructions">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_instructions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top"
-                    android:inputType="textMultiLine"
+                    android:inputType="textMultiLine|textNoSuggestions"
                     android:minLines="8" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -168,13 +157,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="Vin conseillé">
+                android:hint="@string/hint_recipe_wine">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_wine"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
+                    android:inputType="textMultiLine|textNoSuggestions"
                     android:minLines="2" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -184,7 +173,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="Source (Hôtel, Livre, Web...)"
+                android:hint="@string/hint_recipe_source"
                 app:endIconMode="custom"
                 app:endIconDrawable="@android:drawable/ic_menu_compass"
                 app:endIconContentDescription="Ouvrir le lien Web">
@@ -193,7 +182,7 @@
                     android:id="@+id/et_source"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
+                    android:inputType="textMultiLine|textNoSuggestions"
                     android:minLines="2" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -202,13 +191,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="Valeurs nutritionnelles (ex: Par 100g...)">
+                android:hint="@string/hint_recipe_nutrition">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_nutrition_info"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
+                    android:inputType="textMultiLine|textNoSuggestions"
                     android:minLines="2" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -224,7 +213,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="4dp"
-                    android:hint="Kcal/por.">
+                    android:hint="@string/hint_recipe_kcal">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_kcal"
@@ -239,7 +228,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
-                    android:hint="Difficulté">
+                    android:hint="@string/hint_recipe_difficulty">
 
                     <AutoCompleteTextView
                         android:id="@+id/actv_difficulty"
@@ -260,7 +249,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="4dp"
-                    android:hint="Prép(min)">
+                    android:hint="@string/hint_recipe_prep_time">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_prep_time"
@@ -276,7 +265,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="4dp"
-                    android:hint="Cuis(min)">
+                    android:hint="@string/hint_recipe_cook_time">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_cook_time"
@@ -292,7 +281,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="4dp"
-                    android:hint="Repos(min)">
+                    android:hint="@string/hint_recipe_resting_time">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_resting_time"
@@ -307,7 +296,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.8"
                     android:layout_marginStart="4dp"
-                    android:hint="Pers.">
+                    android:hint="@string/hint_recipe_servings">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_servings"

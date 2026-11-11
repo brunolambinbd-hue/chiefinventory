@@ -189,6 +189,7 @@
     <string name="edit_recipe_title_new">New Recipe</string>
     <string name="edit_recipe_title_edit">Edit Recipe</string>
     <string name="toast_cannot_open_web_browser">Unable to open web browser</string>
+    <string name="toast_scan_starting">Scanning recipe…</string>
     <string name="toast_scan_completed">Scan completed</string>
     <string name="toast_scan_failed">Scan failed</string>
     <string name="toast_recipe_title_required">Title is mandatory</string>
@@ -390,5 +391,23 @@
         <item>gateau</item>
         <item>patisserie</item>
     </string-array>
+
+    <!-- Recipe Edit Strings -->
+    <string name="btn_photo">Photo</string>
+    <string name="btn_file">File</string>
+    <string name="btn_save_recipe">Save Recipe</string>
+    <string name="hint_recipe_category">Recipe Category</string>
+    <string name="hint_recipe_title">Recipe Title</string>
+    <string name="hint_recipe_ingredients">Ingredients (one per line)</string>
+    <string name="hint_recipe_instructions">Instructions / Steps</string>
+    <string name="hint_recipe_wine">Recommended Wine</string>
+    <string name="hint_recipe_source">Source (Hotel, Book, Web…)</string>
+    <string name="hint_recipe_nutrition">Nutritional Values (ex: Per 100g…)</string>
+    <string name="hint_recipe_kcal">Kcal/serv.</string>
+    <string name="hint_recipe_difficulty">Difficulty</string>
+    <string name="hint_recipe_prep_time">Prep(min)</string>
+    <string name="hint_recipe_cook_time">Cook(min)</string>
+    <string name="hint_recipe_resting_time">Rest(min)</string>
+    <string name="hint_recipe_servings">Serv.</string>
 
 </resources>

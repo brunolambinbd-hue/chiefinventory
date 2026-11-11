@@ -177,6 +177,23 @@ class OcrTextUtilsPunctuationTest {
     }
 
     @Test
+    fun testIsShortNoise_preservesAcronymsWithDots() {
+        val trashWords = setOf("le", "la", "les", "du", "des", "pour")
+
+        assertWithMessage("L'acronyme 'M.O.' avec points ne doit pas être rejeté comme bruit court")
+            .that(OcrTextUtils.isShortNoise("M.O.", trashWords))
+            .isFalse()
+
+        assertWithMessage("L'acronyme 'A.O.C.' avec points ne doit pas être rejeté comme bruit court")
+            .that(OcrTextUtils.isShortNoise("A.O.C.", trashWords))
+            .isFalse()
+
+        assertWithMessage("L'acronyme 'D.O.C.' avec points ne doit pas être rejeté comme bruit court")
+            .that(OcrTextUtils.isShortNoise("D.O.C.", trashWords))
+            .isFalse()
+    }
+
+    @Test
     fun testIsShortNoise_returnsFalseForValidTextDigitsAndActions() {
         val trashWords = setOf("le", "la", "les", "du", "des", "pour")
 

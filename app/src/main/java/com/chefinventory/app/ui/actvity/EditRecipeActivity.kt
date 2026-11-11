@@ -90,7 +90,6 @@ class EditRecipeActivity : AppCompatActivity() {
 
         binding.btnTakePicture.setOnClickListener { imageCaptureUtil.startCamera() }
         binding.btnPickFile.setOnClickListener { imageGallery() }
-        binding.btnScanOcr.setOnClickListener { runOcr() }
         binding.btnSave.setOnClickListener { saveRecipe() }
         binding.btnDelete.setOnClickListener { showDeleteConfirmation() }
         binding.ivRecipe.setOnClickListener {
@@ -179,12 +178,13 @@ class EditRecipeActivity : AppCompatActivity() {
         lastImageUri = uri
         binding.ivRecipe.isVisible = true
         binding.ivRecipe.load(uri)
-        binding.btnScanOcr.isVisible = true
         newBitmap = BitmapUtils.getBitmapFromUri(this, uri)
+        runOcr()
     }
 
     private fun runOcr() {
         val bitmap = newBitmap ?: return
+        Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_scan_starting), Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {
             try {
                 val fullText: String = textRecognitionHelper.recognizeText(bitmap) ?: ""
@@ -192,6 +192,15 @@ class EditRecipeActivity : AppCompatActivity() {
                 
                 result.title?.takeIf { it.isNotBlank() }?.let {
                     binding.etTitle.setText(it)
+                }
+                result.category?.takeIf { it.isNotBlank() }?.let { catName ->
+                    val matchedCategory = categories.find { cat -> cat.name.equals(catName, ignoreCase = true) }
+                    if (matchedCategory != null) {
+                        selectedLocationId = matchedCategory.id
+                        binding.actvRecipeCategory.setText(matchedCategory.name, false)
+                    } else {
+                        binding.actvRecipeCategory.setText(catName, false)
+                    }
                 }
                 binding.etIngredients.setText(result.ingredients ?: "")
                 binding.etInstructions.setText(result.instructions ?: "")
@@ -206,8 +215,6 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.etKcal.setText(result.kcalPerServing ?: "")
                 binding.actvDifficulty.setText(result.difficulty ?: "", false)
                 binding.etNutritionInfo.setText(result.nutritionInfo ?: "")
-
-                Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_scan_completed), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Log.e("EditRecipe", "OCR failed", e)
                 Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_scan_failed), Toast.LENGTH_SHORT).show()
@@ -234,7 +241,6 @@ class EditRecipeActivity : AppCompatActivity() {
             lastImageUri = uri
             binding.ivRecipe.isVisible = true
             binding.ivRecipe.load(uri)
-            binding.btnScanOcr.isVisible = true
             lifecycleScope.launch {
                 newBitmap = BitmapUtils.getBitmapFromUri(this@EditRecipeActivity, uri)
             }

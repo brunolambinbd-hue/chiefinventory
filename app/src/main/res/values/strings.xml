@@ -248,6 +248,7 @@
     <string name="edit_recipe_title_new">Nouvelle recette</string>
     <string name="edit_recipe_title_edit">Modifier la recette</string>
     <string name="toast_cannot_open_web_browser">Impossible d\'ouvrir le navigateur Web</string>
+    <string name="toast_scan_starting">Analyse de la recette en cours…</string>
     <string name="toast_scan_completed">Scan terminé</string>
     <string name="toast_scan_failed">Échec du scan</string>
     <string name="toast_recipe_title_required">Le titre est obligatoire</string>
@@ -406,5 +407,23 @@
         <item>oignon</item>
         <item>ail</item>
     </string-array>
+
+    <!-- Libellés d'Édition de Recette -->
+    <string name="btn_photo">Photo</string>
+    <string name="btn_file">Fichier</string>
+    <string name="btn_save_recipe">Enregistrer la recette</string>
+    <string name="hint_recipe_category">Catégorie de recette</string>
+    <string name="hint_recipe_title">Titre de la recette</string>
+    <string name="hint_recipe_ingredients">Ingrédients (un par ligne)</string>
+    <string name="hint_recipe_instructions">Instructions / Étapes</string>
+    <string name="hint_recipe_wine">Vin conseillé</string>
+    <string name="hint_recipe_source">Source (Hôtel, Livre, Web…)</string>
+    <string name="hint_recipe_nutrition">Valeurs nutritionnelles (ex: Par 100g…)</string>
+    <string name="hint_recipe_kcal">Kcal/por.</string>
+    <string name="hint_recipe_difficulty">Difficulté</string>
+    <string name="hint_recipe_prep_time">Prép(min)</string>
+    <string name="hint_recipe_cook_time">Cuis(min)</string>
+    <string name="hint_recipe_resting_time">Repos(min)</string>
+    <string name="hint_recipe_servings">Pers.</string>
 
 </resources>

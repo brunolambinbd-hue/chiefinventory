@@ -2,6 +2,12 @@
 <resources>
     <string-array name="instruction_switch_keywords">
 <item>accompagnement</item>
+<item>jusqu\'à ce que</item>
+<item>jusqu\'a ce que</item>
+<item>jusqu\’à ce que</item>
+<item>jusqu\’a ce que</item>
+<item>jusqu\'à ce qu\'</item>
+<item>jusqu\'a ce qu\'</item>
 <item>réfrigérateur</item>
 <item>Croquantes</item>
 <item>décoration</item>
@@ -9,19 +15,23 @@
 <item>attention</item>
 <item>casserole</item>
 <item>personnes</item>
-<item>jusqu\’à</item>
 <item>personne</item>
 <item>réserver</item>
 <item>saladier</item>
 <item>à l\'aide</item>
+<item>afin que</item>
+<item>avant de</item>
+<item>jusqu\’à</item>
+<item>jusqu\'à</item>
+<item>jusqu\'a</item>
 <item>ensuite</item>
 <item>environ</item>
-<item>jusqu\'à</item>
 <item>laisser</item>
 <item>lorsque</item>
 <item>minutes</item>
 <item>obtenir</item>
 <item>pendant</item>
+<item>afin de</item>
 <item>astuce</item>
 <item>et aux</item>
 <item>heures</item>

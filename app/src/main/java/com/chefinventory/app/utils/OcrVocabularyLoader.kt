@@ -79,6 +79,7 @@ object OcrVocabularyLoader {
             wineRemovePattern = getStringVal(strings, "wine_remove_pattern"),
             ocrSpellingRepairs = getList(stringArrays, "ocr_spelling_repairs"),
             adExclusions = getList(stringArrays, "advertisement_exclusions"),
+            recipeCategoryHeaders = getList(stringArrays, "recipe_category_headers"),
             ocrNoiseExclusions = getList(stringArrays, "ocr_noise_exclusions"),
             titleKeywords = getList(stringArrays, "title_keywords"),
             mandatoryComplementIngredients = getList(stringArrays, "ingredient_mandatory_complements"),

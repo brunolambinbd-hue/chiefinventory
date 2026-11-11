@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mappings des bannières d'en-têtes de catégories de recettes vers les catégories canoniques (Étape 2) -->
+    <string-array name="recipe_category_headers">
+<item>ENTRÉES ET AMUSE-BOUCHE|Entrée</item>
+<item>ENTREES ET AMUSE-BOUCHE|Entrée</item>
+<item>ENTRÉES ET AMUSE-BOUCHES|Entrée</item>
+<item>ENTREES ET AMUSE-BOUCHES|Entrée</item>
+<item>ENTRÉES CHAUDES|Entrée</item>
+<item>ENTREES CHAUDES|Entrée</item>
+<item>ENTRÉES FROIDES|Entrée</item>
+<item>ENTREES FROIDES|Entrée</item>
+<item>AMUSE-BOUCHE|Entrée</item>
+<item>AMUSE-BOUCHES|Entrée</item>
+<item>ENTRÉE|Entrée</item>
+<item>ENTREE|Entrée</item>
+<item>ENTRÉES|Entrée</item>
+<item>ENTREES|Entrée</item>
+<item>PLATS PRINCIPAUX|Plat principal</item>
+<item>PLATS COMPLETS|Plat principal</item>
+<item>PLATS CHAUDS|Plat principal</item>
+<item>PLATS FROIDS|Plat principal</item>
+<item>PLATS|Plat principal</item>
+<item>PLAT PRINCIPAL|Plat principal</item>
+<item>DESSERTS ET GÂTEAUX|Dessert</item>
+<item>DESSERTS ET GATEAUX|Dessert</item>
+<item>DESSERTS|Dessert</item>
+<item>DESSERT|Dessert</item>
+<item>PÂTISSERIES|Dessert</item>
+<item>PATISSERIES|Dessert</item>
+<item>BOISSONS ET COCKTAILS|Boisson</item>
+<item>BOISSONS|Boisson</item>
+<item>BOISSON|Boisson</item>
+<item>COCKTAILS|Boisson</item>
+<item>COCKTAIL|Boisson</item>
+<item>ACCOMPAGNEMENTS|Accompagnement</item>
+<item>ACCOMPAGNEMENT|Accompagnement</item>
+    </string-array>
+</resources>

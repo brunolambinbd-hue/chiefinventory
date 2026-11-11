@@ -96,7 +96,8 @@ object Ocr3Categorizer1_BlockA_Metadata {
         }
 
         val isListNotEmpty = targetListForContinuation.isNotEmpty()
-        val endsWithConnector = allConnectorsEnding.any { lastRawLine.endsWith(it) }
+        val isEndMarker = Ocr3Categorizer5_BlockE_Dispatch.isEndMarkerLine(lastRawLine, vocabulary.ingredientEndMarkers)
+        val endsWithConnector = !isEndMarker && allConnectorsEnding.any { lastRawLine.endsWith(it) }
         val isContinuationOfHangingLine = isListNotEmpty && endsWithConnector
 
         if (isContinuationOfHangingLine) {

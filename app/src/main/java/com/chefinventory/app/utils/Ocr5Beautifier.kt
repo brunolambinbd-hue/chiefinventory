@@ -108,7 +108,7 @@ object Ocr5Beautifier {
         cleaned = cleaned.trim()
         if (cleaned.isEmpty()) return null
 
-        val lower = cleaned.lowercase().removeSuffix(".")
+        val lower = cleaned.lowercase().removeSuffix(".").removeSuffix(":").removeSuffix(",").trim()
 
         val isOcrNoise = OcrTextUtils.isNonAlphanumericNoise(cleaned) ||
                 vocab.ocrNoiseExclusions.any { noise -> noise.isNotBlank() && cleaned.contains(noise, ignoreCase = true) }

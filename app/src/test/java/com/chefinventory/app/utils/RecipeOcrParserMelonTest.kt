@@ -98,7 +98,7 @@ class RecipeOcrParserMelonTest {
         // 3. Validation de la Source / Établissement
         assertWithMessage(OcrTestStrings.SOURCE_MISMATCH)
             .that(result.source)
-            .isEqualTo("VIN CONSEILLĖ")
+            .isEqualTo("Maxi GB")
 
         // 4. Validation du Vin Conseillé
         assertWithMessage(OcrTestStrings.WINE_VARIETAL_MISMATCH)
