@@ -110,11 +110,28 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                         }
                     }
                 }
+                val isIngrHeader = vocabulary.ocr1ProtectedIngredientsHeaders.any { header ->
+                    val cleanHeader = header.trim().lowercase()
+                    val cleanLine = workingLine.trim().lowercase().removeSuffix(":").removeSuffix(".").trim()
+                    cleanLine == cleanHeader || cleanLine.startsWith("$cleanHeader ") || cleanLine.startsWith("$cleanHeader(") || cleanLine.startsWith("$cleanHeader:")
+                } && workingLine.length < 35 && !containsAction
+
+                if (isIngrHeader) {
+                    return closedState
+                }
+
                 results.rawIngredientsList.add(workingLine)
-                val keywords = Ocr3Categorizer.extractKeywordsFromText(parsed.name, parsed.supplementalInfo)
-                    .filter { kw -> vocabulary.ingredientPreparationModifiers.none { mod -> mod.equals(kw, ignoreCase = true) } }
-                seenIngredientKeywords.addAll(keywords)
-                LogManager.d(TAG, String.format(vocabulary.logOcr3BlockEDispatchIngrSplit, parsed.quantity, parsed.unit, parsed.name, parsed.supplementalInfo, keywords))
+                val isSubHeader = vocabulary.ingredientSubHeaders.any { sub ->
+                    val cleanSub = sub.lowercase().trim()
+                    val cleanLine = workingLine.lowercase().removeSuffix(":").removeSuffix(".").trim()
+                    cleanLine == cleanSub
+                }
+                if (!isSubHeader) {
+                    val keywords = Ocr3Categorizer.extractKeywordsFromText(parsed.name, parsed.supplementalInfo)
+                        .filter { kw -> vocabulary.ingredientPreparationModifiers.none { mod -> mod.equals(kw, ignoreCase = true) } }
+                    seenIngredientKeywords.addAll(keywords)
+                    LogManager.d(TAG, String.format(vocabulary.logOcr3BlockEDispatchIngrSplit, parsed.quantity, parsed.unit, parsed.name, parsed.supplementalInfo, keywords))
+                }
             }
             Ocr3Categorizer.SECTION_INSTRUCTIONS -> {
                 val isTechDim = Ocr2Cleaner.isTechnicalDimension(workingLine, vocabulary)

@@ -7,7 +7,19 @@
     <!-- EN-TÊTES PROTÉGÉS & VARIANTES ÉVOLUTIVES DE LA SECTION INGRÉDIENTS (ÉTAPE 1 & 3 - LONGEST MATCH FIRST) -->
     <string-array name="ocr1_protected_ingredients_headers">
         <item>ingrédients nécessaires</item>
+        <item>dans votre marché</item>
+        <item>dans votre marche</item>
+        <item>dans votre marchė</item>
+        <item>dans votre marchè</item>
+        <item>sur votre marché</item>
+        <item>sur votre marche</item>
+        <item>sur votre marchė</item>
+        <item>sur votre marchè</item>
         <item>ce qu\'il vous faut</item>
+        <item>votre marché</item>
+        <item>votre marche</item>
+        <item>votre marchė</item>
+        <item>votre marchè</item>
         <item>ingrédients</item>
         <item>ingrédient</item>
         <item>ingredients</item>

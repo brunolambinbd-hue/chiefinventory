@@ -65,7 +65,8 @@ object Ocr4Merger {
                 val cleanNext = normalizedLine.lowercase().removeSuffix(":").removeSuffix(".").trim()
                 cleanNext == cleanSub
             }
-            val allowMerge = !isNextSubHeader && (!isNewStart && (!isNextCommonIngredient || prevIsHanging) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || prevEndsWithRangeConnector)
+            val nextIsComplement = mandatoryComplements.any { it.trim().equals(normalizedLine, ignoreCase = true) }
+            val allowMerge = !isNextSubHeader && (!isNewStart && (!isNextCommonIngredient || prevIsHanging || nextIsComplement) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || nextIsComplement || prevEndsWithRangeConnector)
 
             if (allowMerge) {
                 if (prevWasHyphenated) {
@@ -161,7 +162,7 @@ object Ocr4Merger {
             }
             val hasExplicitStepMarker = Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(line) || Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(normalizedLine)
             val lineStartsWithConjunction = Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(line) || Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(normalizedLine)
-            val isNextStep = !prevWasHyphenated && (hasExplicitStepMarker || currentEndsWithPeriod || (!isAbbreviationDot && !currentEndsWithConjunction && !lineStartsWithConjunction && (isNewStep(line, vocab) || isNewStep(normalizedLine, vocab))))
+            val isNextStep = !isAbbreviationDot && !prevWasHyphenated && (hasExplicitStepMarker || currentEndsWithPeriod || (!currentEndsWithConjunction && !lineStartsWithConjunction && (isNewStep(line, vocab) || isNewStep(normalizedLine, vocab))))
 
             if (currentBlock.isNotEmpty() && !isNextStep) {
                 if (prevWasHyphenated) {
@@ -191,8 +192,11 @@ object Ocr4Merger {
                     val matchesConjDot = sentenceConjunctions.any { conj ->
                         blockClean.endsWith(" ${conj.trim().lowercase()}.")
                     }
-                    val endsWithConjunctionDot = matchesConjDot || blockClean.endsWith(",.") || (endsWithParasiteArticle && blockClean.endsWith("."))
-                    val base = if (endsWithConjunctionDot) blockClean.dropLast(1).trimEnd() else blockClean
+                    val isAbbreviationDot = vocab.culinaryMeasurementUnits.any { unit ->
+                        unit.endsWith(".") && blockClean.lowercase().endsWith(" ${unit.lowercase()}")
+                    }
+                    val endsWithConjunctionDot = matchesConjDot || blockClean.endsWith(",.") || (endsWithParasiteArticle && blockClean.endsWith(".")) || isAbbreviationDot
+                    val base = if (endsWithConjunctionDot && !isAbbreviationDot) blockClean.dropLast(1).trimEnd() else blockClean
                     val nextText = if (endsWithConjunctionDot && normalizedLine.isNotEmpty() && normalizedLine[0].isUpperCase()) {
                         normalizedLine[0].lowercase() + normalizedLine.substring(1)
                     } else {
@@ -223,11 +227,7 @@ object Ocr4Merger {
      * @return La liste des phrases isolées.
      */
     private fun splitIntoSentences(text: String): List<String> {
-        val vocab = OcrVocabularyLoader.loadFromProjectResources()
-        val abbrevs = vocab.culinaryMeasurementUnits.filter { it.endsWith(".") }.map { Regex.escape(it.dropLast(1)) }
-        val abbrevPattern = if (abbrevs.isNotEmpty()) "(?<!\\b(?:${abbrevs.joinToString("|")}))" else ""
-        val pattern = Regex("$abbrevPattern(?<=[.帖!?])\\s+")
-        return text.split(pattern).map { it.trim() }.filter { it.isNotEmpty() }
+        return Ocr4MergerSentenceSplitter.splitIntoSentences(text)
     }
 
     /**

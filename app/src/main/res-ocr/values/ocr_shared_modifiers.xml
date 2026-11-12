@@ -3,45 +3,43 @@
     <string-array name="ingredient_preparation_modifiers">
 <item>en fines branches</item>
 <item>en fines tranches</item>
+<item>fraîches hachėes</item>
+<item>fraîches hachées</item>
+<item>fraiches hachees</item>
+<item>fraîche hachėe</item>
+<item>fraîche hachèe</item>
+<item>fraîche hachée</item>
+<item>fraiche hachee</item>
 <item>décortiquées</item>
 <item>en quartiers</item>
-<item>en rondelles</item>
 <item>frais hachés</item>
 <item>décortiquée</item>
 <item>décortiqués</item>
 <item>dénoyautées</item>
 <item>effeuillées</item>
+<item>en rondelles</item>
+<item>frais haché</item>
+<item>en morceaux</item>
+<item>en tranches</item>
 <item>en branches</item>
 <item>en feuilles</item>
 <item>en lamelles</item>
-<item>en morceaux</item>
-<item>en tranches</item>
-<item>à point</item>
-<item>cuites</item>
-<item>cuits</item>
-<item>cuite</item>
-<item>cuit</item>
-<item>frais haché</item>
-<item>concassées</item>
 <item>décortiqué</item>
 <item>dénoyautée</item>
 <item>dénoyautés</item>
 <item>effeuillée</item>
 <item>effeuillés</item>
-<item>concassée</item>
-<item>concassés</item>
-<item>découpées</item>
+<item>concassées</item>
 <item>dénoyauté</item>
 <item>effeuillé</item>
 <item>fouettées</item>
 <item>nettoyées</item>
 <item>surgelées</item>
 <item>égouttées</item>
-<item>ciselées</item>
-<item>concassé</item>
-<item>découpée</item>
-<item>découpés</item>
-<item>en cubes</item>
+<item>concassée</item>
+<item>concassés</item>
+<item>découpées</item>
+<item>émincées</item>
 <item>fouettée</item>
 <item>fouettés</item>
 <item>fraîches</item>
@@ -53,7 +51,12 @@
 <item>surgelés</item>
 <item>égouttée</item>
 <item>égouttés</item>
-<item>émincées</item>
+<item>ciselées</item>
+<item>découpée</item>
+<item>découpés</item>
+<item>concassé</item>
+<item>émincée</item>
+<item>émincés</item>
 <item>ciselée</item>
 <item>ciselés</item>
 <item>coupées</item>
@@ -72,8 +75,10 @@
 <item>pressés</item>
 <item>surgelé</item>
 <item>égoutté</item>
-<item>émincée</item>
-<item>émincés</item>
+<item>en cubes</item>
+<item>à point</item>
+<item>cuites</item>
+<item>émincé</item>
 <item>belles</item>
 <item>ciselé</item>
 <item>coupée</item>
@@ -94,7 +99,6 @@
 <item>petits</item>
 <item>pressé</item>
 <item>râpées</item>
-<item>émincé</item>
 <item>beaux</item>
 <item>belle</item>
 <item>coupé</item>
@@ -114,11 +118,14 @@
 <item>petit</item>
 <item>râpée</item>
 <item>râpés</item>
+<item>cuits</item>
+<item>cuite</item>
 <item>beau</item>
 <item>fine</item>
 <item>fumé</item>
 <item>pelé</item>
 <item>râpé</item>
+<item>cuit</item>
     </string-array>
 
     <!-- Modificateurs de préparation de fin d'élément (Étape 4 Splitter - Longest Match First) -->

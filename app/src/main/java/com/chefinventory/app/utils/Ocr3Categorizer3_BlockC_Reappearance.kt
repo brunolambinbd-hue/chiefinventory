@@ -155,7 +155,8 @@ object Ocr3Categorizer3_BlockC_Reappearance {
         val isolatedMod = isIsolatedModifier(lowerLine, vocabulary.ingredientPreparationModifiers)
 
         val hasInstructionTrigger = vocabulary.instructionSwitchKeywords.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(workingLine) }
-        val isSubHeader = vocabulary.ingredientSubHeaders.any { it.equals(workingLine, ignoreCase = true) }
+        val cleanSubHeaderLine = workingLine.lowercase().removeSuffix(":").removeSuffix(".").trim()
+        val isSubHeader = vocabulary.ingredientSubHeaders.any { it.trim().equals(cleanSubHeaderLine, ignoreCase = true) }
 
         val isCommonIngrStart = vocabulary.commonIngredientsNoQty.any { lowerLine.startsWith(it.lowercase()) }
         val looksLikeIngredient = (hasQuantity || hasWeight || isolatedMod || isCommonIngrStart) && !hasInstructionTrigger && !isReappearance

@@ -44,7 +44,8 @@ object Ocr5BeautifierIngredient {
             cleaned
         }.filter { line ->
             val lower = line.lowercase().trim().removeSuffix(":").removeSuffix(".")
-            line.isNotBlank() && lower !in headerTrashWords && lower !in standaloneTrashWords
+            val isHeaderTrash = headerTrashWords.any { header -> lower == header || lower.startsWith("$header ") || lower.startsWith("$header(") || lower.startsWith("$header:") }
+            line.isNotBlank() && !isHeaderTrash && lower !in standaloneTrashWords
         }
     }
 }

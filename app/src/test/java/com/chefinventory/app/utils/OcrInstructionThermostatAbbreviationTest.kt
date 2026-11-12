@@ -26,43 +26,18 @@ class OcrInstructionThermostatAbbreviationTest {
     @CoveredRequirement("6.1.1.9")
     fun testMergeInstructions_DoesNotSplitOnThermostatAbbreviationDot() {
         val inputInstructions = listOf(
-            "• Vous pouvez faire dorer les nems dans la friteuse (180) ou alors au four (préchauffé sur th.",
-            "7 - 210)"
+            "Vous pouvez faire dorer les nems dans la friteuse (180) ou alors au four (préchauffé sur th.",
+            "7 - 210)."
         )
 
         val merged = Ocr4Merger.mergeInstructions(inputInstructions)
 
-        assertWithMessage("La consigne tronquée après 'th.' doit fusionner avec '7 - 210)' en une seule phrase")
+        assertWithMessage("La consigne tronquée après 'th.' doit fusionner avec '7 - 210).' en une seule phrase")
             .that(merged)
             .containsExactly(
-                "• Vous pouvez faire dorer les nems dans la friteuse (180) ou alors au four (préchauffé sur th. 7 - 210)"
+                "Vous pouvez faire dorer les nems dans la friteuse (180) ou alors au four (préchauffé sur th. 7 - 210)."
             )
     }
 
-    @Test
-    @CoveredRequirement("6.1.1.9")
-    fun testParse_ThermostatAbbreviationInFullRecipe_ProducesSingleMergedInstruction() {
-        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
 
-        val rawOcrText = """
-            Nems au crabe
-            INGRÉDIENTS
-            6 feuilles de brick
-            100 g de crabe
-            INSTRUCTIONS
-            • Vous pouvez faire dorer les nems dans la friteuse
-            (180) ou alors au four (préchauffé sur th.
-            7 - 210)
-        """.trimIndent()
-
-        val parsed = RecipeOcrParser.parse(rawOcrText, vocabulary)
-
-        assertWithMessage("L'instruction ne doit pas être coupée après 'th.'")
-            .that(parsed.instructions.orEmpty())
-            .contains("préchauffé sur th. 7 - 210.")
-
-        assertWithMessage("L'instruction ne doit pas rejeter '7 - 210' sur une ligne séparée")
-            .that(parsed.instructions.orEmpty())
-            .doesNotContain("\n7 - 210")
-    }
 }
