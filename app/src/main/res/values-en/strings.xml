@@ -409,5 +409,12 @@
     <string name="hint_recipe_cook_time">Cook(min)</string>
     <string name="hint_recipe_resting_time">Rest(min)</string>
     <string name="hint_recipe_servings">Serv.</string>
+    <string name="hint_recipe_price_rating">Cost / Budget</string>
+
+    <string-array name="recipe_price_ratings">
+        <item>Eco</item>
+        <item>Medium</item>
+        <item>High</item>
+    </string-array>
 
 </resources>

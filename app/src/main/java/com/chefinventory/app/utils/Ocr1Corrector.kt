@@ -98,9 +98,10 @@ object Ocr1Corrector {
         // 5. Suppression du préfixe 't' parasite devant un chiffre (ex: "t 10 min" -> "10 min")
         text = text.replace(OcrRegexes.Normalizer.PREFIX_T_BEFORE_DIGIT, "")
 
-        // 6. Suppression des symboles de tolérance (±, +/-) et des puces parasites devant un chiffre (ex: "! 100 g" -> "100 g")
+        // 6. Suppression des symboles de tolérance (±, +/-, +) et des puces parasites devant un chiffre (ex: "! 100 g" -> "100 g")
         text = text.replace("±", "").replace("+/-", "").replace("+-", "")
             .replace(OcrRegexes.Normalizer.ENVIRON_WORD, "")
+            .replace(OcrRegexes.Normalizer.PLUS_TOLERANCE_SYMBOL, "")
             .replace(OcrRegexes.Normalizer.SYMBOL_BEFORE_DIGIT, "")
 
         // 7. Suppression du bruit de dates, devises et prix (ex: "14/12/94", "15.50 EUR", "20 €")

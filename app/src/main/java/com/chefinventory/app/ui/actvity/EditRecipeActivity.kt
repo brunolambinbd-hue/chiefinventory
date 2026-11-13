@@ -74,6 +74,7 @@ class EditRecipeActivity : AppCompatActivity() {
         }
         setupCategoryDropdown()
         setupDifficultyDropdown()
+        setupPriceRatingDropdown()
         setupSourceWebLink()
 
         if (recipeId != -1L) {
@@ -133,6 +134,36 @@ class EditRecipeActivity : AppCompatActivity() {
         val difficulties = resources.getStringArray(R.array.recipe_difficulties)
         val adapterDropdown = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, difficulties)
         binding.actvDifficulty.setAdapter(adapterDropdown)
+    }
+
+    @Suppress("UsePropertyAccessSyntax")
+    private fun setupPriceRatingDropdown() {
+        val priceRatings = resources.getStringArray(R.array.recipe_price_ratings)
+        val adapterDropdown = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, priceRatings)
+        binding.actvPriceRating.setAdapter(adapterDropdown)
+    }
+
+    private fun mapPriceRatingToDisplay(codeOrName: String?): String {
+        if (codeOrName.isNullOrBlank()) return ""
+        val ratings = resources.getStringArray(R.array.recipe_price_ratings)
+        return when (codeOrName.trim()) {
+            "1", "Éco", "Eco", "Bon marché" -> ratings.getOrElse(0) { "" }
+            "2", "Moyen", "Medium", "Coût moyen" -> ratings.getOrElse(1) { "" }
+            "3", "Cher", "High", "Assez cher" -> ratings.getOrElse(2) { "" }
+            else -> codeOrName
+        }
+    }
+
+    private fun mapDisplayToPriceRating(displayText: String?): String? {
+        if (displayText.isNullOrBlank()) return null
+        val ratings = resources.getStringArray(R.array.recipe_price_ratings)
+        val idx = ratings.indexOfFirst { it.equals(displayText.trim(), ignoreCase = true) }
+        return when (idx) {
+            0 -> "1"
+            1 -> "2"
+            2 -> "3"
+            else -> displayText.trim()
+        }
     }
 
     private fun setupSourceWebLink() {
@@ -214,6 +245,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.etRestingTime.setText(result.restingTime ?: "")
                 binding.etKcal.setText(result.kcalPerServing ?: "")
                 binding.actvDifficulty.setText(result.difficulty ?: "", false)
+                binding.actvPriceRating.setText(mapPriceRatingToDisplay(result.priceRating), false)
                 binding.etNutritionInfo.setText(result.nutritionInfo ?: "")
             } catch (e: Exception) {
                 Log.e("EditRecipe", "OCR failed", e)
@@ -234,6 +266,7 @@ class EditRecipeActivity : AppCompatActivity() {
         updateSourceWebLinkState(recipe.source)
         binding.etKcal.setText(recipe.kcalPerServing?.toString() ?: "")
         binding.actvDifficulty.setText(recipe.difficulty ?: "", false)
+        binding.actvPriceRating.setText(mapPriceRatingToDisplay(recipe.priceRating), false)
         binding.etNutritionInfo.setText(recipe.nutritionInfo ?: "")
         
         recipe.imageUri?.let {
@@ -274,6 +307,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 servings = binding.etServings.text.toString().toIntOrNull(),
                 kcalPerServing = binding.etKcal.text.toString().toIntOrNull(),
                 difficulty = binding.actvDifficulty.text.toString().takeIf { it.isNotBlank() },
+                priceRating = mapDisplayToPriceRating(binding.actvPriceRating.text.toString()),
                 wineRecommendation = binding.etWine.text.toString(),
                 source = binding.etSource.text.toString(),
                 nutritionInfo = binding.etNutritionInfo.text.toString().takeIf { it.isNotBlank() },

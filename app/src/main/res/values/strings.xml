@@ -425,5 +425,12 @@
     <string name="hint_recipe_cook_time">Cuis(min)</string>
     <string name="hint_recipe_resting_time">Repos(min)</string>
     <string name="hint_recipe_servings">Pers.</string>
+    <string name="hint_recipe_price_rating">Coût / Budget</string>
+
+    <string-array name="recipe_price_ratings">
+        <item>Éco</item>
+        <item>Moyen</item>
+        <item>Cher</item>
+    </string-array>
 
 </resources>

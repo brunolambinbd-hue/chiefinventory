@@ -70,7 +70,7 @@ class RecipeOcrParserTest {
         assertThat(resultFromRes.servings).isEqualTo("4")
         assertThat(resultFromRes.kcalPerServing).isEqualTo("450")
         assertThat(resultFromRes.difficulty).isEqualTo("facile")
-        assertThat(resultFromRes.priceRating).isEqualTo("Bon marché")
+        assertThat(resultFromRes.priceRating).isEqualTo(RecipeMetadataParser2_BlockB_Price.PRICE_LOW)
 
         // Test severely corrupted noise line
         val noiseOnlyOcr = "12345 !@#\$%^&*() ___ --"

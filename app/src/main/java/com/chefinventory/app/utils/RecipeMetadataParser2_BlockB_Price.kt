@@ -8,6 +8,10 @@ import java.text.Normalizer
 @Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
 object RecipeMetadataParser2_BlockB_Price {
 
+    const val PRICE_LOW = "1"
+    const val PRICE_MEDIUM = "2"
+    const val PRICE_HIGH = "3"
+
     /**
      * Extraie et qualifie la catégorie de prix/budget de la ligne [rawWorkingLine].
      *
@@ -73,12 +77,12 @@ object RecipeMetadataParser2_BlockB_Price {
 
         if (matchedCategory != null) {
             if (results.detectedPriceRating == null) {
-                val formattedPrice = when {
-                    matchedLow != null -> "Bon marché"
-                    matchedMedium != null -> "Coût moyen"
-                    else -> "Assez cher"
+                val priceCode = when {
+                    matchedLow != null -> PRICE_LOW
+                    matchedMedium != null -> PRICE_MEDIUM
+                    else -> PRICE_HIGH
                 }
-                results.detectedPriceRating = formattedPrice
+                results.detectedPriceRating = priceCode
             }
             workingLine = OcrRegexes.getSpellingRepairPattern(matchedCategory).matcher(workingLine).replaceAll("").trim()
             priceTitles.forEach { pTitle ->

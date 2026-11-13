@@ -73,6 +73,7 @@ object OcrRegexes {
 
         /** Corrections des erreurs de chiffres et d'articles (ex: "|c" -> "1 c", "l d'eau" -> "1 l d'eau"). */
         val NUMBER_CORRECTIONS: List<Pair<Regex, String>> = listOf(
+            Regex("(?i)^[|il!I]\\s+(?=\\p{L})") to "1 ",
             Regex("(?i)^[|il!]c(?=[\\s.àa])") to "1 c",
             Regex("(?i)(?<=\\d)\\s*l\\s*d['’\\s]*eau\\b") to " l d'eau",
             Regex("(?i)(?<![\\p{L}\\d])l\\s*d['’\\s]*eau\\b") to "1 l d'eau",
@@ -171,6 +172,9 @@ object OcrRegexes {
 
         /** Suppression du mot de tolérance 'environ' (ex: "environ 250 g" -> "250 g"). */
         val ENVIRON_WORD: Regex = Regex("(?i)\\benviron\\b")
+
+        /** Suppression du symbole '+' de tolérance/approximation devant un chiffre ou une fraction (ex: "+ 1/2 heure" -> "1/2 heure"). */
+        val PLUS_TOLERANCE_SYMBOL: Regex = Regex("(?<=\\s|^)\\+\\s*(?=\\d|1/2|1/4|3/4)")
 
         /** Suppression des puces/symboles parasites devant un chiffre (ex: "! 100 g" -> "100 g"). */
         val SYMBOL_BEFORE_DIGIT: Regex = Regex("(?i)^[!|il!|•\\-*]\\s+(?=\\d)")

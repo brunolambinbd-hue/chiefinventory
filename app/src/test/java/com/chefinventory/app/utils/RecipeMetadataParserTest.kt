@@ -103,9 +103,9 @@ class RecipeMetadataParserTest {
 
         val results1 = RawSections()
         val res1 = RecipeMetadataParser.extractMetadata("Prix : bon marché", results1, vocabulary)
-        assertWithMessage("Le niveau de prix 'Bon marché' doit être extrait")
+        assertWithMessage("Le niveau de prix bas doit être extrait avec le code '1'")
             .that(results1.detectedPriceRating)
-            .isEqualTo("Bon marché")
+            .isEqualTo(RecipeMetadataParser2_BlockB_Price.PRICE_LOW)
 
         assertWithMessage("La ligne de prix 'Prix : bon marché' doit être qualifiée de méta-donnée pure")
             .that(res1.isPureMetadata)
@@ -113,9 +113,9 @@ class RecipeMetadataParserTest {
 
         val results2 = RawSections()
         val res2 = RecipeMetadataParser.extractMetadata("Coût moyen", results2, vocabulary)
-        assertWithMessage("Le niveau de prix 'Coût moyen' doit être extrait")
+        assertWithMessage("Le niveau de prix moyen doit être extrait avec le code '2'")
             .that(results2.detectedPriceRating)
-            .isEqualTo("Coût moyen")
+            .isEqualTo(RecipeMetadataParser2_BlockB_Price.PRICE_MEDIUM)
 
         assertWithMessage("La ligne 'Coût moyen' doit être qualifiée de méta-donnée pure")
             .that(res2.isPureMetadata)
@@ -123,9 +123,9 @@ class RecipeMetadataParserTest {
 
         val results3 = RawSections()
         val res3 = RecipeMetadataParser.extractMetadata("Assez cher", results3, vocabulary)
-        assertWithMessage("Le niveau de prix 'Assez cher' doit être extrait")
+        assertWithMessage("Le niveau de prix élevé doit être extrait avec le code '3'")
             .that(results3.detectedPriceRating)
-            .isEqualTo("Assez cher")
+            .isEqualTo(RecipeMetadataParser2_BlockB_Price.PRICE_HIGH)
 
         assertWithMessage("La ligne 'Assez cher' doit être qualifiée de méta-donnée pure")
             .that(res3.isPureMetadata)

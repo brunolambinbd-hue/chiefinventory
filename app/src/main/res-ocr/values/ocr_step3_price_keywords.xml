@@ -24,13 +24,18 @@
 <item>pas cher</item>
     </string-array>
 
-    <!-- 2. NIVEAU MOYEN (Normalisé en : "Coût moyen") -->
+    <!-- 2. NIVEAU MOYEN (Normalisé en : "2") -->
     <string-array name="price_categories_medium">
+<item>budget raisonnable</item>
+<item>coût raisonnable</item>
+<item>cout raisonnable</item>
+<item>prix raisonnable</item>
 <item>moyennement cher</item>
 <item>budget moyen</item>
 <item>cout moyen</item>
 <item>coût moyen</item>
 <item>prix moyen</item>
+<item>raisonnable</item>
 <item>moyen</item>
     </string-array>
 
