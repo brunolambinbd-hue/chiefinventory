@@ -168,7 +168,12 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                 val hasHardOrWeight = if (hasHardQuantity) true else hasWeight
                 val isStrictWithQty = isStrictIngredient && hasHardOrWeight
                 val isNarrativeCompound = Ocr3NarrativeCompoundHelper.isNarrativeCompoundInstruction(workingLine)
-                val isCommonWithNoAction = if (isCommonIngredient && !containsAction && !isNarrativeCompound) {
+                val isKeywordAlreadySeen = closedState && vocabulary.commonIngredientsNoQty.any { ingredient ->
+                    ingredient.length >= 4 && lowerLine.contains(ingredient.lowercase()) &&
+                            seenIngredientKeywords.any { seen -> seen.equals(ingredient, ignoreCase = true) }
+                }
+
+                val isCommonWithNoAction = if (isCommonIngredient && !containsAction && !isNarrativeCompound && !isKeywordAlreadySeen) {
                     !startsWithBullet
                 } else {
                     false
@@ -177,7 +182,7 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                 val isPriorityIngredient = vocabulary.priorityIngredientPhrases.any { phrase ->
                     lowerLine.contains(phrase.lowercase())
                 }
-                val shouldPullBack = isPriorityIngredient || evaluateShouldPullBack(
+                var shouldPullBack = isPriorityIngredient || evaluateShouldPullBack(
                     isReappearance = isReappearance,
                     isHyphenatedInstruction = isHyphenatedInstruction,
                     isEndMarkerLine = endMarkerLine,
@@ -186,6 +191,10 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                     isStrictWithQty = isStrictWithQty,
                     isCommonWithNoAction = isCommonWithNoAction
                 )
+
+                if (isKeywordAlreadySeen) {
+                    shouldPullBack = false
+                }
 
                 if (shouldPullBack) {
                     if (endMarkerLine) {
