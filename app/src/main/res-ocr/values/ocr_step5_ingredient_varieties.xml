@@ -36,4 +36,26 @@
 <item>chou</item>
 <item>riz</item>
     </string-array>
+
+    <!-- Origines et variétés de sel autorisées pour la fusion "sel de ..." -->
+    <string-array name="salt_variety_origins">
+        <item>Guérande</item>
+        <item>Camargue</item>
+        <item>Himalaya</item>
+        <item>cuisine</item>
+        <item>table</item>
+        <item>mer</item>
+    </string-array>
+
+    <!-- Origines et appellations autorisées pour la tournure "poivre [de | du | d'] <item>" (Longest Match First) -->
+    <string-array name="pepper_de_origin_items">
+        <item>Madagascar</item>
+        <item>Jamaïque</item>
+        <item>Sichuan</item>
+        <item>Cayenne</item>
+        <item>Sechuan</item>
+        <item>moulin</item>
+        <item>Kampot</item>
+        <item>Penja</item>
+    </string-array>
 </resources>

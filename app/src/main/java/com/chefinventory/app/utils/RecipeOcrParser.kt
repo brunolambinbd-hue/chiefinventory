@@ -42,7 +42,14 @@ object RecipeOcrParser {
      * @return Le résultat d'analyse structuré [RecipeOcrResult].
      */
     fun parse(visionText: Text, vocabulary: OcrVocabulary): RecipeOcrResult {
-        Log.d(TAG, "=== DÉBUT PIPELINE OCR (Extraction par blocs) ===")
+        Log.d(TAG, "=== DÉBUT PIPELINE OCR (Extraction par blocs 2D) ===")
+
+        visionText.textBlocks.forEach { block ->
+            block.lines.forEach { line ->
+                val box = line.boundingBox
+                Log.d(TAG, "RAW SCAN 2D: '${line.text}' [top=${box?.top}, left=${box?.left}, bottom=${box?.bottom}, right=${box?.right}]")
+            }
+        }
 
         val rawLines = visionText.textBlocks.flatMap { block ->
             block.lines.map { it.text }

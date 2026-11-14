@@ -66,7 +66,10 @@ object Ocr4Merger {
                 cleanNext == cleanSub
             }
             val nextIsComplement = mandatoryComplements.any { it.trim().equals(normalizedLine, ignoreCase = true) }
-            val allowMerge = !isNextSubHeader && (!isNewStart && (!isNextCommonIngredient || prevIsHanging || nextIsComplement) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || nextIsComplement || prevEndsWithRangeConnector)
+            val isInvalidSaltMerge = current.lowercase().trim().endsWith("sel") &&
+                    (normalizedLine.lowercase().startsWith("de ") || normalizedLine.lowercase().startsWith("d'")) &&
+                    !Ocr4MergerSeasoningHelper.isSaltWithPrepositionOrigin(normalizedLine, vocab.saltVarietyOrigins)
+            val allowMerge = !isNextSubHeader && !isInvalidSaltMerge && (!isNewStart && (!isNextCommonIngredient || prevIsHanging || nextIsComplement) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || nextIsComplement || prevEndsWithRangeConnector)
 
             if (allowMerge) {
                 if (prevWasHyphenated) {

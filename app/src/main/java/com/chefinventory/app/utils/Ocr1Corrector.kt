@@ -47,6 +47,22 @@ object Ocr1Corrector {
         get() = loadDefaultDiacriticRepairs()
 
     /**
+     * Effectue la correction complète d'une ligne spatiale 2D [OcrTextLine] issue de l'OCR en préservant ses coordonnées BoundingBox.
+     *
+     * @param line La ligne spatiale 2D [OcrTextLine].
+     * @param repairs Liste facultative de paires de réparations orthographiques.
+     * @param diacriticRepairs Liste facultative de réparations diacritiques.
+     * @return La ligne [OcrTextLine] corrigée avec BoundingBoxes conservées.
+     */
+    fun correctLine(line: OcrTextLine, repairs: List<String> = emptyList(), diacriticRepairs: List<String> = emptyList()): OcrTextLine {
+        if (line.text.isBlank()) return line.copy(text = "")
+        val correctedText = correct(line.text, repairs, diacriticRepairs)
+        val resultLine = line.copy(text = correctedText)
+        LogManager.d(TAG, "CORRECTED 2D: '${resultLine.text}' [top=${line.top}, left=${line.left}, bottom=${line.bottom}, right=${line.right}]")
+        return resultLine
+    }
+
+    /**
      * Effectue la correction complète d'une chaîne de texte brute issue de l'OCR.
      *
      * @param input La chaîne de texte brute.

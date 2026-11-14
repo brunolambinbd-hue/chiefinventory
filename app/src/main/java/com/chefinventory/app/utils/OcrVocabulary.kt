@@ -136,6 +136,7 @@ import java.io.File
 data class OcrVocabulary(
     val stepActionKeywords: List<String> = emptyList(),
     val commonIngredientsNoQty: List<String> = emptyList(),
+    val priorityIngredientPhrases: List<String> = emptyList(),
     val excludedOcrKeywords: List<String> = emptyList(),
     val ingredientPreparationModifiers: List<String> = emptyList(),
     val ingredientPreparationSuffixModifiers: List<String> = emptyList(),
@@ -161,6 +162,8 @@ data class OcrVocabulary(
     val hangingConnectors: List<String> = emptyList(),
     val ingredientVarietyQualifiers: List<String> = emptyList(),
     val baseIngredientsExpectingVariety: List<String> = emptyList(),
+    val saltVarietyOrigins: List<String> = emptyList(),
+    val pepperDeOriginItems: List<String> = emptyList(),
     val standaloneArticles: List<String> = emptyList(),
     val culinaryMeasurementUnits: List<String> = emptyList(),
     val titleSpellingRepairs: List<String> = emptyList(),
@@ -273,6 +276,7 @@ data class OcrVocabulary(
             val vocab = OcrVocabulary(
                 stepActionKeywords = getStringArraySafely(res, R.array.step_start_verbs) + getStringArraySafely(res, R.array.step_secondary_verbs) + getStringArraySafely(res, R.array.step_context_words) + getStringArraySafely(res, R.array.step_action_keywords_complement),
                 commonIngredientsNoQty = getStringArraySafely(res, R.array.common_ingredients_no_qty),
+                priorityIngredientPhrases = getStringArraySafely(res, R.array.priority_ingredient_phrases),
                 excludedOcrKeywords = getStringArraySafely(res, R.array.excluded_ocr_keywords),
                 ingredientPreparationModifiers = getStringArraySafely(res, R.array.ingredient_preparation_modifiers),
                 ingredientPreparationSuffixModifiers = getStringArraySafely(res, R.array.ingredient_preparation_suffix_modifiers),
@@ -298,6 +302,8 @@ data class OcrVocabulary(
                 hangingConnectors = getStringArraySafely(res, R.array.hanging_connectors),
                 ingredientVarietyQualifiers = getStringArraySafely(res, R.array.ingredient_variety_qualifiers),
                 baseIngredientsExpectingVariety = getStringArraySafely(res, R.array.base_ingredients_expecting_variety),
+                saltVarietyOrigins = getStringArraySafely(res, R.array.salt_variety_origins),
+                pepperDeOriginItems = getStringArraySafely(res, R.array.pepper_de_origin_items),
                 standaloneArticles = getStringArraySafely(res, R.array.standalone_articles),
                 culinaryMeasurementUnits = getStringArraySafely(res, R.array.culinary_measurement_units),
                 titleSpellingRepairs = getStringArraySafely(res, R.array.title_spelling_repairs),

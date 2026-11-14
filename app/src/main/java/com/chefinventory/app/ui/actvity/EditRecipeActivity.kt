@@ -23,6 +23,7 @@ import com.chefinventory.app.R
 import com.chefinventory.app.databinding.ActivityEditRecipeBinding
 import com.chefinventory.app.model.Location
 import com.chefinventory.app.model.Recipe
+import com.chefinventory.app.utils.ResourceHealthChecker
 import com.chefinventory.app.model.RecipeIngredient
 import com.chefinventory.app.ui.viewmodel.EditRecipeViewModel
 import com.chefinventory.app.ui.viewmodel.ViewModelFactory
@@ -76,6 +77,7 @@ class EditRecipeActivity : AppCompatActivity() {
         setupDifficultyDropdown()
         setupPriceRatingDropdown()
         setupSourceWebLink()
+        ResourceHealthChecker.check(this)
 
         if (recipeId != -1L) {
             binding.btnDelete.isVisible = true
@@ -218,8 +220,8 @@ class EditRecipeActivity : AppCompatActivity() {
         Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_scan_starting), Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {
             try {
-                val fullText: String = textRecognitionHelper.recognizeText(bitmap) ?: ""
-                val result = RecipeOcrParser.parse(fullText, resources)
+                val visionText = textRecognitionHelper.recognizeVisionText(bitmap) ?: return@launch
+                val result = RecipeOcrParser.parse(visionText, resources)
                 
                 result.title?.takeIf { it.isNotBlank() }?.let {
                     binding.etTitle.setText(it)

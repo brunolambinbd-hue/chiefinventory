@@ -162,7 +162,10 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                     false
                 }
 
-                val shouldPullBack = evaluateShouldPullBack(
+                val isPriorityIngredient = vocabulary.priorityIngredientPhrases.any { phrase ->
+                    lowerLine.contains(phrase.lowercase())
+                }
+                val shouldPullBack = isPriorityIngredient || evaluateShouldPullBack(
                     isReappearance = isReappearance,
                     isHyphenatedInstruction = isHyphenatedInstruction,
                     isEndMarkerLine = endMarkerLine,

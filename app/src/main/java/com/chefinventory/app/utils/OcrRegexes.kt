@@ -158,6 +158,15 @@ object OcrRegexes {
          * - `"d'huile d'olive"` ➔ Reste : `"huile d'olive"`
          */
         val DE_PREFIX: Regex = Regex("^(?:de\\s+|d['’]\\s*)", RegexOption.IGNORE_CASE)
+
+        /**
+         * Détecte les fragments de phrases d'instructions narratives associant deux ingrédients ("de X et une Y").
+         *
+         * Exemples :
+         * - `"de jus d'orange et une pincée de sel."` ➔ Match !
+         * - `"d'huile d'olive et un brin de romarin."` ➔ Match !
+         */
+        val NARRATIVE_COMPOUND_PATTERN: Regex = Regex("(?i)^d['’e]\\s+\\p{L}+.*\\b(?:et|plus)\\s+(?:une?|1)\\s+\\p{L}+")
     }
 
     /**

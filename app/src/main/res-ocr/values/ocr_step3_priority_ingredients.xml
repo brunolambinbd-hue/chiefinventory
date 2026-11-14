@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Expressions d'ingrédients à rattrapage prioritaire (Longest Match First) -->
+    <string-array name="priority_ingredient_phrases">
+        <item>du thym et du romarin frais</item>
+        <item>du persil et de la ciboulette</item>
+        <item>du thym et du romarin</item>
+        <item>persil et ciboulette</item>
+        <item>thym et romarin</item>
+        <item>beurre pour le moule</item>
+        <item>farine pour le plan de travail</item>
+        <item>huile pour la poêle</item>
+        <item>sucre glace pour le décor</item>
+    </string-array>
+</resources>

@@ -29,12 +29,14 @@ object Ocr3Categorizer4_BlockD_Classification {
         isStepNumber: Boolean,
         containsAction: Boolean,
         workingLineLength: Int,
-        startsWithBullet: Boolean
+        startsWithBullet: Boolean,
+        workingLine: String = ""
     ): Boolean {
         if (hasUnclosedParenthesis) return false
         if (hasInstructionTrigger) return true
         if (isReappearance) return true
         if (isStepNumber) return true
+        if (workingLine.isNotBlank() && OcrRegexes.Ingredients.NARRATIVE_COMPOUND_PATTERN.containsMatchIn(workingLine)) return true
         if (containsAction) {
             return workingLineLength > 25 || startsWithBullet
         }
@@ -123,7 +125,7 @@ object Ocr3Categorizer4_BlockD_Classification {
         val isStepNumber = Regex("^\\d{1,2}[.)\\-]\\s*").containsMatchIn(workingLine)
         val isInstructionSignal = isInstructionSignal(
             hasUnclosedParenthesis, hasInstructionTrigger, isReappearance,
-            isStepNumber, containsAction, workingLine.length, startsWithBullet
+            isStepNumber, containsAction, workingLine.length, startsWithBullet, workingLine
         )
 
         LogManager.d(TAG, String.format(vocabulary.logOcr3BlockDClassificationSummary, isReappearance, isInstructionSignal, currentSection))

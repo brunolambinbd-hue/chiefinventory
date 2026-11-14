@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Ingrédients courants sans quantité (Longest Match First) -->
     <string-array name="common_ingredients_no_qty">
 <item>des petites feuilles de chicon</item>
 <item>poivre de Cayenne, sel, poivre</item>
@@ -10,15 +11,15 @@
 <item>du thym et du romarin</item>
 <item>noix de muscade râpée</item>
 <item>persil et ciboulette</item>
+<item>piment d\'espelette</item>
 <item>feuilles de laurier</item>
+<item>coriandre fraîche</item>
+<item>coriandre fraiche</item>
 <item>feuille de laurier</item>
 <item>feuilles de chicon</item>
 <item>herbes de provence</item>
-<item>piment d\'espelette</item>
-<item>1 branche d\'aneth</item>
-<item>coriandre fraiche</item>
-<item>coriandre fraîche</item>
 <item>poivre de Cayenne</item>
+<item>1 branche d\'aneth</item>
 <item>poivre du moulin</item>
 <item>branche d\'aneth</item>
 <item>gingembre frais</item>
@@ -27,22 +28,21 @@
 <item>thym et romarin</item>
 <item>œufs de truite</item>
 <item>bouquet garni</item>
-<item>huile d\'olive</item>
-<item>salade de ble</item>
 <item>salade de blé</item>
+<item>salade de ble</item>
+<item>huile d\'olive</item>
 <item>sel et poivre</item>
 <item>fleur de sel</item>
 <item>persil frisé</item>
 <item>persil plat</item>
 <item>vinaigrette</item>
 <item>ciboulette</item>
-<item>ciboulette</item>
 <item>coriandre</item>
+<item>échalote</item>
 <item>cannelle</item>
 <item>cerfeuil</item>
 <item>estragon</item>
 <item>moutarde</item>
-<item>échalote</item>
 <item>basilic</item>
 <item>italien</item>
 <item>laurier</item>
@@ -55,17 +55,16 @@
 <item>menthe</item>
 <item>origan</item>
 <item>persil</item>
-<item>persil</item>
 <item>poivre</item>
-<item>sauce</item>
 <item>salade</item>
 <item>aneth</item>
 <item>curry</item>
 <item>huile</item>
 <item>sauge</item>
+<item>sauce</item>
 <item>thym</item>
-<item>ail</item>
 <item>jus</item>
+<item>ail</item>
 <item>sel</item>
     </string-array>
 </resources>

@@ -61,6 +61,7 @@ object OcrVocabularyLoader {
         val vocabulary = OcrVocabulary(
             stepActionKeywords = combinedStepActionKeywords,
             commonIngredientsNoQty = getList(stringArrays, "common_ingredients_no_qty"),
+            priorityIngredientPhrases = getList(stringArrays, "priority_ingredient_phrases"),
             excludedOcrKeywords = getList(stringArrays, "excluded_ocr_keywords"),
             ingredientPreparationModifiers = getList(stringArrays, "ingredient_preparation_modifiers"),
             ingredientPreparationSuffixModifiers = getList(stringArrays, "ingredient_preparation_suffix_modifiers"),
@@ -86,6 +87,8 @@ object OcrVocabularyLoader {
             hangingConnectors = getList(stringArrays, "hanging_connectors"),
             ingredientVarietyQualifiers = getList(stringArrays, "ingredient_variety_qualifiers"),
             baseIngredientsExpectingVariety = getList(stringArrays, "base_ingredients_expecting_variety"),
+            saltVarietyOrigins = getList(stringArrays, "salt_variety_origins"),
+            pepperDeOriginItems = getList(stringArrays, "pepper_de_origin_items"),
             standaloneArticles = getList(stringArrays, "standalone_articles"),
             culinaryMeasurementUnits = getList(stringArrays, "culinary_measurement_units"),
             titleSpellingRepairs = getList(stringArrays, "title_spelling_repairs"),

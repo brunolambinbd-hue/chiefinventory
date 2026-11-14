@@ -96,6 +96,10 @@ object ResourceHealthChecker {
         }
 
         // 1. Contrôles du Domaine OCR (Dictionnaires & Verbes)
+        val commonIngrs = try { res.getStringArray(R.array.common_ingredients_no_qty) } catch (_: Exception) { null }
+        val containsThymRomarin = commonIngrs?.contains("du thym et du romarin frais") == true
+        com.parabd.lib.traceability.utils.LogManager.d("ResourceHealthChecker", "RESOURCE DIAGNOSTIC: common_ingredients_no_qty taille = ${commonIngrs?.size ?: 0}, contient 'du thym et du romarin frais': $containsThymRomarin")
+
         checkArray("OCR - Verbes", "step_start_verbs", R.array.step_start_verbs, minExpected = 5)
         checkArray("OCR - Verbes", "step_secondary_verbs", R.array.step_secondary_verbs, minExpected = 10)
         checkArray("OCR - Unités", "culinary_measurement_units", R.array.culinary_measurement_units, minExpected = 10)
