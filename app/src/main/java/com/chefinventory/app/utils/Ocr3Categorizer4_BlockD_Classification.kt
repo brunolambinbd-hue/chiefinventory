@@ -36,7 +36,7 @@ object Ocr3Categorizer4_BlockD_Classification {
         if (hasInstructionTrigger) return true
         if (isReappearance) return true
         if (isStepNumber) return true
-        if (workingLine.isNotBlank() && OcrRegexes.Ingredients.NARRATIVE_COMPOUND_PATTERN.containsMatchIn(workingLine)) return true
+        if (workingLine.isNotBlank() && Ocr3NarrativeCompoundHelper.isNarrativeCompoundInstruction(workingLine)) return true
         if (containsAction) {
             return workingLineLength > 25 || startsWithBullet
         }

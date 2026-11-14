@@ -167,7 +167,8 @@ object Ocr3Categorizer5_BlockE_Dispatch {
 
                 val hasHardOrWeight = if (hasHardQuantity) true else hasWeight
                 val isStrictWithQty = isStrictIngredient && hasHardOrWeight
-                val isCommonWithNoAction = if (isCommonIngredient && !containsAction) {
+                val isNarrativeCompound = Ocr3NarrativeCompoundHelper.isNarrativeCompoundInstruction(workingLine)
+                val isCommonWithNoAction = if (isCommonIngredient && !containsAction && !isNarrativeCompound) {
                     !startsWithBullet
                 } else {
                     false
