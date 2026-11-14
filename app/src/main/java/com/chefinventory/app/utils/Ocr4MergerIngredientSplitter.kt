@@ -28,8 +28,10 @@ object Ocr4MergerIngredientSplitter {
         var cleanedLine = line.trim()
         if (cleanedLine.isBlank()) return emptyList()
 
-        val lower = cleanedLine.lowercase()
-        if (commonItems.any { it.trim().lowercase() == lower }) {
+        val lower = java.text.Normalizer.normalize(cleanedLine.lowercase(), java.text.Normalizer.Form.NFC)
+        val isSeasoningPhrase = lower.startsWith("sel de ") || lower.startsWith("sel du ") || lower.startsWith("sel d'") ||
+                lower.startsWith("poivre de ") || lower.startsWith("poivre du ") || lower.startsWith("poivre d'")
+        if (isSeasoningPhrase || commonItems.any { java.text.Normalizer.normalize(it.trim().lowercase(), java.text.Normalizer.Form.NFC) == lower }) {
             return listOf(cleanedLine)
         }
 

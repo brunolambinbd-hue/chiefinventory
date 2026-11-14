@@ -152,11 +152,13 @@ object RecipeOcrParser {
 
         // ÉTAPE 4 : Fusion (Merger)
         val mergedIngredients = Ocr4Merger.mergeIngredients(
-            sections.rawIngredientsList, 
-            preparationModifiers, 
-            commonIngredients, 
-            vocabulary.mandatoryComplementIngredients,
-            vocabulary.ingredientConnectors
+            rawIngredients = sections.rawIngredientsList, 
+            preparationModifiers = preparationModifiers, 
+            commonIngredients = commonIngredients, 
+            mandatoryComplements = vocabulary.mandatoryComplementIngredients,
+            customConnectors = vocabulary.ingredientConnectors,
+            saltOrigins = vocabulary.saltVarietyOrigins,
+            pepperOrigins = vocabulary.pepperDeOriginItems
         )
         val mergedInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
 

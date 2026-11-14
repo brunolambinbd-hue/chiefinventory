@@ -89,7 +89,8 @@ object Ocr3Categorizer5_BlockE_Dispatch {
         looksLikeIngredient: Boolean,
         vocabulary: OcrVocabulary,
         results: RawSections,
-        seenIngredientKeywords: MutableSet<String>
+        seenIngredientKeywords: MutableSet<String>,
+        nextLine: String = ""
     ): Boolean {
         val parsed = IngredientParser.parse(workingLine, vocabulary.culinaryMeasurementUnits)
         var closedState = isIngredientListClosed
@@ -104,9 +105,19 @@ object Ocr3Categorizer5_BlockE_Dispatch {
 
                 if (!containsAction) {
                     if (isSaltPepperMarker) {
-                        closedState = true
-                        if (vocabulary.logOcr3BlockEDispatchLockActivated.isNotBlank()) {
-                            LogManager.d(TAG, vocabulary.logOcr3BlockEDispatchLockActivated)
+                        val isSeasoningFollowedByMore = nextLine.isNotBlank() && (
+                                lowerLine.contains("sel") || lowerLine.contains("poivre")
+                        ) && (
+                                nextLine.trim().lowercase().startsWith("poivre") ||
+                                nextLine.trim().lowercase().startsWith("sel") ||
+                                Ocr4MergerSeasoningHelper.isSaltWithPrepositionOrigin(nextLine, vocabulary.saltVarietyOrigins) ||
+                                Ocr4MergerSeasoningHelper.isPepperWithPrepositionOrigin(nextLine, vocabulary.pepperDeOriginItems)
+                        )
+                        if (!isSeasoningFollowedByMore) {
+                            closedState = true
+                            if (vocabulary.logOcr3BlockEDispatchLockActivated.isNotBlank()) {
+                                LogManager.d(TAG, vocabulary.logOcr3BlockEDispatchLockActivated)
+                            }
                         }
                     }
                 }

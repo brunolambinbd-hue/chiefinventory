@@ -58,9 +58,37 @@ object OcrVocabularyLoader {
                 getList(stringArrays, "step_action_keywords") +
                 getList(stringArrays, "step_action_keywords_complement")
 
+        val rawCommonIngredients = getList(stringArrays, "common_ingredients_no_qty")
+        val pepperOrigins = getList(stringArrays, "pepper_de_origin_items")
+        val saltOrigins = getList(stringArrays, "salt_variety_origins")
+
+        val generatedPepperPhrases = pepperOrigins.flatMap { origin ->
+            val cleanOrigin = origin.trim()
+            if (cleanOrigin.startsWith("d'", ignoreCase = true) || cleanOrigin.startsWith("d’", ignoreCase = true)) {
+                listOf("poivre $cleanOrigin")
+            } else {
+                listOf("poivre de $cleanOrigin", "poivre du $cleanOrigin", "poivre d'$cleanOrigin")
+            }
+        }
+
+        val generatedSaltPhrases = saltOrigins.flatMap { origin ->
+            val cleanOrigin = origin.trim()
+            if (cleanOrigin.startsWith("d'", ignoreCase = true) || cleanOrigin.startsWith("d’", ignoreCase = true)) {
+                listOf("sel $cleanOrigin")
+            } else {
+                listOf("sel de $cleanOrigin", "sel du $cleanOrigin", "sel d'$cleanOrigin")
+            }
+        }
+
+        val combinedCommonIngredients = (rawCommonIngredients + generatedPepperPhrases + generatedSaltPhrases)
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .sortedByDescending { it.length }
+
         val vocabulary = OcrVocabulary(
             stepActionKeywords = combinedStepActionKeywords,
-            commonIngredientsNoQty = getList(stringArrays, "common_ingredients_no_qty"),
+            commonIngredientsNoQty = combinedCommonIngredients,
             priorityIngredientPhrases = getList(stringArrays, "priority_ingredient_phrases"),
             excludedOcrKeywords = getList(stringArrays, "excluded_ocr_keywords"),
             ingredientPreparationModifiers = getList(stringArrays, "ingredient_preparation_modifiers"),
@@ -210,9 +238,9 @@ object OcrVocabularyLoader {
     }
 
     /**
-     * Réinitialise le cache interne du vocabulaire (utilisé pour l'isolation des tests unitaires).
+     * Réinitialise le cache interne du vocabulaire (utilisé pour l'isolation des tests unitaires et le rechargement dynamique).
      */
-    internal fun clearCache() {
+    fun clearCache() {
         cachedDefaultVocabulary = null
     }
 

@@ -30,7 +30,9 @@ object Ocr4Merger {
         preparationModifiers: List<String>, 
         commonIngredients: List<String>,
         mandatoryComplements: List<String> = emptyList(),
-        customConnectors: List<String> = emptyList()
+        customConnectors: List<String> = emptyList(),
+        saltOrigins: List<String> = emptyList(),
+        pepperOrigins: List<String> = emptyList()
     ): List<String> {
         if (rawIngredients.isEmpty()) return emptyList()
         LogManager.d(TAG, "--- mergeIngredients START ---")
@@ -65,11 +67,18 @@ object Ocr4Merger {
                 val cleanNext = normalizedLine.lowercase().removeSuffix(":").removeSuffix(".").trim()
                 cleanNext == cleanSub
             }
-            val nextIsComplement = mandatoryComplements.any { it.trim().equals(normalizedLine, ignoreCase = true) }
+            val activeSaltOrigins = saltOrigins.ifEmpty { vocab.saltVarietyOrigins }
+            val activePepperOrigins = pepperOrigins.ifEmpty { vocab.pepperDeOriginItems }
+            val isSeasoningMerge = (current.lowercase().trim().endsWith("poivre") && Ocr4MergerSeasoningHelper.isPepperWithPrepositionOrigin(normalizedLine, activePepperOrigins)) ||
+                    (current.lowercase().trim().endsWith("sel") && Ocr4MergerSeasoningHelper.isSaltWithPrepositionOrigin(normalizedLine, activeSaltOrigins))
             val isInvalidSaltMerge = current.lowercase().trim().endsWith("sel") &&
                     (normalizedLine.lowercase().startsWith("de ") || normalizedLine.lowercase().startsWith("d'")) &&
-                    !Ocr4MergerSeasoningHelper.isSaltWithPrepositionOrigin(normalizedLine, vocab.saltVarietyOrigins)
-            val allowMerge = !isNextSubHeader && !isInvalidSaltMerge && (!isNewStart && (!isNextCommonIngredient || prevIsHanging || nextIsComplement) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || nextIsComplement || prevEndsWithRangeConnector)
+                    !isSeasoningMerge
+            val isInvalidPepperMerge = current.lowercase().trim().endsWith("poivre") &&
+                    (normalizedLine.lowercase().startsWith("de ") || normalizedLine.lowercase().startsWith("du ") || normalizedLine.lowercase().startsWith("d'")) &&
+                    !isSeasoningMerge
+            val nextIsComplement = isSeasoningMerge || mandatoryComplements.any { it.trim().equals(normalizedLine, ignoreCase = true) }
+            val allowMerge = isSeasoningMerge || (!isNextSubHeader && !isInvalidSaltMerge && !isInvalidPepperMerge && (!isNewStart && (!isNextCommonIngredient || prevIsHanging || nextIsComplement) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || nextIsComplement || prevEndsWithRangeConnector))
 
             if (allowMerge) {
                 if (prevWasHyphenated) {

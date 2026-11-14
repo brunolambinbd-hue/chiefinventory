@@ -64,7 +64,7 @@ object Ocr3Categorizer {
         val ingredientConnectors = ctx.ingredientConnectors
         // === FIN BLOC 0 ===
 
-        for (line in lines) {
+        for ((i, line) in lines.withIndex()) {
             var workingLine = line.trim()
             val isEmptyWorkingLine = workingLine.isEmpty()
             if (isEmptyWorkingLine) {
@@ -125,11 +125,12 @@ object Ocr3Categorizer {
             // === FIN BLOC D ===
 
             // === DEBUT BLOC E : Aiguillage de section (Ingrédients, Instructions, Rattrapage) ===
+            val nextLine = if (i + 1 < lines.size) lines[i + 1] else ""
             isIngredientListClosed = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
                 workingLine, lowerLine, currentSection, isIngredientListClosed, containsAction,
                 startsWithBullet, startsWithConnector, hasWeight, hasHardQuantity,
                 isReappearance, hasInstructionTrigger, looksLikeIngredient,
-                vocabulary, results, seenIngredientKeywords
+                vocabulary, results, seenIngredientKeywords, nextLine
             )
             // === FIN BLOC E ===
         }
