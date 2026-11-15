@@ -206,7 +206,11 @@ object IngredientParser {
         unit: String?,
         supplementalInfo: String?,
     ): ParsedIngredient {
-        val cleanName = name.replace(Regex("\\s+"), " ").trim()
+        var cleanName = name.replace(Regex("\\s+"), " ").trim()
+        cleanName = cleanName.replace(Regex("^\\s*[.\\-,•*!;:?\\s]+"), "").trim()
+        cleanName = cleanName.replace(Regex("\\s+[.\\-,•*!:;?]$"), "").trim()
+        cleanName = cleanName.replace(Regex("\\s+[b-fB-Fh-kH-Km-zM-Z]$"), "").trim()
+        cleanName = cleanName.replace(Regex("[,:;\\s.]+$"), "").trim()
         return ParsedIngredient(cleanName, quantity, unit, supplementalInfo)
     }
 

@@ -246,6 +246,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.etCookTime.setText(result.cookTime ?: "")
                 binding.etRestingTime.setText(result.restingTime ?: "")
                 binding.etKcal.setText(result.kcalPerServing ?: "")
+                binding.etNutriscore.setText(result.nutriScore ?: "")
                 binding.actvDifficulty.setText(result.difficulty ?: "", false)
                 binding.actvPriceRating.setText(mapPriceRatingToDisplay(result.priceRating), false)
                 binding.etNutritionInfo.setText(result.nutritionInfo ?: "")
@@ -267,6 +268,7 @@ class EditRecipeActivity : AppCompatActivity() {
         binding.etSource.setText(recipe.source ?: "")
         updateSourceWebLinkState(recipe.source)
         binding.etKcal.setText(recipe.kcalPerServing?.toString() ?: "")
+        binding.etNutriscore.setText(recipe.nutriScore ?: "")
         binding.actvDifficulty.setText(recipe.difficulty ?: "", false)
         binding.actvPriceRating.setText(mapPriceRatingToDisplay(recipe.priceRating), false)
         binding.etNutritionInfo.setText(recipe.nutritionInfo ?: "")
@@ -313,6 +315,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 wineRecommendation = binding.etWine.text.toString(),
                 source = binding.etSource.text.toString(),
                 nutritionInfo = binding.etNutritionInfo.text.toString().takeIf { it.isNotBlank() },
+                nutriScore = binding.etNutriscore.text.toString().takeIf { it.isNotBlank() },
                 locationId = selectedLocationId,
                 imageUri = lastImageUri?.toString() ?: currentRecipe?.imageUri,
                 updatedAt = System.currentTimeMillis()

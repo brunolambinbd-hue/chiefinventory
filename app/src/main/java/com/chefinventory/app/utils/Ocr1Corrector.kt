@@ -139,6 +139,15 @@ object Ocr1Corrector {
         OcrRegexes.Normalizer.ARTICLE_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
         OcrRegexes.Normalizer.LINGUISTIC_CORRECTIONS.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
+        // 11.5 Séparation générale d'un mot/verbe collé à un chiffre (ex: "Ajoutez2" -> "Ajoutez 2")
+        text = text.replace(Regex("(?i)\\b(\\p{L}{2,})(\\d+)\\b"), "$1 $2")
+
+        // 11.6 Transcriptions d'artefact OCR "•h" ou ".h" devant un ingrédient -> "1/2 "
+        text = text.replace(Regex("(?i)(?:^|[•.]\\s*)h\\b(?=\\s+[\\p{L}])"), "1/2 ")
+
+        // 11.7 Purge des pictogrammes et symboles graphiques parasites en début de ligne ("ģ-", "ģ", "¶", "§")
+        text = text.replace(Regex("(?i)^[ģ¶§©Əở]+-?\\s*"), "")
+
         // 12. Garde-fou de performance Cuillères : ne déclencher SPOON_NORMALIZATION que si la ligne contient la lettre 'c'
         if (text.contains('c', ignoreCase = true)) {
             text = text.replace(Regex("(?i)\\b(\\d+)(c\\.)"), "$1 $2")

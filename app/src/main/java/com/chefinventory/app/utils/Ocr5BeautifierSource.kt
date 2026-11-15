@@ -28,16 +28,24 @@ object Ocr5BeautifierSource {
         val beautifiedList = mutableListOf<String>()
 
         for (source in sources) {
+            val isUppercaseBrandWord = source.trim().length in 2..4 && source.trim().all { it.isUpperCase() || it.isDigit() }
+            val isKnownSourceBrand = isUppercaseBrandWord || vocab.knownSourceBrands.any { brand -> brand.isNotBlank() && source.contains(brand, ignoreCase = true) } ||
+                    vocab.sourceKeywords.any { kw -> kw.isNotBlank() && source.contains(kw, ignoreCase = true) }
+
             var cleaned = Ocr5Beautifier.sanitizeLine(
                 line = source,
                 prefixPatterns = listOf(OcrRegexes.Sources.LEADING_PUNCTUATION),
                 vocab = vocab,
-                standaloneTrashWords = standaloneTrashWords
+                standaloneTrashWords = standaloneTrashWords,
+                hasActionVerb = isKnownSourceBrand
             ) ?: continue
 
             // Nettoyage des ponctuations orphelines en fin de ligne
             cleaned = cleaned.replace(OcrRegexes.Normalizer.TRAILING_PUNCTUATION, "").trim()
             if (cleaned.isBlank()) continue
+
+            // Purge du bruit de lettres alpha isolées (ex: "A. O", "O B", "A.", "O.") via Ocr5BeautifierSourceNoiseHelper
+            if (Ocr5BeautifierSourceNoiseHelper.isIsolatedAlphaNoise(cleaned)) continue
 
             // Majusculation initiale
             val first = cleaned[0]

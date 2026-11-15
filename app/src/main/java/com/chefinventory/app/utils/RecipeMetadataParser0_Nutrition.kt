@@ -1,5 +1,7 @@
 package com.chefinventory.app.utils
 
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.util.Log
 
 /**
@@ -52,7 +54,26 @@ object RecipeMetadataParser0_Nutrition {
      *
      * @return L'objet [MetadataResult] si la ligne contenait un bloc nutritionnel, ou null sinon.
      */
-    internal fun processNutritionBlock(workingLine: String, lower: String, results: RawSections): MetadataResult? {
+    internal fun processNutritionBlock(
+        workingLine: String, 
+        lower: String, 
+        results: RawSections,
+        bitmap: Bitmap? = null,
+        bounds: Rect? = null
+    ): MetadataResult? {
+        val cleanLetters = workingLine.trim().replace(Regex("[^a-eA-E]"), "")
+        val isNutriScoreLine = lower.contains("nutri") || lower.contains("score") ||
+                (results.detectedNutriScore == "PENDING" && Regex("(?i)^\\s*[a-e\\s,-:]+\\s*$").matches(workingLine.trim()))
+
+        if (isNutriScoreLine && cleanLetters.length in 2..5) {
+            val evaluatedGrade = OcrNutriScoreBitmapAnalyzer.analyzeNutriScoreFromBitmap(bitmap, bounds, workingLine)
+            if (evaluatedGrade != null) {
+                results.detectedNutriScore = evaluatedGrade
+            } else {
+                results.detectedNutriScore = "PENDING"
+            }
+            return MetadataResult(true, "")
+        }
         val isNutritionHeader = OcrRegexes.Metadata.NUTRITION_HEADER.containsMatchIn(workingLine)
         val fatMatch = OcrRegexes.Metadata.NUTRITION_FAT.find(workingLine)
         val satFatMatch = OcrRegexes.Metadata.NUTRITION_SAT_FAT.find(workingLine)

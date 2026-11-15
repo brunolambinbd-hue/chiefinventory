@@ -30,5 +30,6 @@ data class RawSections(
     var detectedDifficulty: String? = null,
     var detectedPriceRating: String? = null,
     var detectedNutritionInfo: String? = null,
+    var detectedNutriScore: String? = null,
     var ingredientKeywords: Set<String> = emptySet()
 )

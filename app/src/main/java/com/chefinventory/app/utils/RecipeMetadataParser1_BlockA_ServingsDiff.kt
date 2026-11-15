@@ -30,7 +30,7 @@ object RecipeMetadataParser1_BlockA_ServingsDiff {
         val diffMatch = OcrRegexes.Metadata.DIFFICULTY.find(workingLine)
         if (diffMatch != null) {
             if (results.detectedDifficulty == null) {
-                results.detectedDifficulty = diffMatch.groupValues[1].lowercase().replace("diffcile", "difficile")
+                results.detectedDifficulty = normalizeDifficulty(diffMatch.value)
             } else {
                 Log.d(TAG, "  [INFO] Difficulté déjà détectée (${results.detectedDifficulty})")
             }
@@ -66,5 +66,19 @@ object RecipeMetadataParser1_BlockA_ServingsDiff {
         }
 
         return workingLine
+    }
+
+    /**
+     * Normalise le niveau de difficulté extrait vers les 3 valeurs standardisées de l'application ("facile", "moyen", "difficile").
+     */
+    internal fun normalizeDifficulty(raw: String?): String? {
+        if (raw.isNullOrBlank()) return null
+        val lower = raw.trim().lowercase()
+        return when {
+            lower.contains("facile") -> "facile"
+            lower.contains("moyen") || lower.contains("moyenne") -> "moyen"
+            lower.contains("difficile") || lower.contains("diffcile") -> "difficile"
+            else -> lower
+        }
     }
 }

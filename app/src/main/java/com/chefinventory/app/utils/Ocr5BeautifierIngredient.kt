@@ -33,12 +33,13 @@ object Ocr5BeautifierIngredient {
         val mergedVarieties = Ocr5BeautifierIngredientVarietyMerger.beautifyIngredientVarieties(ingredients, baseIngredients, varietyQualifiers)
         return mergedVarieties.map { line ->
             var cleaned = line.trim()
+            cleaned = cleaned.replace(Regex("^\\s*[.\\-,•*!;:?\\s]+"), "").trim()
+            cleaned = cleaned.replace(Regex("\\s+[.\\-,•*!:;?a-zA-Z]$"), "").trim()
+            cleaned = cleaned.replace(Regex("[,:;\\s.]+$"), "").trim()
             if (cleaned.isNotEmpty()) {
                 val first = cleaned[0]
                 if (first.isLowerCase()) {
                     cleaned = first.titlecase() + cleaned.substring(1)
-                } else {
-                    // Le premier caractère est déjà une majuscule ou un chiffre (ex: "250 g de farine")
                 }
             }
             cleaned

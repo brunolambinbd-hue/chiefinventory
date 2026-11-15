@@ -33,6 +33,7 @@ class RecipeTest {
             source = "https://marmiton.org/recette.html",
             nutritionInfo = "Protéines: 35g, Glucides: 12g",
             priceRating = "moyen",
+            nutriScore = "B",
             updatedAt = 1000L
         )
 
@@ -53,6 +54,7 @@ class RecipeTest {
             source = "https://marmiton.org/recette.html",
             nutritionInfo = "Protéines: 35g, Glucides: 12g",
             priceRating = "moyen",
+            nutriScore = "B",
             updatedAt = 1000L
         )
 
@@ -73,10 +75,11 @@ class RecipeTest {
         assertThat(rFull.source).isEqualTo("https://marmiton.org/recette.html")
         assertThat(rFull.nutritionInfo).isEqualTo("Protéines: 35g, Glucides: 12g")
         assertThat(rFull.priceRating).isEqualTo("moyen")
+        assertThat(rFull.nutriScore).isEqualTo("B")
         assertThat(rFull.updatedAt).isEqualTo(1000L)
 
-        // Destructuring / componentN (1 à 17)
-        val (id, title, inst, prep, cook, rest, serv, kcal, diff, cat, img, loc, wine, src, nutr, price, update) = rFull
+        // Destructuring / componentN (1 à 18)
+        val (id, title, inst, prep, cook, rest, serv, kcal, diff, cat, img, loc, wine, src, nutr, price, nutri, update) = rFull
         assertThat(id).isEqualTo(10L)
         assertThat(title).isEqualTo("Pintade aux pommes")
         assertThat(inst).isEqualTo("Éplucher les pommes et cuire au four.")
@@ -93,6 +96,7 @@ class RecipeTest {
         assertThat(src).isEqualTo("https://marmiton.org/recette.html")
         assertThat(nutr).isEqualTo("Protéines: 35g, Glucides: 12g")
         assertThat(price).isEqualTo("moyen")
+        assertThat(nutri).isEqualTo("B")
         assertThat(update).isEqualTo(1000L)
 
         // Equals
@@ -118,6 +122,7 @@ class RecipeTest {
         assertThat(rFull).isNotEqualTo(rFull.copy(source = null))
         assertThat(rFull).isNotEqualTo(rFull.copy(nutritionInfo = null))
         assertThat(rFull).isNotEqualTo(rFull.copy(priceRating = null))
+        assertThat(rFull).isNotEqualTo(rFull.copy(nutriScore = null))
         assertThat(rFull).isNotEqualTo(rFull.copy(updatedAt = 9999L))
 
         // HashCode & ToString

@@ -117,6 +117,11 @@ object RecipeMetadataParser3_BlockC_Times {
         val startsNumber = Regex("^\\s*\\d{1,2}\\s*[.)\\-]").containsMatchIn(line)
         val isInstructionSentence = hasVerb || startsBullet || startsNumber
 
+        val extraParenMatch = OcrRegexes.Metadata.TIME_EXTRA_PARENTHETICAL.find(workingLine)
+        if (extraParenMatch != null) {
+            workingLine = workingLine.replace(extraParenMatch.value, "").trim()
+        }
+
         while (true) {
             val matchComb = OcrRegexes.Metadata.TIME_COMBINED.find(workingLine)
             val matchPre = OcrRegexes.Metadata.TIME_PREFIX.find(workingLine)
@@ -125,11 +130,7 @@ object RecipeMetadataParser3_BlockC_Times {
             if (matchComb != null) {
                 results.detectedPrepTime = extractMinutes(matchComb.groupValues[1])
                 results.detectedCookTime = extractMinutes(matchComb.groupValues[2])
-                if (!isInstructionSentence) {
-                    workingLine = workingLine.replace(matchComb.value, "").trim()
-                } else {
-                    break
-                }
+                workingLine = workingLine.replace(matchComb.value, "").trim()
             } else if (matchPre != null) {
                 val mins = extractMinutes(matchPre.groupValues[2])
                 updateTimeResult(results, matchPre.groupValues[1].lowercase(), mins)

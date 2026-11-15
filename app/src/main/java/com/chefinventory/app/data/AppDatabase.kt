@@ -27,7 +27,7 @@ import com.chefinventory.app.model.RecipeIngredient
         OpenFoodFactsProduct::class,
         OpenFoodFactsTaxonomy::class
     ],
-    version = 37,
+    version = 38,
     exportSchema = false
 )
 @TypeConverters(com.chefinventory.app.data.TypeConverters::class)
@@ -38,7 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun openFoodFactsDao(): OpenFoodFactsDao
 
     companion object {
-        const val DATABASE_VERSION: Int = 37
+        const val DATABASE_VERSION: Int = 38
         const val DATABASE_NAME: String = "chiefinventory_database"
 
         private val MIGRATION_18_19 = object : Migration(18, 19) {
@@ -205,6 +205,12 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_37_38 = object : Migration(37, 38) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE recipes ADD COLUMN nutriScore TEXT")
+            }
+        }
+
         private val DB_CALLBACK = object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
@@ -237,7 +243,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_27_28, MIGRATION_28_29, MIGRATION_29_30, 
                     MIGRATION_30_31, MIGRATION_31_32, MIGRATION_32_33,
                     MIGRATION_33_34, MIGRATION_34_35, MIGRATION_35_36,
-                    MIGRATION_36_37
+                    MIGRATION_36_37, MIGRATION_37_38
                 )
                 .addCallback(DB_CALLBACK)
                 .fallbackToDestructiveMigration()

@@ -345,20 +345,23 @@ object OcrRegexes {
      * Motifs d'expressions régulières liés à l'Analyseur de Méta-Données ([RecipeMetadataParser]).
      */
     object Metadata {
-        private const val DURATION_STR = "(\\d+\\s*[hH](?:\\s*\\d+)?|\\d+\\s*(?:mn|min|minute|u|h|heure))"
+        private const val DURATION_STR = "([OoC]?\\d+\\s*[hH](?:\\s*\\d+)?|[OoC]?\\d+\\s*(?:mn|min|minute|u|h|heure))"
         private const val TIME_TYPE_STR = "(préparation|cuisson|repos|prép\\.?|prep\\.?|cuis\\.?|rest\\.?)"
 
         /** Détecte le nombre de portions ou personnes (ex: "pour 4 personnes", "6 personnes", "4 PERS", "A4PERS"). */
         val SERVINGS: Regex = Regex("(?i)pour\\s+(\\d{1,2})\\s+personnes?|(?:pour|serves|portions?|servings?|pers\\.?|personnes?)\\s*:?\\s*(\\d+)(?:\\s*(?:personnes?|portions?|pers\\.?|servings?))?|\\bPOUR\\s+(\\d+)\\b|(?:(?<=\\p{L})|(?<=\\s)|^)(\\d{1,2})\\s*(?:personnes?|portions?|pers\\.?|servings?)\\b")
 
-        /** Détecte l'apport calorique par portion (ex: "250 kcal", "450 kilo calories"). */
-        val KCAL: Regex = Regex("(?i)(\\d{2,4})\\s*(?:kcal|kilo\\s*calories?)(?:/por\\.?)?")
+        /** Détecte l'apport calorique par portion (ex: "250 kcal", "450 kilo calories", "233 KCALPOR."). */
+        val KCAL: Regex = Regex("(?i)(\\d{2,4})\\s*(?:kcal|kilo\\s*calories?)(?:[\\s/]*por(?:tion)?\\.?)?")
 
-        /** Détecte le niveau de difficulté de la recette (ex: "difficulté : facile", "difficile") en offrant un garde-fou contre les termes de cuisson ("feu moyen", "chaleur moyenne"). */
-        val DIFFICULTY: Regex = Regex("(?i)(?<!feu\\s)(?<!chaleur\\s)(?<!à\\sfeu\\s)(?<!a\\sfeu\\s)(?<!coût\\s)(?<!cout\\s)(?<!prix\\s)(?<!budget\\s)\\b(facile|moyen|difficile|diffcile)\\b")
+        /** Détecte le niveau de difficulté de la recette (ex: "difficulté : facile", "assez facile", "difficile") en offrant un garde-fou contre les termes de cuisson ("feu moyen", "chaleur moyenne"). */
+        val DIFFICULTY: Regex = Regex("(?iu)(?<!feu\\s)(?<!chaleur\\s)(?<!à\\sfeu\\s)(?<!a\\sfeu\\s)(?<!coût\\s)(?<!cout\\s)(?<!prix\\s)(?<!budget\\s)(?<!\\p{L})(?:(?:très|tres|assez|moyennement)\\s+)?(?:facile|moyen|moyenne|difficile|diffcile)(?!\\p{L})")
 
-        /** Détecte le temps combiné préparation + cuisson (ex: "15 min + 45 min de cuisson"). */
-        val TIME_COMBINED: Regex = Regex("(?i)$DURATION_STR\\s*\\+\\s*$DURATION_STR\\s+(?:de\\s+)?cuisson")
+        /** Détecte le temps combiné préparation + cuisson (ex: "15 min + 45 min de cuisson", "25 min 15 min de cuisson"). */
+        val TIME_COMBINED: Regex = Regex("(?i)$DURATION_STR\\s*\\+?\\s*$DURATION_STR\\s+(?:de\\s+)?cuisson")
+
+        /** Détecte et purge les parenthèses de temps secondaires sans champ dédié (ex: "(+ REFROIDISSEMENT)", "(+ MARINADE)"). */
+        val TIME_EXTRA_PARENTHETICAL: Regex = Regex("(?i)\\(\\s*\\+\\s*(?:refroidissement|marinade|marinage|mac[eé]ration)\\s*\\)")
 
         /** Détecte le temps avec type en préfixe (ex: "préparation : 15 min"). */
         val TIME_PREFIX: Regex = Regex("(?i)$TIME_TYPE_STR\\s*:?\\s*(?:de\\s+)?$DURATION_STR")

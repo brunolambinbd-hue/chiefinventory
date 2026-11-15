@@ -1,5 +1,8 @@
 package com.chefinventory.app.utils
 
+import android.graphics.Bitmap
+import android.graphics.Rect
+
 /**
  * Analyseur et extracteur des méta-données de recettes (Portions, Temps Prép/Cuisson/Repos, Kcal, Difficulté, Valeurs Nutritionnelles).
  *
@@ -19,12 +22,18 @@ object RecipeMetadataParser {
      * @param results L'objet mutable [RawSections] alimenté si des méta-données sont trouvées.
      * @return L'objet [MetadataResult] indiquant si la ligne est purement de la métadonnée et la ligne restante.
      */
-    fun extractMetadata(line: String, results: RawSections, vocabulary: OcrVocabulary? = null): MetadataResult {
+    fun extractMetadata(
+        line: String, 
+        results: RawSections, 
+        vocabulary: OcrVocabulary? = null,
+        bitmap: Bitmap? = null,
+        bounds: Rect? = null
+    ): MetadataResult {
         var workingLine = line.trim()
         val lower = workingLine.lowercase()
 
         // 1. DÉTECTION ET EXTRACTION DES VALEURS NUTRITIONNELLES
-        val nutResult = RecipeMetadataParser0_Nutrition.processNutritionBlock(workingLine, lower, results)
+        val nutResult = RecipeMetadataParser0_Nutrition.processNutritionBlock(workingLine, lower, results, bitmap, bounds)
         if (nutResult != null) {
             return nutResult
         }

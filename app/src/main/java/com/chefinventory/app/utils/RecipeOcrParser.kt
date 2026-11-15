@@ -195,8 +195,10 @@ object RecipeOcrParser {
 
         val finalCategory = cleaningResult.earlyDetectedCategory ?: CategoryMapper.normalizeRecipeCategory(sections.detectedTitle)
 
+        val finalTitle = Ocr5BeautifierTitle.beautifyTitle(sections.detectedTitle)
+
         val result = RecipeOcrResult(
-            title = sections.detectedTitle,
+            title = finalTitle,
             category = finalCategory,
             ingredients = finalIngredients.joinToString("\n"),
             instructions = finalInstructions.joinToString("\n"),

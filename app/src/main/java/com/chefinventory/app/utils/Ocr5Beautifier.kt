@@ -12,6 +12,13 @@ package com.chefinventory.app.utils
 object Ocr5Beautifier {
 
     /**
+     * Effectue la beautification et l'harmonisation de la majusculation du titre.
+     */
+    fun beautifyTitle(title: String?): String? {
+        return Ocr5BeautifierTitle.beautifyTitle(title)
+    }
+
+    /**
      * Effectue la beautification et le recollage sémantique final des consignes d'instructions.
      *
      * @param instructions La liste des lignes d'instructions fusionnées issues de [Ocr4Merger].

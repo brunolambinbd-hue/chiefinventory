@@ -46,6 +46,21 @@ class IngredientParserTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testParse_LeadingPunctuationAndTrailingNoise_CleansIngredientNameProperly() {
+        val res1 = IngredientParser.parse(".Sel")
+        assertWithMessage("'.Sel' doit être nettoyé en 'sel'").that(res1.name).ignoringCase().isEqualTo("sel")
+
+        val res2 = IngredientParser.parse(". Poivre h")
+        assertWithMessage("'. Poivre h' doit être nettoyé en 'poivre'").that(res2.name).ignoringCase().isEqualTo("poivre")
+
+        val res3 = IngredientParser.parse("20 g de beurre .")
+        assertWithMessage("'20 g de beurre .' doit être nettoyé avec nom 'beurre'").that(res3.name).ignoringCase().isEqualTo("beurre")
+        assertThat(res3.quantity).isEqualTo(20.0)
+        assertThat(res3.unit).isEqualTo("g")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testExhaustiveBranchCoverage_NonInitialMatches() {
         // 1. Non-initial range match (range.first != 0)
         val resRangeNonInit = IngredientParser.parse("Farine 10 à 15 g")
