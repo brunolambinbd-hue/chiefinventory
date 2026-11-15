@@ -44,6 +44,9 @@ object Ocr5BeautifierSource {
             cleaned = cleaned.replace(OcrRegexes.Normalizer.TRAILING_PUNCTUATION, "").trim()
             if (cleaned.isBlank()) continue
 
+            // Purge des lettres alpha isolées en début et fin de source ("A Maxi GB" -> "Maxi GB", "Maxi GB O" -> "Maxi GB")
+            cleaned = Ocr5BeautifierSourceNoiseHelper.cleanIsolatedAlphaNoiseFromSource(cleaned)
+
             // Purge du bruit de lettres alpha isolées (ex: "A. O", "O B", "A.", "O.") via Ocr5BeautifierSourceNoiseHelper
             if (Ocr5BeautifierSourceNoiseHelper.isIsolatedAlphaNoise(cleaned)) continue
 

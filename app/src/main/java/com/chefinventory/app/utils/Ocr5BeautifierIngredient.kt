@@ -34,7 +34,7 @@ object Ocr5BeautifierIngredient {
         return mergedVarieties.map { line ->
             var cleaned = line.trim()
             cleaned = cleaned.replace(Regex("^\\s*[.\\-,•*!;:?\\s]+"), "").trim()
-            cleaned = cleaned.replace(Regex("\\s+[.\\-,•*!:;?a-zA-Z]$"), "").trim()
+            cleaned = cleaned.replace(Regex("(?i)(?<=\\b\\p{L}{2,20}\\s)[a-zA-Z]$"), "").trim()
             cleaned = cleaned.replace(Regex("[,:;\\s.]+$"), "").trim()
             if (cleaned.isNotEmpty()) {
                 val first = cleaned[0]

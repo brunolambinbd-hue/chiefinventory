@@ -1,5 +1,8 @@
 package com.chefinventory.app.utils
 
+import android.graphics.Bitmap
+import android.graphics.Rect
+
 /**
  * Représente une ligne de texte scannée accompagnée de ses coordonnées spatiales BoundingBox 2D en pixels.
  *
@@ -14,8 +17,11 @@ data class OcrTextLine(
     val top: Int = 0,
     val left: Int = 0,
     val bottom: Int = 0,
-    val right: Int = 0
+    val right: Int = 0,
+    var bitmap: Bitmap? = null
 ) {
+    /** Le rectangle BoundingBox 2D. */
+    val bounds: Rect get() = Rect(left, top, right, bottom)
     /** La coordonnée Y du centre vertical de la ligne en pixels. */
     val centerY: Int get() = (top + bottom) / 2
 

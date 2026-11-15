@@ -75,6 +75,7 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         if (isSource) return false
 
         if (Ocr3CategorizerWine.isWineLine(trimmed, vocabulary)) return false
+        if (lower.contains("nutri")) return false
 
         val headersAndTimes = (vocabulary.ocr1ProtectedIngredientsHeaders + vocabulary.ocr1ProtectedInstructionsHeaders + vocabulary.timeHeaderKeywords)
             .map { it.lowercase().trim() }

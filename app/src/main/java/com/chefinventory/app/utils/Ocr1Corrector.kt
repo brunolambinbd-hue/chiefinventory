@@ -148,6 +148,9 @@ object Ocr1Corrector {
         // 11.7 Purge des pictogrammes et symboles graphiques parasites en début de ligne ("ģ-", "ģ", "¶", "§")
         text = text.replace(Regex("(?i)^[ģ¶§©Əở]+-?\\s*"), "")
 
+        // 11.8 Purge précoce des scories parasites OCR en fin de mot/ligne ("S3", "BR", "LS", "sh") avant toute prise de décision
+        text = text.replace(Regex("(?i)\\s+\\b(S3|BR|LS|sh)\\b"), "").trim()
+
         // 12. Garde-fou de performance Cuillères : ne déclencher SPOON_NORMALIZATION que si la ligne contient la lettre 'c'
         if (text.contains('c', ignoreCase = true)) {
             text = text.replace(Regex("(?i)\\b(\\d+)(c\\.)"), "$1 $2")

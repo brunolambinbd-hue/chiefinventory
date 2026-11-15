@@ -30,6 +30,8 @@ class OcrSourceIsolatedAlphaCleaningTest {
     fun testBeautifySources_PurgesIsolatedAlphaLetters_AndKeepsValidBrands() {
         val rawSources = listOf(
             "Maxi GB",
+            "A Maxi GB",
+            "Maxi GB O",
             "A. O",
             "O B",
             "A.",
@@ -42,6 +44,14 @@ class OcrSourceIsolatedAlphaCleaningTest {
         assertWithMessage("Les sources doivent conserver 'Maxi GB'")
             .that(beautified)
             .contains("Maxi GB")
+
+        assertWithMessage("'A Maxi GB' doit être nettoyé en 'Maxi GB'")
+            .that(Ocr5BeautifierSourceNoiseHelper.cleanIsolatedAlphaNoiseFromSource("A Maxi GB"))
+            .isEqualTo("Maxi GB")
+
+        assertWithMessage("'Maxi GB O' doit être nettoyé en 'Maxi GB'")
+            .that(Ocr5BeautifierSourceNoiseHelper.cleanIsolatedAlphaNoiseFromSource("Maxi GB O"))
+            .isEqualTo("Maxi GB")
 
         assertWithMessage("Les sources doivent conserver 'RTL'")
             .that(beautified)

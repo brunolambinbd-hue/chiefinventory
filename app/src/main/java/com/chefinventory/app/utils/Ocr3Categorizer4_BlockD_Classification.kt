@@ -50,7 +50,8 @@ object Ocr3Categorizer4_BlockD_Classification {
         hasHardQuantity: Boolean,
         hasWeight: Boolean,
         looksLikeIngredient: Boolean,
-        startsWithConnector: Boolean
+        startsWithConnector: Boolean,
+        startsWithBullet: Boolean = false
     ): Int {
         val hasNoQtyNoWeight = !hasHardQuantity && !hasWeight
         val isClosedNoQtyNoWeight = isIngredientListClosed && hasNoQtyNoWeight
@@ -58,7 +59,7 @@ object Ocr3Categorizer4_BlockD_Classification {
             return Ocr3Categorizer.SECTION_INSTRUCTIONS
         }
         if (currentSection == Ocr3Categorizer.SECTION_NONE) {
-            if (looksLikeIngredient || startsWithConnector) {
+            if (looksLikeIngredient || startsWithConnector || hasHardQuantity || hasWeight || startsWithBullet) {
                 return Ocr3Categorizer.SECTION_INGREDIENTS
             }
         }
@@ -132,7 +133,7 @@ object Ocr3Categorizer4_BlockD_Classification {
 
         val updatedSection = classifySection(
             currentSection, isInstructionSignal, isIngredientListClosed,
-            hasHardQuantity, hasWeight, looksLikeIngredient, startsWithConnector
+            hasHardQuantity, hasWeight, looksLikeIngredient, startsWithConnector, startsWithBullet
         )
 
         return BlockDResult(false, workingLine, updatedSection)

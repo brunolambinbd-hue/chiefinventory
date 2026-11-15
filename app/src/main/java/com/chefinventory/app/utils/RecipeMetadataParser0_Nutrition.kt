@@ -61,16 +61,49 @@ object RecipeMetadataParser0_Nutrition {
         bitmap: Bitmap? = null,
         bounds: Rect? = null
     ): MetadataResult? {
-        val cleanLetters = workingLine.trim().replace(Regex("[^a-eA-E]"), "")
-        val isNutriScoreLine = lower.contains("nutri") || lower.contains("score") ||
-                (results.detectedNutriScore == "PENDING" && Regex("(?i)^\\s*[a-e\\s,-:]+\\s*$").matches(workingLine.trim()))
+        // 1. SCÉNARIO 1 : Ligne de texte explicite avec lettre en clair (ex: "NUTRI-SCORE B", "NUTR-SCORE A") ou en-tête ("NUTRI-SCORE")
+        val nutriScoreMatch = OcrRegexes.Metadata.NUTRI_SCORE.find(workingLine)
+        if (nutriScoreMatch != null) {
+            val gradeGroup = (nutriScoreMatch.groupValues.getOrNull(1)?.ifEmpty { null } ?: nutriScoreMatch.groupValues.getOrNull(2))?.trim()?.uppercase()
+            if (!gradeGroup.isNullOrEmpty() && gradeGroup in listOf("A", "B", "C", "D", "E")) {
+                results.detectedNutriScore = gradeGroup
+            } else if (results.detectedNutriScore == null) {
+                results.detectedNutriScore = "PENDING"
+            }
+            val remaining = workingLine.replace(nutriScoreMatch.value, "").trim()
+            return MetadataResult(true, remaining)
+        }
 
-        if (isNutriScoreLine && cleanLetters.length in 2..5) {
-            val evaluatedGrade = OcrNutriScoreBitmapAnalyzer.analyzeNutriScoreFromBitmap(bitmap, bounds, workingLine)
+        // 2. SCÉNARIO 2 : Analyse de sous-image Bitmap 2D sur pavé graphique multi-lettres ("ACD", "ABCDE")
+        val isNutriScoreResolved = results.detectedNutriScore != null && results.detectedNutriScore != "PENDING"
+        val hasNutritionMacros = OcrRegexes.Metadata.NUTRITION_KCAL.containsMatchIn(workingLine) ||
+                OcrRegexes.Metadata.NUTRITION_FAT.containsMatchIn(workingLine) ||
+                OcrRegexes.Metadata.NUTRITION_SAT_FAT.containsMatchIn(workingLine) ||
+                OcrRegexes.Metadata.NUTRITION_CARBS.containsMatchIn(workingLine) ||
+                OcrRegexes.Metadata.NUTRITION_SUGAR.containsMatchIn(workingLine) ||
+                OcrRegexes.Metadata.NUTRITION_PROTEIN.containsMatchIn(workingLine) ||
+                OcrRegexes.Metadata.NUTRITION_SALT.containsMatchIn(workingLine) ||
+                OcrRegexes.Metadata.NUTRITION_FIBER.containsMatchIn(workingLine)
+        val textWithoutHeader = workingLine.replace(Regex("(?i)\\bnutri[-_\\s]*sc[o0]re\\b|\\bscore\\b|\\bnutri\\b"), "").trim()
+        val cleanLetters = textWithoutHeader.replace(Regex("[^a-eA-E]"), "")
+        val isOnlyNutriGradeLetters = Regex("(?i)^[a-e\\s,.\\-*•:_]+$").matches(textWithoutHeader.trim())
+        val isMultiLetterCandidate = !isNutriScoreResolved && !hasNutritionMacros && isOnlyNutriGradeLetters && cleanLetters.length in 2..5 &&
+                (results.detectedNutriScore == "PENDING" || lower.contains("nutri") || lower.contains("score"))
+
+        if (isMultiLetterCandidate) {
+            val evaluatedGrade = OcrNutriScoreBitmapAnalyzer.analyzeNutriScoreFromBitmap(bitmap, bounds, textWithoutHeader.ifEmpty { workingLine })
             if (evaluatedGrade != null) {
                 results.detectedNutriScore = evaluatedGrade
             } else {
                 results.detectedNutriScore = "PENDING"
+            }
+            return MetadataResult(true, "")
+        }
+
+        // Ligne d'attente à lettre unique sous l'en-tête (ex: "B", "A" après "PENDING")
+        if (Regex("(?i)^[a-e]$").matches(workingLine.trim()) && (results.detectedNutriScore == "PENDING" || results.detectedNutriScore != null)) {
+            if (results.detectedNutriScore == "PENDING") {
+                results.detectedNutriScore = workingLine.trim().uppercase()
             }
             return MetadataResult(true, "")
         }

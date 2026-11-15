@@ -1,5 +1,6 @@
 package com.chefinventory.app.utils
 
+import android.graphics.Bitmap
 import android.content.res.Resources
 import android.util.Log
 import com.google.mlkit.vision.text.Text
@@ -41,20 +42,23 @@ object RecipeOcrParser {
      * @param vocabulary Le vocabulaire métier data-driven contenant les dictionnaires XML du projet.
      * @return Le résultat d'analyse structuré [RecipeOcrResult].
      */
-    fun parse(visionText: Text, vocabulary: OcrVocabulary): RecipeOcrResult {
+    fun parse(visionText: Text, vocabulary: OcrVocabulary, bitmap: Bitmap? = null): RecipeOcrResult {
         Log.d(TAG, "=== DÉBUT PIPELINE OCR (Extraction par blocs 2D) ===")
 
+        val lines2D = mutableListOf<OcrTextLine>()
         visionText.textBlocks.forEach { block ->
             block.lines.forEach { line ->
                 val box = line.boundingBox
                 Log.d(TAG, "RAW SCAN 2D: '${line.text}' [top=${box?.top}, left=${box?.left}, bottom=${box?.bottom}, right=${box?.right}]")
+                val top = box?.top ?: 0
+                val left = box?.left ?: 0
+                val bottom = box?.bottom ?: 0
+                val right = box?.right ?: 0
+                lines2D.add(OcrTextLine(text = line.text, top = top, left = left, bottom = bottom, right = right, bitmap = bitmap))
             }
         }
 
-        val rawLines = visionText.textBlocks.flatMap { block ->
-            block.lines.map { it.text }
-        }
-
+        val rawLines = lines2D.map { it.text }
         return executePipeline(rawLines, vocabulary)
     }
 
@@ -139,6 +143,7 @@ object RecipeOcrParser {
 
             else -> Ocr3Categorizer.categorize(linesWithoutTitle, vocabulary)
         }
+        System.out.println("TEST DEBUG PARSER SECTIONS ingr=${sections.rawIngredientsList}, inst=${sections.rawInstructionsList}")
         if (sections.detectedTitle == null) {
             sections.detectedTitle = titleResult.title
         }
@@ -197,6 +202,10 @@ object RecipeOcrParser {
 
         val finalTitle = Ocr5BeautifierTitle.beautifyTitle(sections.detectedTitle)
 
+        val finalNutriScore = sections.detectedNutriScore?.trim()?.uppercase()?.takeIf {
+            it in setOf("A", "B", "C", "D", "E")
+        }
+
         val result = RecipeOcrResult(
             title = finalTitle,
             category = finalCategory,
@@ -211,7 +220,8 @@ object RecipeOcrParser {
             kcalPerServing = sections.detectedKcal,
             difficulty = sections.detectedDifficulty,
             priceRating = sections.detectedPriceRating,
-            nutritionInfo = sections.detectedNutritionInfo
+            nutritionInfo = sections.detectedNutritionInfo,
+            nutriScore = finalNutriScore
         )
 
         // LOG FINAL DES MÉTA-DONNÉES EXTRAITES

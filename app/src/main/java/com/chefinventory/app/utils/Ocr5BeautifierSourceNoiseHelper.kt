@@ -7,6 +7,19 @@ package com.chefinventory.app.utils
 object Ocr5BeautifierSourceNoiseHelper {
 
     /**
+     * Nettoie et purge les lettres alphabétiques uniques isolées en début ou fin de nom de source.
+     *
+     * @param sourceText Le texte de source brut à nettoyer (ex: "A Maxi GB" -> "Maxi GB", "Maxi GB O" -> "Maxi GB").
+     * @return Le nom de source purgé des lettres isolées de bordure.
+     */
+    fun cleanIsolatedAlphaNoiseFromSource(sourceText: String): String {
+        var cleaned = sourceText.trim()
+        cleaned = cleaned.replace(Regex("(?i)^[a-zA-Z]\\s+(?=\\p{L}{2,})"), "").trim()
+        cleaned = cleaned.replace(Regex("(?i)(?<=\\b\\p{L}{2,20})\\s+[a-zA-Z]$"), "").trim()
+        return cleaned
+    }
+
+    /**
      * Détermine si une chaîne de source représente un bruit de lettres alpha isolées.
      *
      * @param sourceText Le texte de source à évaluer (ex: "A. O", "O B", "A.").

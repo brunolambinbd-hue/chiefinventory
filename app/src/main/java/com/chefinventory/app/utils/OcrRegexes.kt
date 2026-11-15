@@ -378,6 +378,9 @@ object OcrRegexes {
         /** Extrait les minutes (ex: "45 min", "30 mn"). */
         val MINUTES_PATTERN: Regex = Regex("(\\d+)\\s*(?:mn|min|minute|u)")
 
+        /** Détecte l'en-tête et la lettre du Nutri-Score (ex: "NUTRI-SCORE B", "NUTR-SCORE A", "NUTRI-SCORE"). */
+        val NUTRI_SCORE: Regex = Regex("(?i)\\bnutri[-_\\s]*sc[o0]re\\b(?:\\s*:?\\s*([a-eA-E]))?|\\bNUTR[-_\\s]*SC[o0]RE\\b(?:\\s*:?\\s*([a-eA-E]))?")
+
         /** Détecte la présence d'un en-tête de valeurs nutritionnelles (ex: "VALEURS NUTRITIONNELLES", "PAR 1000", "POUR 100G"). */
         val NUTRITION_HEADER: Regex = Regex("(?i)\\bvaleurs?\\s*nutritionn?elles?\\b|\\bpar\\s*100\\s*[g0o]\\b|\\bpour\\s*100\\s*[g0o]\\b")
 

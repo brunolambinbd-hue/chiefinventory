@@ -106,7 +106,9 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
         actionKeywords: List<String>,
         vocabulary: OcrVocabulary? = null
     ): Boolean {
-        val cleanL = line.lowercase().trim().removeSuffix(".")
+        val trimmedLine = line.trim()
+        if (Regex("^[•.\\-*\\d]").containsMatchIn(trimmedLine)) return false
+        val cleanL = trimmedLine.lowercase().removeSuffix(".")
         val activeVocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
 
         val numberWords = activeVocab.orphanNounNumberWords.map { it.trim().lowercase() }

@@ -59,10 +59,29 @@ object Ocr3CategorizerTitleExtractor {
             )
             if (processedSelPoivre) continue
 
-            // 2. Détection de titre sur 2 lignes (ex: "Büchettes de melon" \n "au jambon italien et au porto")
+            // 2. Détection de titre sur 2 lignes (ex: "SOUPE AU CÉLERI-RAVE," \n "NOIX ET MASCARPONE" ou "Büchettes de melon" \n "au jambon italien")
             if (i + 1 < lines.size) {
                 val nextLine = lines[i + 1].trim()
-                if (Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(nextLine, vocabulary) && !OcrInstructionUtils.hasActionVerb(nextLine, vocabulary.stepActionKeywords)) {
+                val isMultiLineConnector = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(nextLine, vocabulary)
+                val isNextProtectedHeader = (vocabulary.ocr1ProtectedIngredientsHeaders + vocabulary.ocr1ProtectedInstructionsHeaders).any { header ->
+                    val cleanHeader = header.trim().lowercase()
+                    val cleanNext = nextLine.trim().lowercase().removeSuffix(":").removeSuffix(".").trim()
+                    cleanNext == cleanHeader || cleanNext.startsWith("$cleanHeader ") || cleanNext.startsWith("$cleanHeader(") || cleanNext.startsWith("$cleanHeader:")
+                }
+                val cleanWorkingLetters = workingLine.replace(Regex("[^\\p{L}]"), "")
+                val cleanNextLetters = nextLine.replace(Regex("[^\\p{L}]"), "")
+                val hasMetadataTimeOrServings = OcrRegexes.Metadata.TIME_COMBINED.containsMatchIn(nextLine) ||
+                        OcrRegexes.Metadata.TIME_PREFIX.containsMatchIn(nextLine) ||
+                        OcrRegexes.Metadata.TIME_SUFFIX.containsMatchIn(nextLine) ||
+                        OcrRegexes.Metadata.SERVINGS.containsMatchIn(nextLine) ||
+                        OcrRegexes.Metadata.DIFFICULTY.containsMatchIn(nextLine) ||
+                        Regex("(?i)\\b\\d+\\s*(?:mn|min|minute|h|pers|kcal)\\b").containsMatchIn(nextLine)
+
+                val isUppercaseTitlePair = !isNextProtectedHeader && !hasMetadataTimeOrServings &&
+                        cleanWorkingLetters.length >= 4 && cleanNextLetters.length >= 4 &&
+                        cleanWorkingLetters.all { it.isUpperCase() } && cleanNextLetters.all { it.isUpperCase() }
+
+                if ((isMultiLineConnector || isUppercaseTitlePair) && !OcrInstructionUtils.hasActionVerb(nextLine, vocabulary.stepActionKeywords)) {
                     val combined = "$workingLine $nextLine"
                     val cleanCombined = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(combined), recipeIngredientWords, vocabulary)
                     val baseCand = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate(cleanCombined, vocabulary, containsActionRegex)

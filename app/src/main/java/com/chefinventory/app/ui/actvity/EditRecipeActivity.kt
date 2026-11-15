@@ -252,7 +252,13 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.etNutritionInfo.setText(result.nutritionInfo ?: "")
             } catch (e: Exception) {
                 Log.e("EditRecipe", "OCR failed", e)
-                Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_scan_failed), Toast.LENGTH_SHORT).show()
+                val stackTrace = e.stackTraceToString()
+                val fullReport = "📷 ERREUR DE NUMÉRISATION OCR :\nL'analyse de l'image a rencontré un problème (image invalide, mémoire saturée ou erreur de lecture).\n\n--- DÉTAILS TECHNIQUES ---\n$stackTrace"
+                val crashIntent = Intent(this@EditRecipeActivity, CrashActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    putExtra(CrashActivity.EXTRA_CRASH_INFO, fullReport)
+                }
+                startActivity(crashIntent)
             }
         }
     }
