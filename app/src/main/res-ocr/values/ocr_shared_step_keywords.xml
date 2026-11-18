@@ -2,12 +2,33 @@
 <resources>
     <!-- SECTION 1 : Verbes d'action au mode impératif marquant le DÉBUT d'une étape (Étape 4 - Ocr4Merger.isNewStep - Longest Match First) -->
     <string-array name="step_start_verbs">
+        <!-- 13 lettres -->
         <item>Rafraîchissez</item>
+        <item>rafraîchissez</item>
         <item>Assaisonnez</item>
+        <item>assaisonnez</item>
         <item>Répartissez</item>
+        <item>répartissez</item>
+        <!-- 10 lettres -->
+        <item>Dénoyautez</item>
+        <item>dénoyautez</item>
+        <item>Denoyautez</item>
+        <item>denoyautez</item>
         <item>Poursuivez</item>
+        <item>poursuivez</item>
         <item>Incorporez</item>
+        <item>incorporez</item>
         <item>Saupoudrez</item>
+        <item>saupoudrez</item>
+        <!-- 8 lettres -->
+        <item>Équeutez</item>
+        <item>équeutez</item>
+        <item>Equeutez</item>
+        <item>equeutez</item>
+        <item>Épluchez</item>
+        <item>épluchez</item>
+        <item>Epluchez</item>
+        <item>epluchez</item>
         <item>Assemblez</item>
         <item>Détaillez</item>
         <item>Farcissez</item>
@@ -26,8 +47,6 @@
         <item>Chauffez</item>
         <item>Découpez</item>
         <item>Disposez</item>
-        <item>Épluchez</item>
-        <item>Epluchez</item>
         <item>Extrayez</item>
         <item>Fouettez</item>
         <item>Nettoyez</item>
@@ -37,6 +56,7 @@
         <item>Emincez</item>
         <item>Écrasez</item>
         <item>Ecrasez</item>
+        <!-- 7 lettres -->
         <item>Déposez</item>
         <item>Pendant</item>
         <item>Plongez</item>
@@ -55,6 +75,9 @@
         <item>Taillez</item>
         <item>Comptez</item>
         <item>Ajoutez</item>
+        <!-- 6 lettres -->
+        <item>Portez</item>
+        <item>portez</item>
         <item>Écalez</item>
         <item>Ecalez</item>
         <item>Étalez</item>
@@ -75,9 +98,11 @@
         <item>Coupez</item>
         <item>Mettez</item>
         <item>Mixez</item>
+        <!-- 5 lettres -->
         <item>Lavez</item>
         <item>Pelez</item>
         <item>Salez</item>
+        <!-- 4 lettres -->
         <item>Ôtez</item>
         <item>Otez</item>
     </string-array>
@@ -113,8 +138,10 @@
         <item>chauffer</item>
         <item>disposer</item>
         <item>découper</item>
-        <item>eplucher</item>
+        <item>Éplucher</item>
+        <item>éplucher</item>
         <item>Eplucher</item>
+        <item>eplucher</item>
         <item>extraire</item>
         <item>fouetter</item>
         <item>melanger</item>
@@ -123,7 +150,6 @@
         <item>parsemer</item>
         <item>préparer</item>
         <item>réserver</item>
-        <item>éplucher</item>
         <item>obteniez</item>
         <item>déposer</item>
         <item>frotter</item>

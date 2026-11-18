@@ -7,6 +7,8 @@
     <!-- EN-TÊTES PROTÉGÉS & VARIANTES ÉVOLUTIVES DE LA SECTION INGRÉDIENTS (ÉTAPE 1 & 3 - LONGEST MATCH FIRST) -->
     <string-array name="ocr1_protected_ingredients_headers">
         <item>ingrédients nécessaires</item>
+        <item>par fournée</item>
+        <item>Par fournée</item>
         <item>dans votre marché</item>
         <item>dans votre marche</item>
         <item>dans votre marchė</item>

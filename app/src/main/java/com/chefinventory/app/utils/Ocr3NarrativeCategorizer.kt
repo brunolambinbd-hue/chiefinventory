@@ -55,6 +55,8 @@ object Ocr3NarrativeCategorizer {
         val hasBottomIngredientList = lines.indices.drop(2).any { i ->
             val lower = lines[i].lowercase().trim()
             val nextLower = if (i + 1 < lines.size) lines[i + 1].lowercase().trim() else ""
+            val isNutritionTableLine = lower.contains("valeurs") || lower.contains("nutrition") || lower.contains("protcines") || lower.contains("protéines") || lower.contains("glucides") || lower.contains("satures")
+            if (isNutritionTableLine) return@any false
             (lower.contains("pour") && lower.contains("personnes")) ||
             (lower == "pour" && nextLower.contains("personnes"))
         }
@@ -66,11 +68,21 @@ object Ocr3NarrativeCategorizer {
         var hasInstructionStarted = false
         val hasStandaloneIngredientLine = lines.any { line ->
             val lower = line.lowercase().trim()
+            val isNutritionTableLine = lower.contains("valeurs") || lower.contains("nutrition") || lower.contains("protcines") || lower.contains("protéines") || lower.contains("glucides") || lower.contains("satures")
+            if (isNutritionTableLine) return@any false
             val hasAction = OcrInstructionUtils.hasActionVerb(line, vocabulary.stepActionKeywords)
-            val isMetaHeader = metaPrefixes.any { lower.startsWith(it) } || lower.startsWith("pour ")
-            val isHeader = isMetaHeader || vocabulary.ocr1ProtectedInstructionsHeaders.any { lower.startsWith(it.lowercase()) }
+            val isMetaTimeLine = lower.contains("cuisson") || lower.contains("préparation") || lower.contains("preparation") ||
+                    OcrRegexes.Metadata.TIME_COMBINED.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.TIME_PREFIX.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.TIME_SUFFIX.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.DIFFICULTY.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.SERVINGS.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.KCAL.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.NUTRI_SCORE.containsMatchIn(line)
+            val isMetaHeader = isMetaTimeLine || metaPrefixes.any { lower.startsWith(it) } || lower.startsWith("pour ")
+            val isHeader = isMetaHeader || vocabulary.ocr1ProtectedIngredientsHeaders.map { it.lowercase() }.any { lower.startsWith(it) }
 
-            if (hasAction || (Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) && !isMetaHeader)) {
+            if ((hasAction && !isMetaHeader) || (Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) && !isMetaHeader)) {
                 hasInstructionStarted = true
             }
 

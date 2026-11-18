@@ -59,7 +59,15 @@ object RecipeOcrParser {
         }
 
         val rawLines = lines2D.map { it.text }
-        return executePipeline(rawLines, vocabulary)
+        return executePipeline(rawLines, vocabulary, lines2D)
+    }
+
+    /**
+     * Point d'entrée TDD d'isolation 2D utilisant une liste de [OcrTextLine] et le vocabulaire [OcrVocabulary].
+     */
+    fun parse(lines2D: List<OcrTextLine>, vocabulary: OcrVocabulary): RecipeOcrResult {
+        val rawLines = lines2D.map { it.text }
+        return executePipeline(rawLines, vocabulary, lines2D)
     }
 
     /**
@@ -89,17 +97,15 @@ object RecipeOcrParser {
             .map { it.trim() }
             .filter { it.isNotBlank() }
 
-        return executePipeline(rawLines, vocabulary)
+        val lines2D = rawLines.mapIndexed { idx, text -> OcrTextLine(text = text, top = idx * 50) }
+        return executePipeline(rawLines, vocabulary, lines2D)
     }
 
-    /**
-     * Exécute les 5 étapes séquentielles du pipeline OCR en utilisant la liste de lignes brutes [rawLines] et [vocabulary].
-     *
-     * @param rawLines La liste initiale des lignes de texte brutes extraites par l'OCR.
-     * @param vocabulary Le vocabulaire métier data-driven contenant tous les dictionnaires XML.
-     * @return L'objet [RecipeOcrResult] alimenté avec les données extraites et nettoyées.
-     */
-    private fun executePipeline(rawLines: List<String>, vocabulary: OcrVocabulary): RecipeOcrResult {
+    private fun executePipeline(
+        rawLines: List<String>,
+        vocabulary: OcrVocabulary,
+        lines2D: List<OcrTextLine> = emptyList()
+    ): RecipeOcrResult {
         if (rawLines.isEmpty()) return RecipeOcrResult()
 
         // LOG [0.0] : TRACÉ DÉDIÉ COPIER-COLLER AU FORMAT KOTLIN LIST FOR TESTS
@@ -134,12 +140,45 @@ object RecipeOcrParser {
         }
         Log.d(TAG, "[3] TYPE DE RECETTE DÉTECTÉ: $detectedTypeStr")
 
+        val hasIngredientsHeader = vocabulary.ocr1ProtectedIngredientsHeaders.any { header ->
+            val cleanHeader = header.trim().lowercase()
+            linesWithoutTitle.any { line ->
+                val lowerLine = line.trim().lowercase().removeSuffix(":").removeSuffix(".")
+                lowerLine == cleanHeader || lowerLine.startsWith("$cleanHeader ") || lowerLine.startsWith("$cleanHeader:")
+            }
+        }
+
+        val linesWithoutTitleSet = linesWithoutTitle.map { it.trim().lowercase() }.toSet()
+        val lines2DWithoutTitle = lines2D.map { line2D ->
+            line2D.copy(text = Ocr1Corrector.normalize(line2D.text, repairs))
+        }.filter { line2D ->
+            val cleanText = line2D.text.trim().lowercase()
+            linesWithoutTitleSet.any { target ->
+                cleanText == target || target.contains(cleanText) || cleanText.contains(target)
+            }
+        }
+
+        val isReal2DScan = lines2DWithoutTitle.any { it.right > 300 || it.left > 300 || it.bottom > 300 }
+
         val sections = when {
             isNarrative ->
                 Ocr3NarrativeCategorizer.categorizeNarrativeRecipe(linesWithoutTitle, vocabulary)
 
             isInverted ->
                 Ocr3InvertedCategorizer.categorizeInvertedRecipe(linesWithoutTitle, vocabulary, cleanedLines)
+
+            !hasIngredientsHeader && isReal2DScan -> {
+                val results = RawSections()
+                val reordered1DLines = Ocr3SpatialLineReorderer.reorder2DLines(lines2DWithoutTitle, vocabulary, results)
+                val catResults = Ocr3Categorizer.categorize(reordered1DLines, vocabulary)
+                if (results.detectedNutriScore != null && catResults.detectedNutriScore == null) {
+                    catResults.detectedNutriScore = results.detectedNutriScore
+                }
+                if (results.detectedKcal != null && catResults.detectedKcal == null) {
+                    catResults.detectedKcal = results.detectedKcal
+                }
+                catResults
+            }
 
             else -> Ocr3Categorizer.categorize(linesWithoutTitle, vocabulary)
         }

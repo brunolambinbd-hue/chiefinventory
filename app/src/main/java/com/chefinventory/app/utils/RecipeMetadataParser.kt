@@ -32,6 +32,16 @@ object RecipeMetadataParser {
         var workingLine = line.trim()
         val lower = workingLine.lowercase()
 
+        // 0.5 DÉCAPAGE PRÉCOCE DE PRÉFIXE D'EN-TÊTE DE SECTION (ex: "Votre marché:", "Ingrédients:")
+        val protectedHeader = vocabulary?.ocr1ProtectedIngredientsHeaders?.firstOrNull { header ->
+            val cleanH = header.trim().lowercase()
+            lower.startsWith("$cleanH:") || lower.startsWith("$cleanH :")
+        }
+        if (protectedHeader != null) {
+            val prefixRegex = Regex("(?i)^${Regex.escape(protectedHeader)}\\s*:?\\s*")
+            workingLine = prefixRegex.replace(workingLine, "").trim()
+        }
+
         // 1. DÉTECTION ET EXTRACTION DES VALEURS NUTRITIONNELLES
         val nutResult = RecipeMetadataParser0_Nutrition.processNutritionBlock(workingLine, lower, results, bitmap, bounds)
         if (nutResult != null) {

@@ -64,6 +64,14 @@
 <item>INSTRUCTIONS</item>
 <item>INGRÉDIENTS</item>
 <item>PRÉPARATION</item>
+<item>par fournée</item>
+<item>Par fournée</item>
+<item>Votre marché</item>
+<item>votre marché</item>
+<item>Dans votre marché</item>
+<item>dans votre marché</item>
+<item>Sur votre marché</item>
+<item>sur votre marché</item>
     </string-array>
 
     <string-array name="ocr_time_header_prefixes">

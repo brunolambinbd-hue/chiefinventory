@@ -226,6 +226,10 @@ class EditRecipeActivity : AppCompatActivity() {
                 result.title?.takeIf { it.isNotBlank() }?.let {
                     binding.etTitle.setText(it)
                 }
+                // Réinitialisation explicite de la catégorie à chaque nouveau scan pour éviter toute fuite de l'ancienne recette
+                selectedLocationId = null
+                binding.actvRecipeCategory.setText("", false)
+
                 result.category?.takeIf { it.isNotBlank() }?.let { catName ->
                     val matchedCategory = categories.find { cat -> cat.name.equals(catName, ignoreCase = true) }
                     if (matchedCategory != null) {

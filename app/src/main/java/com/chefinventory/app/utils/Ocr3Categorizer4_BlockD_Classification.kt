@@ -51,15 +51,16 @@ object Ocr3Categorizer4_BlockD_Classification {
         hasWeight: Boolean,
         looksLikeIngredient: Boolean,
         startsWithConnector: Boolean,
-        startsWithBullet: Boolean = false
+        startsWithBullet: Boolean = false,
+        isCommonIngredient: Boolean = false
     ): Int {
         val hasNoQtyNoWeight = !hasHardQuantity && !hasWeight
-        val isClosedNoQtyNoWeight = isIngredientListClosed && hasNoQtyNoWeight
+        val isClosedNoQtyNoWeight = isIngredientListClosed && hasNoQtyNoWeight && !startsWithBullet && !isCommonIngredient
         if (isInstructionSignal || isClosedNoQtyNoWeight) {
             return Ocr3Categorizer.SECTION_INSTRUCTIONS
         }
-        if (currentSection == Ocr3Categorizer.SECTION_NONE) {
-            if (looksLikeIngredient || startsWithConnector || hasHardQuantity || hasWeight || startsWithBullet) {
+        if (currentSection == Ocr3Categorizer.SECTION_NONE || currentSection == Ocr3Categorizer.SECTION_INGREDIENTS) {
+            if (looksLikeIngredient || startsWithConnector || hasHardQuantity || hasWeight || startsWithBullet || isCommonIngredient) {
                 return Ocr3Categorizer.SECTION_INGREDIENTS
             }
         }
@@ -124,16 +125,19 @@ object Ocr3Categorizer4_BlockD_Classification {
         val hasUnclosedParenthesis = isIngrSection && hasMoreOpenParens
 
         val isStepNumber = Regex("^\\d{1,2}[.)\\-]\\s*").containsMatchIn(workingLine)
-        val isInstructionSignal = isInstructionSignal(
+        val hasStartVerb = OcrInstructionUtils.hasStartVerb(workingLine, vocabulary.stepStartVerbs)
+        val isInstructionSignal = hasStartVerb || isInstructionSignal(
             hasUnclosedParenthesis, hasInstructionTrigger, isReappearance,
             isStepNumber, containsAction, workingLine.length, startsWithBullet, workingLine
         )
+
+        val isCommonIngredient = vocabulary.commonIngredientsNoQty.any { it.trim().equals(workingLine.trim(), ignoreCase = true) }
 
         LogManager.d(TAG, String.format(vocabulary.logOcr3BlockDClassificationSummary, isReappearance, isInstructionSignal, currentSection))
 
         val updatedSection = classifySection(
             currentSection, isInstructionSignal, isIngredientListClosed,
-            hasHardQuantity, hasWeight, looksLikeIngredient, startsWithConnector, startsWithBullet
+            hasHardQuantity, hasWeight, looksLikeIngredient, startsWithConnector, startsWithBullet, isCommonIngredient
         )
 
         return BlockDResult(false, workingLine, updatedSection)

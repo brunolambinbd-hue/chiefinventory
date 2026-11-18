@@ -19,6 +19,23 @@ object OcrInstructionUtils {
     }
 
     /**
+     * Détermine de manière centralisée si une ligne commence par un verbe d'action impératif principal,
+     * en gérant toutes les formes de puces et artefacts caméra ('O', '0', '•', '*', '-').
+     *
+     * @param line La ligne de texte à évaluer.
+     * @param startVerbs Liste des verbes d'action impératifs de démarrage (ex: `step_start_verbs`).
+     * @return `true` si la ligne commence par un verbe de démarrage, `false` sinon.
+     */
+    fun hasStartVerb(line: String, startVerbs: List<String>): Boolean {
+        if (line.isBlank() || startVerbs.isEmpty()) return false
+        val trimmed = line.trim()
+        return startVerbs.any { verb ->
+            val cleanV = verb.trim().lowercase()
+            cleanV.isNotEmpty() && Regex("(?iu)^\\s*(?:[•.*\\-\\d\\s]+|[O0o]|\\([O0o]\\))?\\s*(?<!\\p{L})${Regex.escape(cleanV)}(?!\\p{L})").containsMatchIn(trimmed)
+        }
+    }
+
+    /**
      * Détermine si la ligne contient au moins un verbe d'action culinaire (`step_keywords.xml`).
      *
      * @param line La ligne de texte à évaluer.
