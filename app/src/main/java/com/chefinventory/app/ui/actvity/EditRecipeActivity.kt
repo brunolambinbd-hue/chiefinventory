@@ -250,7 +250,12 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.etCookTime.setText(result.cookTime ?: "")
                 binding.etRestingTime.setText(result.restingTime ?: "")
                 binding.etKcal.setText(result.kcalPerServing ?: "")
-                binding.etNutriscore.setText(result.nutriScore ?: "")
+                if (result.nutriScore == "PENDING") {
+                    binding.etNutriscore.setText("")
+                    Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_nutriscore_pending), Toast.LENGTH_LONG).show()
+                } else {
+                    binding.etNutriscore.setText(result.nutriScore ?: "")
+                }
                 binding.actvDifficulty.setText(result.difficulty ?: "", false)
                 binding.actvPriceRating.setText(mapPriceRatingToDisplay(result.priceRating), false)
                 binding.etNutritionInfo.setText(result.nutritionInfo ?: "")

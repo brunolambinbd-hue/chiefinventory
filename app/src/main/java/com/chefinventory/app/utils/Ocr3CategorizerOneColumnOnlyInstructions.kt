@@ -1,0 +1,171 @@
+package com.chefinventory.app.utils
+
+import com.parabd.lib.traceability.utils.LogManager
+
+/**
+ * Lecteur 3 (Catégoriseur 1 Colonne - Instructions Seules) du pipeline OCR :
+ * Traitement des recettes en 1 colonne contenant uniquement des consignes d'instructions fluides (sans section d'ingrédients dédiée).
+ *
+ * Responsabilités :
+ * - Conserver 100% du texte de préparation fluide et intact dans [RawSections.rawInstructionsList].
+ * - Extraire les ingrédients implicites (quantités + noms d'aliments) contenus dans le texte des consignes
+ *   pour alimenter [RawSections.rawIngredientsList] afin d'indexer la recette pour le moteur de recherche par garde-manger.
+ */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529")
+object Ocr3CategorizerOneColumnOnlyInstructions {
+    private const val TAG = "Ocr3CategorizerOneColumnOnlyInstructions"
+
+    private val STEP_NUMBER_REGEX = Regex("^\\d{1,2}(?:\\s+[\\p{Lu}]|[.)\\-])")
+
+    /**
+     * Détermine si le scan de recette correspond à une recette en 1 colonne contenant uniquement des instructions (sans section d'ingrédients).
+     *
+     * @param lines La liste des lignes de texte scannées nettoyées (sans le titre).
+     * @param vocabulary Le vocabulaire métier OCR.
+     * @return `true` s'il s'agit d'une recette avec instructions seulement, `false` sinon.
+     */
+    fun isNarrativeInstructionOnlyRecipe(lines: List<String>, vocabulary: OcrVocabulary): Boolean {
+        if (lines.isEmpty()) return false
+
+        // 1. Si la fiche contient un en-tête d'ingrédients explicite ("INGRÉDIENTS", "COMPOSITION"), ce n'est PAS ce type !
+        val hasExplicitIngrHeader = lines.any { line ->
+            val lower = line.lowercase().trim()
+            vocabulary.ocr1ProtectedIngredientsHeaders.any { lower.contains(it.lowercase()) }
+        }
+        if (hasExplicitIngrHeader) return false
+
+        // 1.5 Si la fiche contient un en-tête d'instructions ET un ingrédient quantifié -> Type 1 !
+        val hasInstructionHeader = lines.any { line ->
+            val lower = line.lowercase().trim().trimEnd(':', '.')
+            vocabulary.ocr1ProtectedInstructionsHeaders.any { lower.startsWith(it.lowercase()) } &&
+                    vocabulary.durationUnits.none { lower.contains(it.lowercase()) }
+        }
+        val durationUnits = vocabulary.culinaryMeasurementUnits.map { it.lowercase() }.toSet()
+        val durationEndings = vocabulary.timeHeaderKeywords.map { " ${it.trim().lowercase()}" }
+
+        val hasIngredientWithQuantity = lines.any { line ->
+            val parsed = IngredientParser.parse(line, vocabulary.culinaryMeasurementUnits)
+            val unitLower = parsed.unit?.lowercase()?.trim().orEmpty()
+            val isDurationUnit = unitLower in durationUnits || (parsed.quantity != null && durationEndings.any { line.endsWith(it, ignoreCase = true) })
+            parsed.quantity != null && parsed.name.isNotBlank() && !isDurationUnit
+        }
+        if (hasInstructionHeader && hasIngredientWithQuantity) return false
+
+        // 1.6 Si la fiche contient un bloc d'ingrédients du bas ("POUR X PERSONNES") -> Type 4 Inversé !
+        val hasBottomIngredientList = lines.indices.drop(2).any { i ->
+            val lower = lines[i].lowercase().trim()
+            val nextLower = if (i + 1 < lines.size) lines[i + 1].lowercase().trim() else ""
+            val isNutritionTableLine = lower.contains("valeurs") || lower.contains("nutrition") || lower.contains("protcines") || lower.contains("protéines") || lower.contains("glucides") || lower.contains("satures")
+            if (isNutritionTableLine) return@any false
+            (lower.contains("pour") && lower.contains("personnes")) ||
+            (lower == "pour" && nextLower.contains("personnes"))
+        }
+        if (hasBottomIngredientList) return false
+
+        val metaPrefixes = (vocabulary.timeHeaderPrefixes + vocabulary.timeHeaderKeywords).map { it.lowercase().trim() }.distinct()
+
+        // 2. Si la fiche contient au moins une ligne d'ingrédient autonome AVANT le début des instructions
+        var hasInstructionStarted = false
+        val hasStandaloneIngredientLine = lines.any { line ->
+            val lower = line.lowercase().trim()
+            val isNutritionTableLine = lower.contains("valeurs") || lower.contains("nutrition") || lower.contains("protcines") || lower.contains("protéines") || lower.contains("glucides") || lower.contains("satures")
+            if (isNutritionTableLine) return@any false
+            val hasAction = OcrInstructionUtils.hasActionVerb(line, vocabulary.stepActionKeywords)
+            val isMetaTimeLine = lower.contains("cuisson") || lower.contains("préparation") || lower.contains("preparation") ||
+                    OcrRegexes.Metadata.TIME_COMBINED.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.TIME_PREFIX.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.TIME_SUFFIX.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.DIFFICULTY.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.SERVINGS.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.KCAL.containsMatchIn(line) ||
+                    OcrRegexes.Metadata.NUTRI_SCORE.containsMatchIn(line)
+            val isMetaHeader = isMetaTimeLine || metaPrefixes.any { lower.startsWith(it) } || lower.startsWith("pour ")
+            val isHeader = isMetaHeader || vocabulary.ocr1ProtectedIngredientsHeaders.map { it.lowercase() }.any { lower.startsWith(it) }
+
+            if ((hasAction && !isMetaHeader) || (Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) && !isMetaHeader)) {
+                hasInstructionStarted = true
+            }
+
+            if (isHeader || hasInstructionStarted) return@any false
+
+            val parsed = IngredientParser.parse(line, vocabulary.culinaryMeasurementUnits)
+            val hasValidNameOrUnit = parsed.name.length >= 3 || !parsed.unit.isNullOrEmpty()
+            parsed.quantity != null && hasValidNameOrUnit
+        }
+        if (hasStandaloneIngredientLine) return false
+
+        // 3. Recherche de la première véritable ligne d'instruction (verbe d'action ou numéro d'étape)
+        val firstInstructionLine = lines.firstOrNull { line ->
+            val lower = line.lowercase().trim()
+            if (lower == "pour" || metaPrefixes.any { lower.startsWith(it) }) return@firstOrNull false
+            if (Ocr3CategorizerProperNameDetector.isLikelyProperNameOrSource(line, vocabulary)) return@firstOrNull false
+            if (vocabulary.excludedOcrKeywords.any { it.equals(line.trim(), ignoreCase = true) }) return@firstOrNull false
+
+            val isStepNumber = STEP_NUMBER_REGEX.containsMatchIn(line)
+            val isBullet = line.startsWith("•") || line.startsWith("-")
+
+            OcrInstructionUtils.hasActionVerb(line, vocabulary.stepActionKeywords) ||
+                    Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger(line, vocabulary.instructionSwitchKeywords) ||
+                    isStepNumber || isBullet
+        }
+
+        val result = firstInstructionLine != null
+        LogManager.d(TAG, String.format(vocabulary.logOcr3NarrativeIsNarrative, result, firstInstructionLine ?: ""))
+        return result
+    }
+
+    /**
+     * Catégorise une recette en 1 colonne avec instructions seulement : conserve l'intégralité des consignes fluides et extrait les ingrédients implicites pour le garde-manger.
+     *
+     * @param lines La liste des lignes de texte scannées (sans le titre).
+     * @param vocabulary Le vocabulaire métier OCR.
+     * @return L'objet [RawSections] alimenté avec les consignes fluides et les ingrédients pour la BDD.
+     */
+    fun categorizeNarrativeRecipe(lines: List<String>, vocabulary: OcrVocabulary): RawSections {
+        LogManager.d(TAG, vocabulary.logOcr3NarrativeStart)
+        val results = RawSections()
+
+        val instructionLines = mutableListOf<String>()
+        val wineState = Ocr3CategorizerWine.WineState()
+
+        for (line in lines) {
+            var workingLine = line.trim()
+            if (workingLine.isBlank()) continue
+
+            if (wineState.isWineSectionClosed) continue
+
+            // 1. Extraction des méta-données (Portions, Temps, Kcal)
+            val metaResult = RecipeMetadataParser.extractMetadata(workingLine, results, vocabulary)
+            workingLine = metaResult.remainingLine.trim()
+            if (metaResult.isPureMetadata || workingLine.isBlank()) continue
+
+            // 2. Traitement des recommandations de vins
+            if (Ocr3CategorizerWine.processWineLine(workingLine, 2, true, false, false, vocabulary, wineState)) {
+                continue
+            }
+
+            // 3. Traitement des sources/établissements
+            if (!OcrInstructionUtils.hasActionVerb(workingLine, vocabulary.stepActionKeywords) && Ocr3CategorizerSource.isSourceLine(workingLine, vocabulary)) {
+                val cleanedSource = Ocr3CategorizerSource.cleanSourceLine(workingLine, vocabulary)
+                if (cleanedSource.isNotBlank() && cleanedSource !in results.detectedSourceList) {
+                    results.detectedSourceList.add(cleanedSource)
+                }
+                continue
+            }
+
+            val cleanInstruction = workingLine.replace(OcrRegexes.Beautifier.BULLET_PREFIX, "").trim()
+            if (cleanInstruction.isNotBlank()) {
+                instructionLines.add(cleanInstruction)
+            }
+        }
+
+        results.rawInstructionsList.addAll(instructionLines)
+        results.detectedWineList.addAll(wineState.detectedWineList)
+
+        // 4. Extraction d'ingrédients implicites depuis les consignes pour alimenter le moteur de recherche par garde-manger
+        Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(instructionLines, vocabulary, results)
+
+        LogManager.d(TAG, vocabulary.logOcr3NarrativeEnd)
+        return results
+    }
+}

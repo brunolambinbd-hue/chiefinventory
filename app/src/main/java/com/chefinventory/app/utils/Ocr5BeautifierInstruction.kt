@@ -58,9 +58,10 @@ object Ocr5BeautifierInstruction {
 
         // 1. Nettoyage et assainissement initial de chaque ligne
         val cleanedLines = baseInstructions.mapNotNull { line ->
-            val hasAction = OcrInstructionUtils.hasActionVerb(line, stepActionKeywords)
+            val cleanLine = OcrInstructionUtils.stripSingleLeadingAlphaOrBulletPrefix(line)
+            val hasAction = OcrInstructionUtils.hasActionVerb(cleanLine, stepActionKeywords)
             Ocr5Beautifier.sanitizeLine(
-                line = line,
+                line = cleanLine,
                 spellingRepairs = spellingRepairs,
                 prefixPatterns = prefixPatterns,
                 vocab = vocab,

@@ -48,4 +48,15 @@
 <item>ble</item>
 <item>blé</item>
     </string-array>
+
+    <!-- SECTION 2 : Mots de liaison de titres de recettes (ex: "SOUPE AUX LÉGUMES ET AU ROQUEFORT") -->
+    <string-array name="title_linking_words">
+        <item>et au</item>
+        <item>et aux</item>
+        <item>au</item>
+        <item>aux</item>
+        <item>avec</item>
+        <item>façon</item>
+        <item>style</item>
+    </string-array>
 </resources>

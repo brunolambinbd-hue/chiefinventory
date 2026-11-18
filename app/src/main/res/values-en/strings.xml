@@ -5,6 +5,7 @@
     <!-- General UI -->
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="toast_nutriscore_pending">Nutri-Score logo detected, but the letter could not be identified on the image.</string>
 
     <!-- Counter -->
 

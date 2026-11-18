@@ -52,6 +52,22 @@ class Ocr3CategorizerTitleExtractorTest {
         assertWithMessage("Le titre sans point final doit l'emporter sur le titre se terminant par un point")
             .that(resPeriod.title)
             .isEqualTo("Tarte aux pommes fraîches")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testTitleLinkingWords_BoostsScoreForMultiLineTitlesWithConnectors() {
+        val lines = listOf(
+            "SOUPE VERTE AUX LÉGUMES",
+            "D'HIVER ET AU ROQUEFORT",
+            "• 1 poireau",
+            "• 100 g de roquefort"
+        )
+        val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, vocabulary)
+        assertWithMessage("Le titre multi-lignes avec connecteur 'ET AU' doit être extrait en entier")
+            .that(result.title)
+            .ignoringCase()
+            .contains("soupe verte aux légumes d'hiver et au roquefort")
 
         // 5. Disqualifying guards: "portions", trailing stop words, digit limits (L472, L478, L480)
         val disqLines = listOf(

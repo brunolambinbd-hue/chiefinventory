@@ -174,7 +174,8 @@ object Ocr4Merger {
             }
             val hasExplicitStepMarker = Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(line) || Regex("^\\s*(?:[•\\-*]|\\d{1,2}\\s*[.)\\-]\\s*)").containsMatchIn(normalizedLine)
             val lineStartsWithConjunction = Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(line) || Regex("(?i)^\\s*(?:et|ou)\\b").containsMatchIn(normalizedLine)
-            val isNextStep = !isAbbreviationDot && !prevWasHyphenated && (hasExplicitStepMarker || currentEndsWithPeriod || (!currentEndsWithConjunction && !lineStartsWithConjunction && (isNewStep(line, vocab) || isNewStep(normalizedLine, vocab))))
+            val currentHasUnclosedParenthesis = currentBlock.count { it == '(' } > currentBlock.count { it == ')' }
+            val isNextStep = !currentHasUnclosedParenthesis && !isAbbreviationDot && !prevWasHyphenated && (hasExplicitStepMarker || currentEndsWithPeriod || (!currentEndsWithConjunction && !lineStartsWithConjunction && (isNewStep(line, vocab) || isNewStep(normalizedLine, vocab))))
 
             if (currentBlock.isNotEmpty() && !isNextStep) {
                 if (prevWasHyphenated) {
@@ -189,9 +190,16 @@ object Ocr4Merger {
                     val startsWithLetter = normalizedLine.firstOrNull()?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
 
                     val baseWord = blockClean.dropLast(1).trim().split(Regex("\\s+")).lastOrNull()?.lowercase() ?: ""
+                    val nextWord = normalizedLine.trim().split(Regex("\\s+")).firstOrNull()?.lowercase() ?: ""
+
+                    val isImperativeVerbEz = baseWord.endsWith("ez") || vocab.stepActionKeywords.any { it.lowercase().endsWith(baseWord) && baseWord.length >= 3 }
+                    val isPronounClitic = nextWord in setOf("les", "la", "le", "en", "y", "moi", "nous", "vous")
                     val isStandaloneWordHyphenated = baseWord in standaloneWords
 
-                    if (endsWithLetter && startsWithLetter && !isStandaloneWordHyphenated) {
+                    if (isImperativeVerbEz && isPronounClitic) {
+                        val base = if (blockClean.endsWith("-")) blockClean else "$blockClean-"
+                        currentBlock = "${base.trim()}${normalizedLine.trim()}"
+                    } else if (endsWithLetter && startsWithLetter && !isStandaloneWordHyphenated) {
                         val base = if (blockClean.endsWith("-")) blockClean.dropLast(1) else blockClean
                         currentBlock = base.trim() + normalizedLine.trim()
                     } else {

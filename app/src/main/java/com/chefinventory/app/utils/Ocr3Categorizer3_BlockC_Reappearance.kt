@@ -43,7 +43,8 @@ object Ocr3Categorizer3_BlockC_Reappearance {
         hasHardQuantity: Boolean,
         hasWeight: Boolean,
         startsWithConnector: Boolean,
-        seenIngredientKeywords: Set<String>
+        seenIngredientKeywords: Set<String>,
+        currentSection: Int = Ocr3Categorizer.SECTION_NONE
     ): Boolean {
         if (startsWithConnector) return false
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
@@ -149,7 +150,7 @@ object Ocr3Categorizer3_BlockC_Reappearance {
 
         // --- ANALYSE RÉAPPARITION AVEC LOGS DÉTAILLÉS ---
         val isReappearance = evaluateIsReappearance(
-            workingLine, isIngredientListClosed, hasHardQuantity, hasWeight, startsWithConnector, seenIngredientKeywords
+            workingLine, isIngredientListClosed, hasHardQuantity, hasWeight, startsWithConnector, seenIngredientKeywords, currentSection
         )
 
         val isolatedMod = isIsolatedModifier(lowerLine, vocabulary.ingredientPreparationModifiers)

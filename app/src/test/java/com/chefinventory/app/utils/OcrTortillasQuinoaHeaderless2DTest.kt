@@ -57,6 +57,7 @@ class OcrTortillasQuinoaHeaderless2DTest {
         assertWithMessage("L'huile d'olive (Colonne 2) doit être capturée").that(ingredients.any { it.contains("huile", ignoreCase = true) }).isTrue()
         assertWithMessage("Le poivre (Colonne 2) doit être capturé").that(ingredients.any { it.contains("poivre", ignoreCase = true) }).isTrue()
         assertWithMessage("Le sel (Colonne 2) doit être capturé").that(ingredients.any { it.contains("sel", ignoreCase = true) }).isTrue()
+        assertWithMessage("L'instruction 'd'eau si nécessaire' ne doit PAS figurer dans les ingrédients").that(ingredients.none { it.contains("nécessaire", ignoreCase = true) }).isTrue()
     }
 
     @Test

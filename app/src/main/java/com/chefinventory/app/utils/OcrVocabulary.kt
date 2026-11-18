@@ -134,6 +134,7 @@ import java.io.File
  * @see OcrVocabularyLoader
  */
 data class OcrVocabulary(
+    val titleLinkingWords: List<String> = emptyList(),
     val stepActionKeywords: List<String> = emptyList(),
     val commonIngredientsNoQty: List<String> = emptyList(),
     val priorityIngredientPhrases: List<String> = emptyList(),
@@ -274,6 +275,7 @@ data class OcrVocabulary(
          */
         fun fromResources(res: Resources): OcrVocabulary {
             val vocab = OcrVocabulary(
+                titleLinkingWords = getStringArraySafely(res, R.array.title_linking_words),
                 stepActionKeywords = getStringArraySafely(res, R.array.step_start_verbs) + getStringArraySafely(res, R.array.step_secondary_verbs) + getStringArraySafely(res, R.array.step_context_words) + getStringArraySafely(res, R.array.step_action_keywords_complement),
                 commonIngredientsNoQty = getStringArraySafely(res, R.array.common_ingredients_no_qty),
                 priorityIngredientPhrases = getStringArraySafely(res, R.array.priority_ingredient_phrases),

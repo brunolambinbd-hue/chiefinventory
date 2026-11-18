@@ -192,7 +192,10 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                     isCommonWithNoAction = isCommonWithNoAction
                 )
 
-                if (isKeywordAlreadySeen) {
+                val lastRawInst = results.rawInstructionsList.lastOrNull() ?: ""
+                val hasUnclosedParenInPrevInstruction = lastRawInst.count { it == '(' } > lastRawInst.count { it == ')' }
+
+                if (isKeywordAlreadySeen || hasUnclosedParenInPrevInstruction) {
                     shouldPullBack = false
                 }
 

@@ -43,6 +43,26 @@ class OcrInstructionUtilsTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testStripSingleLeadingAlphaOrBulletPrefix_StripsSingleAlphaOrBulletPrefix() {
+        assertWithMessage("'O Épluchez' doit être nettoyé en 'Épluchez'")
+            .that(OcrInstructionUtils.stripSingleLeadingAlphaOrBulletPrefix("O Épluchez les pommes de terre"))
+            .isEqualTo("Épluchez les pommes de terre")
+
+        assertWithMessage("'o Faites' doit être nettoyé en 'Faites'")
+            .that(OcrInstructionUtils.stripSingleLeadingAlphaOrBulletPrefix("o Faites revenir 5 min"))
+            .isEqualTo("Faites revenir 5 min")
+
+        assertWithMessage("'A Coupez' doit être nettoyé en 'Coupez'")
+            .that(OcrInstructionUtils.stripSingleLeadingAlphaOrBulletPrefix("A Coupez les oignons"))
+            .isEqualTo("Coupez les oignons")
+
+        assertWithMessage("'• Mettez' doit être nettoyé en 'Mettez'")
+            .that(OcrInstructionUtils.stripSingleLeadingAlphaOrBulletPrefix("• Mettez le tout"))
+            .isEqualTo("Mettez le tout")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testHasActionVerb_DetectsImperativeActionVerbsAndHandlesBlankEmptyFilter() {
         val keywords = listOf("Coupez", "Mélangez", "Servez")
         assertWithMessage("La consigne 'Coupez les légumes en dés' doit être reconnue comme contenant un verbe d'action")

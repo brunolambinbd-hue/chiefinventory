@@ -112,6 +112,7 @@ object OcrVocabularyLoader {
             ocrNoiseExclusions = getList(stringArrays, "ocr_noise_exclusions"),
             titleKeywords = getList(stringArrays, "title_keywords"),
             mandatoryComplementIngredients = getList(stringArrays, "ingredient_mandatory_complements"),
+            titleLinkingWords = getList(stringArrays, "title_linking_words"),
             hangingConnectors = getList(stringArrays, "hanging_connectors"),
             ingredientVarietyQualifiers = getList(stringArrays, "ingredient_variety_qualifiers"),
             baseIngredientsExpectingVariety = getList(stringArrays, "base_ingredients_expecting_variety"),

@@ -124,6 +124,14 @@ object Ocr3Categorizer4_BlockD_Classification {
         val hasMoreOpenParens = lastRawIng.count { it == '(' } > lastRawIng.count { it == ')' }
         val hasUnclosedParenthesis = isIngrSection && hasMoreOpenParens
 
+        val lastRawInst = results.rawInstructionsList.lastOrNull() ?: ""
+        val isInstSection = currentSection == Ocr3Categorizer.SECTION_INSTRUCTIONS
+        val hasUnclosedInstructionParen = isInstSection && (lastRawInst.count { it == '(' } > lastRawInst.count { it == ')' })
+
+        if (hasUnclosedInstructionParen) {
+            return BlockDResult(false, workingLine, Ocr3Categorizer.SECTION_INSTRUCTIONS)
+        }
+
         val isStepNumber = Regex("^\\d{1,2}[.)\\-]\\s*").containsMatchIn(workingLine)
         val hasStartVerb = OcrInstructionUtils.hasStartVerb(workingLine, vocabulary.stepStartVerbs)
         val isInstructionSignal = hasStartVerb || isInstructionSignal(

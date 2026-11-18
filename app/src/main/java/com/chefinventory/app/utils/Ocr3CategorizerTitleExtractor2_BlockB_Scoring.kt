@@ -139,10 +139,10 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
             details.add("mots_clés_titre($matchedTitleKeywords):+$pts")
         }
 
-        // Critère 3 : Connecteurs de titre (et, aux, à la, au)
-        val connectorsList = vocabulary.titleMultilineConnectors
+        // Critère 3 : Connecteurs et mots de liaison de titre (et, aux, à la, au, et au, et aux)
+        val connectorsList = (vocabulary.titleMultilineConnectors + vocabulary.titleLinkingWords).distinct()
         val connectors = connectorsList.map { " ${it.trim().lowercase()} " }
-        val matchedConnectors = connectors.filter { lower.contains(it) }
+        val matchedConnectors = connectors.filter { lower.contains(it) || lower.startsWith("${it.trim()} ") }
         if (matchedConnectors.isNotEmpty()) {
             val pts = matchedConnectors.size * SCORE_CONNECTOR_MATCH
             score += pts

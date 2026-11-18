@@ -17,6 +17,7 @@ object Ocr3CategorizerInstructionTriggerDetector {
      */
     fun hasInstructionTrigger(line: String, instructionTriggers: List<String>): Boolean {
         if (line.isBlank() || instructionTriggers.isEmpty()) return false
-        return instructionTriggers.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(line) }
+        val sortedTriggers = instructionTriggers.map { it.trim() }.filter { it.isNotEmpty() }.distinct().sortedByDescending { it.length }
+        return sortedTriggers.any { Regex("(?iu)(?<!\\p{L})${Regex.escape(it)}(?!\\p{L})").containsMatchIn(line) }
     }
 }

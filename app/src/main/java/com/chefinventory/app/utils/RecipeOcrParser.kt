@@ -129,60 +129,9 @@ object RecipeOcrParser {
         val linesWithoutTitle = titleResult.cleanedLines
         Log.d(TAG, "[2.5] TITRE DÉTECTÉ: ${titleResult.title ?: "Aucun"}")
 
-        // ÉTAPE 3 : Catégorisation (Tri intelligent selon la famille de layout de recette)
-        val isNarrative = Ocr3NarrativeCategorizer.isNarrativeInstructionOnlyRecipe(linesWithoutTitle, vocabulary)
-        val isInverted = Ocr3InvertedCategorizer.isInvertedRecipe(linesWithoutTitle, vocabulary)
+        // ÉTAPE 3 : Catégorisation (Aiguillage intelligent vers l'un des 4 Lecteurs de Recettes via Ocr3CategorizerRouter)
+        val sections = Ocr3CategorizerRouter.routeAndCategorize(linesWithoutTitle, lines2D, cleanedLines, vocabulary)
 
-        val detectedTypeStr = when {
-            isNarrative -> "TYPE 2 (NARRATIVE / SANS SECTION INGRÉDIENTS)"
-            isInverted -> "TYPE 3 (INVERSÉE / INSTRUCTIONS EN PREMIER)"
-            else -> "TYPE 1 (CLASSIQUE / INGRÉDIENTS EN PREMIER)"
-        }
-        Log.d(TAG, "[3] TYPE DE RECETTE DÉTECTÉ: $detectedTypeStr")
-
-        val hasIngredientsHeader = vocabulary.ocr1ProtectedIngredientsHeaders.any { header ->
-            val cleanHeader = header.trim().lowercase()
-            linesWithoutTitle.any { line ->
-                val lowerLine = line.trim().lowercase().removeSuffix(":").removeSuffix(".")
-                lowerLine == cleanHeader || lowerLine.startsWith("$cleanHeader ") || lowerLine.startsWith("$cleanHeader:")
-            }
-        }
-
-        val linesWithoutTitleSet = linesWithoutTitle.map { it.trim().lowercase() }.toSet()
-        val lines2DWithoutTitle = lines2D.map { line2D ->
-            line2D.copy(text = Ocr1Corrector.normalize(line2D.text, repairs))
-        }.filter { line2D ->
-            val cleanText = line2D.text.trim().lowercase()
-            linesWithoutTitleSet.any { target ->
-                cleanText == target || target.contains(cleanText) || cleanText.contains(target)
-            }
-        }
-
-        val isReal2DScan = lines2DWithoutTitle.any { it.right > 300 || it.left > 300 || it.bottom > 300 }
-
-        val sections = when {
-            isNarrative ->
-                Ocr3NarrativeCategorizer.categorizeNarrativeRecipe(linesWithoutTitle, vocabulary)
-
-            isInverted ->
-                Ocr3InvertedCategorizer.categorizeInvertedRecipe(linesWithoutTitle, vocabulary, cleanedLines)
-
-            !hasIngredientsHeader && isReal2DScan -> {
-                val results = RawSections()
-                val reordered1DLines = Ocr3SpatialLineReorderer.reorder2DLines(lines2DWithoutTitle, vocabulary, results)
-                val catResults = Ocr3Categorizer.categorize(reordered1DLines, vocabulary)
-                if (results.detectedNutriScore != null && catResults.detectedNutriScore == null) {
-                    catResults.detectedNutriScore = results.detectedNutriScore
-                }
-                if (results.detectedKcal != null && catResults.detectedKcal == null) {
-                    catResults.detectedKcal = results.detectedKcal
-                }
-                catResults
-            }
-
-            else -> Ocr3Categorizer.categorize(linesWithoutTitle, vocabulary)
-        }
-        System.out.println("TEST DEBUG PARSER SECTIONS ingr=${sections.rawIngredientsList}, inst=${sections.rawInstructionsList}")
         if (sections.detectedTitle == null) {
             sections.detectedTitle = titleResult.title
         }

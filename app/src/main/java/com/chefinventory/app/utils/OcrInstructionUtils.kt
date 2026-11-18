@@ -19,6 +19,18 @@ object OcrInstructionUtils {
     }
 
     /**
+     * Nettoie une consigne d'instruction en supprimant tout artefact de puce orpheline
+     * (ex: une seule lettre 'O', 'o', 'A', 'i' ou symbole de puce suivi d'un espace en début de ligne d'instruction).
+     *
+     * @param line La ligne de texte d'instruction.
+     * @return La consigne d'instruction assainie de sa puce orpheline initiale.
+     */
+    fun stripSingleLeadingAlphaOrBulletPrefix(line: String): String {
+        if (line.isBlank()) return ""
+        return line.replace(Regex("(?iu)^\\s*(?:[•.*\\-]|\\([a-zA-Z]\\)|[a-zA-Z])\\s+(?=[\\p{Lu}\\p{Ll}])"), "").trim()
+    }
+
+    /**
      * Détermine de manière centralisée si une ligne commence par un verbe d'action impératif principal,
      * en gérant toutes les formes de puces et artefacts caméra ('O', '0', '•', '*', '-').
      *
@@ -28,10 +40,10 @@ object OcrInstructionUtils {
      */
     fun hasStartVerb(line: String, startVerbs: List<String>): Boolean {
         if (line.isBlank() || startVerbs.isEmpty()) return false
-        val trimmed = line.trim()
+        val cleanLine = stripSingleLeadingAlphaOrBulletPrefix(line)
         return startVerbs.any { verb ->
             val cleanV = verb.trim().lowercase()
-            cleanV.isNotEmpty() && Regex("(?iu)^\\s*(?:[•.*\\-\\d\\s]+|[O0o]|\\([O0o]\\))?\\s*(?<!\\p{L})${Regex.escape(cleanV)}(?!\\p{L})").containsMatchIn(trimmed)
+            cleanV.isNotEmpty() && Regex("(?iu)^\\s*(?<!\\p{L})${Regex.escape(cleanV)}(?!\\p{L})").containsMatchIn(cleanLine)
         }
     }
 
