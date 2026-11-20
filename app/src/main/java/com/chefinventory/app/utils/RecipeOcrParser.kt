@@ -186,7 +186,7 @@ object RecipeOcrParser {
         }
         finalInstructions.forEachIndexed { i, inst -> Log.d(TAG, "    INSTR[$i]: $inst") }
 
-        val finalCategory = cleaningResult.earlyDetectedCategory ?: CategoryMapper.normalizeRecipeCategory(sections.detectedTitle)
+        val finalCategory = cleaningResult.earlyDetectedCategory
 
         val finalTitle = Ocr5BeautifierTitle.beautifyTitle(sections.detectedTitle)
 

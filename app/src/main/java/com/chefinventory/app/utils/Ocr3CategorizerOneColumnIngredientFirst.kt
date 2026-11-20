@@ -47,6 +47,14 @@ object Ocr3CategorizerOneColumnIngredientFirst {
             return Ocr3CategorizerOneColumnOnlyInstructions.categorizeNarrativeRecipe(lines, vocabulary)
         }
 
+        return categorizeDirect(lines, vocabulary)
+    }
+
+    /**
+     * Exécute la machine à états 1D de catégorisation directement sans ré-évaluer la délégation narrative.
+     * Utilisé par [Ocr3CategorizerTwoColumnsIngredientFirst] après ré-ordonnancement 2D des colonnes.
+     */
+    fun categorizeDirect(lines: List<String>, vocabulary: OcrVocabulary): RawSections {
         val results = RawSections()
         var currentSection = SECTION_NONE
         var isIngredientListClosed = false

@@ -27,7 +27,7 @@ object OcrInstructionUtils {
      */
     fun stripSingleLeadingAlphaOrBulletPrefix(line: String): String {
         if (line.isBlank()) return ""
-        return line.replace(Regex("(?iu)^\\s*(?:[•.*\\-]|\\([a-zA-Z]\\)|[a-zA-Z])\\s+(?=[\\p{Lu}\\p{Ll}])"), "").trim()
+        return line.replace(Regex("(?iu)^\\s*(?:[•.*\\-]|\\([a-zA-Z]\\)|[a-zA-Z0-9])\\s+(?=\\p{L})"), "").trim()
     }
 
     /**
@@ -41,10 +41,23 @@ object OcrInstructionUtils {
     fun hasStartVerb(line: String, startVerbs: List<String>): Boolean {
         if (line.isBlank() || startVerbs.isEmpty()) return false
         val cleanLine = stripSingleLeadingAlphaOrBulletPrefix(line)
-        return startVerbs.any { verb ->
-            val cleanV = verb.trim().lowercase()
-            cleanV.isNotEmpty() && Regex("(?iu)^\\s*(?<!\\p{L})${Regex.escape(cleanV)}(?!\\p{L})").containsMatchIn(cleanLine)
+        val lowerLine = cleanLine.lowercase()
+
+        val matchedVerb = startVerbs.firstOrNull { verb ->
+            val cleanV = verb.trim()
+            if (cleanV.isEmpty()) return@firstOrNull false
+            val escOriginal = Regex.escape(cleanV)
+            val escLower = Regex.escape(cleanV.lowercase())
+
+            Regex("(?iu)^\\s*(?<!\\p{L})(?:$escOriginal|$escLower)(?!\\p{L})").containsMatchIn(cleanLine) ||
+                    Regex("(?iu)^\\s*(?<!\\p{L})(?:$escOriginal|$escLower)(?!\\p{L})").containsMatchIn(lowerLine)
         }
+
+        val isMatch = matchedVerb != null
+        if (isMatch) {
+            com.parabd.lib.traceability.utils.LogManager.d("OcrInstructionUtils", "HAS_START_VERB: Match '$matchedVerb' on cleanLine='$cleanLine' (rawLine='$line')")
+        }
+        return isMatch
     }
 
     /**

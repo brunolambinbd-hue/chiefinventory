@@ -35,7 +35,7 @@ object Ocr3CategorizerTwoColumnsIngredientFirst {
         val reorderedInstructions = extractInstructionLines(instructionLines2D, instructionTopLimit, vocabulary)
 
         val fullStream = reorderedIngredientsStream + reorderedInstructions
-        return Ocr3CategorizerOneColumnIngredientFirst.categorize(fullStream, vocabulary)
+        return Ocr3CategorizerOneColumnIngredientFirst.categorizeDirect(fullStream, vocabulary)
     }
 
     /**
@@ -88,7 +88,9 @@ object Ocr3CategorizerTwoColumnsIngredientFirst {
             val cleanInstLine = OcrInstructionUtils.stripSingleLeadingAlphaOrBulletPrefix(trimmed)
             val lower = cleanInstLine.lowercase()
             val metaCheck = RecipeMetadataParser.extractMetadata(cleanInstLine, results, vocabulary, line.bitmap, line.bounds)
-            val isMetaLine = metaCheck.isPureMetadata || OcrRegexes.Metadata.TIME_COMBINED.containsMatchIn(cleanInstLine) ||
+            val isMetaLine = metaCheck.isPureMetadata ||
+                    lower.contains("cuisson") || lower.contains("préparation") || lower.contains("preparation") ||
+                    OcrRegexes.Metadata.TIME_COMBINED.containsMatchIn(cleanInstLine) ||
                     OcrRegexes.Metadata.TIME_PREFIX.containsMatchIn(cleanInstLine) || OcrRegexes.Metadata.TIME_SUFFIX.containsMatchIn(cleanInstLine)
             if (isMetaLine) return@firstOrNull false
 

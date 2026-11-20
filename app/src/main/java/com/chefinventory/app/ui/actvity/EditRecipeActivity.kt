@@ -223,10 +223,8 @@ class EditRecipeActivity : AppCompatActivity() {
                 val visionText = textRecognitionHelper.recognizeVisionText(bitmap) ?: return@launch
                 val result = RecipeOcrParser.parse(visionText, resources)
                 
-                result.title?.takeIf { it.isNotBlank() }?.let {
-                    binding.etTitle.setText(it)
-                }
-                // Réinitialisation explicite de la catégorie à chaque nouveau scan pour éviter toute fuite de l'ancienne recette
+                // Réinitialisation explicite du titre et de la catégorie à chaque nouveau scan pour éviter toute fuite de l'ancienne recette
+                binding.etTitle.setText(result.title ?: "")
                 selectedLocationId = null
                 binding.actvRecipeCategory.setText("", false)
 

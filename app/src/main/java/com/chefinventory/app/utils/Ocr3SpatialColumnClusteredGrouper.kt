@@ -150,21 +150,22 @@ object Ocr3SpatialColumnClusteredGrouper {
         val stream1D = mutableListOf<String>()
 
         // 1. Collecter toutes les BoundingBoxes de la Colonne Ingrédients (Gauche) triées du haut vers le bas
-        val sortedIngredientsCol = twoColumnsResult.columnLeft.sortedBy { it.top }
-        for (line in sortedIngredientsCol) {
+        val sortedIngredientsColLeft = twoColumnsResult.columnLeft.sortedBy { it.top }
+        for (line in sortedIngredientsColLeft) {
             val normalizedText = Ocr1Corrector.normalize(line.text, repairs).trim()
-            if (normalizedText.isNotBlank()) {
-                stream1D.add(normalizedText)
+            val cleanIngrText = normalizedText.replace(Regex("(?iu)^\\s*[•.*\\-]+\\s*"), "").trim()
+            if (cleanIngrText.isNotBlank()) {
+                stream1D.add(cleanIngrText)
             }
         }
 
-        // 2. Collecter toutes les BoundingBoxes de la Colonne Instructions (Droite) triées du haut vers le bas
-        val sortedInstructionsCol = twoColumnsResult.columnRight.sortedBy { it.top }
-        for (line in sortedInstructionsCol) {
+        // 2. Collecter toutes les BoundingBoxes de la Colonne Ingrédients (Droite) triées du haut vers le bas
+        val sortedIngredientsColRight = twoColumnsResult.columnRight.sortedBy { it.top }
+        for (line in sortedIngredientsColRight) {
             val normalizedText = Ocr1Corrector.normalize(line.text, repairs).trim()
-            val cleanInst = OcrInstructionUtils.stripSingleLeadingAlphaOrBulletPrefix(normalizedText)
-            if (cleanInst.isNotBlank()) {
-                stream1D.add(cleanInst)
+            val cleanIngrText = normalizedText.replace(Regex("(?iu)^\\s*[•.*\\-]+\\s*"), "").trim()
+            if (cleanIngrText.isNotBlank()) {
+                stream1D.add(cleanIngrText)
             }
         }
 
