@@ -23,15 +23,19 @@ object Ocr4MergerIngredientSplitter {
         mandatoryComplements: List<String> = emptyList(),
         preparationModifiers: List<String> = emptyList(),
         splitterConnectors: List<String> = emptyList(),
-        culinaryUnits: List<String> = emptyList()
+        culinaryUnits: List<String> = emptyList(),
+        offTaxonomyList: List<String> = emptyList()
     ): List<String> {
+        val effectiveCommon = (commonItems + offTaxonomyList).distinct()
         var cleanedLine = line.trim()
         if (cleanedLine.isBlank()) return emptyList()
 
         val lower = java.text.Normalizer.normalize(cleanedLine.lowercase(), java.text.Normalizer.Form.NFC)
         val isSeasoningPhrase = lower.startsWith("sel de ") || lower.startsWith("sel du ") || lower.startsWith("sel d'") ||
                 lower.startsWith("poivre de ") || lower.startsWith("poivre du ") || lower.startsWith("poivre d'")
-        if (isSeasoningPhrase || commonItems.any { java.text.Normalizer.normalize(it.trim().lowercase(), java.text.Normalizer.Form.NFC) == lower }) {
+        val parsedName = IngredientParser.parse(cleanedLine).name.lowercase().trim()
+        val isCompoundFoodName = parsedName.startsWith("fromage ") || parsedName.startsWith("jambon ") || parsedName.startsWith("huile ") || parsedName.startsWith("sauce ")
+        if (isSeasoningPhrase || isCompoundFoodName || effectiveCommon.any { java.text.Normalizer.normalize(it.trim().lowercase(), java.text.Normalizer.Form.NFC) == lower }) {
             return listOf(cleanedLine)
         }
 
@@ -44,7 +48,7 @@ object Ocr4MergerIngredientSplitter {
 
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
         val hacheVariants = vocab.ingredientPreparationSuffixModifiers.ifEmpty { listOf("haché", "hachée", "hachés", "hachées") }
-        val otherKeywords = commonItems.filter { it.lowercase() !in hacheVariants }
+        val otherKeywords = effectiveCommon.filter { it.lowercase() !in hacheVariants }
         
         val otherKeywordsRegex = if (otherKeywords.isNotEmpty()) {
             otherKeywords.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
@@ -56,7 +60,9 @@ object Ocr4MergerIngredientSplitter {
 
         // Adjectifs de taille/forme d'origine intégrés dans ocr_step4_ingredient_connectors.xml :
         // val sizeAdjectives = listOf("beau", "beaux", "belle", "belles", "petit", "petite", "petits", "petites", "grand", "grande", "grands", "grandes", "moyen", "moyenne", "moyens", "moyennes", "fine", "fines", "gros", "grosse", "grosses")
-        val defaultConnectors = (vocab.ingredientConnectors + vocab.standaloneArticles + vocab.culinaryMeasurementUnits).map { it.lowercase().trim() }.distinct()
+        val numberWords = (vocab.orphanNounNumberWords + listOf("cinq", "deux", "trois", "quatre", "six", "sept", "huit", "neuf", "dix")).map { it.lowercase().trim() }
+        val alternativeConnectors = listOf("ou", "ou de", "ou d'", "ou du", "ou des", "soit", "ou bien", "véritable", "veritable", "vrai", "vrais")
+        val defaultConnectors = (vocab.ingredientConnectors + vocab.standaloneArticles + vocab.culinaryMeasurementUnits + numberWords + alternativeConnectors).map { it.lowercase().trim() }.distinct()
         val baseConnectors = splitterConnectors.ifEmpty { defaultConnectors }
         val defaultUnits = vocab.culinaryMeasurementUnits.map { it.lowercase().trim() }.distinct()
         val activeUnits = culinaryUnits.ifEmpty { defaultUnits }

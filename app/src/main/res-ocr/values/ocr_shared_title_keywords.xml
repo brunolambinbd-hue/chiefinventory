@@ -4,11 +4,9 @@
 <item>saint-jacques</item>
 <item>vinaigrette</item>
 <item>artichauts</item>
-<item>aubergines</item>
 <item>concombres</item>
 <item>princesses</item>
 <item>artichaut</item>
-<item>aubergine</item>
 <item>carpaccio</item>
 <item>concombre</item>
 <item>crevettes</item>
@@ -42,11 +40,14 @@
 <item>saumon</item>
 <item>surimi</item>
 <item>crabe</item>
+<item>nems</item>
 <item>roulé</item>
 <item>soupe</item>
 <item>tarte</item>
 <item>ble</item>
 <item>blé</item>
+<item>roquefort</item>
+<item>fromage</item>
     </string-array>
 
     <!-- SECTION 2 : Mots de liaison de titres de recettes (ex: "SOUPE AUX LÉGUMES ET AU ROQUEFORT") -->

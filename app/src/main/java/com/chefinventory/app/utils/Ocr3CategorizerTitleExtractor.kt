@@ -22,12 +22,17 @@ object Ocr3CategorizerTitleExtractor {
      * @param vocabulary Le vocabulaire métier data-driven contenant les dictionnaires XML du projet.
      * @return L'objet [TitleExtractionResult] contenant le titre retenu et la liste des lignes restantes.
      */
-    fun extractTitle(lines: List<String>, vocabulary: OcrVocabulary): TitleExtractionResult {
+    fun extractTitle(
+        lines: List<String>,
+        vocabulary: OcrVocabulary,
+        lines2D: List<OcrTextLine> = emptyList(),
+        offTaxonomyList: List<String> = emptyList()
+    ): TitleExtractionResult {
         val candidates = mutableListOf<ScoredTitleCandidate>()
         val actionVerbs = vocabulary.stepActionKeywords.distinct()
         val containsActionRegex = if (actionVerbs.isEmpty()) null else OcrRegexes.getInstructionPrefixPattern(actionVerbs)
 
-        val recipeIngredientWords = Ocr3CategorizerTitleExtractor0_Context.extractRecipeIngredientWords(lines, vocabulary)
+        val recipeIngredientWords = Ocr3CategorizerTitleExtractor0_Context.extractRecipeIngredientWords(lines, vocabulary, offTaxonomyList)
         val firstIngredientWord = Ocr3CategorizerTitleExtractor0_Context.findFirstIngredientWord(lines, vocabulary)
         if (recipeIngredientWords.isNotEmpty()) {
             if (vocabulary.logOcr3TitleExtractorIngrDetected.isNotBlank()) {
@@ -59,13 +64,48 @@ object Ocr3CategorizerTitleExtractor {
             )
             if (processedSelPoivre) continue
 
-            // 2. Détection de titre sur 2 lignes (ex: "SOUPE AU CÉLERI-RAVE," \n "NOIX ET MASCARPONE" ou "Büchettes de melon" \n "au jambon italien")
-            if (i + 1 < lines.size) {
-                val nextLine = lines[i + 1].trim()
+            // 2. Détection de titre sur 2 lignes (1D contigu ou 2D côte-à-côte dans l'espace)
+            var nextLine = if (i + 1 < lines.size) lines[i + 1].trim() else ""
+
+            val titleConnectors = listOf(" aux", " au", " et", " à la", " a la", " de", " d'", " du", " des", " avec", " sur ")
+            val currentEndsWithTitleConnector = titleConnectors.any { workingLine.lowercase().trim().endsWith(it.trim()) }
+            val workingLineHasTitleKeyword = (vocabulary.titleKeywords + listOf("bllelon", "llelon", "bûchettes", "buchettes")).any { kw ->
+                OcrRegexes.getSpellingRepairPattern(kw).matcher(workingLine).find()
+            }
+
+            val titleWordsToKeep = setOf("soupe", "salade", "tarte", "quiche", "gratin", "mousse", "velouté", "cocktail", "nems")
+            val isIngredientLine = OcrRegexes.Titles.HAS_QUANTITY.containsMatchIn(workingLine) ||
+                    OcrRegexes.Titles.HAS_QUANTITY.containsMatchIn(lines[i]) ||
+                    vocabulary.culinaryMeasurementUnits.filter { it.trim().lowercase() !in titleWordsToKeep }.any { unit ->
+                        val u = unit.trim().lowercase()
+                        u.length >= 2 && Regex("(?i)\\b${Regex.escape(u)}\\b").containsMatchIn(workingLine)
+                    }
+
+            val line12D = lines2D.find { it.text.trim().equals(workingLine, ignoreCase = true) }
+            if (line12D != null && !isIngredientLine && (workingLineHasTitleKeyword || currentEndsWithTitleConnector)) {
+                val spatialNext2D = lines2D.find { l2D ->
+                    !l2D.text.trim().equals(workingLine, ignoreCase = true) &&
+                    !OcrRegexes.Titles.HAS_QUANTITY.containsMatchIn(l2D.text) &&
+                    !OcrInstructionUtils.hasActionVerb(l2D.text, vocabulary.stepActionKeywords) &&
+                    kotlin.math.abs(l2D.top - line12D.top) <= 60 &&
+                    l2D.left >= line12D.right - 100
+                }
+                if (spatialNext2D != null) {
+                    nextLine = spatialNext2D.text.trim()
+                }
+            }
+
+            val categoryHeaderKeys = vocabulary.recipeCategoryHeaders.map { it.split("|")[0].trim() }
+            val protectedHeaders = (categoryHeaderKeys + vocabulary.ocr1ProtectedIngredientsHeaders + vocabulary.ocr1ProtectedInstructionsHeaders).map { OcrLevenshteinUtils.stripAccents(it.trim().lowercase()) }
+            val isWorkingLineProtectedHeader = protectedHeaders.any { cleanHeader ->
+                val cleanWork = OcrLevenshteinUtils.stripAccents(workingLine.trim().lowercase())
+                cleanWork == cleanHeader || cleanWork.startsWith("$cleanHeader ") || cleanWork.startsWith("$cleanHeader(") || cleanWork.startsWith("$cleanHeader:")
+            }
+
+            if (nextLine.isNotEmpty()) {
                 val isMultiLineConnector = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(nextLine, vocabulary)
-                val isNextProtectedHeader = (vocabulary.ocr1ProtectedIngredientsHeaders + vocabulary.ocr1ProtectedInstructionsHeaders).any { header ->
-                    val cleanHeader = header.trim().lowercase()
-                    val cleanNext = nextLine.trim().lowercase().removeSuffix(":").removeSuffix(".").trim()
+                val isNextProtectedHeader = protectedHeaders.any { cleanHeader ->
+                    val cleanNext = OcrLevenshteinUtils.stripAccents(nextLine.trim().lowercase())
                     cleanNext == cleanHeader || cleanNext.startsWith("$cleanHeader ") || cleanNext.startsWith("$cleanHeader(") || cleanNext.startsWith("$cleanHeader:")
                 }
                 val cleanWorkingLetters = workingLine.replace(Regex("[^\\p{L}]"), "")
@@ -77,17 +117,28 @@ object Ocr3CategorizerTitleExtractor {
                         OcrRegexes.Metadata.DIFFICULTY.containsMatchIn(nextLine) ||
                         Regex("(?i)\\b\\d+\\s*(?:mn|min|minute|h|pers|kcal)\\b").containsMatchIn(nextLine)
 
-                val isUppercaseTitlePair = !isNextProtectedHeader && !hasMetadataTimeOrServings &&
+                val line1OriginalHasQuantity = OcrRegexes.Titles.HAS_QUANTITY.containsMatchIn(lines[i]) || OcrRegexes.Titles.DISQUALIFYING_NUMBER_START.containsMatchIn(lines[i]) || IngredientParser.parse(lines[i]).quantity != null
+                val line2OriginalHasQuantity = OcrRegexes.Titles.HAS_QUANTITY.containsMatchIn(nextLine) || OcrRegexes.Titles.DISQUALIFYING_NUMBER_START.containsMatchIn(nextLine) || IngredientParser.parse(nextLine).quantity != null
+
+                val isUppercaseTitlePair = !isWorkingLineProtectedHeader && !isNextProtectedHeader && !hasMetadataTimeOrServings && !line1OriginalHasQuantity && !line2OriginalHasQuantity &&
                         cleanWorkingLetters.length >= 4 && cleanNextLetters.length >= 4 &&
                         cleanWorkingLetters.all { it.isUpperCase() } && cleanNextLetters.all { it.isUpperCase() }
 
-                if ((isMultiLineConnector || isUppercaseTitlePair) && !OcrInstructionUtils.hasActionVerb(nextLine, vocabulary.stepActionKeywords)) {
+                val titleConnectors = listOf(" aux", " au", " et", " à la", " a la", " avec", " sur ")
+                val currentEndsWithTitleConnector = titleConnectors.any { workingLine.lowercase().trim().endsWith(it.trim()) }
+
+                val line22D = lines2D.find { it.text.trim().equals(nextLine, ignoreCase = true) }
+                val bothLargeFont = (line12D != null && line22D != null && (line12D.bottom - line12D.top) >= 70 && (line22D.bottom - line22D.top) >= 70)
+
+                val isMultiLineTitlePair = !line1OriginalHasQuantity && !isWorkingLineProtectedHeader && (isMultiLineConnector || currentEndsWithTitleConnector || bothLargeFont || isUppercaseTitlePair)
+
+                if (isMultiLineTitlePair && !OcrInstructionUtils.hasActionVerb(nextLine, vocabulary.stepActionKeywords) && !isNextProtectedHeader) {
                     val combined = "$workingLine $nextLine"
                     val cleanCombined = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(combined), recipeIngredientWords, vocabulary)
                     val baseCand = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate(cleanCombined, vocabulary, containsActionRegex)
                     if (baseCand) {
-                        val (score, details) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(cleanCombined, vocabulary, recipeIngredientWords, firstIngredientWord)
-                        candidates.add(ScoredTitleCandidate(cleanCombined, i, 1, score, details))
+                        val (score, details) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(cleanCombined, vocabulary, recipeIngredientWords, firstIngredientWord, lines2D, candidateLineIndex = i)
+                        candidates.add(ScoredTitleCandidate(cleanCombined, i, 2, score, details))
                     }
                 }
             }
@@ -97,11 +148,13 @@ object Ocr3CategorizerTitleExtractor {
             val isIngredientQuantityLine = parsedRawLine.quantity != null && 
                     (parsedRawLine.unit != null || parsedRawLine.quantity!! < 50.0)
 
-            if (!isIngredientQuantityLine) {
+            val lineHasActionVerb = OcrInstructionUtils.hasActionVerb(workingLine, vocabulary.stepActionKeywords)
+
+            if (!isIngredientQuantityLine && !lineHasActionVerb && !isWorkingLineProtectedHeader) {
                 val cleanLine = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.postProcessTitle(Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(workingLine), vocabulary).replace(Regex("\\s+[a-zA-Z]$"), "").trim()
                 val repairedCandidate = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(cleanLine, recipeIngredientWords, vocabulary)
                 if (Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate(repairedCandidate, vocabulary, containsActionRegex)) {
-                    val (score, details) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(repairedCandidate, vocabulary, recipeIngredientWords, firstIngredientWord)
+                    val (score, details) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(repairedCandidate, vocabulary, recipeIngredientWords, firstIngredientWord, lines2D, candidateLineIndex = i)
                     candidates.add(ScoredTitleCandidate(repairedCandidate, i, 0, score, details))
                 }
             }
@@ -158,7 +211,7 @@ object Ocr3CategorizerTitleExtractor {
                     val parts = line.split(OcrRegexes.Titles.SPLIT_SEL_POIVRE, 2)
                     remainingLines.add(parts[0].trim() + " " + endMarker)
                 }
-                skipCounter = bestCandidate.originalLinesToSkip
+                skipCounter = if (bestCandidate.originalLinesToSkip > 0) bestCandidate.originalLinesToSkip - 1 else 0
                 continue
             }
             remainingLines.add(line)

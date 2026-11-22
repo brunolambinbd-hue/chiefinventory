@@ -121,15 +121,18 @@ object Ocr2Cleaner {
 
             // Détection et purge précoce des en-têtes de catégories (ex: "ENTRÉES ET AMUSE-BOUCHE")
             var matchedCategory: String? = null
-            for (categoryHeaderItem in vocabulary.recipeCategoryHeaders) {
-                val parts = categoryHeaderItem.split("|")
-                if (parts.size == 2) {
-                    val headerText = parts[0].trim()
-                    val categoryName = parts[1].trim()
-                    val pattern = Regex("(?i)(?<![\\p{L}\\p{N}])${Regex.escape(headerText)}(?![\\p{L}\\p{N}])")
-                    if (pattern.containsMatchIn(trimmed)) {
-                        matchedCategory = categoryName
-                        break
+            val isSpoonUnit = OcrRegexes.Titles.DISQUALIFYING_SPOON.containsMatchIn(trimmed)
+            if (!isSpoonUnit) {
+                for (categoryHeaderItem in vocabulary.recipeCategoryHeaders) {
+                    val parts = categoryHeaderItem.split("|")
+                    if (parts.size == 2) {
+                        val headerText = parts[0].trim()
+                        val categoryName = parts[1].trim()
+                        val pattern = Regex("(?i)(?<![\\p{L}\\p{N}])${Regex.escape(headerText)}(?![\\p{L}\\p{N}])")
+                        if (pattern.containsMatchIn(trimmed)) {
+                            matchedCategory = categoryName
+                            break
+                        }
                     }
                 }
             }

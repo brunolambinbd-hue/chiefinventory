@@ -32,14 +32,16 @@ object Ocr5Beautifier {
         stepActionKeywords: List<String> = emptyList(),
         hangingConnectors: List<String> = emptyList(),
         culinaryUnits: List<String> = emptyList(),
-        spellingRepairs: List<String> = emptyList()
+        spellingRepairs: List<String> = emptyList(),
+        offTaxonomyList: List<String> = emptyList()
     ): List<String> {
         return Ocr5BeautifierInstruction.beautifyInstructions(
             instructions,
             stepActionKeywords,
             hangingConnectors,
             culinaryUnits,
-            spellingRepairs
+            spellingRepairs,
+            offTaxonomyList
         )
     }
 
@@ -54,12 +56,14 @@ object Ocr5Beautifier {
     fun beautifyIngredients(
         ingredients: List<String>,
         baseIngredients: List<String> = emptyList(),
-        varietyQualifiers: List<String> = emptyList()
+        varietyQualifiers: List<String> = emptyList(),
+        offTaxonomyList: List<String> = emptyList()
     ): List<String> {
         return Ocr5BeautifierIngredient.beautifyIngredients(
             ingredients,
             baseIngredients,
-            varietyQualifiers
+            varietyQualifiers,
+            offTaxonomyList
         )
     }
 

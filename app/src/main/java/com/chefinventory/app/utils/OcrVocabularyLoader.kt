@@ -24,6 +24,29 @@ object OcrVocabularyLoader {
     private var cachedDefaultVocabulary: OcrVocabulary? = null
 
     /**
+     * Charge le vocabulaire métier complet depuis les fichiers XML ET la base Room DB Open Food Facts.
+     *
+     * @param context Le contexte Android.
+     * @param database L'instance de la base de données Room [AppDatabase].
+     * @return L'objet [OcrVocabulary] unifié contenant à la fois les dictionnaires XML et la taxonomie Room DB.
+     */
+    fun loadFromProjectResources(
+        context: android.content.Context,
+        database: com.chefinventory.app.data.AppDatabase
+    ): OcrVocabulary {
+        val baseVocab = loadFromProjectResources()
+        val offNames = kotlinx.coroutines.runBlocking {
+            try {
+                com.chefinventory.app.data.OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(context, database)
+                com.chefinventory.app.repository.OpenFoodFactsRepository(database.openFoodFactsDao()).getAllCleanNames()
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
+        return baseVocab.copy(offTaxonomyList = offNames)
+    }
+
+    /**
      * Charge le vocabulaire métier complet depuis les fichiers XML des répertoires res-values.
      *
      * @param projectDir Répertoire racine du projet (par défaut : dossier courant ".").

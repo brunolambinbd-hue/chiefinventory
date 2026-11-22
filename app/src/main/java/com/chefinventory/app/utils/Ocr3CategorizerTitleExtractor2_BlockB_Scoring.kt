@@ -55,6 +55,14 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         val invalidBullets = setOf("•", "-", "*")
         if (invalidBullets.any { trimmed.startsWith(it) }) return false
 
+        val categoryHeaderKeys = vocabulary.recipeCategoryHeaders.map { it.split("|")[0].trim() }
+        val isCategoryHeader = categoryHeaderKeys.any { header ->
+            val cleanHeader = OcrLevenshteinUtils.stripAccents(header.lowercase())
+            val cleanTrimmed = OcrLevenshteinUtils.stripAccents(trimmed.lowercase())
+            cleanTrimmed == cleanHeader || cleanTrimmed.startsWith("$cleanHeader ") || cleanTrimmed.startsWith("$cleanHeader:")
+        }
+        if (isCategoryHeader) return false
+
         if (vocabulary.excludedOcrKeywords.isNotEmpty()) {
             val isExcludedKeyword = vocabulary.excludedOcrKeywords.any { it.equals(trimmed, ignoreCase = true) }
             if (isExcludedKeyword) {
@@ -67,9 +75,13 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         val isEndMarkerLine = vocabulary.ingredientEndMarkers.any { marker -> lower.contains(marker.lowercase()) }
         if (isCommonIngr || isEndMarkerLine) return false
 
-        val hasTitleKeyword = vocabulary.titleKeywords.any { OcrRegexes.getSpellingRepairPattern(it).matcher(trimmed).find() }
+        val hasTitleKeyword = (vocabulary.titleKeywords + listOf("nems", "roulades", "cocktail", "carpaccio", "tartare", "gratin", "quiche", "tarte", "soupe", "mousse", "artichaut", "artichauts")).any { kw ->
+            val cleanKw = OcrLevenshteinUtils.stripAccents(kw.lowercase()).removeSuffix("s").removeSuffix("x")
+            OcrLevenshteinUtils.stripAccents(trimmed.lowercase()).contains(cleanKw)
+        }
         val isModifierOnly = vocabulary.ingredientPreparationModifiers.any { OcrRegexes.getSpellingRepairPattern(it).matcher(trimmed).find() }
         if (!hasTitleKeyword && isModifierOnly) return false
+        if (!hasTitleKeyword && (cleanIngName.contains("sésame") || cleanIngName.contains("sesame"))) return false
 
         val isSource = Ocr3CategorizerProperNameDetector.isLikelyProperNameOrSource(trimmed, vocabulary) || Ocr3CategorizerSource.isSourceLine(trimmed, vocabulary)
         if (isSource) return false
@@ -117,7 +129,9 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         candidate: String,
         vocabulary: OcrVocabulary,
         recipeIngredientWords: Set<String>,
-        firstIngredientWord: String?
+        firstIngredientWord: String?,
+        lines2D: List<OcrTextLine> = emptyList(),
+        candidateLineIndex: Int = 99
     ): Pair<Int, String> {
         var score = 0
         val details = mutableListOf<String>()
@@ -125,18 +139,65 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         val trimmed = candidate.trim()
         val lower = trimmed.lowercase()
 
+        val hasTitleKeyword = (vocabulary.titleKeywords + listOf("nems", "roulades", "cocktail", "carpaccio", "tartare", "gratin", "quiche", "tarte", "soupe", "mousse", "artichaut", "artichauts")).any { kw ->
+            val cleanKw = OcrLevenshteinUtils.stripAccents(kw.lowercase()).removeSuffix("s").removeSuffix("x")
+            OcrLevenshteinUtils.stripAccents(trimmed.lowercase()).contains(cleanKw)
+        }
+
+        // Critère 0 : Bonus de position initiale en haut de fiche (Index 0 ou 1 : +30 pts si la ligne ne dérive pas d'un ingrédient pur)
+        val matchesIngredientWord = !hasTitleKeyword && recipeIngredientWords.any { ing ->
+            val cleanIng = OcrLevenshteinUtils.stripAccents(ing.lowercase())
+            cleanIng.length >= 4 && OcrLevenshteinUtils.stripAccents(lower).contains(cleanIng)
+        }
+        if (candidateLineIndex <= 1 && !matchesIngredientWord) {
+            score += 30
+            details.add("position_initiale_haut_fiche(idx=$candidateLineIndex):+30")
+        }
+
         // Critère 1 : Ponctuation de fin (Un titre ne finit pas par un point)
         score += SCORE_NO_TRAILING_PERIOD
         details.add("sans_point_fin:+$SCORE_NO_TRAILING_PERIOD")
 
-        // Critère 2 : Mots-clés de titre (fichiers XML : ocr_shared_title_keywords.xml)
-        val matchedTitleKeywords = vocabulary.titleKeywords.filter { kw ->
+        // Critère 2D : Grand titre en grande police de caractères (Large Font Title Bonus +60 pts si fontHeight >= 70px)
+        val line2D = lines2D.find { 
+            val cleanCandidate = OcrLevenshteinUtils.stripAccents(trimmed.lowercase())
+            val clean2D = OcrLevenshteinUtils.stripAccents(it.text.trim().lowercase())
+            clean2D.contains(cleanCandidate) || cleanCandidate.contains(clean2D)
+        }
+        if (line2D != null) {
+            val fontHeight = line2D.bottom - line2D.top
+            if (fontHeight >= 120) {
+                score += 60
+                details.add("hauteur_police_titre_2d(${fontHeight}px):+60")
+            }
+        }
+
+        // Critère 2a : Mots-clés de titre par Regex Match Exact (+30 pts par mot-clé exact)
+        val matchedExactTitleKeywords = vocabulary.titleKeywords.filter { kw ->
             OcrRegexes.getSpellingRepairPattern(kw).matcher(trimmed).find()
         }
-        if (matchedTitleKeywords.isNotEmpty()) {
-            val pts = matchedTitleKeywords.size * SCORE_TITLE_KEYWORD_MATCH
+        if (matchedExactTitleKeywords.isNotEmpty()) {
+            val pts = matchedExactTitleKeywords.size * SCORE_TITLE_KEYWORD_MATCH
             score += pts
-            details.add("mots_clés_titre($matchedTitleKeywords):+$pts")
+            details.add("mots_clés_titre_exact($matchedExactTitleKeywords):+$pts")
+        }
+
+        // Critère 2b : Mots-clés de titre par Levenshtein Match Flou / Lettrine (+20 pts par mot-clé réparé)
+        val wordsInCandidate = trimmed.split(Regex("\\s+")).map { OcrLevenshteinUtils.stripAccents(it.trim().lowercase().trim('.', ',', ';', ':', '!', '?')) }
+        val matchedFuzzyTitleKeywords = vocabulary.titleKeywords.filter { kw ->
+            val cleanKw = OcrLevenshteinUtils.stripAccents(kw.lowercase())
+            !matchedExactTitleKeywords.contains(kw) && wordsInCandidate.any { word ->
+                if (word.length >= 5 && cleanKw.length >= 5) {
+                    val dist = OcrLevenshteinUtils.distance(word, cleanKw)
+                    val maxAllowed = OcrLevenshteinUtils.getMaxAllowedErrors(cleanKw.length)
+                    dist in 1..maxAllowed && dist <= 2
+                } else false
+            }
+        }
+        if (matchedFuzzyTitleKeywords.isNotEmpty()) {
+            val pts = matchedFuzzyTitleKeywords.size * 20
+            score += pts
+            details.add("mots_clés_titre_flou_lettrine($matchedFuzzyTitleKeywords):+$pts")
         }
 
         // Critère 3 : Connecteurs et mots de liaison de titre (et, aux, à la, au, et au, et aux)
@@ -149,11 +210,15 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
             details.add("connecteurs_titre($matchedConnectors):+$pts")
         }
 
-        // Critère 4 : Longueur en mots (Un titre comporte au moins 2 mots)
+        // Critère 4 : Longueur en mots (Un titre comporte au moins 2 mots : +10 pts, 3+ mots : +20 pts de complétude)
         val wordCount = trimmed.split(Regex("\\s+")).size
         if (wordCount >= MIN_TITLE_WORDS_COUNT) {
             score += SCORE_MULTI_WORD_BONUS
             details.add("plus_de_2_mots:+$SCORE_MULTI_WORD_BONUS")
+        }
+        if (wordCount >= 3) {
+            score += 20
+            details.add("titre_long_complexe_3mots:+20")
         }
 
         // Critère 5 : Mots d'ingrédients présents sur la fiche scannée de la recette (+15 pts par ingrédient)

@@ -4,6 +4,7 @@
     <string name="open">Ouvrir</string>
     <string name="close">Fermer</string>
     <string name="toast_nutriscore_pending">Logo Nutri-Score détecté mais la lettre n\'a pas pu être identifiée sur l\'image.</string>
+    <string name="toast_recipe_image_permission_denied">Impossible d\'accéder à l\'image enregistrée. Veuillez sélectionner une nouvelle image.</string>
 
     <!-- Strings pour le compteur -->
     <string name="initial_counter_value" translatable="false">0</string>

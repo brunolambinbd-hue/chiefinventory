@@ -29,10 +29,11 @@ object RecipeOcrParser {
      *
      * @param visionText L'objet de résultat de reconnaissance textuelle fourni par Google ML Kit.
      * @param res Les ressources de l'application Android permettant de charger [OcrVocabulary].
+     * @param offTaxonomyList Liste optionnelle des noms d'ingrédients français issus de la base Room DB Open Food Facts.
      * @return Le résultat d'analyse structuré [RecipeOcrResult].
      */
-    fun parse(visionText: Text, res: Resources): RecipeOcrResult {
-        return parse(visionText, OcrVocabulary.fromResources(res))
+    fun parse(visionText: Text, res: Resources, offTaxonomyList: List<String> = emptyList()): RecipeOcrResult {
+        return parse(visionText, OcrVocabulary.fromResources(res), bitmap = null, offTaxonomyList = offTaxonomyList)
     }
 
     /**
@@ -40,9 +41,16 @@ object RecipeOcrParser {
      *
      * @param visionText L'objet de résultat de reconnaissance textuelle fourni par Google ML Kit.
      * @param vocabulary Le vocabulaire métier data-driven contenant les dictionnaires XML du projet.
+     * @param bitmap Le Bitmap d'origine optionnel.
+     * @param offTaxonomyList Liste optionnelle des noms d'ingrédients français issus de la base Room DB Open Food Facts.
      * @return Le résultat d'analyse structuré [RecipeOcrResult].
      */
-    fun parse(visionText: Text, vocabulary: OcrVocabulary, bitmap: Bitmap? = null): RecipeOcrResult {
+    fun parse(
+        visionText: Text,
+        vocabulary: OcrVocabulary,
+        bitmap: Bitmap? = null,
+        offTaxonomyList: List<String> = emptyList()
+    ): RecipeOcrResult {
         Log.d(TAG, "=== DÉBUT PIPELINE OCR (Extraction par blocs 2D) ===")
 
         val lines2D = mutableListOf<OcrTextLine>()
@@ -59,36 +67,27 @@ object RecipeOcrParser {
         }
 
         val rawLines = lines2D.map { it.text }
-        return executePipeline(rawLines, vocabulary, lines2D)
+        return executePipeline(rawLines, vocabulary, lines2D, offTaxonomyList)
+    }
+
+    @JvmName("parseRawLines")
+    fun parse(rawLines: List<String>, vocabulary: OcrVocabulary, offTaxonomyList: List<String> = emptyList()): RecipeOcrResult {
+        return executePipeline(rawLines, vocabulary, emptyList(), offTaxonomyList)
     }
 
     /**
      * Point d'entrée TDD d'isolation 2D utilisant une liste de [OcrTextLine] et le vocabulaire [OcrVocabulary].
      */
-    fun parse(lines2D: List<OcrTextLine>, vocabulary: OcrVocabulary): RecipeOcrResult {
+    fun parse(lines2D: List<OcrTextLine>, vocabulary: OcrVocabulary, offTaxonomyList: List<String> = emptyList()): RecipeOcrResult {
         val rawLines = lines2D.map { it.text }
-        return executePipeline(rawLines, vocabulary, lines2D)
+        return executePipeline(rawLines, vocabulary, lines2D, offTaxonomyList)
     }
 
-    /**
-     * Point d'entrée de secours utilisant une chaîne de texte brut et les ressources Android [Resources].
-     *
-     * @param fullText Le texte brut complet de la recette scannée.
-     * @param res Les ressources de l'application Android permettant de charger [OcrVocabulary].
-     * @return Le résultat d'analyse structuré [RecipeOcrResult].
-     */
-    fun parse(fullText: String, res: Resources): RecipeOcrResult {
-        return parse(fullText, OcrVocabulary.fromResources(res))
+    fun parse(fullText: String, res: Resources, offTaxonomyList: List<String> = emptyList()): RecipeOcrResult {
+        return parse(fullText, OcrVocabulary.fromResources(res), offTaxonomyList = offTaxonomyList)
     }
 
-    /**
-     * Point d'entrée de secours utilisant une chaîne de texte brut et le vocabulaire métier [OcrVocabulary] (utilisé par les tests unitaires TDD).
-     *
-     * @param fullText Le texte brut complet de la recette scannée.
-     * @param vocabulary Le vocabulaire métier data-driven contenant les dictionnaires XML du projet.
-     * @return Le résultat d'analyse structuré [RecipeOcrResult].
-     */
-    fun parse(fullText: String, vocabulary: OcrVocabulary): RecipeOcrResult {
+    fun parse(fullText: String, vocabulary: OcrVocabulary, offTaxonomyList: List<String> = emptyList()): RecipeOcrResult {
         Log.d(TAG, "=== DÉBUT PIPELINE OCR (Texte brut) ===")
 
         if (fullText.isBlank()) return RecipeOcrResult()
@@ -97,16 +96,20 @@ object RecipeOcrParser {
             .map { it.trim() }
             .filter { it.isNotBlank() }
 
-        val lines2D = rawLines.mapIndexed { idx, text -> OcrTextLine(text = text, top = idx * 50) }
-        return executePipeline(rawLines, vocabulary, lines2D)
+        val lines2D = rawLines.mapIndexed { idx, text -> OcrTextLine(text = text, top = idx * 50, bottom = idx * 50 + 20) }
+        return executePipeline(rawLines, vocabulary, lines2D, offTaxonomyList)
     }
 
     private fun executePipeline(
         rawLines: List<String>,
         vocabulary: OcrVocabulary,
-        lines2D: List<OcrTextLine> = emptyList()
+        lines2D: List<OcrTextLine> = emptyList(),
+        offTaxonomyList: List<String> = emptyList()
     ): RecipeOcrResult {
         if (rawLines.isEmpty()) return RecipeOcrResult()
+
+        val activeOffTaxonomy = if (offTaxonomyList.isNotEmpty()) offTaxonomyList else vocabulary.offTaxonomyList
+        Log.d(TAG, "[CHECK OFF TAXONOMY] Entrée du Pipeline : ${activeOffTaxonomy.size} éléments OFF reçus")
 
         // LOG [0.0] : TRACÉ DÉDIÉ COPIER-COLLER AU FORMAT KOTLIN LIST FOR TESTS
         logKotlinList("[0] RAW SCAN ML KIT", rawLines)
@@ -125,14 +128,14 @@ object RecipeOcrParser {
         logKotlinList("[2] APRÈS NETTOYAGE", cleanedLines)
 
         // ÉTAPE 3 : Extraction du Titre et Catégorisation
-        val titleResult = Ocr3CategorizerTitleExtractor.extractTitle(cleanedLines, vocabulary)
+        val titleResult = Ocr3CategorizerTitleExtractor.extractTitle(cleanedLines, vocabulary, lines2D, activeOffTaxonomy)
         val linesWithoutTitle = titleResult.cleanedLines
         Log.d(TAG, "[2.5] TITRE DÉTECTÉ: ${titleResult.title ?: "Aucun"}")
 
         // ÉTAPE 3 : Catégorisation (Aiguillage intelligent vers l'un des 4 Lecteurs de Recettes via Ocr3CategorizerRouter)
         val sections = Ocr3CategorizerRouter.routeAndCategorize(linesWithoutTitle, lines2D, cleanedLines, vocabulary)
 
-        if (sections.detectedTitle == null) {
+        if (!titleResult.title.isNullOrBlank()) {
             sections.detectedTitle = titleResult.title
         }
         if (sections.detectedSourceList.isEmpty() && cleaningResult.earlyDetectedSources.isNotEmpty()) {
@@ -144,6 +147,7 @@ object RecipeOcrParser {
         logKotlinList("[3] INSTRUCTIONS BRUTES CATÉGORISÉES", sections.rawInstructionsList)
 
         // ÉTAPE 4 : Fusion (Merger)
+        Log.d(TAG, "[CHECK OFF TAXONOMY ÉTAPE 4] Transmission de ${activeOffTaxonomy.size} éléments OFF à Ocr4Merger")
         val mergedIngredients = Ocr4Merger.mergeIngredients(
             rawIngredients = sections.rawIngredientsList, 
             preparationModifiers = preparationModifiers, 
@@ -151,7 +155,8 @@ object RecipeOcrParser {
             mandatoryComplements = vocabulary.mandatoryComplementIngredients,
             customConnectors = vocabulary.ingredientConnectors,
             saltOrigins = vocabulary.saltVarietyOrigins,
-            pepperOrigins = vocabulary.pepperDeOriginItems
+            pepperOrigins = vocabulary.pepperDeOriginItems,
+            offTaxonomyList = activeOffTaxonomy
         )
         val mergedInstructions = Ocr4Merger.mergeInstructions(sections.rawInstructionsList)
 
@@ -159,17 +164,20 @@ object RecipeOcrParser {
         logKotlinList("[4] INSTRUCTIONS FUSIONNÉES", mergedInstructions)
 
         // ÉTAPE 5 : Beautification (Présentation finale à l'écran)
+        Log.d(TAG, "[CHECK OFF TAXONOMY ÉTAPE 5] Transmission de ${activeOffTaxonomy.size} éléments OFF à Ocr5Beautifier")
         val finalIngredients = Ocr5Beautifier.beautifyIngredients(
             mergedIngredients,
             vocabulary.baseIngredientsExpectingVariety,
-            vocabulary.ingredientVarietyQualifiers
+            vocabulary.ingredientVarietyQualifiers,
+            activeOffTaxonomy
         )
         val finalInstructions = Ocr5Beautifier.beautifyInstructions(
             mergedInstructions, 
             vocabulary.stepActionKeywords, 
             vocabulary.hangingConnectors,
             vocabulary.culinaryMeasurementUnits,
-            vocabulary.ocrSpellingRepairs
+            vocabulary.ocrSpellingRepairs,
+            activeOffTaxonomy
         )
         val finalWines = Ocr5Beautifier.beautifyWines(sections.detectedWineList)
         val finalSources = Ocr5Beautifier.beautifySources(sections.detectedSourceList)

@@ -2,6 +2,8 @@
 <resources>
     <!-- Connecteurs, adjectifs de taille et prépositions de liaison d'ingrédients (Étape 4 Merger - Longest Match First) -->
     <string-array name="ingredient_connectors">
+        <item>véritables</item>
+        <item>véritable</item>
         <item>moyennes</item>
         <item>pour les</item>
         <item>petites</item>

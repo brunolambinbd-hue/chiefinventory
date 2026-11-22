@@ -95,4 +95,33 @@ class BitmapUtilsTest {
 
         assertThat(decoded).isNull()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testSaveBitmapToInternalStorage_SavesFileToInternalStorageDirectoryAndReturnsValidUri() {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val fileName = "test_recipe_image_persistent.jpg"
+
+        val savedUri = BitmapUtils.saveBitmapToInternalStorage(context, bitmap, fileName)
+
+        assertThat(savedUri).isNotNull()
+        val expectedFile = File(context.filesDir, "recipe_images/$fileName")
+        assertThat(expectedFile.exists()).isTrue()
+        assertThat(expectedFile.length()).isGreaterThan(0L)
+
+        // Cleanup
+        expectedFile.delete()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testScaleBitmapToMaxDimension_ScalesLargeBitmapToMaxDimensionAndPreservesAspectRatio() {
+        val largeBitmap = Bitmap.createBitmap(4000, 3000, Bitmap.Config.ARGB_8888)
+        val scaled = BitmapUtils.scaleBitmapToMaxDimension(largeBitmap, maxDimension = 1920)
+
+        assertThat(scaled.width).isAtMost(1920)
+        assertThat(scaled.height).isAtMost(1920)
+        assertThat(scaled.width).isEqualTo(1920)
+        assertThat(scaled.height).isEqualTo(1440)
+    }
 }

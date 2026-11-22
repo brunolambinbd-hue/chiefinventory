@@ -44,11 +44,11 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
     internal fun isMultiLineTitleConnector(line: String, vocabulary: OcrVocabulary? = null): Boolean {
         val lower = line.lowercase().trim()
         val activeVocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
-        val baseConnectors = listOf("au ", "aux ", "et ", "à la ", "a la ", "à ", "de ", "d'", "du ", "des ", "avec ", "sur ")
-        val xmlConnectors = activeVocab.titleMultilineConnectors.map { " ${it.trim().lowercase()} " }
+        val baseConnectors = listOf("au ", "aux ", "et ", "à la ", "a la ", "à ", "avec ", "sur ", "de ", "d'", "du ", "des ")
+        val xmlConnectors = activeVocab.titleMultilineConnectors.map { it.trim().lowercase() }
         val connectors = (xmlConnectors + baseConnectors).distinct()
 
-        return connectors.any { lower.startsWith(it.trimStart()) || lower.startsWith(it.trim()) }
+        return connectors.any { lower.startsWith(it) || lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
     }
 
     /**
@@ -69,6 +69,8 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
         if (cleanFirstWord.length < 3) return trimmed
 
         val lowerFirst = cleanFirstWord.lowercase()
+        if (lowerFirst.length <= 4) return trimmed
+
         val allIngredients = (candidateIngredients + vocabulary.titleKeywords + vocabulary.commonIngredientsNoQty).map { it.lowercase() }.distinct()
 
         if (allIngredients.any { it == lowerFirst }) {
@@ -80,9 +82,16 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
         }
 
         if (matchedIngredient == null) {
-            val suffix = lowerFirst.drop(1)
+            val suffix1 = lowerFirst.drop(1)
+            val suffix2 = lowerFirst.drop(2)
+            val suffix3 = lowerFirst.drop(3)
+            
             matchedIngredient = allIngredients.firstOrNull { ing ->
-                ing.length > suffix.length && ing.endsWith(suffix)
+                suffix1.length >= 4 && ing.length > suffix1.length && ing.endsWith(suffix1)
+            } ?: allIngredients.firstOrNull { ing ->
+                suffix2.length >= 4 && ing.length > suffix2.length && ing.endsWith(suffix2)
+            } ?: allIngredients.firstOrNull { ing ->
+                suffix3.length >= 4 && ing.length > suffix3.length && ing.endsWith(suffix3)
             }
         }
 

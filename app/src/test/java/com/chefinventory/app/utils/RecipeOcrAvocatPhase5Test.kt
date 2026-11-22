@@ -124,8 +124,7 @@ class RecipeOcrAvocatPhase5Test {
             "200 g de saumon cru",
             "Aneth",
             "6 c. à soupe d'huile d'olive",
-            "Le",
-            "jus de 1/2 citron",
+            "Le jus de 1/2 citron",
             "1 c. à café de miel",
             "1 c. à soupe de vinaigre de vin blanc",
             "Sel et poivre"

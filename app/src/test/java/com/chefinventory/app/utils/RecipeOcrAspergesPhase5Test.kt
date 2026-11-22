@@ -110,8 +110,7 @@ class RecipeOcrAspergesPhase5Test {
             "4 tranches de jambon séché",
             "4 c. à soupe de parmesan (moulu ou en morceaux)",
             "6 c. à soupe d'huile d'olive",
-            "Le",
-            "jus de 1/2 citron"
+            "Le jus de 1/2 citron"
         )
         assertLinesMatch(finalIngredientList, expectedFinalIngredients, OcrTestStrings.INGREDIENTS_MISMATCH)
 

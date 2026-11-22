@@ -259,7 +259,7 @@ object OcrRegexes {
         val SPLIT_SEL_POIVRE: Regex = Regex("(?i)sel et poivre\\s*")
 
         /** Détecte la présence d'unités d'ingrédients isolées. */
-        val INGREDIENT_UNIT_WORD: Regex = Regex("(?i)\\b(?:g|kg|cl|ml|l|c\\.|cuillè|pincée|gousses?)\\b")
+        val INGREDIENT_UNIT_WORD: Regex = Regex("(?i)\\b(?:g|kg|cl|ml|c\\.|cuillè|pincée|gousses?)\\b|(?<=\\d\\s)l\\b|(?<=\\d)l\\b")
 
         /** Disqualifie un candidat titre commençant par un petit numéro (1 à 20) suivi d'une lettre. */
         val DISQUALIFYING_NUMBER_START: Regex = Regex("(?i)^(?:[1-9]|1[0-9]|20)\\s+[a-zA-Z]")

@@ -120,8 +120,7 @@ class RecipeOcrMelonPhase5Test {
 
         val expectedFinalIngredients = listOf(
             "1 melon Galia",
-            "8 tranches de jambon",
-            "italien",
+            "8 tranches de jambon italien",
             "4 c. à soupe de porto",
             "1 c. à soupe de vinaigre de framboise",
             "4 c. à soupe de yoghourt",

@@ -4,6 +4,7 @@ import com.chefinventory.app.dao.OpenFoodFactsDao
 import com.chefinventory.app.model.OpenFoodFactsProduct
 import com.chefinventory.app.model.OpenFoodFactsTaxonomy
 import com.chefinventory.app.network.OpenFoodFactsApiClient
+import com.chefinventory.app.utils.OcrLevenshteinUtils
 import com.parabd.lib.traceability.utils.LogManager
 
 /**
@@ -19,8 +20,18 @@ class OpenFoodFactsRepository(
     private val apiClient: OpenFoodFactsApiClient = OpenFoodFactsApiClient
 ) {
 
-    private companion object {
+    companion object {
         private const val TAG = "OFFRepository"
+        @Volatile
+        private var cachedCleanNames: List<String>? = null
+
+        fun clearStaticCache() {
+            cachedCleanNames = null
+        }
+    }
+
+    fun clearCache() {
+        clearStaticCache()
     }
 
     /**
@@ -95,11 +106,69 @@ class OpenFoodFactsRepository(
      * @param query Le terme de recherche saisi par l'utilisateur.
      * @return La liste des ingrédients correspondants.
      */
+    /**
+     * Récupère la liste intégrale et distincte de tous les noms d'ingrédients français (de A à Z) de la base Room DB avec cache RAM.
+     * Utilisé pour charger en 1 seule fois (40 ms la 1ere fois, puis 0 ms) le dictionnaire de référence RAM pour l'OCR.
+     */
+    suspend fun getAllCleanNames(): List<String> {
+        if (cachedCleanNames != null && cachedCleanNames!!.isNotEmpty()) {
+            return cachedCleanNames!!
+        }
+        val namesFromDao = try {
+            openFoodFactsDao.getAllCleanNames()
+        } catch (_: Exception) {
+            emptyList()
+        }
+        val itemsFromDao = try {
+            openFoodFactsDao.getAllTaxonomyItems() ?: emptyList()
+        } catch (_: Exception) {
+            emptyList()
+        }
+
+        val allNames = mutableSetOf<String>()
+        allNames.addAll(namesFromDao)
+
+        for (item in itemsFromDao) {
+            if (item.cleanName.isNotBlank()) {
+                allNames.add(item.cleanName.trim())
+            }
+            if (!item.synonyms.isNullOrBlank()) {
+                val syns = item.synonyms.split(",")
+                    .map { it.trim() }
+                    .filter { it.isNotBlank() && !it.contains(":") }
+                allNames.addAll(syns)
+            }
+        }
+        val resultList = allNames.filter { it.length >= 3 }.sortedByDescending { it.length }
+        if (resultList.isNotEmpty()) {
+            cachedCleanNames = resultList
+        }
+        return resultList
+    }
+
     suspend fun searchTaxonomy(query: String): List<OpenFoodFactsTaxonomy> {
         val cleanQuery = query.trim()
         if (cleanQuery.isBlank()) return emptyList()
         val formattedQuery = if (cleanQuery.endsWith("%") || cleanQuery.startsWith("%")) cleanQuery else "%$cleanQuery%"
         return openFoodFactsDao.searchTaxonomy(formattedQuery)
+    }
+
+    /**
+     * Effectue un rapprochement tolérant Levenshtein d'un mot scanné par l'OCR
+     * contre la taxonomie d'ingrédients français stockée dans la base Room DB.
+     *
+     * @param ocrWord Le mot d'ingrédient scanné (ex: "parmnesan", "courjete").
+     * @return Le nom d'ingrédient de référence le plus proche, ou null si aucun match n'est trouvé sous le seuil.
+     */
+    suspend fun findFuzzyMatchInTaxonomy(ocrWord: String): String? {
+        val cleanQuery = ocrWord.trim()
+        if (cleanQuery.length <= 3) return null
+
+        val candidateQuery = "%${cleanQuery.take(3)}%"
+        val candidateTaxonomies = openFoodFactsDao.searchTaxonomy(candidateQuery)
+        val dictNames = candidateTaxonomies.map { it.cleanName }
+
+        return OcrLevenshteinUtils.findBestMatch(cleanQuery, dictNames)
     }
 
     /**

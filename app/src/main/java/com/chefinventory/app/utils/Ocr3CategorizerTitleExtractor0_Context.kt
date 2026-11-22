@@ -14,7 +14,11 @@ object Ocr3CategorizerTitleExtractor0_Context {
      * @param vocabulary Le vocabulaire métier data-driven.
      * @return L'ensemble des mots significatifs d'ingrédients de longueur >= 3.
      */
-    internal fun extractRecipeIngredientWords(lines: List<String>, vocabulary: OcrVocabulary? = null): Set<String> {
+    internal fun extractRecipeIngredientWords(
+        lines: List<String>,
+        vocabulary: OcrVocabulary? = null,
+        offTaxonomyList: List<String> = emptyList()
+    ): Set<String> {
         val ingredientNameWords = mutableSetOf<String>()
         val activeVocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
         val ignoreWords = (activeVocab.culinaryMeasurementUnits + activeVocab.standaloneArticles).map { it.lowercase().trim() }.toSet()

@@ -17,8 +17,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 open class TextRecognitionHelper(
     private val context: Context,
-    private val recognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    private val recognizerProvider: () -> TextRecognizer = { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
 ) {
+    constructor(context: Context, recognizer: TextRecognizer) : this(context, { recognizer })
+
+    private val recognizer: TextRecognizer by lazy { recognizerProvider.invoke() }
 
     internal open fun createInputImage(bitmap: Bitmap): InputImage {
         return InputImage.fromBitmap(bitmap, 0)

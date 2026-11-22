@@ -2,10 +2,15 @@ package com.chefinventory.app
 
 import android.app.Application
 import com.chefinventory.app.data.AppDatabase
+import com.chefinventory.app.data.OpenFoodFactsTaxonomyLoader
 import com.chefinventory.app.repo.IngredientRepository
 import com.chefinventory.app.repo.LocationRepository
 import com.chefinventory.app.repo.RecipeRepository
 import com.chefinventory.app.utils.GlobalExceptionHandler
+import com.parabd.lib.traceability.utils.LogManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Application class providing repository singletons.

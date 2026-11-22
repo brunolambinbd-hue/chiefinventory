@@ -27,12 +27,18 @@ import com.chefinventory.app.utils.ResourceHealthChecker
 import com.chefinventory.app.model.RecipeIngredient
 import com.chefinventory.app.ui.viewmodel.EditRecipeViewModel
 import com.chefinventory.app.ui.viewmodel.ViewModelFactory
+import com.chefinventory.app.repository.OpenFoodFactsRepository
 import com.chefinventory.app.utils.BitmapUtils
 import com.chefinventory.app.utils.ImageCaptureUtil
 import com.chefinventory.app.utils.IngredientParser
+import com.chefinventory.app.utils.OcrIngredientSpannableFormatter
+import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
 import com.chefinventory.app.utils.TextRecognitionHelper
+import com.parabd.lib.traceability.utils.LogManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EditRecipeActivity : AppCompatActivity() {
 
@@ -45,6 +51,7 @@ class EditRecipeActivity : AppCompatActivity() {
     private var lastImageUri: Uri? = null
     private var categories: List<Location> = emptyList()
     private var selectedLocationId: Long? = null
+    private var isOcrScanning = false
 
     private val viewModel: EditRecipeViewModel by viewModels {
         val app = application as ChefInventoryApplication
@@ -208,6 +215,14 @@ class EditRecipeActivity : AppCompatActivity() {
     }
 
     private fun handleNewImage(uri: Uri) {
+        try {
+            contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (_: Exception) {
+            // Permission non-persistable, continue normalement
+        }
         lastImageUri = uri
         binding.ivRecipe.isVisible = true
         binding.ivRecipe.load(uri)
@@ -217,11 +232,25 @@ class EditRecipeActivity : AppCompatActivity() {
 
     private fun runOcr() {
         val bitmap = newBitmap ?: return
+        isOcrScanning = true
         Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_scan_starting), Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {
             try {
-                val visionText = textRecognitionHelper.recognizeVisionText(bitmap) ?: return@launch
-                val result = RecipeOcrParser.parse(visionText, resources)
+                val ocrBitmap = withContext(Dispatchers.IO) {
+                    BitmapUtils.scaleBitmapToMaxDimension(bitmap, 2048)
+                }
+                val visionText = textRecognitionHelper.recognizeVisionText(ocrBitmap) ?: return@launch
+                val database = (application as ChefInventoryApplication).database
+                val offRepository = OpenFoodFactsRepository(database.openFoodFactsDao())
+                val offTaxonomyNames = withContext(Dispatchers.IO) {
+                    try {
+                        com.chefinventory.app.data.OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(this@EditRecipeActivity, database)
+                        offRepository.getAllCleanNames()
+                    } catch (_: Exception) {
+                        emptyList()
+                    }
+                }
+                val result = RecipeOcrParser.parse(visionText, resources, offTaxonomyNames)
                 
                 // Réinitialisation explicite du titre et de la catégorie à chaque nouveau scan pour éviter toute fuite de l'ancienne recette
                 binding.etTitle.setText(result.title ?: "")
@@ -237,7 +266,16 @@ class EditRecipeActivity : AppCompatActivity() {
                         binding.actvRecipeCategory.setText(catName, false)
                     }
                 }
-                binding.etIngredients.setText(result.ingredients ?: "")
+                val formattedIngredients = withContext(Dispatchers.Default) {
+                    OcrIngredientSpannableFormatter.formatIngredientHyperlinks(
+                        context = this@EditRecipeActivity,
+                        fullText = result.ingredients ?: "",
+                        vocabulary = OcrVocabularyLoader.loadFromProjectResources(),
+                        offTaxonomyList = offTaxonomyNames
+                    )
+                }
+                binding.etIngredients.movementMethod = android.text.method.LinkMovementMethod.getInstance()
+                binding.etIngredients.setText(formattedIngredients)
                 binding.etInstructions.setText(result.instructions ?: "")
                 binding.etWine.setText(result.wine ?: "")
                 binding.etSource.setText(result.source ?: "")
@@ -287,23 +325,65 @@ class EditRecipeActivity : AppCompatActivity() {
         binding.etNutritionInfo.setText(recipe.nutritionInfo ?: "")
         
         recipe.imageUri?.let {
-            val uri = it.toUri()
-            lastImageUri = uri
-            binding.ivRecipe.isVisible = true
-            binding.ivRecipe.load(uri)
-            lifecycleScope.launch {
-                newBitmap = BitmapUtils.getBitmapFromUri(this@EditRecipeActivity, uri)
+            try {
+                val uri = it.toUri()
+                lastImageUri = uri
+                binding.ivRecipe.isVisible = true
+                binding.ivRecipe.load(uri) {
+                    listener(
+                        onError = { _, result ->
+                            LogManager.e("EditRecipe", "Failed to load recipe image: ${result.throwable.message}")
+                            Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_recipe_image_permission_denied), Toast.LENGTH_LONG).show()
+                        }
+                    )
+                }
+                lifecycleScope.launch {
+                    try {
+                        newBitmap = withContext(Dispatchers.IO) {
+                            BitmapUtils.getBitmapFromUri(this@EditRecipeActivity, uri)
+                        }
+                    } catch (e: Exception) {
+                        LogManager.e("EditRecipe", "Failed to decode bitmap from URI: $uri", e)
+                        Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_recipe_image_permission_denied), Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                LogManager.e("EditRecipe", "SecurityException or error accessing image URI: $it", e)
+                Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_recipe_image_permission_denied), Toast.LENGTH_LONG).show()
             }
         }
         
         viewModel.getIngredientsForRecipe(recipe.id).observe(this) { ingredients ->
-            val text = ingredients.joinToString("\n") { 
-                val qty = it.quantityRequired?.let { q -> if (q % 1.0 == 0.0) q.toInt().toString() else q.toString() } ?: ""
-                val unitStr = if (!it.unit.isNullOrBlank()) "${it.unit} " else ""
-                val info = it.supplementalInfo?.takeIf { i -> i.isNotBlank() }?.let { i -> " ($i)" } ?: ""
-                "$qty $unitStr${it.ingredientName}$info".replace(Regex("\\s+"), " ").trim()
+            if (!isOcrScanning) {
+                val text = ingredients.joinToString("\n") { 
+                    val qty = it.quantityRequired?.let { q -> if (q % 1.0 == 0.0) q.toInt().toString() else q.toString() } ?: ""
+                    val unitStr = if (!it.unit.isNullOrBlank()) "${it.unit} " else ""
+                    val info = it.supplementalInfo?.takeIf { i -> i.isNotBlank() }?.let { i -> " ($i)" } ?: ""
+                    "$qty $unitStr${it.ingredientName}$info".replace(Regex("\\s+"), " ").trim()
+                }
+                lifecycleScope.launch {
+                    val database = (application as ChefInventoryApplication).database
+                    val offRepository = OpenFoodFactsRepository(database.openFoodFactsDao())
+                    val offTaxonomyNames = withContext(Dispatchers.IO) {
+                        try {
+                            com.chefinventory.app.data.OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(this@EditRecipeActivity, database)
+                            offRepository.getAllCleanNames()
+                        } catch (_: Exception) {
+                            emptyList()
+                        }
+                    }
+                    val formattedSpannable = withContext(Dispatchers.Default) {
+                        OcrIngredientSpannableFormatter.formatIngredientHyperlinks(
+                            context = this@EditRecipeActivity,
+                            fullText = text,
+                            vocabulary = OcrVocabularyLoader.loadFromProjectResources(),
+                            offTaxonomyList = offTaxonomyNames
+                        )
+                    }
+                    binding.etIngredients.movementMethod = android.text.method.LinkMovementMethod.getInstance()
+                    binding.etIngredients.setText(formattedSpannable)
+                }
             }
-            binding.etIngredients.setText(text)
         }
     }
 
@@ -315,35 +395,55 @@ class EditRecipeActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val recipe = (currentRecipe ?: Recipe(title = "")).copy(
-                title = title,
-                instructions = binding.etInstructions.text.toString(),
-                preparationTimeMinutes = binding.etPrepTime.text.toString().toIntOrNull(),
-                cookingTimeMinutes = binding.etCookTime.text.toString().toIntOrNull(),
-                restingTimeMinutes = binding.etRestingTime.text.toString().toIntOrNull(),
-                servings = binding.etServings.text.toString().toIntOrNull(),
-                kcalPerServing = binding.etKcal.text.toString().toIntOrNull(),
-                difficulty = binding.actvDifficulty.text.toString().takeIf { it.isNotBlank() },
-                priceRating = mapDisplayToPriceRating(binding.actvPriceRating.text.toString()),
-                wineRecommendation = binding.etWine.text.toString(),
-                source = binding.etSource.text.toString(),
-                nutritionInfo = binding.etNutritionInfo.text.toString().takeIf { it.isNotBlank() },
-                nutriScore = binding.etNutriscore.text.toString().takeIf { it.isNotBlank() },
-                locationId = selectedLocationId,
-                imageUri = lastImageUri?.toString() ?: currentRecipe?.imageUri,
-                updatedAt = System.currentTimeMillis()
-            )
+            binding.btnSave.isEnabled = false
+            try {
+                withContext(Dispatchers.IO) {
+                    val savedImageUriStr = if (newBitmap != null) {
+                        try {
+                            val fileName = "recipe_${System.currentTimeMillis()}.jpg"
+                            val internalUri = BitmapUtils.saveBitmapToInternalStorage(this@EditRecipeActivity, newBitmap!!, fileName)
+                            internalUri.toString()
+                        } catch (e: Exception) {
+                            LogManager.e("EditRecipe", "Failed to save image to internal storage", e)
+                            lastImageUri?.toString() ?: currentRecipe?.imageUri
+                        }
+                    } else {
+                        lastImageUri?.toString() ?: currentRecipe?.imageUri
+                    }
 
-            val ingredients = parseIngredientsFromText(binding.etIngredients.text.toString(), recipe.id)
+                    val recipe = (currentRecipe ?: Recipe(title = "")).copy(
+                        title = title,
+                        instructions = binding.etInstructions.text.toString(),
+                        preparationTimeMinutes = binding.etPrepTime.text.toString().toIntOrNull(),
+                        cookingTimeMinutes = binding.etCookTime.text.toString().toIntOrNull(),
+                        restingTimeMinutes = binding.etRestingTime.text.toString().toIntOrNull(),
+                        servings = binding.etServings.text.toString().toIntOrNull(),
+                        kcalPerServing = binding.etKcal.text.toString().toIntOrNull(),
+                        difficulty = binding.actvDifficulty.text.toString().takeIf { it.isNotBlank() },
+                        priceRating = mapDisplayToPriceRating(binding.actvPriceRating.text.toString()),
+                        wineRecommendation = binding.etWine.text.toString(),
+                        source = binding.etSource.text.toString(),
+                        nutritionInfo = binding.etNutritionInfo.text.toString().takeIf { it.isNotBlank() },
+                        nutriScore = binding.etNutriscore.text.toString().takeIf { it.isNotBlank() },
+                        locationId = selectedLocationId,
+                        imageUri = savedImageUriStr,
+                        updatedAt = System.currentTimeMillis()
+                    )
 
-            if (recipe.id == 0L) {
-                viewModel.insert(recipe, ingredients)
-            } else {
-                viewModel.update(recipe, ingredients)
+                    val ingredients = parseIngredientsFromText(binding.etIngredients.text.toString(), recipe.id)
+
+                    if (recipe.id == 0L) {
+                        viewModel.insert(recipe, ingredients)
+                    } else {
+                        viewModel.update(recipe, ingredients)
+                    }
+                }
+                Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_recipe_saved), Toast.LENGTH_SHORT).show()
+                finish()
+            } catch (e: Exception) {
+                LogManager.e("EditRecipe", "Error saving recipe", e)
+                binding.btnSave.isEnabled = true
             }
-            
-            Toast.makeText(this@EditRecipeActivity, getString(R.string.toast_recipe_saved), Toast.LENGTH_SHORT).show()
-            finish()
         }
     }
 

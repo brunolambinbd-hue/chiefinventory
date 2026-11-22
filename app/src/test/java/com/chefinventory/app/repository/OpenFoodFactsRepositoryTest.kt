@@ -213,4 +213,37 @@ class OpenFoodFactsRepositoryTest {
             assertThat(result3).isEqualTo(expectedList)
         }
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testGetAllCleanNames_ReturnsAllNamesFromAtoZWithoutTruncation() {
+        runBlocking {
+            val mockDao = mock<OpenFoodFactsDao>()
+            val repo = OpenFoodFactsRepository(mockDao)
+
+            val cleanNames = listOf("Abricot", "Piment", "Zeste")
+            whenever(mockDao.getAllCleanNames()).thenReturn(cleanNames)
+
+            val result = repo.getAllCleanNames()
+            assertThat(result).containsExactly("Abricot", "Piment", "Zeste")
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFindFuzzyMatchInTaxonomy_MatchesTypoedWordAgainstRoomDB() {
+        runBlocking {
+            val mockDao = mock<OpenFoodFactsDao>()
+            val repo = OpenFoodFactsRepository(mockDao)
+
+            val taxonomyList = listOf(
+                OpenFoodFactsTaxonomy(id = 1L, cleanName = "Parmesan"),
+                OpenFoodFactsTaxonomy(id = 2L, cleanName = "Courgette")
+            )
+            whenever(mockDao.searchTaxonomy("%par%")).thenReturn(taxonomyList)
+
+            val match = repo.findFuzzyMatchInTaxonomy("parmnesan")
+            assertThat(match).isEqualTo("Parmesan")
+        }
+    }
 }

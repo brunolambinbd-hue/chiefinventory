@@ -94,6 +94,9 @@ interface OpenFoodFactsDao {
     @Query("SELECT * FROM openfoodfacts_taxonomy")
     suspend fun getAllTaxonomyItems(): List<OpenFoodFactsTaxonomy>
 
+    @Query("SELECT DISTINCT cleanName FROM openfoodfacts_taxonomy WHERE cleanName IS NOT NULL AND cleanName != ''")
+    suspend fun getAllCleanNames(): List<String>
+
     @Query("SELECT COUNT(*) FROM openfoodfacts_taxonomy")
     suspend fun getTaxonomyCount(): Int
 

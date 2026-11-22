@@ -6,6 +6,7 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="toast_nutriscore_pending">Nutri-Score logo detected, but the letter could not be identified on the image.</string>
+    <string name="toast_recipe_image_permission_denied">Unable to access saved image. Please select a new image.</string>
 
     <!-- Counter -->
 

@@ -34,7 +34,8 @@ object Ocr5BeautifierInstruction {
         stepActionKeywords: List<String> = emptyList(),
         hangingConnectors: List<String> = emptyList(),
         culinaryUnits: List<String> = emptyList(),
-        spellingRepairs: List<String> = emptyList()
+        spellingRepairs: List<String> = emptyList(),
+        offTaxonomyList: List<String> = emptyList()
     ): List<String> {
         val baseInstructions = instructions.filterBeautifierNoise()
         if (baseInstructions.isEmpty()) return emptyList()
@@ -56,12 +57,13 @@ object Ocr5BeautifierInstruction {
             OcrRegexes.Beautifier.STEP_NUMBER_BEFORE_CAPITAL
         )
 
-        // 1. Nettoyage et assainissement initial de chaque ligne
+        // 1. Nettoyage, élisions et assainissement initial de chaque ligne
         val cleanedLines = baseInstructions.mapNotNull { line ->
             val cleanLine = OcrInstructionUtils.stripSingleLeadingAlphaOrBulletPrefix(line)
-            val hasAction = OcrInstructionUtils.hasActionVerb(cleanLine, stepActionKeywords)
+            val lineWithElision = fixFrenchInstructionElisions(cleanLine, vocab, offTaxonomyList)
+            val hasAction = OcrInstructionUtils.hasActionVerb(lineWithElision, stepActionKeywords)
             Ocr5Beautifier.sanitizeLine(
-                line = cleanLine,
+                line = lineWithElision,
                 spellingRepairs = spellingRepairs,
                 prefixPatterns = prefixPatterns,
                 vocab = vocab,
@@ -129,5 +131,44 @@ object Ocr5BeautifierInstruction {
         }
 
         return mergedInstructions
+    }
+
+    /**
+     * Passe 1 (Élision) : Rétablit les apostrophes d'élision françaises oubliées par le scanner de l'appareil photo (ex: "lorange" -> "l'orange", "loignon" -> "l'oignon").
+     * Vérifie de manière déterministe que le mot sans le 'l' initial correspond à un nom d'ingrédient connu.
+     */
+    fun fixFrenchInstructionElisions(
+        line: String,
+        vocabulary: OcrVocabulary? = null,
+        offTaxonomyList: List<String> = emptyList()
+    ): String {
+        if (line.isBlank()) return line
+        val vocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
+        val fullDictionary = (vocab.commonIngredientsNoQty + offTaxonomyList).distinct()
+        if (fullDictionary.isEmpty()) return line
+
+        val words = line.split(Regex("\\s+"))
+        val corrected = words.map { word ->
+            val clean = word.trim().trim('.', ',', ';', ':', '!', '?', '•', '-', '*')
+            val lower = clean.lowercase()
+            if (lower.startsWith("l") && lower.length >= 4 && !lower.startsWith("l'")) {
+                val potentialNoun = lower.substring(1)
+                val cleanPotential = OcrLevenshteinUtils.stripAccents(potentialNoun)
+
+                val isKnownIngredientNoun = fullDictionary.any { ingr ->
+                    val cleanIngr = OcrLevenshteinUtils.stripAccents(ingr.lowercase())
+                    cleanIngr == cleanPotential || cleanIngr.endsWith(" $cleanPotential") || cleanIngr.startsWith("$cleanPotential ")
+                }
+
+                if (isKnownIngredientNoun) {
+                    val rawNoun = clean.substring(1)
+                    val pattern = Regex("(?iu)(?<!\\p{L})l(?=" + Regex.escape(rawNoun) + ")")
+                    if (pattern.containsMatchIn(word)) {
+                        pattern.replace(word, "l'")
+                    } else word
+                } else word
+            } else word
+        }
+        return corrected.joinToString(" ")
     }
 }

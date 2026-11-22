@@ -3,7 +3,10 @@ package com.chefinventory.app.data
 import android.content.Context
 import android.content.res.AssetManager
 import androidx.test.core.app.ApplicationProvider
+import androidx.room.Room
 import com.chefinventory.app.dao.OpenFoodFactsDao
+import com.chefinventory.app.utils.OcrLevenshteinUtils
+import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.google.common.truth.Truth.assertThat
 import com.parabd.lib.traceability.CoveredRequirement
 import kotlinx.coroutines.runBlocking
@@ -172,5 +175,23 @@ class OpenFoodFactsTaxonomyLoaderTest {
 
         val result = OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(mockContext, mockDb)
         assertThat(result).isEqualTo(0)
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testLoadFromProjectResources_WithContextAndDatabase_PopulatesOffTaxonomyListFromRoomDb() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+
+        OpenFoodFactsTaxonomyLoader.seedTaxonomyIfEmpty(context, database)
+
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources(context, database)
+
+        assertThat(vocabulary.offTaxonomyList).isNotEmpty()
+        assertThat(vocabulary.offTaxonomyList.map { OcrLevenshteinUtils.stripAccents(it) }).contains("VINAIGRE DE VIN BLANC")
+
+        database.close()
     }
 }

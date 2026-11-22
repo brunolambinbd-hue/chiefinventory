@@ -100,13 +100,15 @@ object Ocr3CategorizerRouter {
             }
         }
 
-        val titleBottomY = lines2D.filter { line2D ->
+        val titleLines2D = lines2D.filter { line2D ->
             val cleanText = Ocr1Corrector.normalize(line2D.text, repairs).trim().lowercase()
-            linesWithoutTitle.any { target ->
+            cleanText.isNotBlank() && linesWithoutTitle.none { target ->
                 val targetLower = target.trim().lowercase()
                 cleanText == targetLower || targetLower.contains(cleanText) || cleanText.contains(targetLower)
             }
-        }.maxOfOrNull { it.bottom } ?: 0
+        }
+
+        val titleBottomY = titleLines2D.maxOfOrNull { it.bottom } ?: 0
 
         val lines2DWithoutTitle = lines2D.map { line2D ->
             line2D.copy(text = Ocr1Corrector.normalize(line2D.text, repairs))

@@ -159,7 +159,7 @@ object Ocr3Categorizer3_BlockC_Reappearance {
         val cleanSubHeaderLine = workingLine.lowercase().removeSuffix(":").removeSuffix(".").trim()
         val isSubHeader = vocabulary.ingredientSubHeaders.any { it.trim().equals(cleanSubHeaderLine, ignoreCase = true) }
 
-        val isCommonIngrStart = vocabulary.commonIngredientsNoQty.any { lowerLine.startsWith(it.lowercase()) }
+        val isCommonIngrStart = (vocabulary.commonIngredientsNoQty + vocabulary.titleKeywords).any { lowerLine.startsWith(it.lowercase()) }
         val looksLikeIngredient = (hasQuantity || hasWeight || isolatedMod || isCommonIngrStart) && !hasInstructionTrigger && !isReappearance
 
         val matchesInstrList = vocabulary.ocr1ProtectedInstructionsHeaders.any { lowerLine.contains(it.lowercase()) }

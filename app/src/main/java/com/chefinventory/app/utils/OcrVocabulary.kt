@@ -158,6 +158,7 @@ data class OcrVocabulary(
     val adExclusions: List<String> = emptyList(),
     val recipeCategoryHeaders: List<String> = emptyList(),
     val ocrNoiseExclusions: List<String> = emptyList(),
+    val offTaxonomyList: List<String> = emptyList(),
     val titleKeywords: List<String> = emptyList(),
     val mandatoryComplementIngredients: List<String> = emptyList(),
     val hangingConnectors: List<String> = emptyList(),

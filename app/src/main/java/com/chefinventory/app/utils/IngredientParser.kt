@@ -294,4 +294,210 @@ object IngredientParser {
             supplementalInfo = null,
         )
     }
+
+    /**
+     * Localise les intervalles de caractères [IntRange] des mots noyaux d'ingrédients au sein d'une ligne d'ingrédient brute.
+     *
+     * @param line La ligne d'ingrédient brute (ex: "200 g d'épinards frais", "Sel et poivre").
+     * @param vocabulary Le vocabulaire métier OCR.
+     * @param offTaxonomyList La liste optionnelle des aliments d'Open Food Facts.
+     * @return La liste des intervalles [IntRange] (start..end) des mots noyaux dans la ligne.
+     */
+    fun findCoreIngredientSpans(
+        line: String,
+        vocabulary: OcrVocabulary,
+        offTaxonomyList: List<String> = emptyList()
+    ): List<IntRange> {
+        if (line.isBlank()) return emptyList()
+
+        val cleanLineLower = OcrLevenshteinUtils.stripAccents(line.trim().lowercase()).removeSuffix(":").removeSuffix(".").trim()
+        val allSubHeaders = (vocabulary.ingredientSubHeaders + listOf("pour la sauce", "pour la marinade", "pour la garniture", "pour la vinaigrette", "pour la farce", "pour la pâte", "pour le glaçage")).map { OcrLevenshteinUtils.stripAccents(it.trim().lowercase()) }
+        val isSubHeaderLine = allSubHeaders.any { subHeader ->
+            cleanLineLower == subHeader || cleanLineLower.startsWith("pour ") || cleanLineLower.startsWith("pour la ") || cleanLineLower.startsWith("pour le ") || cleanLineLower.startsWith("pour les ")
+        }
+        if (isSubHeaderLine) return emptyList()
+
+        val containerAndMeasurementUnits = listOf(
+            "boîte", "boite", "boîtes", "boites", "sachet", "sachets", "paquet", "paquets", 
+            "verre", "verres", "tranche", "tranches", "gousse", "gousses", "branche", "branches", 
+            "pincée", "pincées", "bocal", "bocaux", "botte", "bottes", "barquette", "barquettes", 
+            "ravier", "raviers", "pot", "pots", "pointe", "pointes", "filet", "filets", 
+            "cuisse", "cuisses", "aile", "ailes", "pilon", "pilons", "patte", "pattes", 
+            "pavé", "pavés", "pave", "paves", "escalope", "escalopes", "côte", "côtes", 
+            "côtelette", "côtelettes", "magret", "magrets", "aiguillette", "aiguillettes", 
+            "paupiette", "paupiettes", "darne", "darnes"
+        )
+
+        val articlesAndDeterminers = (
+            vocabulary.standaloneArticles + 
+            listOf("un", "une", "des", "du", "de", "d'", "le", "la", "l'", "quelques", "plusieurs", "certains", "certaines")
+        ).map { OcrLevenshteinUtils.stripAccents(it.trim().lowercase()) }
+
+        val ignoreModifiers = (
+            vocabulary.ingredientPreparationModifiers + 
+            vocabulary.ingredientPreparationSuffixModifiers + 
+            vocabulary.ingredientVarietyQualifiers + 
+            vocabulary.culinaryMeasurementUnits + 
+            containerAndMeasurementUnits + 
+            articlesAndDeterminers + 
+            listOf(
+                "frais", "fraîche", "fraiche", "haché", "hachée", "hachés", "hachées", 
+                "émincé", "émincée", "émincés", "émincées", "râpé", "râpée", "râpés", "râpées", 
+                "moulu", "moulue", "moulus", "moulues", "dénoyauté", "dénoyautée", "dénoyautés", "dénoyautées", 
+                "concassé", "concassée", "concassés", "concassées", "décortiqué", "décortiquée", "décortiqués", "décortiquées", 
+                "cuit", "cuite", "cuits", "cuites", "cru", "crue", "crus", "crues", 
+                "séché", "séchée", "séchés", "séchées", "fondant", "fondante", "fondants", "fondantes", 
+                "grillé", "grillée", "grillés", "grillées", "salé", "salée", "salés", "salées", 
+                "sucré", "sucrée", "sucrés", "sucrées", "jaune", "jaunes", "rouge", "rouges", 
+                "blanc", "blanche", "blancs", "blanches", "vert", "verte", "verts", "vertes", 
+                "noir", "noire", "noirs", "noires", "doux", "douce", "fort", "forte", "forts", "fortes", 
+                "demi-écrémé", "écrémé", "crémé", "creme", "créme", "morts", "propres", "sauce", "sauces",
+                "dur", "durs", "dure", "dures", "jus", "jus de", "jus d'", "jus du", "zeste", "zeste de", "zeste d'", "chair", "chair de", "quartier", "quartiers"
+            )
+        ).map { OcrLevenshteinUtils.stripAccents(it.trim().lowercase()) }.toSet()
+
+        val parsed = parse(line, vocabulary.culinaryMeasurementUnits)
+        val name = parsed.name.trim()
+        if (name.isEmpty()) return emptyList()
+
+        val fullDict = (vocabulary.commonIngredientsNoQty + offTaxonomyList)
+            .filter { it.isNotBlank() }
+            .distinct()
+            .sortedByDescending { it.length }
+
+        val spans = mutableListOf<IntRange>()
+        val lineAccent = OcrLevenshteinUtils.stripAccents(line.lowercase())
+
+        val nameStartInLine = if (name.isNotEmpty()) {
+            val cleanNameWords = name.split(Regex("\\s+")).filter { 
+                val w = OcrLevenshteinUtils.stripAccents(it.lowercase())
+                w.length >= 3 && w !in ignoreModifiers && w !in vocabulary.standaloneArticles
+            }
+            val firstCoreWord = cleanNameWords.firstOrNull()
+            if (firstCoreWord != null) {
+                val idx = lineAccent.indexOf(OcrLevenshteinUtils.stripAccents(firstCoreWord.lowercase()))
+                if (idx >= 0) idx else 0
+            } else 0
+        } else 0
+
+        // 1. Chercher d'abord les expressions multi-mots composées les plus longues (ex: "vinaigre de vin blanc", "huile d'olive")
+        for (dictItem in fullDict) {
+            val cleanItem = OcrLevenshteinUtils.stripAccents(dictItem.lowercase())
+            val cleanItemNoPrefix = cleanItem.replace(Regex("(?i)^(?:DU|DE|D'|DES|LA|LE|UN|UNE)\\s+"), "").trim()
+            if (cleanItemNoPrefix.length >= 4 && cleanItemNoPrefix !in ignoreModifiers) {
+                var start = lineAccent.indexOf(cleanItemNoPrefix, nameStartInLine)
+                var end = if (start >= 0) start + cleanItemNoPrefix.length else -1
+
+                if (start < 0) {
+                    // Recherche tolérante au pluriel (-S / -X) (ex: Open Food Facts "graine de sésame" vs Recette "graines de sésame")
+                    val lineWords = lineAccent.split(Regex("\\s+"))
+                    val itemWords = cleanItemNoPrefix.split(Regex("\\s+"))
+                    if (itemWords.isNotEmpty() && lineWords.size >= itemWords.size) {
+                        for (wIdx in 0..(lineWords.size - itemWords.size)) {
+                            var matchesAllWords = true
+                            for (k in itemWords.indices) {
+                                val lw = lineWords[wIdx + k].removeSuffix("S").removeSuffix("X")
+                                val iw = itemWords[k].removeSuffix("S").removeSuffix("X")
+                                if (lw != iw) {
+                                    matchesAllWords = false
+                                    break
+                                }
+                            }
+                            if (matchesAllWords) {
+                                val firstWordInLine = lineWords[wIdx]
+                                val lastWordInLine = lineWords[wIdx + itemWords.size - 1]
+                                var currentOffset = 0
+                                for (p in 0 until wIdx) {
+                                    currentOffset += lineWords[p].length + 1
+                                }
+                                start = lineAccent.indexOf(firstWordInLine, currentOffset)
+                                if (start >= 0) {
+                                    val endWordStart = lineAccent.indexOf(lastWordInLine, start)
+                                    if (endWordStart >= start) {
+                                        end = endWordStart + lastWordInLine.length
+                                    }
+                                }
+                                break
+                            }
+                        }
+                    }
+                }
+
+                if (start >= 0 && end > start) {
+                    val isOverlapping = spans.any { existing ->
+                        (start in existing.first..existing.last) || (end in existing.first..existing.last) || (existing.first in start..end)
+                    }
+                    if (!isOverlapping) {
+                        val originalTarget = line.substring(start, minOf(end, line.length))
+                        spans.add(IntRange(start, start + originalTarget.length))
+                    }
+                }
+            }
+        }
+
+        if (spans.isNotEmpty()) {
+            return spans.sortedBy { it.first }
+        }
+
+        // 2. Si aucune expression multi-mots n'a été trouvée, évaluer mot par mot (uniquement dans le nom d'ingrédient)
+        val words = line.split(Regex("\\s+"))
+        var searchOffset = nameStartInLine
+        words.forEach { word ->
+            var cleanW = word.trim().trim('.', ',', ';', ':', '!', '?', '•', '-', '*')
+            if (cleanW.lowercase().startsWith("d'") || cleanW.lowercase().startsWith("l'")) {
+                cleanW = cleanW.substring(2)
+            } else if (cleanW.lowercase().startsWith("de ") || cleanW.lowercase().startsWith("du ")) {
+                cleanW = cleanW.substring(3)
+            }
+            val cleanWAccent = OcrLevenshteinUtils.stripAccents(cleanW.lowercase())
+
+            if (cleanWAccent.length >= 3 && cleanWAccent !in ignoreModifiers) {
+                val matchesDict = fullDict.any { dictItem ->
+                    val cleanItem = OcrLevenshteinUtils.stripAccents(dictItem.lowercase())
+                    cleanItem == cleanWAccent || cleanItem.contains(cleanWAccent) || cleanWAccent.contains(cleanItem)
+                }
+                if (matchesDict) {
+                    val start = line.indexOf(cleanW, searchOffset, ignoreCase = true)
+                    if (start >= nameStartInLine) {
+                        val end = start + cleanW.length
+                        val isOverlapping = spans.any { existing ->
+                            (start in existing.first..existing.last) || (end in existing.first..existing.last)
+                        }
+                        if (!isOverlapping) {
+                            spans.add(IntRange(start, end))
+                            searchOffset = end
+                        }
+                    }
+                }
+            }
+        }
+
+        if (spans.isEmpty() && name.isNotEmpty()) {
+            val fallbackWord = name.split(Regex("\\s+")).firstOrNull { w ->
+                var cw = w.trim().trim('.', ',', ';', ':', '!', '?', '•', '-', '*')
+                if (cw.lowercase().startsWith("d'") || cw.lowercase().startsWith("l'")) cw = cw.substring(2)
+                val cleanCw = OcrLevenshteinUtils.stripAccents(cw.lowercase())
+                cleanCw.length >= 3 && cleanCw !in ignoreModifiers
+            } ?: name
+            var cleanTarget = fallbackWord.trim().trim('.', ',', ';', ':', '!', '?', '•', '-', '*')
+            if (cleanTarget.lowercase().startsWith("d'") || cleanTarget.lowercase().startsWith("l'")) cleanTarget = cleanTarget.substring(2)
+            val start = line.indexOf(cleanTarget, nameStartInLine, ignoreCase = true)
+            if (start >= nameStartInLine) {
+                spans.add(IntRange(start, start + cleanTarget.length))
+            }
+        }
+
+        return spans.sortedBy { it.first }
+    }
+
+    /**
+     * Alias de rétrocompatibilité pour [findCoreIngredientSpans].
+     */
+    fun findCoreIngredientSpan(
+        line: String,
+        vocabulary: OcrVocabulary,
+        offTaxonomyList: List<String> = emptyList()
+    ): IntRange? {
+        return findCoreIngredientSpans(line, vocabulary, offTaxonomyList).firstOrNull()
+    }
 }

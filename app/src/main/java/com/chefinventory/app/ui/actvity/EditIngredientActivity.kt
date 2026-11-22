@@ -52,6 +52,10 @@ class EditIngredientActivity : AppCompatActivity() {
 
         val ingredientId = intent.getLongExtra(EXTRA_INGREDIENT_ID, -1L)
         selectedLocationId = intent.getLongExtra(EXTRA_LOCATION_ID, -1L).takeIf { it != -1L }
+        val prefilledName = intent.getStringExtra(EXTRA_PREFILLED_NAME) ?: intent.getStringExtra(EXTRA_NAME)
+        if (ingredientId == -1L && !prefilledName.isNullOrBlank()) {
+            binding.etName.setText(prefilledName)
+        }
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -278,6 +282,7 @@ class EditIngredientActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_LOCATION_ID: String = "location_id"
         const val EXTRA_INGREDIENT_ID: String = "ingredient_id"
+        const val EXTRA_PREFILLED_NAME: String = "extra_prefilled_name"
         const val EXTRA_NAME: String = "extra_name"
         const val EXTRA_QTY: String = "extra_qty"
         const val EXTRA_UNIT: String = "extra_unit"

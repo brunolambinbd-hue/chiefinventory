@@ -32,7 +32,8 @@ object Ocr4Merger {
         mandatoryComplements: List<String> = emptyList(),
         customConnectors: List<String> = emptyList(),
         saltOrigins: List<String> = emptyList(),
-        pepperOrigins: List<String> = emptyList()
+        pepperOrigins: List<String> = emptyList(),
+        offTaxonomyList: List<String> = emptyList()
     ): List<String> {
         if (rawIngredients.isEmpty()) return emptyList()
         LogManager.d(TAG, "--- mergeIngredients START ---")
@@ -125,7 +126,8 @@ object Ocr4Merger {
                 mandatoryComplements, 
                 preparationModifiers,
                 emptyList(),
-                emptyList()
+                emptyList(),
+                offTaxonomyList
             )
             finalSplitList.addAll(splits)
         }
@@ -313,6 +315,14 @@ object Ocr4Merger {
         val wordsCount = lower.split(Regex("\\s+")).size
         if (wordsCount > 5) return false
         val cleanStart = java.text.Normalizer.normalize(lower.replace(Regex("^[^\\p{L}]+"), ""), java.text.Normalizer.Form.NFC)
+
+        val isPastParticipleQualifier = cleanStart.split(Regex("[\\s-]+")).all { word ->
+            val w = word.trim()
+            w.endsWith("é") || w.endsWith("ée") || w.endsWith("és") || w.endsWith("ées") ||
+            w.endsWith("i") || w.endsWith("is") || w.endsWith("ie") || w.endsWith("ies")
+        }
+        if (isPastParticipleQualifier) return true
+
         return preparationModifiers.any { mod ->
             val cleanMod = java.text.Normalizer.normalize(mod.trim().lowercase(), java.text.Normalizer.Form.NFC)
             cleanStart == cleanMod || cleanStart.startsWith(cleanMod) || cleanMod.startsWith(cleanStart)
