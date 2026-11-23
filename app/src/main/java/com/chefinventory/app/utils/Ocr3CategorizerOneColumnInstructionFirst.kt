@@ -79,6 +79,7 @@ object Ocr3CategorizerOneColumnInstructionFirst {
         var currentSection = Ocr3CategorizerOneColumnIngredientFirst.SECTION_INSTRUCTIONS
         val wineState = Ocr3CategorizerWine.WineState()
         val seenIngredientKeywords = mutableSetOf<String>()
+        var prevOriginalLine = ""
 
         // PASSE 1 : Extraction des consignes d'instructions du haut et des ingrédients du bas
         for (line in lines) {
@@ -86,6 +87,8 @@ object Ocr3CategorizerOneColumnInstructionFirst {
             if (workingLine.isBlank()) continue
 
             if (wineState.isWineSectionClosed) continue
+
+            val prevLineEndsWithHyphen = prevOriginalLine.trimEnd().endsWith("-")
 
             // 1. Détection du basculement en SECTION_INGREDIENTS pour le bloc d'ingrédients du bas
             val lowerLine = workingLine.lowercase()
@@ -96,13 +99,14 @@ object Ocr3CategorizerOneColumnInstructionFirst {
             val isIngrHeader = !containsAction && vocabulary.ocr1ProtectedIngredientsHeaders.any { lowerLine.contains(it.lowercase()) }
             val isWineHeader = !containsAction && (vocabulary.ocr3ExplicitWineHeaders.any { lowerLine.contains(it.lowercase()) } || (Regex("(?i)\\bvin(?:s)?\\b").containsMatchIn(workingLine) && !lowerLine.contains("vinaigre") && !lowerLine.contains("vinaigrette")))
 
-            if (isWineHeader) {
+            if (isWineHeader && !prevLineEndsWithHyphen) {
                 Ocr3CategorizerWine.processWineLine(workingLine, currentSection, false, false, false, vocabulary, wineState)
                 currentSection = Ocr3CategorizerOneColumnIngredientFirst.SECTION_NONE
+                prevOriginalLine = line
                 continue
             }
 
-            if (currentSection == Ocr3CategorizerOneColumnIngredientFirst.SECTION_INSTRUCTIONS) {
+            if (currentSection == Ocr3CategorizerOneColumnIngredientFirst.SECTION_INSTRUCTIONS && !prevLineEndsWithHyphen) {
                 if (isServingsHeader || isIngrHeader) {
                     currentSection = Ocr3CategorizerOneColumnIngredientFirst.SECTION_INGREDIENTS
                     LogManager.d(TAG, String.format(vocabulary.logOcr3InvertedBottomIngrSwitch, line))
@@ -149,6 +153,7 @@ object Ocr3CategorizerOneColumnInstructionFirst {
                     }
                 }
             }
+            prevOriginalLine = line
         }
 
         results.detectedWineList.addAll(wineState.detectedWineList)

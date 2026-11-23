@@ -270,7 +270,7 @@ class EditRecipeActivity : AppCompatActivity() {
                     OcrIngredientSpannableFormatter.formatIngredientHyperlinks(
                         context = this@EditRecipeActivity,
                         fullText = result.ingredients ?: "",
-                        vocabulary = OcrVocabularyLoader.loadFromProjectResources(),
+                        vocabulary = OcrVocabularyLoader.loadFromContext(this@EditRecipeActivity),
                         offTaxonomyList = offTaxonomyNames
                     )
                 }
@@ -295,6 +295,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.actvDifficulty.setText(result.difficulty ?: "", false)
                 binding.actvPriceRating.setText(mapPriceRatingToDisplay(result.priceRating), false)
                 binding.etNutritionInfo.setText(result.nutritionInfo ?: "")
+                android.util.Log.d("OcrSpannableFormatter", "📌 [AFFICHAGE ÉCRAN EFFECTUÉ] Ingrédients injectés dans l'IHM")
             } catch (e: Exception) {
                 Log.e("EditRecipe", "OCR failed", e)
                 val stackTrace = e.stackTraceToString()
@@ -376,7 +377,7 @@ class EditRecipeActivity : AppCompatActivity() {
                         OcrIngredientSpannableFormatter.formatIngredientHyperlinks(
                             context = this@EditRecipeActivity,
                             fullText = text,
-                            vocabulary = OcrVocabularyLoader.loadFromProjectResources(),
+                            vocabulary = OcrVocabularyLoader.loadFromContext(this@EditRecipeActivity),
                             offTaxonomyList = offTaxonomyNames
                         )
                     }

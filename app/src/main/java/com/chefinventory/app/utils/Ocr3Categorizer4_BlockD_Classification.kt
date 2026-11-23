@@ -127,8 +127,9 @@ object Ocr3Categorizer4_BlockD_Classification {
         val lastRawInst = results.rawInstructionsList.lastOrNull() ?: ""
         val isInstSection = currentSection == Ocr3Categorizer.SECTION_INSTRUCTIONS
         val hasUnclosedInstructionParen = isInstSection && (lastRawInst.count { it == '(' } > lastRawInst.count { it == ')' })
+        val hasInstructionHyphenContinuation = isInstSection && lastRawInst.trimEnd().endsWith("-")
 
-        if (hasUnclosedInstructionParen) {
+        if (hasUnclosedInstructionParen || hasInstructionHyphenContinuation) {
             return BlockDResult(false, workingLine, Ocr3Categorizer.SECTION_INSTRUCTIONS)
         }
 

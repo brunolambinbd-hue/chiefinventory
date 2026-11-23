@@ -52,13 +52,13 @@ object RecipeMetadataParser2_BlockB_Price {
 
         val matchedLow = priceCategoriesLow.firstOrNull { cat ->
             val normCat = Normalizer.normalize(cat.lowercase(), Normalizer.Form.NFC)
-            OcrRegexes.getSpellingRepairPattern(normCat).matcher(normLine).find()
+            OcrRegexes.getSpellingRepairPattern(normCat).containsMatchIn(normLine)
         }
 
         val matchedMedium = if (matchedLow == null) {
             priceCategoriesMedium.firstOrNull { cat ->
                 val normCat = Normalizer.normalize(cat.lowercase(), Normalizer.Form.NFC)
-                OcrRegexes.getSpellingRepairPattern(normCat).matcher(normLine).find()
+                OcrRegexes.getSpellingRepairPattern(normCat).containsMatchIn(normLine)
             }
         } else {
             null
@@ -67,7 +67,7 @@ object RecipeMetadataParser2_BlockB_Price {
         val matchedHigh = if (matchedLow == null && matchedMedium == null) {
             priceCategoriesHigh.firstOrNull { cat ->
                 val normCat = Normalizer.normalize(cat.lowercase(), Normalizer.Form.NFC)
-                OcrRegexes.getSpellingRepairPattern(normCat).matcher(normLine).find()
+                OcrRegexes.getSpellingRepairPattern(normCat).containsMatchIn(normLine)
             }
         } else {
             null
@@ -84,9 +84,9 @@ object RecipeMetadataParser2_BlockB_Price {
                 }
                 results.detectedPriceRating = priceCode
             }
-            workingLine = OcrRegexes.getSpellingRepairPattern(matchedCategory).matcher(workingLine).replaceAll("").trim()
+            workingLine = OcrRegexes.getSpellingRepairPattern(matchedCategory).replace(workingLine, "").trim()
             priceTitles.forEach { pTitle ->
-                workingLine = OcrRegexes.getSpellingRepairPattern(pTitle).matcher(workingLine).replaceAll("").trim()
+                workingLine = OcrRegexes.getSpellingRepairPattern(pTitle).replace(workingLine, "").trim()
             }
         }
 

@@ -3,6 +3,10 @@
     <!-- Articles, déterminants et prépositions isolés ne pouvant pas exister comme ligne d'ingrédient ou d'instruction (Longest Match First) -->
     <string-array name="standalone_articles">
         <item>cette</item>
+        <item>quelques</item>
+        <item>plusieurs</item>
+        <item>certains</item>
+        <item>certaines</item>
         <item>notre</item>
         <item>votre</item>
         <item>pour</item>

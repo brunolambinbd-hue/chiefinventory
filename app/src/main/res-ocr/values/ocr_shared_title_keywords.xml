@@ -2,6 +2,10 @@
 <resources>
     <string-array name="title_keywords">
 <item>saint-jacques</item>
+<item>cocktail</item>
+<item>asperges</item>
+<item>asperge</item>
+<item>sperges</item>
 <item>vinaigrette</item>
 <item>artichauts</item>
 <item>concombres</item>

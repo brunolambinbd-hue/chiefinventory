@@ -2,15 +2,32 @@
 <resources>
     <!-- Ingrédients courants sans quantité (Longest Match First) -->
     <string-array name="common_ingredients_no_qty">
-<item>des petites feuilles de chicon</item>
+<item>feuilles de chicon</item>
+<item>boules de melon au sirop</item>
+<item>boules de melon</item>
+<item>billes de melon</item>
+<item>jambon de parme</item>
+<item>jambon de Parme</item>
+<item>jambon de bayonne</item>
+<item>jambon de serrano</item>
+<item>jambon ibérique</item>
+<item>jambon iberique</item>
+<item>pommes de terre nouvelles</item>
+<item>nouvelles pommes de terre</item>
+<item>chicon</item>
+<item>olives noires dénoyautées</item>
+<item>olives vertes dénoyautées</item>
+<item>olives noires</item>
+<item>olives vertes</item>
 <item>poivre de Cayenne, sel, poivre</item>
 <item>du persil et de la ciboulette</item>
 <item>du thym et du romarin frais</item>
-<item>petites feuilles de chicon</item>
 <item>sel et poivre du moulin</item>
 <item>du thym et du romarin</item>
 <item>noix de muscade râpée</item>
 <item>persil et ciboulette</item>
+<item>baguette de pain gris</item>
+<item>pain gris</item>
 <item>piment d\'espelette</item>
 <item>feuilles de laurier</item>
 <item>coriandre fraîche</item>
@@ -36,8 +53,45 @@
 <item>persil frisé</item>
 <item>persil plat</item>
 <item>sweet chili sauce</item>
+<item>vin muscadet</item>
+<item>vin de saumur</item>
+<item>vin de bordeaux</item>
+<item>vin de bourgogne</item>
+<item>vin d\'alsace</item>
+<item>vin de loire</item>
+<item>vin de provence</item>
+<item>vin du rhône</item>
+<item>vin du rhone</item>
 <item>sauce chili</item>
 <item>sauce teriyaki</item>
+<item>vinaigre de framboise</item>
+<item>porto blanc</item>
+<item>porto rosé</item>
+<item>porto rose</item>
+<item>porto tawny</item>
+<item>porto ruby</item>
+<item>rhum ambré</item>
+<item>rhum ambre</item>
+<item>rhum blanc</item>
+<item>rhum vieux</item>
+<item>vinaigre de figue</item>
+<item>vinaigre de mangue</item>
+<item>vinaigre d\'échalote</item>
+<item>vinaigre de xérès</item>
+<item>vinaigre de xeres</item>
+<item>vinaigre de miel</item>
+<item>vinaigre de riz</item>
+<item>vinaigre de noix</item>
+<item>huile de pépins de raisin</item>
+<item>huile de pepins de raisin</item>
+<item>huile de noisette</item>
+<item>huile de sésame</item>
+<item>huile de sesame</item>
+<item>huile de tournesol</item>
+<item>huile de colza</item>
+<item>huile d\'arachide</item>
+<item>coulis de framboise</item>
+<item>coulis de fruits rouges</item>
 <item>vinaigrette</item>
 <item>ciboulette</item>
 <item>coriandre</item>

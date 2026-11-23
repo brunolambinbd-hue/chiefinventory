@@ -39,7 +39,7 @@ class OcrJvmPatternQuoteBugTest {
         val input = "SALADE DE LANGOUSTINES AU CURRY"
 
         assertWithMessage("OcrRegexes.getSpellingRepairPattern doit matcher le mot-clé majuscule 'SALADE' sur la JVM")
-            .that(pattern.matcher(input).find())
+            .that(pattern.containsMatchIn(input))
             .isTrue()
     }
 }

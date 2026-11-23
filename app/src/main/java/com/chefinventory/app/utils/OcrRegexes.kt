@@ -75,6 +75,7 @@ object OcrRegexes {
         val NUMBER_CORRECTIONS: List<Pair<Regex, String>> = listOf(
             Regex("(?i)^[|il!I]\\s+(?=\\p{L})") to "1 ",
             Regex("(?i)^[|il!]c(?=[\\s.àa])") to "1 c",
+            Regex("(?i)(?<=\\d)\\s*d\\s+(?=de\\b|d['’]|du\\b|des\\b)") to " dl ",
             Regex("(?i)(?<=\\d)\\s*l\\s*d['’\\s]*eau\\b") to " l d'eau",
             Regex("(?i)(?<![\\p{L}\\d])l\\s*d['’\\s]*eau\\b") to "1 l d'eau",
             Regex("(?i)\\b1 ajout\\b") to "l'ajout",
@@ -191,6 +192,9 @@ object OcrRegexes {
         /** Correction de la confusion du chiffre '1' au début des puces. */
         val OCR_ONE_CORRECTION: Regex = Regex("(?i)(^|•\\s*|[\\-*]\\s*|\\()([|!|](?=[\\s\\p{L}])|[Iil](?=\\s+\\p{L}))")
 
+        /** Correction de la lettre 'I', 'l', 'L', '|' devant un chiffre (ex: "I25 g" -> "125 g", "(I25 g)" -> "(125 g)"). */
+        val OCR_ONE_BEFORE_DIGITS: Regex = Regex("(?i)(?<=^|[(\\[\\s]|•|\\*|-)[IilL|](?=\\d{2,}|\\d+\\s*(?:g|kg|ml|cl|l|mg|cm|mm|min|s)\\b)")
+
         /** Suppression du bruit de dates, devises et prix. */
         val NOISE_REMOVAL: List<Pair<Regex, String>> = listOf(
             Regex("\\b\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{2,4}\\b") to "",
@@ -207,6 +211,8 @@ object OcrRegexes {
 
         /** Corrections linguistiques générales et liaisons d'apostrophes. */
         val LINGUISTIC_CORRECTIONS: List<Pair<Regex, String>> = listOf(
+            Regex("(?i)(?<=\\s)e(?=\\s*$)") to "et",
+            Regex("(?i)\\bd\\s+(?=[aeiouyéèêëàâôûh]\\p{L}+)") to "d'",
             Regex("(?i)([a-z])d['’]") to "$1 d'",
             Regex("(?i)d['’]\\s+") to "d'",
             Regex("(?i)\\beuf(s?)\\b") to "oeuf$1",
@@ -434,7 +440,7 @@ object OcrRegexes {
      * @param wrong Le terme fautif à rechercher.
      * @return L'expression régulière Pattern compilée correspondante.
      */
-    fun getSpellingRepairPattern(wrong: String): Pattern = OcrRegexesDynamicHelpers.getSpellingRepairPattern(wrong)
+    fun getSpellingRepairPattern(wrong: String): Regex = OcrRegexesDynamicHelpers.getSpellingRepairPattern(wrong)
 
     /**
      * Retourne le motif Regex pré-compilé et mis en cache pour la recherche de racine de mots d'ingrédients ([OcrTitleExtractor]).

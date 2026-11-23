@@ -41,7 +41,7 @@ object Ocr5BeautifierIngredient {
             "cuisse", "cuisses", "aile", "ailes", "pilon", "pilons", "patte", "pattes", 
             "pavé", "pavés", "pave", "paves", "escalope", "escalopes", "côte", "côtes", 
             "côtelette", "côtelettes", "magret", "magrets", "aiguillette", "aiguillettes", 
-            "paupiette", "paupiettes", "darne", "darnes"
+            "paupiette", "paupiettes", "darne", "darnes", "noix", "boule", "boules", "bille", "billes"
         )
 
         val articlesAndDeterminers = (
@@ -67,7 +67,7 @@ object Ocr5BeautifierIngredient {
                 "sucré", "sucrée", "sucrés", "sucrées", "jaune", "jaunes", "rouge", "rouges", 
                 "blanc", "blanche", "blancs", "blanches", "vert", "verte", "verts", "vertes", 
                 "noir", "noire", "noirs", "noires", "doux", "douce", "fort", "forte", "forts", "fortes", 
-                "demi-écrémé", "écrémé", "dur", "durs", "dure", "dures", "jus", "jus de", "jus d'", "jus du", "zeste", "zeste de", "zeste d'", "chair", "chair de", "quartier", "quartiers"
+                "demi-écrémé", "écrémé", "dur", "durs", "dure", "dures", "gris", "grise", "grises", "mûr", "mûre", "mûrs", "mûres", "mur", "mure", "murs", "mures", "nouvelle", "nouvelles", "nouveau", "nouveaux", "parme", "bayonne", "serrano", "iberique", "ibérique", "jus", "jus de", "jus d'", "jus du", "zeste", "zeste de", "zeste d'", "chair", "chair de", "quartier", "quartiers"
             )
         ).map { OcrLevenshteinUtils.stripAccents(it.trim().lowercase()) }.toSet()
 
@@ -96,13 +96,33 @@ object Ocr5BeautifierIngredient {
                             val isPluralDiffOnly = cleanWord.lowercase().trim().removeSuffix("s").removeSuffix("x") == bestMatch.lowercase().trim().removeSuffix("s").removeSuffix("x")
                             if (dist in 1..maxAllowed && !isPluralDiffOnly) {
                                 val cleanBest = bestMatch.replace(Regex("(?i)^(?:du|de|d'|des|la|le|un|une)\\s+"), "").trim()
+                                val elisionPrefix = if (cleanWord.lowercase().startsWith("d'") || cleanWord.lowercase().startsWith("d’")) {
+                                    "d'"
+                                } else if (cleanWord.lowercase().startsWith("l'") || cleanWord.lowercase().startsWith("l’")) {
+                                    "l'"
+                                } else {
+                                    ""
+                                }
+                                val finalReplacement = if (elisionPrefix.isNotEmpty() && !cleanBest.lowercase().startsWith(elisionPrefix)) {
+                                    "$elisionPrefix$cleanBest"
+                                } else {
+                                    cleanBest
+                                }
                                 val pattern = Regex("(?iu)\\b${Regex.escape(cleanWord)}\\b")
                                 if (pattern.containsMatchIn(cleaned)) {
-                                    cleaned = pattern.replace(cleaned, java.util.regex.Matcher.quoteReplacement(cleanBest))
+                                    cleaned = pattern.replace(cleaned, java.util.regex.Matcher.quoteReplacement(finalReplacement))
                                 }
                             }
                         }
                     }
+                }
+
+                val lowerLine = cleaned.lowercase()
+                val isFruitOrDessertContext = lowerLine.contains("melon") || lowerLine.contains("glace") || lowerLine.contains("mozzarella") || lowerLine.contains("pain") || lowerLine.contains("pate") || lowerLine.contains("pâte")
+                val isMusselContext = lowerLine.contains("zelande") || lowerLine.contains("zélande") || lowerLine.contains("mariniere") || lowerLine.contains("marinière") || lowerLine.contains("bouchot") || lowerLine.contains("parc") || (lowerLine.contains("douzaine") && !isFruitOrDessertContext)
+
+                if (isMusselContext && (lowerLine.contains("boule") || lowerLine.contains("boules"))) {
+                    cleaned = cleaned.replace(Regex("(?iu)\\bboules?\\b"), "moules")
                 }
             }
 

@@ -2,6 +2,7 @@
 <resources>
     <!-- Réparations orthographiques spécifiques aux lettrines et titres stylisés -->
     <string-array name="title_spelling_repairs">
+<item>sperges|Asperges</item>
 <item>Buchettes|Bûchettes</item>
 <item>Büchettes|Bûchettes</item>
 <item>Toocktail|Cocktail</item>

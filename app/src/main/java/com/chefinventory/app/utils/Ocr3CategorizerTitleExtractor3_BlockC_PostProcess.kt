@@ -26,12 +26,12 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
                 val wrong = parts[0].trim().replace("\\'", "'")
                 val correct = parts[1].trim().replace("\\'", "'")
                 val pattern = OcrRegexes.getSpellingRepairPattern(wrong)
-                result = pattern.matcher(result).replaceAll(Matcher.quoteReplacement(correct))
+                result = pattern.replace(result, Matcher.quoteReplacement(correct))
             } else {
                 LogManager.d(TAG, String.format(vocabulary.logOcr3TitleRepairRuleInvalid, repair))
             }
         }
-        return result
+        return result.trim()
     }
 
     /**

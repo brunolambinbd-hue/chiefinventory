@@ -125,6 +125,7 @@ object Ocr1Corrector {
 
         // 8. Correction de la confusion du chiffre '1' lu comme '|', '!', 'i' ou 'l' ou 'I' ou 'L' devant un mot
         text = text.replace(Regex("(^|•\\s*|[\\-*]\\s*|\\()([|!](?=[\\s\\p{L}])|[IiLl](?=\\s+\\p{L}))")) { match -> match.groupValues[1] + "1 " }
+        text = text.replace(OcrRegexes.Normalizer.OCR_ONE_BEFORE_DIGITS, "1")
 
         // 9. Garde-fou de performance Chiffres : ne déclencher FRACTION_RULES et NUMBER_CORRECTIONS que si la ligne contient au moins un chiffre
         if (text.any { it.isDigit() }) {
@@ -217,7 +218,7 @@ object Ocr1Corrector {
                     val wrong = parts[0].trim().replace("\\'", "'")
                     val correct = parts[1].trim().replace("\\'", "'")
                     val pattern = OcrRegexes.getSpellingRepairPattern(wrong)
-                    result = pattern.matcher(result).replaceAll(Matcher.quoteReplacement(correct))
+                    result = pattern.replace(result, Matcher.quoteReplacement(correct))
                 }
             }
             return result

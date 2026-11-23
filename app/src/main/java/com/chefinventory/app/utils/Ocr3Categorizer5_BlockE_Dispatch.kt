@@ -160,10 +160,12 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                 val endMarkerLine = isEndMarkerLine(lowerLine, vocabulary.ingredientEndMarkers)
 
                 val isCommonIngredient = vocabulary.commonIngredientsNoQty.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(workingLine) }
+                val lastInstLine = results.rawInstructionsList.lastOrNull()?.trimEnd() ?: ""
+                val prevInstEndsWithDash = lastInstLine.endsWith("-")
                 val endsWithDash = workingLine.trimEnd().endsWith("-")
                 val conjunctions = vocabulary.ocrSentenceConjunctions.map { " ${it.lowercase().trim()}" }
                 val endsWithConjunction = conjunctions.any { lowerLine.trimEnd().endsWith(it) }
-                val isHyphenatedInstruction = endsWithDash || endsWithConjunction
+                val isHyphenatedInstruction = endsWithDash || endsWithConjunction || prevInstEndsWithDash
 
                 val hasHardOrWeight = if (hasHardQuantity) true else hasWeight
                 val isStrictWithQty = isStrictIngredient && hasHardOrWeight

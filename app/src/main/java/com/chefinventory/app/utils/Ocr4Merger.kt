@@ -78,8 +78,9 @@ object Ocr4Merger {
             val isInvalidPepperMerge = current.lowercase().trim().endsWith("poivre") &&
                     (normalizedLine.lowercase().startsWith("de ") || normalizedLine.lowercase().startsWith("du ") || normalizedLine.lowercase().startsWith("d'")) &&
                     !isSeasoningMerge
+            val nextStartsWithPreposition = normalizedLine.lowercase().let { it.startsWith("de ") || it.startsWith("d'") || it.startsWith("du ") || it.startsWith("des ") }
             val nextIsComplement = isSeasoningMerge || mandatoryComplements.any { it.trim().equals(normalizedLine, ignoreCase = true) }
-            val allowMerge = isSeasoningMerge || (!isNextSubHeader && !isInvalidSaltMerge && !isInvalidPepperMerge && (!isNewStart && (!isNextCommonIngredient || prevIsHanging || nextIsComplement) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || nextIsComplement || prevEndsWithRangeConnector))
+            val allowMerge = isSeasoningMerge || (!isNextSubHeader && !isInvalidSaltMerge && !isInvalidPepperMerge && (!isNewStart && (!isNextCommonIngredient || prevIsHanging || nextStartsWithPreposition || nextIsComplement) || hasUnclosedParen || prevEndsWithRangeConnector) && !prevEndsWithPunctuation && (prevIsHanging || nextStartsWithConnector || prevWasHyphenated || nextIsModifier || nextIsComplement || prevEndsWithRangeConnector))
 
             if (allowMerge) {
                 if (prevWasHyphenated) {
@@ -93,15 +94,17 @@ object Ocr4Merger {
                     val endsWithLetter = charBeforeDash?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
                     val startsWithLetter = normalizedLine.firstOrNull()?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
 
-                    if (endsWithLetter && startsWithLetter) {
+                    val isStandaloneWordHyphenated = currentClean.dropLast(1).trim().split(Regex("\\s+")).lastOrNull()?.lowercase() in setOf("et", "ou")
+                    if (endsWithLetter && startsWithLetter && !isStandaloneWordHyphenated) {
                         val base = if (currentClean.endsWith("-")) currentClean.dropLast(1) else currentClean
                         current = base.trim() + normalizedLine.trim()
                     } else {
                         val base = current.trimEnd()
-                        current = if (base.endsWith(" -") || base.endsWith("- ")) {
-                            "$base ${normalizedLine.trim()}"
+                        current = if (base.endsWith(" -") || base.endsWith("- ") || hasUnclosedParen) {
+                            val cleanBase = if (base.endsWith(" -")) base else if (base.endsWith("-")) base.dropLast(1).trimEnd() + " -" else base
+                            "$cleanBase ${normalizedLine.trim()}"
                         } else if (base.endsWith("-")) {
-                            base + normalizedLine.trimStart()
+                            base.dropLast(1).trimEnd() + " " + normalizedLine.trimStart()
                         } else {
                             "$base ${normalizedLine.trim()}"
                         }
@@ -164,7 +167,16 @@ object Ocr4Merger {
             val isAbbreviationDot = vocab.culinaryMeasurementUnits.any { unit ->
                 unit.endsWith(".") && currentBlock.trimEnd().lowercase().endsWith(" ${unit.lowercase()}")
             }
-            val currentEndsWithPeriod = !endsWithParasiteArticle && !isAbbreviationDot && currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }
+
+            val transitiveActionVerbs = setOf("ajoutez", "incorporez", "versez", "mélangez", "joignez", "nappez", "saupoudrez", "décorez")
+            val isTransitiveActionVerb = trailingWord in transitiveActionVerbs
+            val nextStartsWithLowercaseOrDeterminer = normalizedLine.trim().firstOrNull()?.isLowerCase() == true || 
+                normalizedLine.trim().lowercase().split(Regex("\\s+")).firstOrNull() in articlesAndConnectors
+
+            val isTransitiveVerbParasiteDot = currentBlock.trimEnd().endsWith(".") && isTransitiveActionVerb && nextStartsWithLowercaseOrDeterminer
+            val endsWithParasiteDot = (endsWithParasiteArticle && currentBlock.trimEnd().endsWith(".")) || isTransitiveVerbParasiteDot
+
+            val currentEndsWithPeriod = !endsWithParasiteDot && !isAbbreviationDot && currentBlock.trimEnd().let { it.endsWith(".") || it.endsWith("!") || it.endsWith("?") }
             val currentEndsWithConjunction = currentBlock.trimEnd().let { cleanBlock ->
                 val lowerClean = cleanBlock.lowercase()
                 val sentenceConjunctions = vocab.ocrSentenceConjunctions
@@ -196,11 +208,14 @@ object Ocr4Merger {
 
                     val isImperativeVerbEz = baseWord.endsWith("ez") || vocab.stepActionKeywords.any { it.lowercase().endsWith(baseWord) && baseWord.length >= 3 }
                     val isPronounClitic = nextWord in setOf("les", "la", "le", "en", "y", "moi", "nous", "vous")
-                    val isStandaloneWordHyphenated = baseWord in standaloneWords
+                    val isStandaloneWordHyphenated = baseWord in standaloneWords || baseWord == "et" || baseWord == "ou"
 
                     if (isImperativeVerbEz && isPronounClitic) {
                         val base = if (blockClean.endsWith("-")) blockClean else "$blockClean-"
                         currentBlock = "${base.trim()}${normalizedLine.trim()}"
+                    } else if (currentHasUnclosedParenthesis) {
+                        val base = if (blockClean.endsWith("-")) blockClean else "$blockClean "
+                        currentBlock = "${base.trim()} ${normalizedLine.trim()}"
                     } else if (endsWithLetter && startsWithLetter && !isStandaloneWordHyphenated) {
                         val base = if (blockClean.endsWith("-")) blockClean.dropLast(1) else blockClean
                         currentBlock = base.trim() + normalizedLine.trim()
@@ -217,7 +232,7 @@ object Ocr4Merger {
                     val isAbbreviationDot = vocab.culinaryMeasurementUnits.any { unit ->
                         unit.endsWith(".") && blockClean.lowercase().endsWith(" ${unit.lowercase()}")
                     }
-                    val endsWithConjunctionDot = matchesConjDot || blockClean.endsWith(",.") || (endsWithParasiteArticle && blockClean.endsWith(".")) || isAbbreviationDot
+                    val endsWithConjunctionDot = matchesConjDot || blockClean.endsWith(",.") || (endsWithParasiteArticle && blockClean.endsWith(".")) || isTransitiveVerbParasiteDot || isAbbreviationDot
                     val base = if (endsWithConjunctionDot && !isAbbreviationDot) blockClean.dropLast(1).trimEnd() else blockClean
                     val nextText = if (endsWithConjunctionDot && normalizedLine.isNotEmpty() && normalizedLine[0].isUpperCase()) {
                         normalizedLine[0].lowercase() + normalizedLine.substring(1)

@@ -325,7 +325,7 @@ object IngredientParser {
             "cuisse", "cuisses", "aile", "ailes", "pilon", "pilons", "patte", "pattes", 
             "pavé", "pavés", "pave", "paves", "escalope", "escalopes", "côte", "côtes", 
             "côtelette", "côtelettes", "magret", "magrets", "aiguillette", "aiguillettes", 
-            "paupiette", "paupiettes", "darne", "darnes"
+            "paupiette", "paupiettes", "darne", "darnes", "noix", "boule", "boules", "bille", "billes"
         )
 
         val articlesAndDeterminers = (
@@ -352,7 +352,7 @@ object IngredientParser {
                 "blanc", "blanche", "blancs", "blanches", "vert", "verte", "verts", "vertes", 
                 "noir", "noire", "noirs", "noires", "doux", "douce", "fort", "forte", "forts", "fortes", 
                 "demi-écrémé", "écrémé", "crémé", "creme", "créme", "morts", "propres", "sauce", "sauces",
-                "dur", "durs", "dure", "dures", "jus", "jus de", "jus d'", "jus du", "zeste", "zeste de", "zeste d'", "chair", "chair de", "quartier", "quartiers"
+                "dur", "durs", "dure", "dures", "gris", "grise", "grises", "mûr", "mûre", "mûrs", "mûres", "mur", "mure", "murs", "mures", "nouvelle", "nouvelles", "nouveau", "nouveaux", "parme", "bayonne", "serrano", "iberique", "ibérique", "jus", "jus de", "jus d'", "jus du", "zeste", "zeste de", "zeste d'", "chair", "chair de", "quartier", "quartiers"
             )
         ).map { OcrLevenshteinUtils.stripAccents(it.trim().lowercase()) }.toSet()
 
@@ -368,10 +368,15 @@ object IngredientParser {
         val spans = mutableListOf<IntRange>()
         val lineAccent = OcrLevenshteinUtils.stripAccents(line.lowercase())
 
+        val unitWords = vocabulary.culinaryMeasurementUnits
+            .flatMap { it.split(Regex("\\s+")) }
+            .map { OcrLevenshteinUtils.stripAccents(it.lowercase()) }
+            .toSet()
+
         val nameStartInLine = if (name.isNotEmpty()) {
             val cleanNameWords = name.split(Regex("\\s+")).filter { 
                 val w = OcrLevenshteinUtils.stripAccents(it.lowercase())
-                w.length >= 3 && w !in ignoreModifiers && w !in vocabulary.standaloneArticles
+                w.length >= 3 && w !in ignoreModifiers && w !in vocabulary.standaloneArticles && w !in unitWords
             }
             val firstCoreWord = cleanNameWords.firstOrNull()
             if (firstCoreWord != null) {
@@ -385,7 +390,9 @@ object IngredientParser {
             val cleanItem = OcrLevenshteinUtils.stripAccents(dictItem.lowercase())
             val cleanItemNoPrefix = cleanItem.replace(Regex("(?i)^(?:DU|DE|D'|DES|LA|LE|UN|UNE)\\s+"), "").trim()
             if (cleanItemNoPrefix.length >= 4 && cleanItemNoPrefix !in ignoreModifiers) {
-                var start = lineAccent.indexOf(cleanItemNoPrefix, nameStartInLine)
+                val pattern = OcrRegexesDynamicHelpers.getSpellingRepairPattern(cleanItemNoPrefix)
+                val match = pattern.find(lineAccent, nameStartInLine)
+                var start = match?.range?.first ?: -1
                 var end = if (start >= 0) start + cleanItemNoPrefix.length else -1
 
                 if (start < 0) {
@@ -410,20 +417,53 @@ object IngredientParser {
                                 for (p in 0 until wIdx) {
                                     currentOffset += lineWords[p].length + 1
                                 }
-                                start = lineAccent.indexOf(firstWordInLine, currentOffset)
-                                if (start >= 0) {
-                                    val endWordStart = lineAccent.indexOf(lastWordInLine, start)
-                                    if (endWordStart >= start) {
-                                        end = endWordStart + lastWordInLine.length
+                                if (currentOffset >= nameStartInLine) {
+                                    start = lineAccent.indexOf(firstWordInLine, currentOffset)
+                                    if (start >= 0) {
+                                        val endWordStart = lineAccent.indexOf(lastWordInLine, start)
+                                        if (endWordStart >= start) {
+                                            end = endWordStart + lastWordInLine.length
+                                        }
                                     }
+                                    break
                                 }
-                                break
                             }
                         }
                     }
                 }
 
-                if (start >= 0 && end > start) {
+                if (start >= nameStartInLine && end > start) {
+                    if (cleanItemNoPrefix in setOf("VINAIGRE", "HUILE", "SIROP", "COULIS", "GELEE")) {
+                        val remainingAfterBase = lineAccent.substring(minOf(end, lineAccent.length))
+                        val compoundMatch = Regex("^(?:\\s+(?:de|du|d'|des)\\s+([\\p{L}]+))", RegexOption.IGNORE_CASE).find(remainingAfterBase)
+                        if (compoundMatch != null) {
+                            val complementWord = compoundMatch.groupValues[1]
+                            val isValidComplement = fullDict.any { dict ->
+                                val cleanDict = OcrLevenshteinUtils.stripAccents(dict.lowercase())
+                                cleanDict == complementWord || cleanDict.endsWith(complementWord)
+                            }
+                            if (isValidComplement) {
+                                end += compoundMatch.value.length
+                            }
+                        }
+                    } else if (cleanItemNoPrefix in setOf("PORTO", "RHUM", "VERMOUTH", "MARTINI", "VIN", "VINS", "CIDRE")) {
+                        val remainingAfterBase = lineAccent.substring(minOf(end, lineAccent.length))
+                        val colorMatch = Regex("^\\s+(?:blanc|rouge|rosé|rose|ambré|ambre|brun|vieux|ruby|tawny|sec|doux|moelleux|liquoreux)\\b", RegexOption.IGNORE_CASE).find(remainingAfterBase)
+                        if (colorMatch != null) {
+                            end += colorMatch.value.length
+                        } else {
+                            val wineAppellationsSet = vocabulary.wineAppellations.map { OcrLevenshteinUtils.stripAccents(it.lowercase()) }.toSet()
+                            val appMatch = Regex("^(?:\\s+(?:de|du|d'|des)?\\s+([\\p{L}\\-\\s]+))", RegexOption.IGNORE_CASE).find(remainingAfterBase)
+                            if (appMatch != null) {
+                                val appWord = OcrLevenshteinUtils.stripAccents(appMatch.groupValues[1].trim().lowercase())
+                                val isValidApp = wineAppellationsSet.any { app -> app == appWord || appWord.startsWith(app) || app.startsWith(appWord) }
+                                if (isValidApp) {
+                                    end += appMatch.value.length
+                                }
+                            }
+                        }
+                    }
+
                     val isOverlapping = spans.any { existing ->
                         (start in existing.first..existing.last) || (end in existing.first..existing.last) || (existing.first in start..end)
                     }

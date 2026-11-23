@@ -17,7 +17,7 @@ object OcrRegexesDynamicHelpers {
     private val adPrefixCache = mutableMapOf<String, Regex>()
     private val phonePrefixCache = mutableMapOf<String, Regex>()
     private val instructionPrefixCache = mutableMapOf<String, Regex>()
-    private val spellingRepairCache = mutableMapOf<String, Pattern>()
+    private val spellingRepairCache = mutableMapOf<String, Regex>()
     private val stemWordCache = mutableMapOf<String, Regex>()
     private val wholeWordCache = mutableMapOf<String, Regex>()
 
@@ -29,7 +29,8 @@ object OcrRegexesDynamicHelpers {
      */
     fun getUnitPattern(unit: String): Regex {
         return unitRegexCache.getOrPut(unit) {
-            Regex("^${Regex.escape(unit)}(?:\\s+|de\\s+|d['’]\\s*|\\.|\\$|(?!\\p{L}))", RegexOption.IGNORE_CASE)
+            val flexibleUnit = Regex.escape(unit).replace("\\ ", "\\s*")
+            Regex("^$flexibleUnit(?:\\s+|de\\s+|d['’]\\s*|\\.|\\$|(?!\\p{L}))", RegexOption.IGNORE_CASE)
         }
     }
 
@@ -41,7 +42,7 @@ object OcrRegexesDynamicHelpers {
      */
     fun getPhonePrefixPattern(prefix: String): Regex {
         return phonePrefixCache.getOrPut(prefix) {
-            Regex("(?i)(?<!\\p{L})${Regex.escape(prefix)}(?!\\p{L})\\s*[:\\-.]?")
+            Regex("(?<!\\p{L})${Regex.escape(prefix)}(?!\\p{L})\\s*[:\\-.]?", RegexOption.IGNORE_CASE)
         }
     }
 
@@ -53,7 +54,7 @@ object OcrRegexesDynamicHelpers {
      */
     fun getAdPrefixPattern(rawPattern: String): Regex {
         return adPrefixCache.getOrPut(rawPattern) {
-            Regex("(?i)^.*?" + rawPattern + "\\s*")
+            Regex("^.*?" + rawPattern + "\\s*", RegexOption.IGNORE_CASE)
         }
     }
 
@@ -80,14 +81,14 @@ object OcrRegexesDynamicHelpers {
     }
 
     /**
-     * Retourne le motif Pattern pré-compilé et mis en cache pour les réparations orthographiques d'Étape 1 ([Ocr1Normalizer]).
+     * Retourne le motif Regex pré-compilé et mis en cache pour les réparations orthographiques d'Étape 1 ([Ocr1Normalizer]).
      *
      * @param wrong Le terme fautif à rechercher.
-     * @return L'expression régulière Pattern compilée correspondante.
+     * @return L'expression régulière Regex compilée correspondante.
      */
-    fun getSpellingRepairPattern(wrong: String): Pattern {
+    fun getSpellingRepairPattern(wrong: String): Regex {
         return spellingRepairCache.getOrPut(wrong) {
-            Pattern.compile("(?<!\\p{L})" + Regex.escape(wrong) + "(?!\\p{L})", Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+            Regex("(?<!\\p{L})" + Regex.escape(wrong) + "(?!\\p{L})", RegexOption.IGNORE_CASE)
         }
     }
 
@@ -99,7 +100,7 @@ object OcrRegexesDynamicHelpers {
      */
     fun getStemWordPattern(stem: String): Regex {
         return stemWordCache.getOrPut(stem) {
-            Regex("(?i)(?<!\\p{L})${Regex.escape(stem)}(?:s|x)?(?!\\p{L})")
+            Regex("(?<!\\p{L})${Regex.escape(stem)}(?:s|x)?(?!\\p{L})", RegexOption.IGNORE_CASE)
         }
     }
 
@@ -111,9 +112,29 @@ object OcrRegexesDynamicHelpers {
      */
     fun getWholeWordPattern(keyword: String): Regex {
         return wholeWordCache.getOrPut(keyword) {
-            Regex("(?iu)(?<![\\p{L}\\p{N}])${Regex.escape(keyword)}(?![\\p{L}\\p{N}])")
+            Regex("(?<![\\p{L}\\p{N}])${Regex.escape(keyword)}(?![\\p{L}\\p{N}])", RegexOption.IGNORE_CASE)
         }
     }
+
+    /**
+     * Pré-compile en amont l'ensemble des motifs Regexes dynamiques issus du vocabulaire métier.
+     *
+     * @param vocab L'instance [OcrVocabulary].
+     * @return Le nombre de motifs Regexes pré-compilés.
+     */
+    fun precompile(vocab: OcrVocabulary): Int {
+        return OcrRegexesPrecompiler.precompile(vocab)
+    }
+
+    /**
+     * Indique si un motif d'unité culinaire est déjà présent dans le cache pré-compilé.
+     */
+    fun hasUnitPattern(unit: String): Boolean = unitRegexCache.containsKey(unit)
+
+    /**
+     * Indique si un motif de réparation orthographique est déjà présent dans le cache pré-compilé.
+     */
+    fun hasSpellingRepairPattern(wrong: String): Boolean = spellingRepairCache.containsKey(wrong)
 
     /**
      * Réinitialise l'ensemble des caches mutables de Regexes dynamiques (utilisé pour les tests unitaires TDD).

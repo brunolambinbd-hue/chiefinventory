@@ -66,7 +66,7 @@ class OcrRegexesDynamicHelpersTest {
         val input = "SALADE DE LANGOUSTINES AU CURRY"
 
         assertWithMessage("Le motif de réparation orthographique doit matcher le mot majuscule 'SALADE' sur la JVM")
-            .that(pattern.matcher(input).find())
+            .that(pattern.containsMatchIn(input))
             .isTrue()
     }
 

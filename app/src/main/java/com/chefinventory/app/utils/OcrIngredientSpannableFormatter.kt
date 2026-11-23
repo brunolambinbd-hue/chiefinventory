@@ -8,6 +8,7 @@ import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.view.View
 import com.chefinventory.app.ui.actvity.EditIngredientActivity
+import com.parabd.lib.traceability.utils.LogManager
 
 /**
  * Assistant de l'IHM ("Vieille École") responsable du formatage hypertexte des lignes d'ingrédients.
@@ -41,12 +42,16 @@ object OcrIngredientSpannableFormatter {
 
         val lines = fullText.split("\n")
         var currentOffset = 0
+        val createdSpanWords = mutableListOf<String>()
 
         for (line in lines) {
             if (line.isNotBlank()) {
                 val spanRanges = IngredientParser.findCoreIngredientSpans(line, vocabulary, offTaxonomyList)
                 spanRanges.forEach { spanRange ->
                     val targetWord = line.substring(spanRange.first, spanRange.last).trim()
+                    createdSpanWords.add(targetWord)
+                    android.util.Log.d("OcrSpannableFormatter", "🔗 [LIEN CLIQUABLE CRÉÉ] Sur la ligne '$line' -> Mot cliquable: '$targetWord' [${spanRange.first}..${spanRange.last}]")
+
                     val startInBuilder = currentOffset + spanRange.first
                     val endInBuilder = currentOffset + spanRange.last
 
@@ -77,6 +82,7 @@ object OcrIngredientSpannableFormatter {
             currentOffset += line.length + 1 // +1 pour le saut de ligne \n
         }
 
+        android.util.Log.d("OcrSpannableFormatter", "📌 [BILAN INGRÉDIENTS CLIQUABLES] ${createdSpanWords.size} liens créés au total : $createdSpanWords")
         return builder
     }
 

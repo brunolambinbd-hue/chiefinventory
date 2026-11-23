@@ -26,6 +26,13 @@ object Ocr4MergerSentenceSplitter {
             .map { it.lowercase().trim() }
             .distinct()
 
+        val actionVerbs = vocabulary.stepActionKeywords
+            .map { it.replace(OcrRegexes.Beautifier.BRACKET_COMMENT, "").trim().lowercase() }
+            .filter { it.length >= 3 }
+            .distinct()
+
+        val articlesAndConnectors = (vocabulary.standaloneArticles + vocabulary.hangingConnectors + vocabulary.ingredientConnectors + listOf("le", "la", "les", "du", "de", "d'", "un", "une", "des", "en", "y")).map { it.lowercase().trim() }.distinct()
+
         val rawSplits = trimmed.split(Regex("(?<=[.帖!?])\\s+"))
             .map { it.trim() }
             .filter { it.isNotEmpty() }
@@ -42,8 +49,17 @@ object Ocr4MergerSentenceSplitter {
                     val cleanAbbrev = abbrev.removeSuffix(".")
                     lastWord == abbrev || lastWord == cleanAbbrev || lastWord == "$cleanAbbrev."
                 }
-                if (endsWithAbbrev) {
-                    curr = "$curr $nextS"
+
+                val lastWordClean = lastWord.removeSuffix(".").removeSuffix(",")
+                val isTransitiveVerb = lastWordClean.endsWith("ez") || actionVerbs.any { it == lastWordClean || (it.endsWith("ez") && lastWordClean.endsWith("ez")) }
+                val nextFirstWord = nextS.split(Regex("\\s+")).firstOrNull()?.lowercase()?.trim() ?: ""
+                val nextStartsWithContinuation = (nextS.firstOrNull()?.isLowerCase() == true) || (nextFirstWord in articlesAndConnectors)
+
+                val isParasiteVerbDot = curr.endsWith(".") && isTransitiveVerb && nextStartsWithContinuation
+
+                if (endsWithAbbrev || isParasiteVerbDot) {
+                    val cleanCurr = if (isParasiteVerbDot) curr.dropLast(1).trimEnd() else curr
+                    curr = "$cleanCurr $nextS"
                     i++
                 } else {
                     break

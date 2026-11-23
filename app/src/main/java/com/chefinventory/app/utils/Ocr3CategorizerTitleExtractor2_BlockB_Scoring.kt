@@ -29,18 +29,21 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         vocabulary: OcrVocabulary,
         containsActionRegex: Regex?
     ): Boolean {
-        val trimmed = line.trim()
+        val trimmed = line.trim().trimEnd('.', '!', '?')
         val lower = trimmed.lowercase()
 
         if (trimmed.length < MIN_TITLE_LENGTH_CHARS || trimmed.length > MAX_TITLE_LENGTH_CHARS) return false
         val wordList = trimmed.split(Regex("\\s+"))
         val isSingleWord = wordList.size < MIN_TITLE_WORDS_COUNT
         val matchesTitleKeyword = vocabulary.titleKeywords.any { it.equals(trimmed, ignoreCase = true) }
-        if (isSingleWord && !matchesTitleKeyword) return false
+        val hasTitleKeyword = (vocabulary.titleKeywords + listOf("nems", "roulades", "cocktail", "carpaccio", "tartare", "gratin", "quiche", "tarte", "soupe", "mousse", "artichaut", "artichauts")).any { kw ->
+            val cleanKw = OcrLevenshteinUtils.stripAccents(kw.lowercase()).removeSuffix("s").removeSuffix("x")
+            OcrLevenshteinUtils.stripAccents(trimmed.lowercase()).contains(cleanKw)
+        }
 
-        val endsWithDot = trimmed.endsWith(".")
-        val endsWithExcl = trimmed.endsWith("!")
-        val endsWithQuestion = trimmed.endsWith("?")
+        val endsWithDot = line.trim().endsWith(".")
+        val endsWithExcl = line.trim().endsWith("!")
+        val endsWithQuestion = line.trim().endsWith("?")
         if (endsWithDot || endsWithExcl || endsWithQuestion) return false
 
         if (OcrRegexes.Titles.DISQUALIFYING_NUMBER_START.containsMatchIn(line.trim())) return false
@@ -56,10 +59,11 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         if (invalidBullets.any { trimmed.startsWith(it) }) return false
 
         val categoryHeaderKeys = vocabulary.recipeCategoryHeaders.map { it.split("|")[0].trim() }
-        val isCategoryHeader = categoryHeaderKeys.any { header ->
+        val hasTitleConnectors = listOf(" de ", " d'", " du ", " des ", " aux ", " au ", " à la ", " a la ", " avec ").any { lower.contains(it) }
+        val isCategoryHeader = !hasTitleConnectors && categoryHeaderKeys.any { header ->
             val cleanHeader = OcrLevenshteinUtils.stripAccents(header.lowercase())
             val cleanTrimmed = OcrLevenshteinUtils.stripAccents(trimmed.lowercase())
-            cleanTrimmed == cleanHeader || cleanTrimmed.startsWith("$cleanHeader ") || cleanTrimmed.startsWith("$cleanHeader:")
+            cleanTrimmed == cleanHeader || (cleanTrimmed.startsWith("$cleanHeader ") && cleanTrimmed.split(Regex("\\s+")).size <= 3) || cleanTrimmed.startsWith("$cleanHeader:")
         }
         if (isCategoryHeader) return false
 
@@ -72,14 +76,13 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
 
         val cleanIngName = trimmed.replace(OcrRegexes.Titles.DE_PREFIX_FULL, "").trim()
         val isCommonIngr = vocabulary.commonIngredientsNoQty.any { it.equals(trimmed, ignoreCase = true) || it.equals(cleanIngName, ignoreCase = true) }
-        val isEndMarkerLine = vocabulary.ingredientEndMarkers.any { marker -> lower.contains(marker.lowercase()) }
+        val isEndMarkerLine = vocabulary.ingredientEndMarkers.any { marker ->
+            val cleanM = marker.trim().lowercase()
+            lower == cleanM || lower.startsWith("$cleanM ") || lower.endsWith(" $cleanM")
+        }
         if (isCommonIngr || isEndMarkerLine) return false
 
-        val hasTitleKeyword = (vocabulary.titleKeywords + listOf("nems", "roulades", "cocktail", "carpaccio", "tartare", "gratin", "quiche", "tarte", "soupe", "mousse", "artichaut", "artichauts")).any { kw ->
-            val cleanKw = OcrLevenshteinUtils.stripAccents(kw.lowercase()).removeSuffix("s").removeSuffix("x")
-            OcrLevenshteinUtils.stripAccents(trimmed.lowercase()).contains(cleanKw)
-        }
-        val isModifierOnly = vocabulary.ingredientPreparationModifiers.any { OcrRegexes.getSpellingRepairPattern(it).matcher(trimmed).find() }
+        val isModifierOnly = vocabulary.ingredientPreparationModifiers.any { OcrRegexes.getSpellingRepairPattern(it).containsMatchIn(trimmed) }
         if (!hasTitleKeyword && isModifierOnly) return false
         if (!hasTitleKeyword && (cleanIngName.contains("sésame") || cleanIngName.contains("sesame"))) return false
 
@@ -174,7 +177,7 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
 
         // Critère 2a : Mots-clés de titre par Regex Match Exact (+30 pts par mot-clé exact)
         val matchedExactTitleKeywords = vocabulary.titleKeywords.filter { kw ->
-            OcrRegexes.getSpellingRepairPattern(kw).matcher(trimmed).find()
+            OcrRegexes.getSpellingRepairPattern(kw).containsMatchIn(trimmed)
         }
         if (matchedExactTitleKeywords.isNotEmpty()) {
             val pts = matchedExactTitleKeywords.size * SCORE_TITLE_KEYWORD_MATCH

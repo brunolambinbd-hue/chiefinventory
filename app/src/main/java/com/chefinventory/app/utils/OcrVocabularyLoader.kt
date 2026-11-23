@@ -46,6 +46,10 @@ object OcrVocabularyLoader {
         return baseVocab.copy(offTaxonomyList = offNames)
     }
 
+    fun loadFromContext(context: android.content.Context): OcrVocabulary {
+        return loadFromProjectResources()
+    }
+
     /**
      * Charge le vocabulaire métier complet depuis les fichiers XML des répertoires res-values.
      *
@@ -255,6 +259,7 @@ object OcrVocabularyLoader {
     internal fun cacheVocabularyIfNeeded(projectDir: File, vocabulary: OcrVocabulary) {
         if (projectDir.path == "." && vocabulary.titleKeywords.size > 20) {
             cachedDefaultVocabulary = vocabulary
+            OcrRegexesPrecompiler.precompile(vocabulary)
         } else {
             val format = vocabulary.logOcrVocabLoaderCustomDirNoCache
             LogManager.d(TAG, String.format(format, projectDir.path))

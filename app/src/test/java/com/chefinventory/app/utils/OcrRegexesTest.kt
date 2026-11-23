@@ -264,7 +264,7 @@ class OcrRegexesTest {
             .isSameInstanceAs(pattern2)
 
         assertWithMessage("Le motif de réparation orthographique doit matcher 'lhuile'")
-            .that(pattern1.matcher("lhuile").find())
+            .that(pattern1.containsMatchIn("lhuile"))
             .isTrue()
     }
 

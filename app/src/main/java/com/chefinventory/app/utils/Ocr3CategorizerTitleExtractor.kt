@@ -70,7 +70,7 @@ object Ocr3CategorizerTitleExtractor {
             val titleConnectors = listOf(" aux", " au", " et", " à la", " a la", " de", " d'", " du", " des", " avec", " sur ")
             val currentEndsWithTitleConnector = titleConnectors.any { workingLine.lowercase().trim().endsWith(it.trim()) }
             val workingLineHasTitleKeyword = (vocabulary.titleKeywords + listOf("bllelon", "llelon", "bûchettes", "buchettes")).any { kw ->
-                OcrRegexes.getSpellingRepairPattern(kw).matcher(workingLine).find()
+                OcrRegexes.getSpellingRepairPattern(kw).containsMatchIn(workingLine)
             }
 
             val titleWordsToKeep = setOf("soupe", "salade", "tarte", "quiche", "gratin", "mousse", "velouté", "cocktail", "nems")
@@ -153,9 +153,14 @@ object Ocr3CategorizerTitleExtractor {
             if (!isIngredientQuantityLine && !lineHasActionVerb && !isWorkingLineProtectedHeader) {
                 val cleanLine = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.postProcessTitle(Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(workingLine), vocabulary).replace(Regex("\\s+[a-zA-Z]$"), "").trim()
                 val repairedCandidate = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(cleanLine, recipeIngredientWords, vocabulary)
-                if (Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate(repairedCandidate, vocabulary, containsActionRegex)) {
-                    val (score, details) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(repairedCandidate, vocabulary, recipeIngredientWords, firstIngredientWord, lines2D, candidateLineIndex = i)
-                    candidates.add(ScoredTitleCandidate(repairedCandidate, i, 0, score, details))
+                val isTitleSpellingRepair = vocabulary.titleSpellingRepairs.any { repair ->
+                    val wrong = repair.split("|")[0].trim()
+                    wrong.isNotEmpty() && OcrRegexes.getSpellingRepairPattern(wrong).containsMatchIn(workingLine)
+                }
+                val candToTest = if (isTitleSpellingRepair) repairedCandidate.trimEnd('.', '!', '?') else repairedCandidate
+                if (Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate(candToTest, vocabulary, containsActionRegex)) {
+                    val (score, details) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(candToTest, vocabulary, recipeIngredientWords, firstIngredientWord, lines2D, candidateLineIndex = i)
+                    candidates.add(ScoredTitleCandidate(candToTest, i, 0, score, details))
                 }
             }
         }

@@ -188,7 +188,11 @@ object Ocr3CategorizerTwoColumnsIngredientFirst {
         val repairs = vocabulary.ocrSpellingRepairs
 
         val instructionLines2D = lines2D.filter { it.top >= instructionTopLimit - 30 }
-        for (instLine in instructionLines2D.sortedBy { it.top }) {
+        val mainColInstLines = instructionLines2D.filter { it.left < 1200 }.sortedBy { it.top }
+        val rightColInstLines = instructionLines2D.filter { it.left >= 1200 }.sortedBy { it.top }
+        val sorted2DLines = mainColInstLines + rightColInstLines
+
+        for (instLine in sorted2DLines) {
             val normalizedInst = Ocr1Corrector.normalize(instLine.text, repairs).trim()
             val cleanInst = OcrInstructionUtils.stripSingleLeadingAlphaOrBulletPrefix(normalizedInst)
             if (cleanInst.isNotBlank()) {
