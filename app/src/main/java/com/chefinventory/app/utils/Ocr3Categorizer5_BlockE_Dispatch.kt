@@ -162,10 +162,15 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                 val isCommonIngredient = vocabulary.commonIngredientsNoQty.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(workingLine) }
                 val lastInstLine = results.rawInstructionsList.lastOrNull()?.trimEnd() ?: ""
                 val prevInstEndsWithDash = lastInstLine.endsWith("-")
+                val hangingConnectors = vocabulary.hangingConnectors.map { it.lowercase().trim() }
+                val lastInstLower = lastInstLine.lowercase()
+                val prevInstEndsWithHangingConnector = hangingConnectors.any { conn ->
+                    lastInstLower.endsWith(" $conn") || lastInstLower == conn || (conn.endsWith("'") && lastInstLower.endsWith(conn))
+                }
                 val endsWithDash = workingLine.trimEnd().endsWith("-")
                 val conjunctions = vocabulary.ocrSentenceConjunctions.map { " ${it.lowercase().trim()}" }
                 val endsWithConjunction = conjunctions.any { lowerLine.trimEnd().endsWith(it) }
-                val isHyphenatedInstruction = endsWithDash || endsWithConjunction || prevInstEndsWithDash
+                val isHyphenatedInstruction = endsWithDash || endsWithConjunction || prevInstEndsWithDash || prevInstEndsWithHangingConnector
 
                 val hasHardOrWeight = if (hasHardQuantity) true else hasWeight
                 val isStrictWithQty = isStrictIngredient && hasHardOrWeight

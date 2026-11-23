@@ -122,6 +122,22 @@ object RecipeMetadataParser3_BlockC_Times {
             workingLine = workingLine.replace(extraParenMatch.value, "").trim()
         }
 
+        val badgeMatch = OcrRegexes.Metadata.STANDALONE_BADGE_TIME.find(workingLine.trim())
+        if (badgeMatch != null && !isInstructionSentence) {
+            val mins = badgeMatch.groupValues[1]
+            val num = mins.toIntOrNull()
+            val isMultipleOf5OrStandardTime = num != null && (num % 5 == 0 || num in setOf(12, 15, 30, 45, 60))
+            if (isMultipleOf5OrStandardTime && num in 5..180) {
+                if (results.detectedPrepTime == null) {
+                    results.detectedPrepTime = mins
+                    return ""
+                } else if (results.detectedCookTime == null && mins != results.detectedPrepTime) {
+                    results.detectedCookTime = mins
+                    return ""
+                }
+            }
+        }
+
         while (true) {
             val matchComb = OcrRegexes.Metadata.TIME_COMBINED.find(workingLine)
             val matchPre = OcrRegexes.Metadata.TIME_PREFIX.find(workingLine)

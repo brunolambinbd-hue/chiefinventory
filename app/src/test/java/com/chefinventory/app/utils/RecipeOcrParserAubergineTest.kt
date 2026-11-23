@@ -104,7 +104,7 @@ class RecipeOcrParserAubergineTest {
         // 5. Validation des Champs Sans Données (Modèle Neutre)
         assertWithMessage(OcrTestStrings.PREP_TIME_MISMATCH)
             .that(result.prepTime)
-            .isNull()
+            .isEqualTo("20")
 
         assertWithMessage(OcrTestStrings.COOK_TIME_MISMATCH)
             .that(result.cookTime)

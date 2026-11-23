@@ -51,6 +51,28 @@ object Ocr5BeautifierWine {
             }
         }
 
-        return beautifiedList
+        // Purge des doublons corrompus issus du scan d'étiquette de bouteille (ex: 'CHATLAU' vs 'Château', 'dla FOsSARDIERE' vs 'Fossardière')
+        val deduplicatedWines = mutableListOf<String>()
+        for (wine in beautifiedList) {
+            val lowerWine = OcrLevenshteinUtils.stripAccents(wine.lowercase().trim())
+            val isCorruptedDuplicate = deduplicatedWines.any { existing ->
+                val lowerExisting = OcrLevenshteinUtils.stripAccents(existing.lowercase().trim())
+                val wordsExisting = lowerExisting.split(Regex("\\s+")).filter { it.length >= 4 }
+                val wordsWine = lowerWine.split(Regex("\\s+")).filter { it.length >= 4 }
+                wordsWine.isNotEmpty() && wordsWine.all { wineWord ->
+                    wordsExisting.any { existingWord ->
+                        val dist = OcrLevenshteinUtils.distance(wineWord, existingWord)
+                        dist <= OcrLevenshteinUtils.getMaxAllowedErrors(existingWord.length) || existingWord.contains(wineWord) || wineWord.contains(existingWord)
+                    }
+                }
+            }
+            if (!isCorruptedDuplicate) {
+                deduplicatedWines.add(wine)
+            } else {
+                LogManager.d(TAG, "[5] PURGE DOUBLON ÉTIQUETTE BOUTEILLE VIN: '$wine'")
+            }
+        }
+
+        return deduplicatedWines
     }
 }

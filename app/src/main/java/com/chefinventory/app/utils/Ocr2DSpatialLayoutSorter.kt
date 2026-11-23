@@ -11,6 +11,7 @@ package com.chefinventory.app.utils
 object Ocr2DSpatialLayoutSorter {
 
     private const val DEFAULT_Y_BAND_TOLERANCE_PX = 15
+    private const val MAX_SAME_LINE_X_GAP_PX = 40
 
     /**
      * Trie une liste de lignes [OcrTextLine] d'après leurs coordonnées spatiales 2D en pixels.
@@ -47,11 +48,39 @@ object Ocr2DSpatialLayoutSorter {
             }
         }
 
-        // 4. Tri de chaque bande horizontale de Gauche à Droite (axe X / left) et assemblage final
+        // 4. Tri de chaque bande horizontale de Gauche à Droite (axe X / left), fusion des fragments adjacents et assemblage final
         val result = mutableListOf<OcrTextLine>()
         for (band in horizontalBands) {
             band.sortBy { it.left }
-            result.addAll(band)
+            var currentMerged: OcrTextLine? = null
+            for (line in band) {
+                if (currentMerged == null) {
+                    currentMerged = line
+                } else {
+                    val gapX = line.left - currentMerged.right
+                    val lineStartsWithDigit = line.text.trim().firstOrNull()?.isDigit() == true
+                    val currentIsUnitPrefix = currentMerged.text.trim().let { it == "1" || it == "2" || it.endsWith("c.") || it.endsWith("c") || it.endsWith("a") || it.endsWith("à") }
+                    val currentIsStandaloneTimeNumber = currentMerged.text.trim().let { t ->
+                        val clean = t.replace(Regex("[^\\d]"), "")
+                        clean.isNotEmpty() && clean.toIntOrNull() in 5..180 && t.length <= 4
+                    }
+                    val isContinuationFragment = (!lineStartsWithDigit || currentIsUnitPrefix) && !currentIsStandaloneTimeNumber
+
+                    if (gapX in -20..MAX_SAME_LINE_X_GAP_PX && isContinuationFragment) {
+                        currentMerged = currentMerged.copy(
+                            text = "${currentMerged.text.trim()} ${line.text.trim()}",
+                            right = maxOf(currentMerged.right, line.right),
+                            bottom = maxOf(currentMerged.bottom, line.bottom)
+                        )
+                    } else {
+                        result.add(currentMerged)
+                        currentMerged = line
+                    }
+                }
+            }
+            if (currentMerged != null) {
+                result.add(currentMerged)
+            }
         }
 
         return result

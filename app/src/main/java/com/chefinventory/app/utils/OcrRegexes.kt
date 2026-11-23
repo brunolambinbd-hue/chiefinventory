@@ -384,6 +384,9 @@ object OcrRegexes {
         /** Extrait les minutes (ex: "45 min", "30 mn"). */
         val MINUTES_PATTERN: Regex = Regex("(\\d+)\\s*(?:mn|min|minute|u)")
 
+        /** Détecte un badge/macaron de temps isolé entre parenthèses ou bordures (ex: "(20", "(15 min)", "(30)"). */
+        val STANDALONE_BADGE_TIME: Regex = Regex("(?i)^\\s*\\(?\\s*(\\d{1,3})\\s*(?:min|mn|m)?\\s*\\)?\\s*$")
+
         /** Détecte l'en-tête et la lettre du Nutri-Score (ex: "NUTRI-SCORE B", "NUTR-SCORE A", "NUTRI-SCORE"). */
         val NUTRI_SCORE: Regex = Regex("(?i)\\bnutri[-_\\s]*sc[o0]re\\b(?:\\s*:?\\s*([a-eA-E]))?|\\bNUTR[-_\\s]*SC[o0]RE\\b(?:\\s*:?\\s*([a-eA-E]))?")
 

@@ -128,8 +128,13 @@ object Ocr3Categorizer4_BlockD_Classification {
         val isInstSection = currentSection == Ocr3Categorizer.SECTION_INSTRUCTIONS
         val hasUnclosedInstructionParen = isInstSection && (lastRawInst.count { it == '(' } > lastRawInst.count { it == ')' })
         val hasInstructionHyphenContinuation = isInstSection && lastRawInst.trimEnd().endsWith("-")
+        val hangingConnectors = vocabulary.hangingConnectors.map { it.lowercase().trim() }
+        val lastInstLower = lastRawInst.trimEnd().lowercase()
+        val hasInstructionHangingConnector = isInstSection && hangingConnectors.any { conn ->
+            lastInstLower.endsWith(" $conn") || lastInstLower == conn || (conn.endsWith("'") && lastInstLower.endsWith(conn))
+        }
 
-        if (hasUnclosedInstructionParen || hasInstructionHyphenContinuation) {
+        if (hasUnclosedInstructionParen || hasInstructionHyphenContinuation || hasInstructionHangingConnector) {
             return BlockDResult(false, workingLine, Ocr3Categorizer.SECTION_INSTRUCTIONS)
         }
 

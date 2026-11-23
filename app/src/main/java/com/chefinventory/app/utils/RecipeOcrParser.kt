@@ -118,6 +118,23 @@ object RecipeOcrParser {
         val commonIngredients = vocabulary.commonIngredientsNoQty
         val repairs = vocabulary.ocrSpellingRepairs
 
+        // Pre-extraction of 2D standalone time badges (e.g. OcrTextLine("20", top=850, left=1282))
+        var earlyDetectedPrepTime: String? = null
+        if (lines2D.isNotEmpty()) {
+            val standaloneTimeLine = lines2D.firstOrNull { line2D ->
+                val text = line2D.text.trim()
+                val match = OcrRegexes.Metadata.STANDALONE_BADGE_TIME.find(text)
+                if (match != null) {
+                    val num = match.groupValues[1].toIntOrNull()
+                    num != null && num in 5..180 && (num % 5 == 0 || num in setOf(12, 15, 30, 45, 60))
+                } else false
+            }
+            if (standaloneTimeLine != null) {
+                val match = OcrRegexes.Metadata.STANDALONE_BADGE_TIME.find(standaloneTimeLine.text.trim())
+                earlyDetectedPrepTime = match?.groupValues?.getOrNull(1)
+            }
+        }
+
         // ÉTAPE 1 : Correction et Normalisation
         val normalizedLines = rawLines.map { Ocr1Corrector.normalize(it, repairs) }
         logKotlinList("[1] APRÈS NORMALISATION", normalizedLines)
@@ -134,6 +151,10 @@ object RecipeOcrParser {
 
         // ÉTAPE 3 : Catégorisation (Aiguillage intelligent vers l'un des 4 Lecteurs de Recettes via Ocr3CategorizerRouter)
         val sections = Ocr3CategorizerRouter.routeAndCategorize(linesWithoutTitle, lines2D, cleanedLines, vocabulary)
+
+        if (sections.detectedPrepTime == null && earlyDetectedPrepTime != null) {
+            sections.detectedPrepTime = earlyDetectedPrepTime
+        }
 
         if (!titleResult.title.isNullOrBlank()) {
             sections.detectedTitle = titleResult.title
