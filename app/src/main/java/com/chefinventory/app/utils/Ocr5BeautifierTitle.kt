@@ -15,10 +15,12 @@ object Ocr5BeautifierTitle {
      */
     fun beautifyTitle(title: String?, vocabulary: OcrVocabulary? = null): String? {
         if (title.isNullOrBlank()) return title
+        val trimmedTitle = title.trim().trimEnd('.', ':', '!', '?').trim()
+        if (trimmedTitle.isBlank()) return title
         val vocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
         val titleDictionary = (vocab.titleKeywords + vocab.commonIngredientsNoQty).distinct()
 
-        val words = title.trim().split(Regex("\\s+"))
+        val words = trimmedTitle.split(Regex("\\s+"))
         val correctedWords = words.map { word ->
             val cleanW = word.trim().removeSurrounding("•").removeSurrounding("-").removeSurrounding(".").removeSurrounding(",")
             val cleanWWithoutPrefix = cleanW.replace(Regex("(?i)^(?:du|de|d'|des|la|le|l'|un|une)\\s*"), "").trim()
