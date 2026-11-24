@@ -258,6 +258,57 @@ object RecipeOcrParser {
     }
 
     /**
+     * Imprime un bloc Kotlin de test TDD copier-coller prêt à être réutilisé pour la suite de 25 tests E2E.
+     */
+    fun logTddTestCodeGenerator(result: RecipeOcrResult, lines2D: List<OcrTextLine>) {
+        Log.d(TAG, "================================================================================")
+        Log.d(TAG, "=== 🧪 CODE KOTLIN DE TEST TDD GÉNÉRÉ AUTOMATIQUEMENT POUR CETTE RECETTE ===")
+        Log.d(TAG, "================================================================================")
+        Log.d(TAG, "val lines2D = listOf(")
+        lines2D.forEachIndexed { index, line2D ->
+            val comma = if (index < lines2D.lastIndex) "," else ""
+            val escapedText = line2D.text.replace("\"", "\\\"")
+            Log.d(TAG, "    OcrTextLine(\"$escapedText\", top = ${line2D.top}, left = ${line2D.left}, bottom = ${line2D.bottom}, right = ${line2D.right})$comma")
+        }
+        Log.d(TAG, ")")
+        Log.d(TAG, "")
+        Log.d(TAG, "// EXPECTED 17 RESULT FIELDS TO PASTE IN TEST:")
+        Log.d(TAG, "// title            = ${result.title?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// prepTime         = ${result.prepTime?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// cookTime         = ${result.cookTime?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// restingTime      = ${result.restingTime?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// servings         = ${result.servings?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// kcalPerServing   = ${result.kcalPerServing?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// difficulty       = ${result.difficulty?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// priceRating      = ${result.priceRating?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// nutriScore       = ${result.nutriScore?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// nutritionInfo    = ${result.nutritionInfo?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// wine             = ${result.wine?.let { "\"$it\"" } ?: "null"}")
+        Log.d(TAG, "// source           = ${result.source?.let { "\"$it\"" } ?: "null"}")
+
+        val ingList = result.ingredients?.lines()?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+        Log.d(TAG, "// expectedIngredients = listOf(")
+        ingList.forEachIndexed { index, ing ->
+            val comma = if (index < ingList.lastIndex) "," else ""
+            val escaped = ing.replace("\"", "\\\"")
+            Log.d(TAG, "//     \"$escaped\"$comma")
+        }
+        Log.d(TAG, "// )")
+
+        val instList = result.instructions?.lines()?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+        Log.d(TAG, "// expectedInstructions = listOf(")
+        instList.forEachIndexed { index, inst ->
+            val comma = if (index < instList.lastIndex) "," else ""
+            val escaped = inst.replace("\"", "\\\"")
+            Log.d(TAG, "//     \"$escaped\"$comma")
+        }
+        Log.d(TAG, "// )")
+        Log.d(TAG, "================================================================================")
+        Log.d(TAG, "=== 🧪 FIN CODE KOTLIN DE TEST TDD ===")
+        Log.d(TAG, "================================================================================")
+    }
+
+    /**
      * Imprime une liste de chaînes dans Logcat sous la forme d'un tableau Kotlin copier-coller pour les tests unitaires.
      */
     private fun logKotlinList(phaseTitle: String, lines: List<String>) {

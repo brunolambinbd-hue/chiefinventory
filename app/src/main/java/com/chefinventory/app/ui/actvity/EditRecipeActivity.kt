@@ -32,6 +32,7 @@ import com.chefinventory.app.utils.BitmapUtils
 import com.chefinventory.app.utils.ImageCaptureUtil
 import com.chefinventory.app.utils.IngredientParser
 import com.chefinventory.app.utils.OcrIngredientSpannableFormatter
+import com.chefinventory.app.utils.OcrTextLine
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.chefinventory.app.utils.RecipeOcrParser
 import com.chefinventory.app.utils.TextRecognitionHelper
@@ -250,6 +251,17 @@ class EditRecipeActivity : AppCompatActivity() {
                         emptyList()
                     }
                 }
+                val visionTextLines2D = mutableListOf<OcrTextLine>()
+                visionText.textBlocks.forEach { block ->
+                    block.lines.forEach { line ->
+                        val box = line.boundingBox
+                        val top = box?.top ?: 0
+                        val left = box?.left ?: 0
+                        val bottom = box?.bottom ?: 0
+                        val right = box?.right ?: 0
+                        visionTextLines2D.add(OcrTextLine(text = line.text, top = top, left = left, bottom = bottom, right = right))
+                    }
+                }
                 val result = RecipeOcrParser.parse(visionText, resources, offTaxonomyNames)
                 
                 // Réinitialisation explicite du titre et de la catégorie à chaque nouveau scan pour éviter toute fuite de l'ancienne recette
@@ -296,6 +308,7 @@ class EditRecipeActivity : AppCompatActivity() {
                 binding.actvPriceRating.setText(mapPriceRatingToDisplay(result.priceRating), false)
                 binding.etNutritionInfo.setText(result.nutritionInfo ?: "")
                 android.util.Log.d("OcrSpannableFormatter", "📌 [AFFICHAGE ÉCRAN EFFECTUÉ] Ingrédients injectés dans l'IHM")
+                RecipeOcrParser.logTddTestCodeGenerator(result, visionTextLines2D)
             } catch (e: Exception) {
                 Log.e("EditRecipe", "OCR failed", e)
                 val stackTrace = e.stackTraceToString()

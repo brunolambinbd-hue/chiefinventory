@@ -77,7 +77,7 @@ object OcrRegexes {
             Regex("(?i)^[|il!]c(?=[\\s.àa])") to "1 c",
             Regex("(?i)(?<=\\d)\\s*d\\s+(?=de\\b|d['’]|du\\b|des\\b)") to " dl ",
             Regex("(?i)(?<=\\d)\\s*l\\s*d['’\\s]*eau\\b") to " l d'eau",
-            Regex("(?i)(?<![\\p{L}\\d])l\\s*d['’\\s]*eau\\b") to "1 l d'eau",
+            Regex("(?i)^l\\s*d['’\\s]*eau\\b") to "1 l d'eau",
             Regex("(?i)\\b1 ajout\\b") to "l'ajout",
             Regex("(?i)^[|il!]\\s*(?=\\d)") to "1",
             Regex("(?i)(?<!\\p{L})[|il!](?=/)") to "1",
@@ -211,6 +211,8 @@ object OcrRegexes {
 
         /** Corrections linguistiques générales et liaisons d'apostrophes. */
         val LINGUISTIC_CORRECTIONS: List<Pair<Regex, String>> = listOf(
+            Regex("(?i)\\b(avenue|av\\.?|rue|boulevard|bd\\.?|bvd|chaussée|chaussee|place|allée|allee|square|impasse|quai|route)\\s+([\\p{L}\\s'-]{2,30})\\s+(\\d{1,2})[lL|iI]\\b") to "$1 $2 $31",
+            Regex("(?<=\\b0[1-9])[IilL|\\s]+(?=\\d{3})") to "/",
             Regex("(?i)(?<=\\s)e(?=\\s*$)") to "et",
             Regex("(?i)\\bd\\s+(?=[aeiouyéèêëàâôûh]\\p{L}+)") to "d'",
             Regex("(?i)([a-z])d['’]") to "$1 d'",

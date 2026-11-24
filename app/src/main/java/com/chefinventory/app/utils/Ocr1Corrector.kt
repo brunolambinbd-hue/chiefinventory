@@ -123,8 +123,8 @@ object Ocr1Corrector {
         // 7. Suppression du bruit de dates, devises et prix (ex: "14/12/94", "15.50 EUR", "20 €")
         OcrRegexes.Normalizer.NOISE_REMOVAL.forEach { (regex, replacement) -> text = text.replace(regex, replacement) }
 
-        // 8. Correction de la confusion du chiffre '1' lu comme '|', '!', 'i' ou 'l' ou 'I' ou 'L' devant un mot
-        text = text.replace(Regex("(^|•\\s*|[\\-*]\\s*|\\()([|!](?=[\\s\\p{L}])|[IiLl](?=\\s+\\p{L}))")) { match -> match.groupValues[1] + "1 " }
+        // 8. Correction de la confusion du chiffre '1' lu comme '|', '!', 'i' ou 'l' ou 'I' ou 'L' devant un mot (non précédé d'un chiffre et non suivi d'un litre)
+        text = text.replace(Regex("(?<!\\d)(^|•\\s*|[\\-*]\\s*|\\()([|!](?=[\\s\\p{L}])|[IiLl](?=\\s+(?!(?:d'|de\\b|du\\b|des\\b))\\p{L}))")) { match -> match.groupValues[1] + "1 " }
         text = text.replace(OcrRegexes.Normalizer.OCR_ONE_BEFORE_DIGITS, "1")
 
         // 9. Garde-fou de performance Chiffres : ne déclencher FRACTION_RULES et NUMBER_CORRECTIONS que si la ligne contient au moins un chiffre

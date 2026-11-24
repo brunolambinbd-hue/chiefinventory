@@ -1,7 +1,5 @@
 package com.chefinventory.app.utils
 
-import java.util.regex.Pattern
-
 /**
  * Résultat de l'analyse du Bloc B (Ingrédient inachevé, Vin, Source & Purge Mots Exclus).
  *
@@ -70,11 +68,7 @@ object Ocr3Categorizer2_BlockB_WineSource {
             }
         }
 
-        for (word in vocabulary.excludedOcrKeywords) {
-            val pattern = Regex("(?i)(?<!\\p{L})${Pattern.quote(word)}(?!\\p{L})")
-            workingLine = pattern.replace(workingLine, "").trim()
-        }
-        workingLine = workingLine.replace(Regex("\\s+"), " ").trim()
+        workingLine = Ocr3CategorizerLineCleaner.purgeExcludedKeywords(workingLine, containsAction, vocabulary)
         if (workingLine.isEmpty()) {
             return BlockBResult(true, workingLine)
         }
