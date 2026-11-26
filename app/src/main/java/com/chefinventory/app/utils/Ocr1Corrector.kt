@@ -88,6 +88,7 @@ object Ocr1Corrector {
 
         // Chargement du vocabulaire data-driven
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        text = applyCaseSensitiveSpellingRepairs(text, vocab.ocrCaseSensitiveSpellingRepairs)
 
         val ingredientsWord = vocab.ocr1CanonicalIngredientsHeader
         val instructionsWord = vocab.ocr1CanonicalInstructionsHeader
@@ -218,6 +219,27 @@ object Ocr1Corrector {
                     val wrong = parts[0].trim().replace("\\'", "'")
                     val correct = parts[1].trim().replace("\\'", "'")
                     val pattern = OcrRegexes.getSpellingRepairPattern(wrong)
+                    result = pattern.replace(result, Matcher.quoteReplacement(correct))
+                }
+            }
+            return result
+        }
+    }
+
+    /**
+     * Applique les réparations orthographiques sensibles à la casse stricte (ex: "RecouVrez" -> "Recouvrez").
+     */
+    internal fun applyCaseSensitiveSpellingRepairs(text: String, repairs: List<String>): String {
+        if (!text.any { it.isLetter() } || repairs.isEmpty()) {
+            return text
+        } else {
+            var result = text
+            for (repair in repairs) {
+                val parts = repair.split("|")
+                if (parts.size == 2) {
+                    val wrong = parts[0].trim().replace("\\'", "'")
+                    val correct = parts[1].trim().replace("\\'", "'")
+                    val pattern = Regex("(?<!\\p{L})" + java.util.regex.Pattern.quote(wrong) + "(?!\\p{L})")
                     result = pattern.replace(result, Matcher.quoteReplacement(correct))
                 }
             }

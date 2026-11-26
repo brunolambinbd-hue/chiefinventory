@@ -149,7 +149,6 @@ object Ocr4Merger {
         LogManager.d(TAG, "--- mergeInstructions START ---")
 
         val vocab = OcrVocabularyLoader.loadFromProjectResources()
-        val standaloneWords = (vocab.standaloneArticles + vocab.hangingConnectors).map { it.lowercase().trim() }.toSet()
         val articlesAndConnectors = (vocab.standaloneArticles + vocab.hangingConnectors + vocab.ingredientConnectors).map { it.lowercase().trim() }.distinct()
 
         val resultSentences = mutableListOf<String>()
@@ -204,13 +203,19 @@ object Ocr4Merger {
                     val startsWithLetter = normalizedLine.firstOrNull()?.let { Regex("\\p{L}").matches(it.toString()) } ?: false
 
                     val baseWord = blockClean.dropLast(1).trim().split(Regex("\\s+")).lastOrNull()?.lowercase() ?: ""
-                    val nextWord = normalizedLine.trim().split(Regex("\\s+")).firstOrNull()?.lowercase() ?: ""
+                    val nextWord = normalizedLine.trim().split(Regex("\\s+")).firstOrNull()?.lowercase()?.removeSuffix(".")?.removeSuffix(",") ?: ""
 
                     val isImperativeVerbEz = baseWord.endsWith("ez") || vocab.stepActionKeywords.any { it.lowercase().endsWith(baseWord) && baseWord.length >= 3 }
                     val isPronounClitic = nextWord in setOf("les", "la", "le", "en", "y", "moi", "nous", "vous")
-                    val isStandaloneWordHyphenated = baseWord in standaloneWords || baseWord == "et" || baseWord == "ou"
+
+                    val candidateHyphenatedWord = "${baseWord}-${nextWord}".lowercase().trim()
+                    val isRealCompoundWord = vocab.standaloneHyphenatedWords.any { it.trim().equals(candidateHyphenatedWord, ignoreCase = true) }
+                    val isStandaloneWordHyphenated = isRealCompoundWord || baseWord in setOf("et", "ou")
 
                     if (isImperativeVerbEz && isPronounClitic) {
+                        val base = if (blockClean.endsWith("-")) blockClean else "$blockClean-"
+                        currentBlock = "${base.trim()}${normalizedLine.trim()}"
+                    } else if (isRealCompoundWord) {
                         val base = if (blockClean.endsWith("-")) blockClean else "$blockClean-"
                         currentBlock = "${base.trim()}${normalizedLine.trim()}"
                     } else if (currentHasUnclosedParenthesis) {

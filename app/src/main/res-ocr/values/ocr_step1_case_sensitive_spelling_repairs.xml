@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Réparations orthographiques sensibles à la casse stricte (case-sensitive) pour les majuscules parasites -->
+    <string-array name="ocr_case_sensitive_spelling_repairs">
+        <item>RecouVrez|Recouvrez</item>
+        <item>Lassaisonnement|L\'assaisonnement</item>
+        <item>cresSonnette|cressonnette</item>
+        <item>multiUsages|multi usages</item>
+        <item>Creusezles|Creusez-les</item>
+        <item>Taillezles|Taillez-les</item>
+        <item>Buchettes|Bûchettes</item>
+        <item>Büchettes|Bûchettes</item>
+        <item>cerneauX|cerneaux</item>
+        <item>Faltes|Faites</item>
+        <item>ArrTOsez|Arrosez</item>
+        <item>KCAUPOR|KCAL/POR</item>
+        <item>ROYAU)ME|ROYAUME</item>
+        <item>Koulade|Roulade</item>
+        <item>Ld\'eau|l. d\'eau</item>
+        <item>poOuvrez|pouvez</item>
+        <item>Alouez|Ajoutez</item>
+        <item>poOuvez|pouvez</item>
+        <item>Dommes|Pommes</item>
+        <item>Donmes|Pommes</item>
+        <item>Metez|Mettez</item>
+        <item>Parnme|Parme</item>
+        <item>I\'eau|l\'eau</item>
+        <item>douN|doux</item>
+        <item>KCA1|KCAL</item>
+        <item>Kcal|kcal</item>
+        <item>Ala|À la</item>
+        <item>ALA|À LA</item>
+        <item>JPain|Pain</item>
+        <item>Parne|Parme</item>
+        <item>Bordeaur|Bordeaux</item>
+        <item>ÀLA|À LA</item>
+        <item>auX|aux</item>
+        <item>7I|71</item>
+    </string-array>
+</resources>

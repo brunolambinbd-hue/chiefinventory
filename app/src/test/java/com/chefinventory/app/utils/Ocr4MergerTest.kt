@@ -159,7 +159,7 @@ class Ocr4MergerTest {
         assertWithMessage("La césure 'lan-' + 'goustines.' doit être reconstruite en 'langoustines.'")
             .that(result)
             .containsExactly(
-                "Vous poOuvez préparer une soupe avec les têtes et les carcasses des langoustines."
+                "Vous pouvez préparer une soupe avec les têtes et les carcasses des langoustines."
             )
     }
 

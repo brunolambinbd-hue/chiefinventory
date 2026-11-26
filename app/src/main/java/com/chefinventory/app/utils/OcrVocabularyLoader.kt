@@ -134,6 +134,7 @@ object OcrVocabularyLoader {
             ocr3ExplicitWineHeaders = getList(stringArrays, "ocr3_explicit_wine_headers"),
             wineRemovePattern = getStringVal(strings, "wine_remove_pattern"),
             ocrSpellingRepairs = getList(stringArrays, "ocr_spelling_repairs"),
+            ocrCaseSensitiveSpellingRepairs = getList(stringArrays, "ocr_case_sensitive_spelling_repairs"),
             adExclusions = getList(stringArrays, "advertisement_exclusions"),
             recipeCategoryHeaders = getList(stringArrays, "recipe_category_headers"),
             ocrNoiseExclusions = getList(stringArrays, "ocr_noise_exclusions"),
@@ -146,6 +147,7 @@ object OcrVocabularyLoader {
             saltVarietyOrigins = getList(stringArrays, "salt_variety_origins"),
             pepperDeOriginItems = getList(stringArrays, "pepper_de_origin_items"),
             standaloneArticles = getList(stringArrays, "standalone_articles"),
+            standaloneHyphenatedWords = getList(stringArrays, "standalone_hyphenated_words"),
             culinaryMeasurementUnits = getList(stringArrays, "culinary_measurement_units"),
             titleSpellingRepairs = getList(stringArrays, "title_spelling_repairs"),
             titleMultilineConnectors = getList(stringArrays, "title_multiline_connectors"),
@@ -374,7 +376,8 @@ object OcrVocabularyLoader {
                     .replace("\\'", "'")
                     .replace("\\?", "?")
                     val parts = itemText.split("|")
-                    if (parts.size == 2 && parts[0].trim().equals(parts[1].trim(), ignoreCase = true)) {
+                    val isCaseSensitiveArray = arrayName == "ocr_case_sensitive_spelling_repairs"
+                    if (parts.size == 2 && if (isCaseSensitiveArray) parts[0].trim() == parts[1].trim() else parts[0].trim().equals(parts[1].trim(), ignoreCase = true)) {
                         continue
                     }
                     items.add(itemText)

@@ -412,4 +412,19 @@ class OcrVocabularyLoaderTest {
         // Cleanup
         tempFile.delete()
     }
+
+    @Test
+    @CoveredRequirement("6.3.2.9")
+    fun testLoadFromProjectResources_CaseSensitiveSpellingRepairs_LoadedWithoutFiltering() {
+        OcrVocabularyLoader.clearCache()
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+
+        assertWithMessage("Le dictionnaire Case-Sensitive ocr_case_sensitive_spelling_repairs doit être chargé")
+            .that(vocabulary.ocrCaseSensitiveSpellingRepairs)
+            .isNotEmpty()
+
+        assertWithMessage("La règle 'RecouVrez|Recouvrez' ne doit pas être filtrée par le parser DOM")
+            .that(vocabulary.ocrCaseSensitiveSpellingRepairs)
+            .contains("RecouVrez|Recouvrez")
+    }
 }

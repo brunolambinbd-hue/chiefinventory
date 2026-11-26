@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mots composés et expressions légitimes avec trait d'union en français et vocabulaire culinaire. -->
+    <!-- Ces mots ne doivent pas être traités comme des césures de fin de ligne à fusionner sans espace. -->
+    <!-- TRI PAR TAILLE DÉCROISSANTE DE L'ITEM (LONGEST MATCH FIRST) -->
+    <string-array name="standalone_hyphenated_words">
+        <!-- 20 caractères -->
+        <item>par-dessus-le-marché</item>
+        <item>par-dessus-le-marche</item>
+
+        <!-- 19 caractères -->
+        <item>sens-dessus-dessous</item>
+
+        <!-- 18 caractères -->
+        <item>œil-au-beurre-noir</item>
+        <item>oeil-au-beurre-noir</item>
+
+        <!-- 17 caractères -->
+        <item>l\'un-dans-l\'autre</item>
+        <item>martin-le-pêcheur</item>
+        <item>martin-le-pecheur</item>
+
+        <!-- 16 caractères -->
+        <item>bouche-à-oreille</item>
+        <item>bouche-a-oreille</item>
+        <item>bouton-du-diable</item>
+        <item>chasse-aux-oeufs</item>
+        <item>chasse-du-diable</item>
+        <item>marie-la-salope</item>
+        <item>pain-au-chocolat</item>
+        <item>pied-au-plancher</item>
+
+        <!-- 15 caractères -->
+        <item>chasse-aux-œufs</item>
+        <item>choux-frisés</item>
+        <item>coup-d\'un-soir</item>
+        <item>prêt-au-service</item>
+        <item>pret-au-service</item>
+
+        <!-- 14 caractères -->
+        <item>boute-la-joie</item>
+        <item>casse-noisette</item>
+        <item>court-bouillon</item>
+        <item>croque-madame</item>
+        <item>croque-monsieur</item>
+        <item>entre-les-deux</item>
+        <item>hors-d\'œuvre</item>
+        <item>hors-d\'oeuvre</item>
+        <item>lave-vaisselle</item>
+        <item>mille-feuilles</item>
+        <item>mille-feuille</item>
+        <item>passe-légumes</item>
+        <item>pince-l\'oreille</item>
+        <item>porte-manteau</item>
+        <item>presse-agrumes</item>
+        <item>presse-agrume</item>
+        <item>saute-la-barre</item>
+        <item>souris-d\'agneau</item>
+        <item>trouble-la-fête</item>
+        <item>trouble-la-fete</item>
+        <item>tourne-broche</item>
+
+        <!-- 13 caractères -->
+        <item>amuse-bouche</item>
+        <item>amuse-gueule</item>
+        <item>arrière-goût</item>
+        <item>bouton-d\'or</item>
+        <item>choux-fleurs</item>
+        <item>choux-raves</item>
+        <item>couvre-l\'œil</item>
+        <item>couvre-l\'oeil</item>
+        <item>demi-écrémé</item>
+        <item>demi-ecreme</item>
+        <item>garde-manger</item>
+        <item>grille-pain</item>
+        <item>jean-le-blanc</item>
+        <item>langue-de-chat</item>
+        <item>langue-du-cerf</item>
+        <item>ouvre-boîte</item>
+        <item>ouvre-boite</item>
+        <item>pain-de-mie</item>
+        <item>pâte-à-choux</item>
+        <item>pate-a-choux</item>
+        <item>pousse-café</item>
+        <item>reine-des-prés</item>
+        <item>reine-des-pres</item>
+        <item>roi-des-aulnes</item>
+        <item>savoir-faire</item>
+        <item>savoir-vivre</item>
+        <item>sur-le-champ</item>
+        <item>tire-bouchon</item>
+        <item>trait-d\'union</item>
+        <item>trompe-l\'œil</item>
+        <item>trompe-l\'oeil</item>
+        <item>trente-et-un</item>
+
+        <!-- 12 caractères -->
+        <item>arc-en-ciel</item>
+        <item>avant-goût</item>
+        <item>bain-marie</item>
+        <item>bout-d\'homme</item>
+        <item>bout-du-monde</item>
+        <item>boute-l\'œil</item>
+        <item>boute-l\'oeil</item>
+        <item>brin-d\'amour</item>
+        <item>chef-d\'œuvre</item>
+        <item>chef-d\'oeuvre</item>
+        <item>clin-d\'œil</item>
+        <item>clin-d\'oeil</item>
+        <item>coup-d\'état</item>
+        <item>coup-d\'etat</item>
+        <item>coup-d\'œil</item>
+        <item>coup-d\'oeil</item>
+        <item>dans-le-vent</item>
+        <item>fleur-du-mal</item>
+        <item>goutte-d\'eau</item>
+        <item>gueule-de-loup</item>
+        <item>gueule-du-loup</item>
+        <item>main-d\'œuvre</item>
+        <item>main-d\'oeuvre</item>
+        <item>mise-au-point</item>
+        <item>œil-de-bœuf</item>
+        <item>oeil-de-boeuf</item>
+        <item>œil-du-jour</item>
+        <item>oeil-du-jour</item>
+        <item>passe-le-mot</item>
+        <item>passe-vite</item>
+        <item>pince-linge</item>
+        <item>quart-d\'heure</item>
+        <item>rendez-vous</item>
+        <item>roi-des-rats</item>
+        <item>sens-du-poil</item>
+        <item>tour-d\'horizon</item>
+        <item>vingt-et-un</item>
+        <item>vol-au-vent</item>
+
+        <!-- 11 caractères -->
+        <item>au-dessous</item>
+        <item>au-dessus</item>
+        <item>chou-fleur</item>
+        <item>chou-frisé</item>
+        <item>chou-rave</item>
+        <item>ci-dessous</item>
+        <item>ci-dessus</item>
+        <item>demi-litre</item>
+        <item>demi-glace</item>
+        <item>demi-heure</item>
+        <item>essuie-tout</item>
+        <item>fait-tout</item>
+        <item>pas-du-roi</item>
+        <item>pied-du-roi</item>
+        <item>pot-au-feu</item>
+        <item>presse-ail</item>
+        <item>riz-au-lait</item>
+        <item>sans-gêne</item>
+
+        <!-- 10 caractères -->
+        <item>au-devant</item>
+        <item>celles-ci</item>
+        <item>celles-là</item>
+        <item>celui-ci</item>
+        <item>celui-là</item>
+        <item>coq-au-vin</item>
+        <item>demi-ecreme</item>
+        <item>demi-sel</item>
+        <item>demi-sec</item>
+        <item>par-dessus</item>
+        <item>sous-vide</item>
+        <item>trou-au-sol</item>
+        <item>une-telle</item>
+
+        <!-- 9 caractères -->
+        <item>au-delà</item>
+        <item>celle-ci</item>
+        <item>celle-là</item>
+        <item>ceux-ci</item>
+        <item>ceux-là</item>
+        <item>ci-après</item>
+        <item>pour-cent</item>
+        <item>une-deux</item>
+
+        <!-- 8 caractères -->
+        <item>des-fois</item>
+        <item>du-tout</item>
+        <item>en-tête</item>
+        <item>en-haut</item>
+        <item>en-bas</item>
+        <item>là-haut</item>
+        <item>là-bas</item>
+        <item>là-même</item>
+        <item>un-à-un</item>
+        <item>un-a-un</item>
+        <item>un-tel</item>
+
+        <!-- 7 caractères -->
+        <item>de-çà</item>
+        <item>de-ca</item>
+        <item>de-là</item>
+        <item>de-la</item>
+        <item>pas-un</item>
+    </string-array>
+</resources>
