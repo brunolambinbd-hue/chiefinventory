@@ -160,27 +160,25 @@ class Ocr2DSpatialRecipe05ArtichautsTest {
             "1 c. à soupe de persil haché"
         )
         val actualIngredients = result.ingredients?.lines()?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
-//        assertWithMessage("La liste des ingrédients doit correspondre exactement aux éléments attendus")
-//            .that(actualIngredients)
-//            .containsExactlyElementsIn(expectedIngredients)
-//            .inOrder()
+        assertWithMessage("La liste des ingrédients doit correspondre exactement aux éléments attendus")
+            .that(actualIngredients)
+            .containsExactlyElementsIn(expectedIngredients)
+            .inOrder()
 
         // 8. Liste Complète des Instructions
         val expectedInstructions = listOf(
-            "Faites cuire pendant 1 heure.",
             "Mélangez la farine avec un peu d'eau et le jus de citron.",
-            "Mettez ce mélange avec le reste d'eau dans une grande.",
-            "Pendant ce temps, préparez casserole et ajoutez-y les la vinaigrette et ajoutez-y au dernier moment les échalotes 4 artichauts.",
+            "Mettez ce mélange avec le reste d'eau dans une grande casserole et ajoutez-y les 4 artichauts.",
             "Salez et poivrez.",
+            "Faites cuire pendant 1 heure à feu doux.",
+            "Pendant ce temps, préparez la vinaigrette et ajoutez-y au dernier moment les échalotes émincées et le persil.",
             "Egouttez les artichauts.",
-            "Servez avec la vinaigrette à feu doux.",
-            "Dans laquelle vous tremperez les feuilles et le cœur.",
-            "Émincées et le persil."
+            "Servez avec la vinaigrette dans laquelle vous tremperez les feuilles et le cœur."
         )
         val actualInstructions = result.instructions?.lines()?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
-//        assertWithMessage("La liste des instructions doit correspondre exactement aux phrases attendues")
-//            .that(actualInstructions)
-//            .containsExactlyElementsIn(expectedInstructions)
-//            .inOrder()
+        assertWithMessage("La liste des instructions doit correspondre exactement aux phrases attendues")
+            .that(actualInstructions)
+            .containsExactlyElementsIn(expectedInstructions)
+            .inOrder()
     }
 }

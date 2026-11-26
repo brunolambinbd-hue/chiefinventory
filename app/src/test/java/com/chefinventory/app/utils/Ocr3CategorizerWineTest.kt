@@ -240,9 +240,9 @@ class Ocr3CategorizerWineTest {
             .that(state.detectedWineList)
             .contains("Bordeaux 2010")
 
-        assertWithMessage("L'année seule sous en-tête actif doit fermer la section vin")
+        assertWithMessage("L'année seule sous en-tête actif doit laisser la section vin ouverte pour autoriser la suite multiligne")
             .that(state.isWineSectionClosed)
-            .isTrue()
+            .isFalse()
     }
 
     @Test

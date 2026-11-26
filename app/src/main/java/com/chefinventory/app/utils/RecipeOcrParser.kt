@@ -144,13 +144,19 @@ object RecipeOcrParser {
         val cleanedLines = cleaningResult.cleanedLines
         logKotlinList("[2] APRÈS NETTOYAGE", cleanedLines)
 
+        val spatiallySortedCleanedLines = if (lines2D.isNotEmpty()) {
+            Ocr2DSpatialColumnSorter.sortColumn1Spatially(cleanedLines, lines2D)
+        } else {
+            cleanedLines
+        }
+
         // ÉTAPE 3 : Extraction du Titre et Catégorisation
-        val titleResult = Ocr3CategorizerTitleExtractor.extractTitle(cleanedLines, vocabulary, lines2D, activeOffTaxonomy)
+        val titleResult = Ocr3CategorizerTitleExtractor.extractTitle(spatiallySortedCleanedLines, vocabulary, lines2D, activeOffTaxonomy)
         val linesWithoutTitle = titleResult.cleanedLines
         Log.d(TAG, "[2.5] TITRE DÉTECTÉ: ${titleResult.title ?: "Aucun"}")
 
         // ÉTAPE 3 : Catégorisation (Aiguillage intelligent vers l'un des 4 Lecteurs de Recettes via Ocr3CategorizerRouter)
-        val sections = Ocr3CategorizerRouter.routeAndCategorize(linesWithoutTitle, lines2D, cleanedLines, vocabulary)
+        val sections = Ocr3CategorizerRouter.routeAndCategorize(linesWithoutTitle, lines2D, spatiallySortedCleanedLines, vocabulary)
 
         if (sections.detectedPrepTime == null && earlyDetectedPrepTime != null) {
             sections.detectedPrepTime = earlyDetectedPrepTime
@@ -198,7 +204,8 @@ object RecipeOcrParser {
             vocabulary.hangingConnectors,
             vocabulary.culinaryMeasurementUnits,
             vocabulary.ocrSpellingRepairs,
-            activeOffTaxonomy
+            activeOffTaxonomy,
+            sections.detectedWineList
         )
         val finalWines = Ocr5Beautifier.beautifyWines(sections.detectedWineList)
         val finalSources = Ocr5Beautifier.beautifySources(sections.detectedSourceList)

@@ -159,7 +159,7 @@ object Ocr2DSpatialLayoutSorter {
     /**
      * Trie une colonne unique de lignes [OcrTextLine] de Haut en Bas (axe Y) avec fusion des fragments horizontaux adjacents.
      */
-    private fun sortSingleColumn(
+    internal fun sortSingleColumn(
         lines: List<OcrTextLine>,
         yTolerancePx: Int = DEFAULT_Y_BAND_TOLERANCE_PX
     ): List<OcrTextLine> {

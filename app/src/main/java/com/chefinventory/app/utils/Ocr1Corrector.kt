@@ -126,6 +126,7 @@ object Ocr1Corrector {
 
         // 8. Correction de la confusion du chiffre '1' lu comme '|', '!', 'i' ou 'l' ou 'I' ou 'L' devant un mot (non précédé d'un chiffre et non suivi d'un litre)
         text = text.replace(Regex("(?<!\\d)(^|•\\s*|[\\-*]\\s*|\\()([|!](?=[\\s\\p{L}])|[IiLl](?=\\s+(?!(?:d'|de\\b|du\\b|des\\b))\\p{L}))")) { match -> match.groupValues[1] + "1 " }
+        text = text.replace(Regex("(?i)\\b(de|du|d'|avec|pour)\\s+[lLIi!|](?=\\s+\\p{L})")) { match -> "${match.groupValues[1]} 1" }
         text = text.replace(OcrRegexes.Normalizer.OCR_ONE_BEFORE_DIGITS, "1")
 
         // 9. Garde-fou de performance Chiffres : ne déclencher FRACTION_RULES et NUMBER_CORRECTIONS que si la ligne contient au moins un chiffre

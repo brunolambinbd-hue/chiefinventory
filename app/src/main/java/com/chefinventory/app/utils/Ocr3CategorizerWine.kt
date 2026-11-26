@@ -158,10 +158,9 @@ object Ocr3CategorizerWine {
                     }
                 }
                 val hasVolume = Ocr3CategorizerWineCleaner.hasWineVolume(workingLine)
-                val hasVintageYear = OcrRegexes.Wines.YEAR.containsMatchIn(workingLine)
                 val hasKnownBrand = vocabulary.knownSourceBrands.any { brand -> brand.isNotBlank() && lower.contains(brand.lowercase()) }
 
-                if (hasVolume || hasVintageYear || hasKnownBrand) {
+                if (hasVolume || hasKnownBrand) {
                     wineState.isWineSectionClosed = true
                     wineState.isWineHeaderActive = false
                     if (vocabulary.logOcr3WineSectionClosed.isNotBlank()) {

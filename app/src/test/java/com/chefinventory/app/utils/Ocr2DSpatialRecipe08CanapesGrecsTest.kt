@@ -62,9 +62,9 @@ class Ocr2DSpatialRecipe08CanapesGrecsTest {
         val result = RecipeOcrParser.parse(lines2D, vocabulary)
 
         // 1. Titre Exact
-        assertWithMessage("Le titre de la recette 08 doit valoir 'Gre canapés grecs'")
+        assertWithMessage("Le titre de la recette 08 doit valoir 'Canapés grecs'")
             .that(result.title)
-            .isEqualTo("Gre canapés grecs")
+            .isEqualTo("Canapés grecs")
 
         // 2. Méta-données de Temps
         assertWithMessage("Le temps de préparation doit valoir null")

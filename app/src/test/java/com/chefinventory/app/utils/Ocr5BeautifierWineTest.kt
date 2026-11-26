@@ -50,4 +50,38 @@ class Ocr5BeautifierWineTest {
             "Château margaux 2015"
         ).inOrder()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyWines_DeduplicationGuidedByDictionaryAppellations_ReplacesCorruptedLabelName() {
+        val input = listOf(
+            "TOLRAINE",
+            "Touraine,",
+            "Sauvignon blanc, 1995, 75 cl",
+        )
+
+        val result = Ocr5BeautifierWine.beautifyWines(input)
+
+        assertThat(result).containsExactly(
+            "Touraine",
+            "Sauvignon blanc, 1995, 75 cl",
+        ).inOrder()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyWines_FragmentMatchingRule_ReplacesAndPurgesCorruptedLabelFragments() {
+        val input = listOf(
+            "Maques",
+            "Marqués de Cáceres",
+            "Rioja blanc, M.O., 1996, 75 cl",
+        )
+
+        val result = Ocr5BeautifierWine.beautifyWines(input)
+
+        assertThat(result).containsExactly(
+            "Marqués de Cáceres",
+            "Rioja blanc, M.O., 1996, 75 cl",
+        ).inOrder()
+    }
 }

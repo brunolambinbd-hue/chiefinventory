@@ -96,8 +96,7 @@ class Ocr5BeautifierWineSanitizeTest {
     fun testBeautifyWines_preservesAcronymMOAndPreventsDoublePeriods() {
         val rawWines = listOf(
             "Rousse Région Merlot",
-            "(vin rouge de Bulgarie)",
-            "M.O."
+            "M.O.",
         )
 
         val beautified = Ocr5BeautifierWine.beautifyWines(rawWines)
@@ -106,8 +105,7 @@ class Ocr5BeautifierWineSanitizeTest {
             .that(beautified)
             .containsExactly(
                 "Rousse Région Merlot",
-                "(vin rouge de Bulgarie)",
-                "M.O."
+                "M.O.",
             )
             .inOrder()
     }

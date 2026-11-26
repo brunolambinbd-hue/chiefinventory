@@ -277,4 +277,33 @@ class Ocr5BeautifierInstructionTest {
             .that(result)
             .doesNotContain("R.")
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyInstructions_WineCrossCheckFilter_PurgesTrailingWineTextFromInstructions() {
+        val input = listOf(
+            "Disposez les bûchettes sur une assiette.",
+            "Décorez de brins d'aneth.",
+            "EAt ATINUM GRAVES."
+        )
+
+        val detectedWineList = listOf("Atinium, Bordeaux Graves M.O., 1995, 75 cl")
+
+        val result = Ocr5BeautifierInstruction.beautifyInstructions(
+            instructions = input,
+            stepActionKeywords = vocabulary.stepActionKeywords,
+            hangingConnectors = vocabulary.hangingConnectors,
+            culinaryUnits = vocabulary.culinaryMeasurementUnits,
+            spellingRepairs = vocabulary.ocrSpellingRepairs,
+            detectedWineList = detectedWineList
+        )
+
+        assertWithMessage("La ligne 'EAt ATINUM GRAVES.' correspondant au texte du vin doit être purgée des instructions")
+            .that(result)
+            .containsExactly(
+                "Disposez les bûchettes sur une assiette.",
+                "Décorez de brins d'aneth.",
+            )
+            .inOrder()
+    }
 }

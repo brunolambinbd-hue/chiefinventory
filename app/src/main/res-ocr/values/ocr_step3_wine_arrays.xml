@@ -127,6 +127,7 @@
 <item>crémant</item>
 <item>Domaine</item>
 <item>Marqués</item>
+<item>Marqués de Cáceres</item>
 <item>reserve</item>
 <item>réserve</item>
 <item>Weingut</item>
@@ -201,7 +202,6 @@
 <item>suggéré</item>
 <item>accord</item>
 <item>boire</item>
-<item>m.o.</item>
     </string-array>
 
     <!-- Pattern Regex pour supprimer les titres de section Vin (Nettoyage robuste) -->

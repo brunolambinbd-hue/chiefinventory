@@ -33,7 +33,8 @@ object Ocr5Beautifier {
         hangingConnectors: List<String> = emptyList(),
         culinaryUnits: List<String> = emptyList(),
         spellingRepairs: List<String> = emptyList(),
-        offTaxonomyList: List<String> = emptyList()
+        offTaxonomyList: List<String> = emptyList(),
+        detectedWineList: List<String> = emptyList()
     ): List<String> {
         return Ocr5BeautifierInstruction.beautifyInstructions(
             instructions,
@@ -41,7 +42,8 @@ object Ocr5Beautifier {
             hangingConnectors,
             culinaryUnits,
             spellingRepairs,
-            offTaxonomyList
+            offTaxonomyList,
+            detectedWineList
         )
     }
 

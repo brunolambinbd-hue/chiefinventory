@@ -35,7 +35,8 @@ object Ocr5BeautifierInstruction {
         hangingConnectors: List<String> = emptyList(),
         culinaryUnits: List<String> = emptyList(),
         spellingRepairs: List<String> = emptyList(),
-        offTaxonomyList: List<String> = emptyList()
+        offTaxonomyList: List<String> = emptyList(),
+        detectedWineList: List<String> = emptyList()
     ): List<String> {
         val baseInstructions = instructions.filterBeautifierNoise()
         if (baseInstructions.isEmpty()) return emptyList()
@@ -128,6 +129,42 @@ object Ocr5BeautifierInstruction {
 
             mergedInstructions.add(current)
             i++
+        }
+
+        if (detectedWineList.isNotEmpty()) {
+            val wineWords = detectedWineList.flatMap { wineLine ->
+                OcrLevenshteinUtils.stripAccents(wineLine.lowercase())
+                    .replace(Regex("[^\\p{L}\\p{N}\\s]"), " ")
+                    .split(Regex("\\s+"))
+                    .filter { it.length >= 4 }
+            }.toSet()
+
+            if (wineWords.isNotEmpty()) {
+                val filteredList = mutableListOf<String>()
+                for (inst in mergedInstructions) {
+                    val hasAction = OcrInstructionUtils.hasActionVerb(inst, stepActionKeywords)
+                    if (!hasAction) {
+                        val candidateWords = OcrLevenshteinUtils.stripAccents(inst.lowercase())
+                            .replace(Regex("[^\\p{L}\\p{N}\\s]"), " ")
+                            .split(Regex("\\s+"))
+                            .filter { it.length >= 4 }
+
+                        val isWineLeakage = candidateWords.isNotEmpty() && candidateWords.all { cWord ->
+                            wineWords.any { wWord ->
+                                val dist = OcrLevenshteinUtils.distance(cWord, wWord)
+                                dist <= OcrLevenshteinUtils.getMaxAllowedErrors(maxOf(cWord.length, wWord.length)) || cWord.contains(wWord) || wWord.contains(cWord)
+                            }
+                        }
+
+                        if (isWineLeakage) {
+                            LogManager.d(TAG, "[5] PURGE FUITE DE TEXTE DU VIN DANS INSTRUCTIONS: '$inst'")
+                            continue
+                        }
+                    }
+                    filteredList.add(inst)
+                }
+                return filteredList
+            }
         }
 
         return mergedInstructions

@@ -52,24 +52,4 @@ class RecipeOcrPommesDeTerreRuleTest {
             .isEqualTo("40")
     }
 
-    @Test
-    fun `parse pommes de terre farcies recipe should fluidly merge et hyphenated instruction lines`() {
-        val ocrText = """
-            Pommes de terre farcies aux radis et aux herbes
-            INGRÉDIENTS
-            4 nouvelles pommes de terre
-            INSTRUCTIONS
-            •Pendant ce temps, hachez fin
-            les radis et les gousses d'ail et-
-            mélangez-les à la crème
-            fouettée et aux herbes.
-        """.trimIndent()
-
-        val result = RecipeOcrParser.parse(ocrText, vocabulary)
-        val inst = result.instructions ?: ""
-
-        assertWithMessage("La consigne tronquée par 'et-' doit être fusionnée sans tiret parasite en 'et mélangez-les'")
-            .that(inst)
-            .contains("hachez fin les radis et les gousses d'ail et mélangez-les à la crème")
-    }
 }

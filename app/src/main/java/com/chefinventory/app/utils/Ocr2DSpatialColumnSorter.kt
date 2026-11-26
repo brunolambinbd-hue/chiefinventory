@@ -9,8 +9,6 @@ package com.chefinventory.app.utils
  */
 object Ocr2DSpatialColumnSorter {
 
-    private const val COL1_MAX_LEFT_PX = 450
-
     /**
      * Re-ordonne spatialement les lignes nettoyées de la Colonne 1 (Ingrédients)
      * tout en conservant l'ordre initial des autres colonnes.
@@ -25,24 +23,59 @@ object Ocr2DSpatialColumnSorter {
     ): List<String> {
         if (cleanedLines.isEmpty() || lines2D.isEmpty()) return cleanedLines
 
-        val col1Lines2D = mutableListOf<OcrTextLine>()
-        val otherLines2D = mutableListOf<OcrTextLine>()
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val cleanedLinesLower = cleanedLines.map { it.trim().lowercase() }.toSet()
 
-        for (line2D in lines2D) {
-            val text = line2D.text.trim()
-            if (text.isBlank()) continue
-
-            if (line2D.left < COL1_MAX_LEFT_PX) {
-                col1Lines2D.add(line2D)
-            } else {
-                otherLines2D.add(line2D)
+        val normalizedLines2D = lines2D.map { line2D ->
+            line2D.copy(text = Ocr1Corrector.correct(line2D.text, vocab.ocrSpellingRepairs))
+        }.filter { line2D ->
+            val cleanT = line2D.text.trim().lowercase()
+            cleanT.isNotBlank() && cleanedLinesLower.any { cl ->
+                cl == cleanT || cl.contains(cleanT) || cleanT.contains(cl)
             }
         }
 
-        if (col1Lines2D.isEmpty()) return cleanedLines
+        if (normalizedLines2D.isEmpty()) return cleanedLines
 
-        val sortedCol1Lines2D = Ocr2DSpatialLayoutSorter.sortSpatially(col1Lines2D)
-        val combinedLines2D = sortedCol1Lines2D + otherLines2D
-        return combinedLines2D.map { it.text }
+        val col1Raw = normalizedLines2D.filter { it.left < 450 }
+        val col1InstructionStartTop = col1Raw.filter { l2D ->
+            val text = l2D.text.trim()
+            val lower = text.lowercase()
+            val originalText = lines2D.find { it.left == l2D.left && it.top == l2D.top }?.text?.trim() ?: ""
+            originalText.startsWith("•") || originalText.startsWith("*") || originalText.startsWith("-") ||
+            text.startsWith("•") || text.startsWith("*") || text.startsWith("-") ||
+            Regex("^\\d{1,2}[.)\\-]").containsMatchIn(text) ||
+            OcrInstructionUtils.hasActionVerb(text, vocab.stepActionKeywords) ||
+            vocab.ocr1ProtectedInstructionsHeaders.any { lower.startsWith(it.lowercase()) }
+        }.minOfOrNull { it.top } ?: Int.MAX_VALUE
+
+        val col1Ingredients = mutableListOf<OcrTextLine>()
+        val col1Instructions = mutableListOf<OcrTextLine>()
+        val col2Lines = mutableListOf<OcrTextLine>()
+        val col3Lines = mutableListOf<OcrTextLine>()
+
+        for (line2D in normalizedLines2D) {
+            val left = line2D.left
+
+            if (left < 450) {
+                if (line2D.top >= col1InstructionStartTop) {
+                    col1Instructions.add(line2D)
+                } else {
+                    col1Ingredients.add(line2D)
+                }
+            } else if (left < 1200) {
+                col2Lines.add(line2D)
+            } else {
+                col3Lines.add(line2D)
+            }
+        }
+
+        val sortedCol1Ingredients = Ocr2DSpatialLayoutSorter.sortSingleColumn(col1Ingredients)
+        val sortedCol1Instructions = Ocr2DSpatialLayoutSorter.sortSingleColumn(col1Instructions)
+        val sortedCol2 = Ocr2DSpatialLayoutSorter.sortSingleColumn(col2Lines)
+        val sortedCol3 = Ocr2DSpatialLayoutSorter.sortSingleColumn(col3Lines)
+
+        val combined2D = sortedCol1Ingredients + sortedCol1Instructions + sortedCol2 + sortedCol3
+        return combined2D.map { it.text }
     }
 }
