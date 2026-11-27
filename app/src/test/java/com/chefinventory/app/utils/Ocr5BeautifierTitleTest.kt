@@ -29,4 +29,24 @@ class Ocr5BeautifierTitleTest {
             .that(Ocr5BeautifierTitle.beautifyTitle(title3))
             .isEqualTo("Canapés grecs au parmesan")
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyTitle_NullEmptyAndPunctuationOnly_ReturnsOriginal() {
+        assertWithMessage("Un titre null doit retourner null")
+            .that(Ocr5BeautifierTitle.beautifyTitle(null))
+            .isNull()
+
+        assertWithMessage("Un titre vide doit retourner la chaîne vide")
+            .that(Ocr5BeautifierTitle.beautifyTitle(""))
+            .isEmpty()
+
+        assertWithMessage("Un titre d'espaces doit retourner les espaces")
+            .that(Ocr5BeautifierTitle.beautifyTitle("   "))
+            .isEqualTo("   ")
+
+        assertWithMessage("Un titre de ponctuation seule doit retourner la ponctuation")
+            .that(Ocr5BeautifierTitle.beautifyTitle(":"))
+            .isEqualTo(":")
+    }
 }

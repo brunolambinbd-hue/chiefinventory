@@ -1,7 +1,6 @@
 package com.chefinventory.app.utils
 
 import java.text.Normalizer
-import kotlin.math.min
 
 /**
  * Composant utilitaire léger en Kotlin pur (0 dépendance externe) calculant la distance d'édition
@@ -122,7 +121,8 @@ object OcrLevenshteinUtils {
         dictionary: List<String>,
         minSimilarityThreshold: Double = 0.75
     ): String? {
-        if (query.isBlank() || dictionary.isEmpty()) return null
+        if (query.isBlank()) return null
+        if (dictionary.isEmpty()) return null
 
         val cleanQuery = stripAccents(query)
         val qLen = cleanQuery.length

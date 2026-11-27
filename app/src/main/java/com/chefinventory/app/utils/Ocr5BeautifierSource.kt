@@ -28,9 +28,11 @@ object Ocr5BeautifierSource {
         val beautifiedList = mutableListOf<String>()
 
         for (source in sources) {
-            val isUppercaseBrandWord = source.trim().length in 2..4 && source.trim().all { it.isUpperCase() || it.isDigit() }
-            val isKnownSourceBrand = isUppercaseBrandWord || vocab.knownSourceBrands.any { brand -> brand.isNotBlank() && source.contains(brand, ignoreCase = true) } ||
-                    vocab.sourceKeywords.any { kw -> kw.isNotBlank() && source.contains(kw, ignoreCase = true) }
+            val trimmedSource = source.trim()
+            val isUppercaseBrandWord = trimmedSource.length in 2..4 && trimmedSource.all { it.isUpperCase() || it.isDigit() }
+            val matchesKnownBrand = vocab.knownSourceBrands.any { brand -> brand.isNotBlank() && source.contains(brand, ignoreCase = true) }
+            val matchesSourceKeyword = vocab.sourceKeywords.any { kw -> kw.isNotBlank() && source.contains(kw, ignoreCase = true) }
+            val isKnownSourceBrand = isUppercaseBrandWord || matchesKnownBrand || matchesSourceKeyword
 
             var cleaned = Ocr5Beautifier.sanitizeLine(
                 line = source,
@@ -42,7 +44,9 @@ object Ocr5BeautifierSource {
 
             // Nettoyage des ponctuations orphelines en fin de ligne
             cleaned = cleaned.replace(OcrRegexes.Normalizer.TRAILING_PUNCTUATION, "").trim()
-            if (cleaned.isBlank()) continue
+            if (cleaned.isBlank()) {
+                continue
+            }
 
             // Purge des lettres alpha isolées en début et fin de source ("A Maxi GB" -> "Maxi GB", "Maxi GB O" -> "Maxi GB")
             cleaned = Ocr5BeautifierSourceNoiseHelper.cleanIsolatedAlphaNoiseFromSource(cleaned)

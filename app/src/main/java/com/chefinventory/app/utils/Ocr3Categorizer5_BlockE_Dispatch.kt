@@ -47,9 +47,15 @@ object Ocr3Categorizer5_BlockE_Dispatch {
     ): Boolean {
         if (isReappearance) return false
         if (isHyphenatedInstruction) return false
-        if (isEndMarkerLine && !containsAction) return true
+        if (isEndMarkerLine) {
+            if (!containsAction) {
+                return true
+            }
+        }
         if (closedState) {
-            return isStrictWithQty || isCommonWithNoAction
+            if (isStrictWithQty) return true
+            if (isCommonWithNoAction) return true
+            return false
         }
         return isStrictWithQty
     }

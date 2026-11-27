@@ -47,6 +47,14 @@ class Ocr3CategorizerLineCleanerTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testObjectGeneratedMethodsCoverage() {
+        assertWithMessage("Le composant Ocr3CategorizerLineCleaner doit générer une représentation textuelle valide")
+            .that(Ocr3CategorizerLineCleaner.toString())
+            .contains("Ocr3CategorizerLineCleaner")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testPurgeExcludedKeywords_InstructionSentenceWithActionVerbAndIngredientsWord_ProtectsWord() {
         val rawInstruction = "Mélangez tous ces ingrédients dans un saladier"
         val cleaned = Ocr3CategorizerLineCleaner.purgeExcludedKeywords(rawInstruction, containsAction = true, vocabulary = vocabulary)
@@ -54,5 +62,17 @@ class Ocr3CategorizerLineCleanerTest {
         assertWithMessage("Le mot 'ingrédients' précédé d'un verbe d'action ne doit pas être supprimé")
             .that(cleaned)
             .isEqualTo("Mélangez tous ces ingrédients dans un saladier")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testPurgeExcludedKeywords_WithEmptyAndBlankKeywordsInVocabulary_IgnoresEmpty() {
+        val customVocab = vocabulary.copy(excludedOcrKeywords = vocabulary.excludedOcrKeywords + listOf("", "   "))
+        val rawLine = "200 g de farine"
+        val cleaned = Ocr3CategorizerLineCleaner.purgeExcludedKeywords(rawLine, containsAction = false, vocabulary = customVocab)
+
+        assertWithMessage("Les mots exclus vides ou blancs doivent être ignorés sans erreur")
+            .that(cleaned)
+            .isEqualTo("200 g de farine")
     }
 }

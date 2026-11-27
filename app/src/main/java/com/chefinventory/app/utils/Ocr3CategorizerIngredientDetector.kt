@@ -34,11 +34,15 @@ object Ocr3CategorizerIngredientDetector {
         
         return pattern.findAll(line).count { match ->
             if (OcrTextUtils.isInsideParentheses(line, match.range.first)) return@count false
-            
+
             val textAfter = line.substring(match.range.last + 1).trimStart()
-            val nextWord = textAfter.split(Regex("[\\s,.;]")).firstOrNull()?.lowercase()
-            
-            nextWord != null && nextWord !in excludedNextWords && nextWord.any { it.isLetter() }
+            if (textAfter.isEmpty()) return@count false
+
+            val nextWord = textAfter.split(Regex("[\\s,.;]")).firstOrNull()?.lowercase() ?: ""
+            if (nextWord.isEmpty()) return@count false
+            if (nextWord in excludedNextWords) return@count false
+            if (!nextWord.any { it.isLetter() }) return@count false
+            return@count true
         }
     }
 

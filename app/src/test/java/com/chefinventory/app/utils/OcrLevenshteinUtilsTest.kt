@@ -70,5 +70,44 @@ class OcrLevenshteinUtilsTest {
         // Mots longs (<= 9 lettres) -> 2 erreurs max ("parmnesan" -> "parmesan")
         assertThat(OcrLevenshteinUtils.getMaxAllowedErrors(8)).isEqualTo(2)
         assertThat(OcrLevenshteinUtils.isFuzzyMatch("parmnesan", "parmesan")).isTrue()
+
+        // Mots très longs (> 9 lettres) -> 3 erreurs max
+        assertThat(OcrLevenshteinUtils.getMaxAllowedErrors(12)).isEqualTo(3)
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testSimilarity_WithIgnoreAccentsFalse_AndEmptyStrings() {
+        assertWithMessage("OcrLevenshteinUtils doit générer une représentation textuelle valide")
+            .that(OcrLevenshteinUtils.toString())
+            .contains("OcrLevenshteinUtils")
+
+        val simWithAccents = OcrLevenshteinUtils.similarity("épinard", "epinard", ignoreAccents = false)
+        assertWithMessage("Sans retrait d'accents, 'épinard' et 'epinard' ne sont pas identiques")
+            .that(simWithAccents)
+            .isLessThan(1.0)
+
+        val simEmpty = OcrLevenshteinUtils.similarity("", "")
+        assertWithMessage("Deux chaînes vides doivent avoir une similarité de 1.0")
+            .that(simEmpty)
+            .isEqualTo(1.0)
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFindBestMatch_EdgeCasesAndExactMatch() {
+        val dictionary = listOf("Tomates")
+
+        // 1. Query blank
+        assertThat(OcrLevenshteinUtils.findBestMatch("", dictionary)).isNull()
+
+        // 2. Dictionary empty
+        assertThat(OcrLevenshteinUtils.findBestMatch("Tomates", emptyList())).isNull()
+
+        // 3. Query with non-letters only -> cleanQuery.length == 0
+        assertThat(OcrLevenshteinUtils.findBestMatch("!!!", dictionary)).isNull()
+
+        // 4. Exact match
+        assertThat(OcrLevenshteinUtils.findBestMatch("Tomates", dictionary)).isEqualTo("Tomates")
     }
 }

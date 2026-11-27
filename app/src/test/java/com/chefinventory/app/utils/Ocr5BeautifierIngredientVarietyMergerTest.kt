@@ -134,4 +134,20 @@ class Ocr5BeautifierIngredientVarietyMergerTest {
             .that(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("farine", qualifiers))
             .isFalse()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFallbackToProjectResourcesWhenListsAreEmpty() {
+        assertWithMessage("Ocr5BeautifierIngredientVarietyMerger doit générer une représentation textuelle valide")
+            .that(Ocr5BeautifierIngredientVarietyMerger.toString())
+            .contains("Ocr5BeautifierIngredientVarietyMerger")
+
+        assertWithMessage("Le repli sur les ressources du projet pour la base d'ingrédients en liste vide doit reconnaître 'haricots'")
+            .that(Ocr5BeautifierIngredientVarietyMerger.isBaseExpectingVariety("haricots", emptyList()))
+            .isTrue()
+
+        assertWithMessage("Le repli sur les ressources du projet pour les qualificatifs en liste vide doit reconnaître 'princesses'")
+            .that(Ocr5BeautifierIngredientVarietyMerger.isVarietyQualifier("princesses", emptyList()))
+            .isTrue()
+    }
 }

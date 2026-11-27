@@ -71,11 +71,9 @@ object Ocr3CategorizerTitleExtractor1_BlockA_MixedLines {
 
                 val isMultiLineCandidate = endingConn || nextConn
                 var skipCount = 0
-                if (isMultiLineCandidate) {
-                    if (hasNextLine) {
-                        potentialTitle = "$potentialTitle ${lines[lineIndex + 1].trim()}"
-                        skipCount = 1
-                    }
+                if (isMultiLineCandidate && hasNextLine) {
+                    potentialTitle = "$potentialTitle ${lines[lineIndex + 1].trim()}"
+                    skipCount = 1
                 }
 
                 potentialTitle = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(potentialTitle, recipeIngredientWords, vocabulary)

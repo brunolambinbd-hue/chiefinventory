@@ -132,6 +132,31 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
                 isStepNumber = false, containsAction = false, workingLineLength = 10, startsWithBullet = false
             ))
             .isFalse()
+
+        // 7. narrative compound instruction -> true
+        assertWithMessage("Un fragment narratif composé doit valider le signal d'instruction")
+            .that(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
+                hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = false,
+                isStepNumber = false, containsAction = false, workingLineLength = 10, startsWithBullet = false,
+                workingLine = "de jus d'orange et une pincée de sel."
+            ))
+            .isTrue()
+
+        // 8. containsAction = true, length <= 25, startsWithBullet = true -> true
+        assertWithMessage("Un verbe d'action court précédé d'une puce doit valider le signal d'instruction")
+            .that(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
+                hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = false,
+                isStepNumber = false, containsAction = true, workingLineLength = 10, startsWithBullet = true
+            ))
+            .isTrue()
+
+        // 9. containsAction = true, length <= 25, startsWithBullet = false -> false
+        assertWithMessage("Un verbe d'action court sans puce ne doit pas valider le signal d'instruction")
+            .that(Ocr3Categorizer4_BlockD_Classification.isInstructionSignal(
+                hasUnclosedParenthesis = false, hasInstructionTrigger = false, isReappearance = false,
+                isStepNumber = false, containsAction = true, workingLineLength = 10, startsWithBullet = false
+            ))
+            .isFalse()
     }
 
     @Test

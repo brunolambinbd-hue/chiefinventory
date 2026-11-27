@@ -50,4 +50,21 @@ class Ocr5BeautifierSourceTest {
             "02/542.42.42"
         ).inOrder()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifySources_AllBrandAndKeywordBranches() {
+        val input = listOf(
+            ": . - ,",
+            "Maison Delhaize Bruxelles",
+            "Hôtel Marriott Bruxelles"
+        )
+
+        val result = Ocr5BeautifierSource.beautifySources(input)
+
+        assertThat(result).containsExactly(
+            "Maison Delhaize Bruxelles",
+            "Hôtel Marriott Bruxelles"
+        ).inOrder()
+    }
 }

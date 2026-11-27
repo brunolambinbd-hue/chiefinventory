@@ -181,5 +181,25 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
         assertWithMessage("Le titre fusionné doit contenir 'Salade de tomates au basilic'")
             .that(candidates.last().candidateText)
             .contains("Salade de tomates au basilic")
+
+        // 7. Line with sel et poivre, potential title without ending connector, and next line is NOT a connector
+        val linesNoConn = listOf("1. Ajouter du sel et poivre Salade de tomates", "200 g de farine")
+        val res7 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
+            workingLine = linesNoConn[0],
+            lineIndex = 0,
+            lines = linesNoConn,
+            vocabulary = vocabulary,
+            recipeIngredientWords = setOf("salade", "tomates"),
+            containsActionRegex = null,
+            firstIngredientWord = "tomates",
+            candidates = candidates
+        )
+        assertWithMessage("Un titre sans connecteur suivi d'un ingrédient '200 g de farine' doit être extrait seul sans fusion")
+            .that(res7)
+            .isTrue()
+
+        assertWithMessage("Le titre extrait doit valoir 'Salade de tomates'")
+            .that(candidates.last().candidateText)
+            .isEqualTo("Salade de tomates")
     }
 }

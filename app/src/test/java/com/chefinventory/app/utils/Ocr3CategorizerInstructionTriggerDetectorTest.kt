@@ -57,5 +57,9 @@ class Ocr3CategorizerInstructionTriggerDetectorTest {
         assertWithMessage("Une liste de déclencheurs vide doit retourner faux")
             .that(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("Préparation", emptyList()))
             .isFalse()
+
+        assertWithMessage("Une liste contenant uniquement des déclencheurs vides doit retourner faux")
+            .that(Ocr3CategorizerInstructionTriggerDetector.hasInstructionTrigger("Préparation", listOf("", "   ")))
+            .isFalse()
     }
 }

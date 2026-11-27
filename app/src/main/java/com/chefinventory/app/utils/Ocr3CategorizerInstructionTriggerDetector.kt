@@ -16,8 +16,17 @@ object Ocr3CategorizerInstructionTriggerDetector {
      * @return `true` si la ligne contient un déclencheur d'instruction, `false` sinon.
      */
     fun hasInstructionTrigger(line: String, instructionTriggers: List<String>): Boolean {
-        if (line.isBlank() || instructionTriggers.isEmpty()) return false
-        val sortedTriggers = instructionTriggers.map { it.trim() }.filter { it.isNotEmpty() }.distinct().sortedByDescending { it.length }
+        if (line.isBlank()) return false
+        if (instructionTriggers.isEmpty()) return false
+
+        val sortedTriggers = instructionTriggers
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+            .sortedByDescending { it.length }
+
+        if (sortedTriggers.isEmpty()) return false
+
         return sortedTriggers.any { Regex("(?iu)(?<!\\p{L})${Regex.escape(it)}(?!\\p{L})").containsMatchIn(line) }
     }
 }

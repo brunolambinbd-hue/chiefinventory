@@ -14,7 +14,8 @@ object Ocr5BeautifierTitle {
      * @return Le titre harmonisé et corrigé (ex: "Haricots princesses au parmesan").
      */
     fun beautifyTitle(title: String?, vocabulary: OcrVocabulary? = null): String? {
-        if (title.isNullOrBlank()) return title
+        if (title == null) return null
+        if (title.isBlank()) return title
         val trimmedTitle = title.trim().trimEnd('.', ':', '!', '?').trim()
         if (trimmedTitle.isBlank()) return title
         val vocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
@@ -40,7 +41,9 @@ object Ocr5BeautifierTitle {
                         } else {
                             word
                         }
-                    } else word
+                    } else {
+                        word
+                    }
                 } else word
             }
         }

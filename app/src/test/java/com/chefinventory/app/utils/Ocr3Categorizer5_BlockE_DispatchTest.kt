@@ -88,6 +88,22 @@ class Ocr3Categorizer5_BlockE_DispatchTest {
                 containsAction = false, closedState = false, isStrictWithQty = true, isCommonWithNoAction = false
             ))
             .isTrue()
+
+        // 6. isEndMarkerLine = true with containsAction = true -> false
+        assertWithMessage("Un marqueur de fin contenant une action ne doit pas provoquer de recul")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
+                isReappearance = false, isHyphenatedInstruction = false, isEndMarkerLine = true,
+                containsAction = true, closedState = false, isStrictWithQty = false, isCommonWithNoAction = false
+            ))
+            .isFalse()
+
+        // 7. closedState = true with isStrictWithQty = false and isCommonWithNoAction = false -> false
+        assertWithMessage("Une ligne ordinaire dans une liste fermée sans quantité ni ingrédient connu ne doit pas provoquer de recul")
+            .that(Ocr3Categorizer5_BlockE_Dispatch.evaluateShouldPullBack(
+                isReappearance = false, isHyphenatedInstruction = false, isEndMarkerLine = false,
+                containsAction = false, closedState = true, isStrictWithQty = false, isCommonWithNoAction = false
+            ))
+            .isFalse()
     }
 
     @Test

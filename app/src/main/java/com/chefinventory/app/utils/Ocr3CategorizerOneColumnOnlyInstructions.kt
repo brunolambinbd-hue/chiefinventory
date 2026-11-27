@@ -132,8 +132,6 @@ object Ocr3CategorizerOneColumnOnlyInstructions {
             var workingLine = line.trim()
             if (workingLine.isBlank()) continue
 
-            if (wineState.isWineSectionClosed) continue
-
             // 1. Extraction des méta-données (Portions, Temps, Kcal)
             val metaResult = RecipeMetadataParser.extractMetadata(workingLine, results, vocabulary)
             workingLine = metaResult.remainingLine.trim()
@@ -150,6 +148,12 @@ object Ocr3CategorizerOneColumnOnlyInstructions {
                 if (cleanedSource.isNotBlank() && cleanedSource !in results.detectedSourceList) {
                     results.detectedSourceList.add(cleanedSource)
                 }
+                continue
+            }
+
+            // 4. Ignorer le bruit de bas de page/étiquette de bouteille après fermeture de la section vin s'il n'y a pas de verbe d'action
+            if (wineState.isWineSectionClosed && !OcrInstructionUtils.hasActionVerb(workingLine, vocabulary.stepActionKeywords)) {
+                LogManager.d(TAG, "  [NARRATIVE] Ligne de bruit rejetée après fermeture vin ➔ '$workingLine'")
                 continue
             }
 

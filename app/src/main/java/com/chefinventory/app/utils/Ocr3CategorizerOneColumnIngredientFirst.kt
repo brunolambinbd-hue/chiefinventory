@@ -41,8 +41,9 @@ object Ocr3CategorizerOneColumnIngredientFirst {
     fun categorize(lines: List<String>, vocabulary: OcrVocabulary): RawSections {
         val isNarrative = Ocr3CategorizerOneColumnOnlyInstructions.isNarrativeInstructionOnlyRecipe(lines, vocabulary)
         if (isNarrative) {
-            if (vocabulary.logOcr3CategorizerNarrativeDelegation.isNotBlank()) {
-                Log.d(TAG, vocabulary.logOcr3CategorizerNarrativeDelegation)
+            val logNarrative = vocabulary.logOcr3CategorizerNarrativeDelegation
+            if (logNarrative.isNotBlank()) {
+                Log.d(TAG, logNarrative)
             }
             return Ocr3CategorizerOneColumnOnlyInstructions.categorizeNarrativeRecipe(lines, vocabulary)
         }
@@ -61,8 +62,9 @@ object Ocr3CategorizerOneColumnIngredientFirst {
         val wineState = Ocr3CategorizerWine.WineState()
         val seenIngredientKeywords = mutableSetOf<String>()
 
-        if (vocabulary.logOcr3CategorizerStart.isNotBlank()) {
-            Log.d(TAG, vocabulary.logOcr3CategorizerStart)
+        val logStart = vocabulary.logOcr3CategorizerStart
+        if (logStart.isNotBlank()) {
+            Log.d(TAG, logStart)
         }
 
         // === DEBUT BLOC 0 : Dictionnaires & Compilations Regex ===
@@ -134,7 +136,11 @@ object Ocr3CategorizerOneColumnIngredientFirst {
             // === FIN BLOC D ===
 
             // === DEBUT BLOC E : Aiguillage de section (Ingrédients, Instructions, Rattrapage) ===
-            val nextLine = if (i + 1 < lines.size) lines[i + 1] else ""
+            val nextLine = if (i + 1 < lines.size) {
+                lines[i + 1]
+            } else {
+                ""
+            }
             isIngredientListClosed = Ocr3Categorizer5_BlockE_Dispatch.processBlockE_SectionDispatch(
                 workingLine, lowerLine, currentSection, isIngredientListClosed, containsAction,
                 startsWithBullet, startsWithConnector, hasWeight, hasHardQuantity,

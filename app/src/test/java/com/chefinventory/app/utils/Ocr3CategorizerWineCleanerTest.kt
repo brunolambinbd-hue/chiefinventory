@@ -83,4 +83,20 @@ class Ocr3CategorizerWineCleanerTest {
             .that(corrected)
             .contains("Bordeaux")
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testCleanWineLine_WithInvalidRegexRemovePattern_CatchesExceptionSmoothly() {
+        val invalidRegexRes = Ocr3CategorizerWine.WineResources(
+            appellations = vocabulary.wineAppellations,
+            producers = vocabulary.wineProducers,
+            keywords = vocabulary.wineKeywords,
+            titleKeywords = vocabulary.wineTitleKeywords,
+            removePattern = "[invalid(regex"
+        )
+        val cleaned = Ocr3CategorizerWineCleaner.cleanWineLine("Un Bordeaux 1996", invalidRegexRes)
+        assertWithMessage("Un motif Regex invalide dans removePattern doit déclencher le bloc catch sans faire planter l'application")
+            .that(cleaned)
+            .isEqualTo("Un Bordeaux 1996")
+    }
 }

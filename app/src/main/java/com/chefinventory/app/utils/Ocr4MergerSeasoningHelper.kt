@@ -19,7 +19,8 @@ object Ocr4MergerSeasoningHelper {
         seasoningKeyword: String,
         origins: List<String>
     ): Boolean {
-        if (line.isBlank() || origins.isEmpty()) return false
+        if (line.isBlank()) return false
+        if (origins.isEmpty()) return false
         val nfcLine = java.text.Normalizer.normalize(line.trim().lowercase(), java.text.Normalizer.Form.NFC)
         val keywordPattern = Regex.escape(seasoningKeyword.trim().lowercase())
 

@@ -75,7 +75,9 @@ object Ocr3SpatialColumnClusteredGrouper {
             val text = line.text.trim()
             val parsed = IngredientParser.parse(text, vocabulary.culinaryMeasurementUnits)
             val hasBullet = text.startsWith("•") || text.startsWith("-") || text.startsWith("*") || text.startsWith(".")
-            val isIngr = parsed.quantity != null || parsed.unit != null || hasBullet
+            val hasQty = parsed.quantity != null
+            val hasUnit = parsed.unit != null
+            val isIngr = hasQty || hasUnit || hasBullet
 
             if (isIngr) {
                 ingredientCount++
@@ -83,7 +85,9 @@ object Ocr3SpatialColumnClusteredGrouper {
 
             val hasAction = OcrInstructionUtils.hasActionVerb(text, vocabulary.stepActionKeywords)
             val hasStartVerb = OcrInstructionUtils.hasStartVerb(text, vocabulary.stepStartVerbs)
-            if (hasAction || hasStartVerb) {
+            if (hasAction) {
+                instructionCount++
+            } else if (hasStartVerb) {
                 instructionCount++
             }
         }
@@ -119,7 +123,11 @@ object Ocr3SpatialColumnClusteredGrouper {
 
         val minLeft = ingredientCandidates2D.minOf { it.left }
         val rightColCandidate = ingredientCandidates2D.filter { it.left > minLeft + 200 }.minByOrNull { it.left }
-        val splitX = if (rightColCandidate != null) (minLeft + rightColCandidate.left) / 2 else (minLeft + 350)
+        val splitX = if (rightColCandidate != null) {
+            (minLeft + rightColCandidate.left) / 2
+        } else {
+            minLeft + 350
+        }
 
         val columnLeft = ingredientCandidates2D.filter { it.left < splitX }.sortedBy { it.top }
         val columnRight = ingredientCandidates2D.filter { it.left >= splitX }.sortedBy { it.top }

@@ -250,4 +250,38 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             .that(merged3)
             .isFalse()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBlankParsedNameAfterMergeAndLoggingCoverage() {
+        val customVocab = vocabulary.copy(
+            logOcr3UnfinishedIngrStillEmpty = "Nom encore vide: %s",
+            logOcr3UnfinishedIngrFused = "Fusion inachevée: %s -> %s"
+        )
+
+        assertWithMessage("Ocr3CategorizerUnfinishedIngredient doit générer une représentation textuelle valide")
+            .that(Ocr3CategorizerUnfinishedIngredient.toString())
+            .contains("Ocr3CategorizerUnfinishedIngredient")
+
+        val rawList = mutableListOf("1 cuillère")
+        val keywords = mutableSetOf<String>()
+
+        val merged = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
+            workingLine = "à soupe",
+            currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
+            containsAction = false,
+            startsWithBullet = false,
+            vocabulary = customVocab,
+            rawIngredientsList = rawList,
+            seenIngredientKeywords = keywords
+        )
+
+        assertWithMessage("L'unité seule '1 cuillère' doit fusionner avec 'à soupe' même si le nom reste vide")
+            .that(merged)
+            .isTrue()
+
+        assertWithMessage("La ligne fusionnée '1 cuillère à soupe' doit figurer dans la liste")
+            .that(rawList)
+            .containsExactly("1 cuillère à soupe")
+    }
 }

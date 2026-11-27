@@ -98,12 +98,14 @@ object Ocr3CategorizerUnfinishedIngredient {
                 }
                 seenIngredientKeywords.addAll(keywords)
             } else {
-                if (vocabulary.logOcr3UnfinishedIngrStillEmpty.isNotBlank()) {
-                    LogManager.d(TAG, String.format(vocabulary.logOcr3UnfinishedIngrStillEmpty, rawIngredientsList[lastIdx]))
+                val logStillEmpty = vocabulary.logOcr3UnfinishedIngrStillEmpty
+                if (logStillEmpty.isNotBlank()) {
+                    LogManager.d(TAG, String.format(logStillEmpty, rawIngredientsList[lastIdx]))
                 }
             }
-            if (vocabulary.logOcr3UnfinishedIngrFused.isNotBlank()) {
-                LogManager.d(TAG, String.format(vocabulary.logOcr3UnfinishedIngrFused, workingLine, rawIngredientsList[lastIdx]))
+            val logFused = vocabulary.logOcr3UnfinishedIngrFused
+            if (logFused.isNotBlank()) {
+                LogManager.d(TAG, String.format(logFused, workingLine, rawIngredientsList[lastIdx]))
             }
             return true
         }

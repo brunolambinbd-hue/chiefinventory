@@ -65,4 +65,19 @@ class Ocr3NarrativeCompoundHelperTest {
             .isFalse()
     }
 
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testObjectGeneratedMethodsCoverageAndBlankLines() {
+        assertWithMessage("Le composant Ocr3NarrativeCompoundHelper doit générer une représentation textuelle valide")
+            .that(Ocr3NarrativeCompoundHelper.toString())
+            .contains("Ocr3NarrativeCompoundHelper")
+
+        assertWithMessage("Une ligne vide doit retourner faux")
+            .that(Ocr3NarrativeCompoundHelper.isNarrativeCompoundInstruction(""))
+            .isFalse()
+
+        assertWithMessage("Une ligne d'espaces doit retourner faux")
+            .that(Ocr3NarrativeCompoundHelper.isNarrativeCompoundInstruction("   "))
+            .isFalse()
+    }
 }

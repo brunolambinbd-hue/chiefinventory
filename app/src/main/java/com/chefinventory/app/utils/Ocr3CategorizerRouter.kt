@@ -101,14 +101,12 @@ object Ocr3CategorizerRouter {
         }
 
         val titleLines2D = lines2D.filter { line2D ->
-            val cleanText = Ocr1Corrector.normalize(line2D.text, repairs).trim().lowercase()
-            cleanText.isNotBlank() && linesWithoutTitle.none { target ->
-                val targetLower = target.trim().lowercase()
-                cleanText == targetLower || targetLower.contains(cleanText) || cleanText.contains(targetLower)
-            }
+            val cleanText = Ocr1Corrector.correct(line2D.text, repairs).trim().lowercase()
+            isTitleCandidateLine(cleanText, linesWithoutTitle)
         }
 
-        val titleBottomY = titleLines2D.maxOfOrNull { it.bottom } ?: 0
+        val maxBottomY = titleLines2D.maxOfOrNull { it.bottom }
+        val titleBottomY = if (maxBottomY != null) maxBottomY else 0
 
         val lines2DWithoutTitleRaw = lines2D.map { line2D ->
             line2D.copy(text = Ocr1Corrector.normalize(line2D.text, repairs))
@@ -126,5 +124,25 @@ object Ocr3CategorizerRouter {
 
         val selectedType = if (isTwoColumns) ReaderType.TWO_COLUMNS_INGREDIENT_FIRST else ReaderType.ONE_COLUMN_INGREDIENT_FIRST
         return Pair(selectedType, lines2DWithoutTitle)
+    }
+
+    /**
+     * Détermine atomiquement si une ligne [cleanText] est un candidat titre exclu des [linesWithoutTitle].
+     */
+    internal fun isTitleCandidateLine(
+        cleanText: String,
+        linesWithoutTitle: List<String>
+    ): Boolean {
+        if (cleanText.isBlank()) return false
+        return linesWithoutTitle.none { target ->
+            val targetLower = target.trim().lowercase()
+            if (cleanText == targetLower) {
+                true
+            } else if (targetLower.contains(cleanText)) {
+                true
+            } else {
+                cleanText.contains(targetLower)
+            }
+        }
     }
 }

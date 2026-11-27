@@ -20,7 +20,9 @@ object Ocr3CategorizerLineCleaner {
 
         for (word in vocabulary.excludedOcrKeywords) {
             val cleanWord = word.trim().lowercase()
-            if (cleanWord.isEmpty()) continue
+            if (cleanWord.isEmpty()) {
+                continue
+            }
 
             val isProtectedHeaderInSentence = containsAction && cleanWord in sectionHeadersToProtect
             if (!isProtectedHeaderInSentence) {

@@ -96,12 +96,10 @@ object Ocr5BeautifierIngredient {
                             val isPluralDiffOnly = cleanWord.lowercase().trim().removeSuffix("s").removeSuffix("x") == bestMatch.lowercase().trim().removeSuffix("s").removeSuffix("x")
                             if (dist in 1..maxAllowed && !isPluralDiffOnly) {
                                 val cleanBest = bestMatch.replace(Regex("(?i)^(?:du|de|d'|des|la|le|un|une)\\s+"), "").trim()
-                                val elisionPrefix = if (cleanWord.lowercase().startsWith("d'") || cleanWord.lowercase().startsWith("d’")) {
-                                    "d'"
-                                } else if (cleanWord.lowercase().startsWith("l'") || cleanWord.lowercase().startsWith("l’")) {
-                                    "l'"
-                                } else {
-                                    ""
+                                val elisionPrefix = when {
+                                    cleanWord.lowercase().startsWith("d'") || cleanWord.lowercase().startsWith("d’") -> "d'"
+                                    cleanWord.lowercase().startsWith("l'") || cleanWord.lowercase().startsWith("l’") -> "l'"
+                                    else -> ""
                                 }
                                 val finalReplacement = if (elisionPrefix.isNotEmpty() && !cleanBest.lowercase().startsWith(elisionPrefix)) {
                                     "$elisionPrefix$cleanBest"
@@ -119,7 +117,7 @@ object Ocr5BeautifierIngredient {
 
                 val lowerLine = cleaned.lowercase()
                 val isFruitOrDessertContext = lowerLine.contains("melon") || lowerLine.contains("glace") || lowerLine.contains("mozzarella") || lowerLine.contains("pain") || lowerLine.contains("pate") || lowerLine.contains("pâte")
-                val isMusselContext = lowerLine.contains("zelande") || lowerLine.contains("zélande") || lowerLine.contains("mariniere") || lowerLine.contains("marinière") || lowerLine.contains("bouchot") || lowerLine.contains("parc") || (lowerLine.contains("douzaine") && !isFruitOrDessertContext)
+                val isMusselContext = !isFruitOrDessertContext && (lowerLine.contains("zelande") || lowerLine.contains("zélande") || lowerLine.contains("mariniere") || lowerLine.contains("marinière") || lowerLine.contains("bouchot") || lowerLine.contains("parc") || lowerLine.contains("douzaine"))
 
                 if (isMusselContext && (lowerLine.contains("boule") || lowerLine.contains("boules"))) {
                     cleaned = cleaned.replace(Regex("(?iu)\\bboules?\\b"), "moules")
