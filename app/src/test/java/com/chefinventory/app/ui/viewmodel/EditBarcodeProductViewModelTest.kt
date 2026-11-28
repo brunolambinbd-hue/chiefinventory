@@ -85,8 +85,11 @@ class EditBarcodeProductViewModelTest {
         runBlockingTest {
             val viewModel = EditBarcodeProductViewModel(mockOffRepository)
 
-            // Blank barcode on load
+            // Blank/null barcode on load
             viewModel.loadProduct("")
+            assertThat(viewModel.product.value).isNull()
+
+            viewModel.loadProduct(null)
             assertThat(viewModel.product.value).isNull()
 
             // Blank barcode on save
@@ -104,6 +107,53 @@ class EditBarcodeProductViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertThat(viewModel.saveStatus.value).contains("Erreur")
+        }
+
+        runBlockingTest {
+            whenever(mockOffRepository.getProductByBarcode("3017620422003")).doThrow(RuntimeException("Load error"))
+
+            val viewModel = EditBarcodeProductViewModel(mockOffRepository)
+            viewModel.loadProduct("3017620422003")
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModel.product.value).isNull()
+            assertThat(viewModel.isLoading.value).isFalse()
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testSaveProduct_WithWhitespaceAndNullParameters_CoversAllIfBlankBranches() {
+        runBlockingTest {
+            val viewModel = EditBarcodeProductViewModel(mockOffRepository)
+
+            // Save product with whitespace strings -> converted to null
+            viewModel.saveProduct(
+                barcode = "3017620422003",
+                productName = "   ",
+                brand = "   ",
+                quantityStr = "   ",
+                nutriScore = "   ",
+                imageUrl = "   ",
+                ingredientsText = "   "
+            )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModel.saveStatus.value).contains("succès")
+
+            // Save product with null parameters -> converted to null
+            viewModel.saveProduct(
+                barcode = "3017620422003",
+                productName = null,
+                brand = null,
+                quantityStr = null,
+                nutriScore = null,
+                imageUrl = null,
+                ingredientsText = null
+            )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModel.saveStatus.value).contains("succès")
         }
     }
 

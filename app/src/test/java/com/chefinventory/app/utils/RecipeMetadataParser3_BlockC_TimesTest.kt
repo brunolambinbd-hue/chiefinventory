@@ -122,6 +122,26 @@ class RecipeMetadataParser3_BlockC_TimesTest {
         assertWithMessage("La ligne longue doit être retournée inchangée")
             .that(line5)
             .isEqualTo("15 minute chrono")
+
+        // 6. Both prep and cook times already set -> processStandaloneTime does not overwrite
+        val res6 = RawSections()
+        res6.detectedPrepTime = "15"
+        res6.detectedCookTime = "20"
+        RecipeMetadataParser3_BlockC_Times.processStandaloneTime("15 min", false, res6)
+        assertWithMessage("Le temps de préparation déjà renseigné ne doit pas être écrasé")
+            .that(res6.detectedPrepTime).isEqualTo("15")
+        assertWithMessage("Le temps de cuisson déjà renseigné ne doit pas être écrasé")
+            .that(res6.detectedCookTime).isEqualTo("20")
+
+        // 7. Badge time in instruction sentence -> preserved as instruction
+        val res7 = RawSections()
+        val line7 = RecipeMetadataParser3_BlockC_Times.processStandaloneTime("Servir après 4 min.", true, res7)
+        assertWithMessage("Dans une consigne, 4 min ne doit pas être extrait comme badge isolé")
+            .that(res7.detectedPrepTime)
+            .isNull()
+        assertWithMessage("La consigne doit être retournée inchangée")
+            .that(line7)
+            .isEqualTo("Servir après 4 min.")
     }
 
     @Test
@@ -162,5 +182,36 @@ class RecipeMetadataParser3_BlockC_TimesTest {
         assertWithMessage("Le temps de cuisson '15' doit être extrait de l'instruction")
             .that(resultsInstr.detectedCookTime)
             .isEqualTo("15")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessTimesBlock_StandaloneBadgeTimeExhaustiveBranches() {
+        // 1. Badge 12 (num == 12, num % 5 != 0)
+        val res12 = RawSections()
+        val line12 = RecipeMetadataParser3_BlockC_Times.processTimesBlock("12", "12", null, res12)
+        assertWithMessage("12").that(res12.detectedPrepTime).isEqualTo("12")
+        assertWithMessage("line12").that(line12).isEmpty()
+
+        // 2. Badge 14 (num in 5..180, but num % 5 != 0 and num != 12)
+        val res14 = RawSections()
+        val line14 = RecipeMetadataParser3_BlockC_Times.processTimesBlock("14", "14", null, res14)
+        assertWithMessage("14").that(res14.detectedPrepTime).isNull()
+        assertWithMessage("line14").that(line14).isEqualTo("14")
+
+        // 3. Badge 200 (num > 180)
+        val res200 = RawSections()
+        RecipeMetadataParser3_BlockC_Times.processTimesBlock("200", "200", null, res200)
+        assertWithMessage("200").that(res200.detectedPrepTime).isNull()
+
+        // 4. Prep time set to "15", same mins "15" -> mins != detectedPrepTime is false
+        val resSameMins = RawSections(detectedPrepTime = "15")
+        RecipeMetadataParser3_BlockC_Times.processTimesBlock("15", "15", null, resSameMins)
+        assertWithMessage("same mins").that(resSameMins.detectedCookTime).isNull()
+
+        // 5. Both prep "15" and cook "20" set -> detectedCookTime == null is false
+        val resBothSet = RawSections(detectedPrepTime = "15", detectedCookTime = "20")
+        RecipeMetadataParser3_BlockC_Times.processTimesBlock("25", "25", null, resBothSet)
+        assertWithMessage("both set").that(resBothSet.detectedCookTime).isEqualTo("20")
     }
 }

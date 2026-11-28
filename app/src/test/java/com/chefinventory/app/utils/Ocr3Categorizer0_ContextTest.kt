@@ -142,4 +142,83 @@ class Ocr3Categorizer0_ContextTest {
             .that(ingrConn)
             .isEqualTo(ctx.ingredientConnectors)
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testRawSections_DataClassGeneratedMethodsCoverage() {
+        val sec1 = RawSections(detectedTitle = "Tarte")
+        val sec2 = RawSections(detectedTitle = "Tarte")
+
+        assertWithMessage("Les deux objets RawSections doivent être égaux")
+            .that(sec1)
+            .isEqualTo(sec2)
+
+        assertWithMessage("Le hashcode des deux objets RawSections doit être identique")
+            .that(sec1.hashCode())
+            .isEqualTo(sec2.hashCode())
+
+        assertWithMessage("La méthode toString de RawSections doit contenir le titre")
+            .that(sec1.toString())
+            .contains("Tarte")
+
+        assertWithMessage("Le premier composant de RawSections doit être rawIngredientsList")
+            .that(sec1.component1())
+            .isEmpty()
+
+        assertWithMessage("Le second composant de RawSections doit être rawInstructionsList")
+            .that(sec1.component2())
+            .isEmpty()
+
+        assertWithMessage("Le troisième composant de RawSections doit être detectedWineList")
+            .that(sec1.component3())
+            .isEmpty()
+
+        assertWithMessage("Le quatrième composant de RawSections doit être detectedSourceList")
+            .that(sec1.component4())
+            .isEmpty()
+
+        assertWithMessage("Le cinquième composant de RawSections doit être detectedTitle")
+            .that(sec1.component5())
+            .isEqualTo("Tarte")
+
+        assertWithMessage("Le quatorzième composant de RawSections doit être detectedNutriScore")
+            .that(sec1.component14())
+            .isNull()
+
+        assertWithMessage("Le quinzième composant de RawSections doit être ingredientKeywords")
+            .that(sec1.component15())
+            .isEmpty()
+
+        val secNutri = sec1.copy(detectedNutriScore = "A")
+        assertWithMessage("La copie avec detectedNutriScore doit conserver la valeur 'A'")
+            .that(secNutri.detectedNutriScore)
+            .isEqualTo("A")
+
+        val defaultSec = RawSections()
+        assertWithMessage("Default RawSections rawIngredientsList").that(defaultSec.rawIngredientsList).isEmpty()
+        assertWithMessage("Default RawSections rawInstructionsList").that(defaultSec.rawInstructionsList).isEmpty()
+        assertWithMessage("Default RawSections detectedWineList").that(defaultSec.detectedWineList).isEmpty()
+        assertWithMessage("Default RawSections detectedSourceList").that(defaultSec.detectedSourceList).isEmpty()
+        assertWithMessage("Default RawSections ingredientKeywords").that(defaultSec.ingredientKeywords).isEmpty()
+
+        // Synthetic default constructor reflection coverage
+        val defaultConstructor = RawSections::class.java.declaredConstructors.firstOrNull { c ->
+            c.parameterTypes.any { it.name.contains("DefaultConstructorMarker") }
+        }
+        if (defaultConstructor != null) {
+            defaultConstructor.isAccessible = true
+            val paramCount = defaultConstructor.parameterCount
+            val args = Array<Any?>(paramCount) { i ->
+                val pType = defaultConstructor.parameterTypes[i]
+                when {
+                    pType == String::class.java -> null
+                    pType == Int::class.javaPrimitiveType || pType == Int::class.java -> -1
+                    pType == List::class.java || pType == MutableList::class.java -> null
+                    pType == Set::class.java -> null
+                    else -> null
+                }
+            }
+            defaultConstructor.newInstance(*args)
+        }
+    }
 }

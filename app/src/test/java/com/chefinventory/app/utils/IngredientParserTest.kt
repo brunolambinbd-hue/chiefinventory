@@ -258,4 +258,57 @@ class IngredientParserTest {
         assertThat(resultQtyOnly.quantity).isEqualTo(2.0)
         assertThat(resultQtyOnly.name).isEmpty()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFindCoreIngredientSpans_ExhaustiveBranches() {
+        val vocab = OcrVocabularyLoader.loadFromProjectResources().copy(
+            commonIngredientsNoQty = listOf("huile d'olive", "vinaigre", "porto", "vin", "épinards", "tomate", "pommes"),
+            wineAppellations = listOf("bordeaux")
+        )
+
+        // 1. Blank line & subheader line
+        assertThat(IngredientParser.findCoreIngredientSpans("", vocab)).isEmpty()
+        assertThat(IngredientParser.findCoreIngredientSpans("Pour la sauce :", vocab)).isEmpty()
+
+        // 2. Quantity only (no name)
+        assertThat(IngredientParser.findCoreIngredientSpans("200", vocab)).isEmpty()
+
+        // 3. Multi-word compound matching
+        val spansHuile = IngredientParser.findCoreIngredientSpans("2 cuillères à soupe d'huile d'olive", vocab)
+        assertThat(spansHuile).isNotEmpty()
+
+        val spansPorto = IngredientParser.findCoreIngredientSpans("1 verre de porto blanc", vocab)
+        assertThat(spansPorto).isNotEmpty()
+
+        val spansVin = IngredientParser.findCoreIngredientSpans("1 verre de vin de bordeaux", vocab)
+        assertWithMessage("spansVin pour 1 verre de vin de bordeaux ne doit pas être vide").that(spansVin).isNotEmpty()
+
+        val spansVinaigre = IngredientParser.findCoreIngredientSpans("1 cuillère de vinaigre de vin", vocab)
+        assertThat(spansVinaigre).isNotEmpty()
+
+        // 4. Single-word matching
+        val spansEpinards = IngredientParser.findCoreIngredientSpans("100 g de d' l' de du épinards", vocab)
+        assertThat(spansEpinards).isNotEmpty()
+
+        // 5. Fallback word matching
+        val spansFallback = IngredientParser.findCoreIngredientSpans("100 g de qzzxxyy", vocab)
+        assertThat(spansFallback).isNotEmpty()
+
+        val spansD = IngredientParser.findCoreIngredientSpans("100 g d'xyzqwe", vocab)
+        assertWithMessage("Fallback d'xyzqwe").that(spansD).isNotEmpty()
+
+        val spansShort = IngredientParser.findCoreIngredientSpans("100 g de ab", vocab)
+        assertWithMessage("Fallback short word ab").that(spansShort).isNotEmpty()
+
+        val spansDeDu = IngredientParser.findCoreIngredientSpans("100 g depommes", vocab)
+        assertWithMessage("depommes").that(spansDeDu).isNotEmpty()
+
+        val vocabWine = OcrVocabularyLoader.loadFromProjectResources().copy(
+            commonIngredientsNoQty = listOf("vin"),
+            wineAppellations = listOf("bordeaux")
+        )
+        val spansWine = IngredientParser.findCoreIngredientSpans("1 verre de vin de bordeaux", vocabWine)
+        assertWithMessage("vin de bordeaux app").that(spansWine).isNotEmpty()
+    }
 }

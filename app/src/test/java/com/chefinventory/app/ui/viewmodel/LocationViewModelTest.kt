@@ -70,6 +70,14 @@ class LocationViewModelTest {
         assertThat(viewModel.displayLocations.value).hasSize(2)
         assertThat(viewModel.visibleLocations.value).hasSize(2)
 
+        // Switch location type to RECIPE
+        val recipeLoc = Location(id = 3L, name = "Boissons", parentId = null, type = LocationType.RECIPE)
+        whenever(mockLocRepo.getAllByType(LocationType.RECIPE)).thenReturn(MutableLiveData(listOf(recipeLoc)))
+        viewModel.setLocationType(LocationType.RECIPE)
+
+        assertThat(viewModel.currentType.value).isEqualTo(LocationType.RECIPE)
+        assertThat(viewModel.allLocations.value).containsExactly(recipeLoc)
+
         // Expand all when displayLocations value is null
         whenever(mockLocRepo.getAllByType(LocationType.RECIPE)).thenReturn(MutableLiveData())
         val vmEmpty = LocationViewModel(mockLocRepo)

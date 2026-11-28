@@ -123,17 +123,22 @@ object Ocr5Beautifier {
 
         val lower = cleaned.lowercase().removeSuffix(".").removeSuffix(":").removeSuffix(",").trim()
 
-        val isOcrNoise = OcrTextUtils.isNonAlphanumericNoise(cleaned) ||
-                vocab.ocrNoiseExclusions.any { noise -> noise.isNotBlank() && cleaned.contains(noise, ignoreCase = true) }
+        val isNoiseSymbol = OcrTextUtils.isNonAlphanumericNoise(cleaned)
+        val hasNoiseExclusion = vocab.ocrNoiseExclusions.any { noise ->
+            val cleanNoise = noise.trim()
+            cleanNoise.isNotEmpty() && cleaned.contains(cleanNoise, ignoreCase = true)
+        }
+        val isOcrNoise = isNoiseSymbol || hasNoiseExclusion
 
-        val isRecipeHeaderTrash = if (!hasActionVerb && headerTrashWords.isNotEmpty()) {
+        val isHeaderMatch = if (!hasActionVerb && headerTrashWords.isNotEmpty()) {
             vocab.excludedOcrKeywords.any { kw ->
                 val cleanKw = kw.trim()
                 cleanKw.isNotEmpty() && Regex("(?i)(?<![\\p{L}\\p{N}])${Regex.escape(cleanKw)}(?![\\p{L}\\p{N}])").containsMatchIn(cleaned)
-            } || isOcrNoise
+            }
         } else {
             false
         }
+        val isRecipeHeaderTrash = isHeaderMatch || isOcrNoise
 
         val isShortNoise = OcrTextUtils.isShortNoise(cleaned, standaloneTrashWords, hasActionVerb)
 

@@ -368,4 +368,95 @@ class Ocr3Categorizer4_BlockD_ClassificationTest {
             .that(resWineClosedWithBullet.shouldContinue)
             .isFalse()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testClassifySection_ClosedNoQtyNoWeight_SelectsInstructionSection() {
+        val section = Ocr3Categorizer4_BlockD_Classification.classifySection(
+            currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
+            isInstructionSignal = false,
+            isIngredientListClosed = true,
+            hasHardQuantity = false,
+            hasWeight = false,
+            looksLikeIngredient = false,
+            startsWithConnector = false,
+            startsWithBullet = false,
+            isCommonIngredient = false
+        )
+        assertWithMessage("Une ligne sans quantité ni poids lorsque la liste d'ingrédients est fermée doit être classifiée en instructions")
+            .that(section)
+            .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+
+        val sectionInst = Ocr3Categorizer4_BlockD_Classification.classifySection(
+            currentSection = Ocr3Categorizer.SECTION_INSTRUCTIONS,
+            isInstructionSignal = false,
+            isIngredientListClosed = false,
+            hasHardQuantity = false,
+            hasWeight = false,
+            looksLikeIngredient = true,
+            startsWithConnector = false,
+            startsWithBullet = false,
+            isCommonIngredient = false
+        )
+        assertWithMessage("Une section instruction déjà définie doit être conservée")
+            .that(sectionInst)
+            .isEqualTo(Ocr3Categorizer.SECTION_INSTRUCTIONS)
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testClassifySection_AllConditionVariants() {
+        val baseSection = Ocr3Categorizer.SECTION_NONE
+
+        // 1. looksLikeIngredient = true
+        val s1 = Ocr3Categorizer4_BlockD_Classification.classifySection(
+            currentSection = baseSection, isInstructionSignal = false, isIngredientListClosed = false,
+            hasHardQuantity = false, hasWeight = false, looksLikeIngredient = true, startsWithConnector = false
+        )
+        assertWithMessage("s1").that(s1).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        // 2. startsWithConnector = true
+        val s2 = Ocr3Categorizer4_BlockD_Classification.classifySection(
+            currentSection = baseSection, isInstructionSignal = false, isIngredientListClosed = false,
+            hasHardQuantity = false, hasWeight = false, looksLikeIngredient = false, startsWithConnector = true
+        )
+        assertWithMessage("s2").that(s2).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        // 3. hasHardQuantity = true
+        val s3 = Ocr3Categorizer4_BlockD_Classification.classifySection(
+            currentSection = baseSection, isInstructionSignal = false, isIngredientListClosed = false,
+            hasHardQuantity = true, hasWeight = false, looksLikeIngredient = false, startsWithConnector = false
+        )
+        assertWithMessage("s3").that(s3).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        // 4. hasWeight = true
+        val s4 = Ocr3Categorizer4_BlockD_Classification.classifySection(
+            currentSection = baseSection, isInstructionSignal = false, isIngredientListClosed = false,
+            hasHardQuantity = false, hasWeight = true, looksLikeIngredient = false, startsWithConnector = false
+        )
+        assertWithMessage("s4").that(s4).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        // 5. startsWithBullet = true
+        val s5 = Ocr3Categorizer4_BlockD_Classification.classifySection(
+            currentSection = baseSection, isInstructionSignal = false, isIngredientListClosed = false,
+            hasHardQuantity = false, hasWeight = false, looksLikeIngredient = false, startsWithConnector = false,
+            startsWithBullet = true
+        )
+        assertWithMessage("s5").that(s5).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        // 6. isCommonIngredient = true
+        val s6 = Ocr3Categorizer4_BlockD_Classification.classifySection(
+            currentSection = baseSection, isInstructionSignal = false, isIngredientListClosed = false,
+            hasHardQuantity = false, hasWeight = false, looksLikeIngredient = false, startsWithConnector = false,
+            isCommonIngredient = true
+        )
+        assertWithMessage("s6").that(s6).isEqualTo(Ocr3Categorizer.SECTION_INGREDIENTS)
+
+        // 7. None match -> returns currentSection
+        val sNone = Ocr3Categorizer4_BlockD_Classification.classifySection(
+            currentSection = baseSection, isInstructionSignal = false, isIngredientListClosed = false,
+            hasHardQuantity = false, hasWeight = false, looksLikeIngredient = false, startsWithConnector = false
+        )
+        assertWithMessage("sNone").that(sNone).isEqualTo(baseSection)
+    }
 }

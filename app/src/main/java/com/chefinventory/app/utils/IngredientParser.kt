@@ -433,7 +433,8 @@ object IngredientParser {
                 }
 
                 if (start >= nameStartInLine && end > start) {
-                    if (cleanItemNoPrefix in setOf("VINAIGRE", "HUILE", "SIROP", "COULIS", "GELEE")) {
+                    val upperNoPrefix = cleanItemNoPrefix.uppercase()
+                    if (upperNoPrefix in setOf("VINAIGRE", "HUILE", "SIROP", "COULIS", "GELEE")) {
                         val remainingAfterBase = lineAccent.substring(minOf(end, lineAccent.length))
                         val compoundMatch = Regex("^(?:\\s+(?:de|du|d'|des)\\s+([\\p{L}]+))", RegexOption.IGNORE_CASE).find(remainingAfterBase)
                         if (compoundMatch != null) {
@@ -446,7 +447,7 @@ object IngredientParser {
                                 end += compoundMatch.value.length
                             }
                         }
-                    } else if (cleanItemNoPrefix in setOf("PORTO", "RHUM", "VERMOUTH", "MARTINI", "VIN", "VINS", "CIDRE")) {
+                    } else if (upperNoPrefix in setOf("PORTO", "RHUM", "VERMOUTH", "MARTINI", "VIN", "VINS", "CIDRE")) {
                         val remainingAfterBase = lineAccent.substring(minOf(end, lineAccent.length))
                         val colorMatch = Regex("^\\s+(?:blanc|rouge|rosé|rose|ambré|ambre|brun|vieux|ruby|tawny|sec|doux|moelleux|liquoreux)\\b", RegexOption.IGNORE_CASE).find(remainingAfterBase)
                         if (colorMatch != null) {
@@ -486,8 +487,8 @@ object IngredientParser {
             var cleanW = word.trim().trim('.', ',', ';', ':', '!', '?', '•', '-', '*')
             if (cleanW.lowercase().startsWith("d'") || cleanW.lowercase().startsWith("l'")) {
                 cleanW = cleanW.substring(2)
-            } else if (cleanW.lowercase().startsWith("de ") || cleanW.lowercase().startsWith("du ")) {
-                cleanW = cleanW.substring(3)
+            } else if (cleanW.lowercase().startsWith("de") || cleanW.lowercase().startsWith("du")) {
+                if (cleanW.length > 2) cleanW = cleanW.substring(2)
             }
             val cleanWAccent = OcrLevenshteinUtils.stripAccents(cleanW.lowercase())
 

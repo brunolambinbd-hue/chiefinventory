@@ -86,4 +86,44 @@ class OcrTextUtilsTest {
             .that(OcrTextUtils.isLikelyProperNameOrSource("MICHEL LAROCHE", vocabulary))
             .isTrue()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testOcrTextUtils_AllFunctionsExhaustiveCoverage() {
+        assertWithMessage("OcrTextUtils doit générer une représentation textuelle valide")
+            .that(OcrTextUtils.toString())
+            .contains("OcrTextUtils")
+
+        // 1. ensureSentenceEndingPunctuation
+        assertWithMessage("Chaîne vide").that(OcrTextUtils.ensureSentenceEndingPunctuation("   ")).isEmpty()
+        assertWithMessage("Se termine déjà par un point").that(OcrTextUtils.ensureSentenceEndingPunctuation("Mélanger.", listOf(".", "!", "?"))).isEqualTo("Mélanger.")
+        assertWithMessage("Se termine déjà par un point d'exclamation").that(OcrTextUtils.ensureSentenceEndingPunctuation("Mélanger!", listOf(".", "!", "?"))).isEqualTo("Mélanger!")
+        assertWithMessage("Ajoute un point par défaut").that(OcrTextUtils.ensureSentenceEndingPunctuation("Mélanger")).isEqualTo("Mélanger.")
+
+        // 2. isFrenchLetterOrDigit
+        assertWithMessage("a").that(OcrTextUtils.isFrenchLetterOrDigit('a')).isTrue()
+        assertWithMessage("A").that(OcrTextUtils.isFrenchLetterOrDigit('A')).isTrue()
+        assertWithMessage("5").that(OcrTextUtils.isFrenchLetterOrDigit('5')).isTrue()
+        assertWithMessage("é").that(OcrTextUtils.isFrenchLetterOrDigit('é')).isTrue()
+        assertWithMessage("É").that(OcrTextUtils.isFrenchLetterOrDigit('É')).isTrue()
+        assertWithMessage("#").that(OcrTextUtils.isFrenchLetterOrDigit('#')).isFalse()
+
+        // 3. isNonAlphanumericNoise
+        assertWithMessage("Chaîne vide").that(OcrTextUtils.isNonAlphanumericNoise("   ")).isFalse()
+        assertWithMessage("Symboles seuls").that(OcrTextUtils.isNonAlphanumericNoise("• - *")).isTrue()
+        assertWithMessage("Texte valide").that(OcrTextUtils.isNonAlphanumericNoise("200 g de farine")).isFalse()
+
+        // 4. isShortNoise
+        assertWithMessage("Avec verbe d'action").that(OcrTextUtils.isShortNoise("Mélanger", hasActionVerb = true)).isFalse()
+        assertWithMessage("Ligne vide").that(OcrTextUtils.isShortNoise("   ")).isFalse()
+        assertWithMessage("Avec chiffres").that(OcrTextUtils.isShortNoise("200 g")).isFalse()
+        assertWithMessage("Avec point").that(OcrTextUtils.isShortNoise("a.b")).isFalse()
+        assertWithMessage("Bruit <= 3 chars").that(OcrTextUtils.isShortNoise("abc")).isTrue()
+        assertWithMessage("Mot poubelle").that(OcrTextUtils.isShortNoise("pour", standaloneTrashWords = setOf("pour"))).isTrue()
+        assertWithMessage("Mot long hors poubelle").that(OcrTextUtils.isShortNoise("beaucoup", standaloneTrashWords = setOf("pour"))).isFalse()
+
+        // 5. isLikelyProperNameOrSource sans vocabulaire
+        assertWithMessage("Nom propre sans vocabulaire").that(OcrTextUtils.isLikelyProperNameOrSource("MICHEL LAROCHE")).isTrue()
+        assertWithMessage("Titre plat sans vocabulaire").that(OcrTextUtils.isLikelyProperNameOrSource("Salade de tomates")).isFalse()
+    }
 }

@@ -88,25 +88,27 @@ object Ocr5BeautifierIngredient {
                     val cleanWordSingular = cleanWordAccent.removeSuffix("S").removeSuffix("X")
                     val isAlreadyInDict = dictHashSet.contains(cleanWordAccent) || dictHashSet.contains(cleanWordSingular)
 
-                    if (!isAlreadyInDict && cleanWord.length > 3 && cleanWord.lowercase() !in standaloneTrashWords && cleanWordAccent !in allAdjectivesAndModifiers) {
-                        val bestMatch = OcrLevenshteinUtils.findBestMatch(cleanWord, fullDictionary)
+                    val cleanLower = cleanWord.lowercase()
+                    var wordToMatch = cleanWord
+                    var elisionPrefix = ""
+                    if (cleanLower.length > 2 && (cleanLower[1] == '\'' || cleanLower[1] == '’')) {
+                        val firstChar = cleanLower[0]
+                        if (firstChar == 'd' || firstChar == 'l') {
+                            elisionPrefix = cleanWord.substring(0, 2)
+                            wordToMatch = cleanWord.substring(2)
+                        }
+                    }
+
+                    if (!isAlreadyInDict && wordToMatch.length > 3 && wordToMatch.lowercase() !in standaloneTrashWords && cleanWordAccent !in allAdjectivesAndModifiers) {
+                        val bestMatch = OcrLevenshteinUtils.findBestMatch(wordToMatch, fullDictionary)
                         if (bestMatch != null) {
-                            val dist = OcrLevenshteinUtils.distance(OcrLevenshteinUtils.stripAccents(cleanWord), OcrLevenshteinUtils.stripAccents(bestMatch))
+                            val dist = OcrLevenshteinUtils.distance(OcrLevenshteinUtils.stripAccents(wordToMatch), OcrLevenshteinUtils.stripAccents(bestMatch))
                             val maxAllowed = OcrLevenshteinUtils.getMaxAllowedErrors(bestMatch.length)
-                            val isPluralDiffOnly = cleanWord.lowercase().trim().removeSuffix("s").removeSuffix("x") == bestMatch.lowercase().trim().removeSuffix("s").removeSuffix("x")
+                            val isPluralDiffOnly = wordToMatch.lowercase().trim().removeSuffix("s").removeSuffix("x") == bestMatch.lowercase().trim().removeSuffix("s").removeSuffix("x")
                             if (dist in 1..maxAllowed && !isPluralDiffOnly) {
                                 val cleanBest = bestMatch.replace(Regex("(?i)^(?:du|de|d'|des|la|le|un|une)\\s+"), "").trim()
-                                val elisionPrefix = when {
-                                    cleanWord.lowercase().startsWith("d'") || cleanWord.lowercase().startsWith("d’") -> "d'"
-                                    cleanWord.lowercase().startsWith("l'") || cleanWord.lowercase().startsWith("l’") -> "l'"
-                                    else -> ""
-                                }
-                                val finalReplacement = if (elisionPrefix.isNotEmpty() && !cleanBest.lowercase().startsWith(elisionPrefix)) {
-                                    "$elisionPrefix$cleanBest"
-                                } else {
-                                    cleanBest
-                                }
-                                val pattern = Regex("(?iu)\\b${Regex.escape(cleanWord)}\\b")
+                                val finalReplacement = if (elisionPrefix.isNotEmpty()) "$elisionPrefix$cleanBest" else cleanBest
+                                val pattern = Regex("(?iu)(?:^|(?<=\\s|\\b))${Regex.escape(cleanWord)}(?:$|(?=\\s|\\b))")
                                 if (pattern.containsMatchIn(cleaned)) {
                                     cleaned = pattern.replace(cleaned, java.util.regex.Matcher.quoteReplacement(finalReplacement))
                                 }
@@ -119,7 +121,7 @@ object Ocr5BeautifierIngredient {
                 val isFruitOrDessertContext = lowerLine.contains("melon") || lowerLine.contains("glace") || lowerLine.contains("mozzarella") || lowerLine.contains("pain") || lowerLine.contains("pate") || lowerLine.contains("pâte")
                 val isMusselContext = !isFruitOrDessertContext && (lowerLine.contains("zelande") || lowerLine.contains("zélande") || lowerLine.contains("mariniere") || lowerLine.contains("marinière") || lowerLine.contains("bouchot") || lowerLine.contains("parc") || lowerLine.contains("douzaine"))
 
-                if (isMusselContext && (lowerLine.contains("boule") || lowerLine.contains("boules"))) {
+                if (isMusselContext && Regex("(?iu)\\bboules?\\b").containsMatchIn(cleaned)) {
                     cleaned = cleaned.replace(Regex("(?iu)\\bboules?\\b"), "moules")
                 }
             }
@@ -135,7 +137,7 @@ object Ocr5BeautifierIngredient {
             cleaned
         }.filter { line ->
             val lower = line.lowercase().trim().removeSuffix(":").removeSuffix(".")
-            val isHeaderTrash = headerTrashWords.any { header -> lower == header || lower.startsWith("$header ") || lower.startsWith("$header(") || lower.startsWith("$header:") }
+            val isHeaderTrash = headerTrashWords.any { header -> lower.startsWith(header) }
             line.isNotBlank() && !isHeaderTrash && lower !in standaloneTrashWords
         }
     }

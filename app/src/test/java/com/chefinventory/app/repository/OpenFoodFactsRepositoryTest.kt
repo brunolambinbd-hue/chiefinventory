@@ -7,6 +7,8 @@ import com.chefinventory.app.network.OpenFoodFactsApiClient
 import com.google.common.truth.Truth.assertThat
 import com.parabd.lib.traceability.CoveredRequirement
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -29,6 +31,16 @@ class OpenFoodFactsRepositoryTest {
         "3124480183344", // Beurre Président
         "3038350008000"  // Riz Taureau Ailé
     )
+
+    @Before
+    fun setUp() {
+        OpenFoodFactsRepository.clearStaticCache()
+    }
+
+    @After
+    fun tearDown() {
+        OpenFoodFactsRepository.clearStaticCache()
+    }
 
     @Test
     @CoveredRequirement("6.1.1.9")
@@ -231,10 +243,13 @@ class OpenFoodFactsRepositoryTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
-    fun testFindFuzzyMatchInTaxonomy_MatchesTypoedWordAgainstRoomDB() {
+    fun testFindFuzzyMatchInTaxonomy_MatchesTypoedWordAndShortWordExitsEarly() {
         runBlocking {
             val mockDao = mock<OpenFoodFactsDao>()
             val repo = OpenFoodFactsRepository(mockDao)
+
+            // Short word (<= 3 letters) -> returns null
+            assertThat(repo.findFuzzyMatchInTaxonomy("sel")).isNull()
 
             val taxonomyList = listOf(
                 OpenFoodFactsTaxonomy(id = 1L, cleanName = "Parmesan"),
@@ -244,6 +259,116 @@ class OpenFoodFactsRepositoryTest {
 
             val match = repo.findFuzzyMatchInTaxonomy("parmnesan")
             assertThat(match).isEqualTo("Parmesan")
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testGetAllCleanNames_ExceptionBranchesAndSynonymsWithColons() {
+        runBlocking {
+            // 1. Dao throws exception on getAllCleanNames and getAllTaxonomyItems
+            val failingDao = mock<OpenFoodFactsDao>()
+            val failingRepo = OpenFoodFactsRepository(failingDao)
+
+            whenever(failingDao.getAllCleanNames()).doThrow(RuntimeException("DB error"))
+            whenever(failingDao.getAllTaxonomyItems()).doThrow(RuntimeException("DB error"))
+
+            assertThat(failingRepo.getAllCleanNames()).isEmpty()
+
+            // 2. Synonyms with colons filtered out ("courge, fr:courgette") and blank cleanName
+            val mockDao = mock<OpenFoodFactsDao>()
+            val repo = OpenFoodFactsRepository(mockDao)
+
+            whenever(mockDao.getAllCleanNames()).thenReturn(listOf("Courgette"))
+            whenever(mockDao.getAllTaxonomyItems()).thenReturn(listOf(
+                OpenFoodFactsTaxonomy(cleanName = "   ", synonyms = "courge, fr:courgette"),
+                OpenFoodFactsTaxonomy(cleanName = "Poireau", synonyms = null)
+            ))
+
+            val names = repo.getAllCleanNames()
+            assertThat(names).contains("Courgette")
+            assertThat(names).contains("courge")
+            assertThat(names).contains("Poireau")
+            assertThat(names).doesNotContain("fr:courgette")
+
+            // 3. Second call returns cached clean names
+            val cachedNames = repo.getAllCleanNames()
+            assertThat(cachedNames).isEqualTo(names)
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testGetTaxonomyByCodePaged_WithQueryAndWildcard() {
+        runBlocking {
+            val mockDao = mock<OpenFoodFactsDao>()
+            val repo = OpenFoodFactsRepository(mockDao)
+
+            val expected = listOf(OpenFoodFactsTaxonomy(cleanName = "pommes", categoryCode = 1))
+            whenever(mockDao.getTaxonomyByCodePaged(1, "%pommes%", 200, 0)).thenReturn(expected)
+
+            val result1 = repo.getTaxonomyByCodePaged(1, "pommes")
+            assertThat(result1).isEqualTo(expected)
+
+            val result2 = repo.getTaxonomyByCodePaged(1, "%pommes%")
+            assertThat(result2).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testDefaultParametersAndClearCache() {
+        runBlocking {
+            val mockDao = mock<OpenFoodFactsDao>()
+            val repo = OpenFoodFactsRepository(mockDao)
+
+            // 1. clearCache instance method
+            repo.clearCache()
+
+            // 2. getTaxonomyPaged default args
+            whenever(mockDao.getTaxonomyPaged(50, 0)).thenReturn(emptyList())
+            assertThat(repo.getTaxonomyPaged()).isEmpty()
+
+            // 3. searchTaxonomyPaged default args and wildcard starting with %
+            whenever(mockDao.searchTaxonomyPaged("%pommes%", 50, 0)).thenReturn(emptyList())
+            assertThat(repo.searchTaxonomyPaged("pommes")).isEmpty()
+            whenever(mockDao.searchTaxonomyPaged("%haricots", 50, 0)).thenReturn(emptyList())
+            assertThat(repo.searchTaxonomyPaged("%haricots")).isEmpty()
+
+            // 4. getTaxonomyByCodePaged default args and blank query
+            whenever(mockDao.getTaxonomyByCodePaged(0, null, 200, 0)).thenReturn(emptyList())
+            assertThat(repo.getTaxonomyByCodePaged()).isEmpty()
+            assertThat(repo.getTaxonomyByCodePaged(query = "   ")).isEmpty()
+
+            // 5. getFilteredTaxonomyPaged default args and blank category/query
+            whenever(mockDao.getFilteredTaxonomyPaged(null, null, null, 200, 0)).thenReturn(emptyList())
+            assertThat(repo.getFilteredTaxonomyPaged()).isEmpty()
+            assertThat(repo.getFilteredTaxonomyPaged(category = "   ", query = "   ")).isEmpty()
+
+            // 6. getAllCleanNames when getAllTaxonomyItems returns null
+            whenever(mockDao.getAllCleanNames()).thenReturn(listOf("Lait"))
+            whenever(mockDao.getAllTaxonomyItems()).thenReturn(null)
+            assertThat(repo.getAllCleanNames()).contains("Lait")
+
+            // 7. getAllCleanNames when all items are < 3 characters (resultList.isEmpty())
+            repo.clearCache()
+            whenever(mockDao.getAllCleanNames()).thenReturn(listOf("a", "12", "Haricots"))
+            whenever(mockDao.getAllTaxonomyItems()).thenReturn(listOf(OpenFoodFactsTaxonomy(cleanName = "b", synonyms = "c, d")))
+            assertThat(repo.getAllCleanNames()).contains("Haricots")
+
+            // 8. searchTaxonomy with query starting or ending with %
+            whenever(mockDao.searchTaxonomy("%haricots")).thenReturn(emptyList())
+            assertThat(repo.searchTaxonomy("%haricots")).isEmpty()
+            whenever(mockDao.searchTaxonomy("haricots%")).thenReturn(emptyList())
+            assertThat(repo.searchTaxonomy("haricots%")).isEmpty()
+
+            // 9. getFilteredTaxonomyPaged with non-empty results preview and all accent replacements
+            val previewItem = OpenFoodFactsTaxonomy(cleanName = "Beurre", category = "Crémerie")
+            whenever(mockDao.getFilteredTaxonomyPaged(anyOrNull(), anyOrNull(), anyOrNull(), any(), any()))
+                .thenReturn(listOf(previewItem))
+
+            assertThat(repo.getFilteredTaxonomyPaged(category = "Crème", query = "%lait%")).contains(previewItem)
+            assertThat(repo.getFilteredTaxonomyPaged(category = "Fête", query = "lait%")).contains(previewItem)
         }
     }
 }

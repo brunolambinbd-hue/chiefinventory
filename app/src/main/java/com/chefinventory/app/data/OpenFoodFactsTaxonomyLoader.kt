@@ -27,18 +27,18 @@ object OpenFoodFactsTaxonomyLoader {
             val jsonArray = JSONArray(jsonString)
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
-                val cleanName = obj.optString("cleanName", "").trim()
+                val cleanName = optCleanString(obj, "cleanName")
                 if (cleanName.isNotBlank()) {
-                    val rawCategory = if (obj.has("category") && !obj.isNull("category")) obj.getString("category").trim() else ""
-                    val rawCategoryCode = if (obj.has("categoryCode") && !obj.isNull("categoryCode")) obj.getInt("categoryCode") else 10
-                    val rawSynonyms = if (obj.has("synonyms") && !obj.isNull("synonyms")) obj.getString("synonyms").trim() else ""
-                    val rawWeight = if (obj.has("averageWeightStr") && !obj.isNull("averageWeightStr")) obj.getString("averageWeightStr").trim() else ""
-                    val rawSeason = if (obj.has("seasonStr") && !obj.isNull("seasonStr")) obj.getString("seasonStr").trim() else ""
-                    val rawCarbon = if (obj.has("carbonFootprintStr") && !obj.isNull("carbonFootprintStr")) obj.getString("carbonFootprintStr").trim() else ""
-                    val rawCiqual = if (obj.has("ciqualName") && !obj.isNull("ciqualName")) obj.getString("ciqualName").trim() else ""
-                    val rawEcobalyse = if (obj.has("ecobalyseCategory") && !obj.isNull("ecobalyseCategory")) obj.getString("ecobalyseCategory").trim() else ""
-                    val rawParents = if (obj.has("parentsStr") && !obj.isNull("parentsStr")) obj.getString("parentsStr").trim() else ""
-                    val rawChildren = if (obj.has("childrenStr") && !obj.isNull("childrenStr")) obj.getString("childrenStr").trim() else ""
+                    val rawCategory = optCleanString(obj, "category")
+                    val rawCategoryCode = optInt(obj, "categoryCode", 10)
+                    val rawSynonyms = optCleanString(obj, "synonyms")
+                    val rawWeight = optCleanString(obj, "averageWeightStr")
+                    val rawSeason = optCleanString(obj, "seasonStr")
+                    val rawCarbon = optCleanString(obj, "carbonFootprintStr")
+                    val rawCiqual = optCleanString(obj, "ciqualName")
+                    val rawEcobalyse = optCleanString(obj, "ecobalyseCategory")
+                    val rawParents = optCleanString(obj, "parentsStr")
+                    val rawChildren = optCleanString(obj, "childrenStr")
 
                     list.add(
                         OpenFoodFactsTaxonomy(
@@ -64,6 +64,26 @@ object OpenFoodFactsTaxonomyLoader {
         }
     }
 
+    private fun optCleanString(obj: org.json.JSONObject, key: String): String {
+        if (!obj.has(key)) {
+            return ""
+        } else if (obj.isNull(key)) {
+            return ""
+        } else {
+            return obj.optString(key, "").trim()
+        }
+    }
+
+    private fun optInt(obj: org.json.JSONObject, key: String, defaultVal: Int): Int {
+        if (!obj.has(key)) {
+            return defaultVal
+        } else if (obj.isNull(key)) {
+            return defaultVal
+        } else {
+            return obj.optInt(key, defaultVal)
+        }
+    }
+
     /**
      * Alimente la table `openfoodfacts_taxonomy` à partir de l'asset `off_french_taxonomy.json` si la table est vide ou contient des données non mises à jour.
      *
@@ -79,19 +99,16 @@ object OpenFoodFactsTaxonomyLoader {
         if (currentCount > 0 && synonymsCount >= 100) {
             LogManager.d(TAG, "Taxonomie Open Food Facts déjà alimentée avec synonymes (count=$currentCount, synonymsCount=$synonymsCount). Seeding ignoré.")
             return 0
-        }
-
-        if (synonymsCount < 100 || currentCount == 0) {
+        } else {
             LogManager.d(TAG, "Ré-initialisation de la taxonomie pour chargement des synonymes/pluriels (count=$currentCount, synonymsCount=$synonymsCount)")
             dao.clearTaxonomy()
         }
 
         return try {
-            val inputStream = context.assets.open(ASSET_FILE_NAME)
-            val jsonString = inputStream.bufferedReader().readText()
-            try { inputStream.close() } catch (_: Exception) {}
-
-            val items = parseTaxonomyJson(jsonString)
+            val items = context.assets.open(ASSET_FILE_NAME).use { inputStream ->
+                val jsonString = inputStream.bufferedReader().readText()
+                parseTaxonomyJson(jsonString)
+            }
             if (items.isNotEmpty()) {
                 dao.insertAllTaxonomy(items)
                 LogManager.d(TAG, "Seeding de la taxonomie Open Food Facts réussi (${items.size} entrées insérées).")

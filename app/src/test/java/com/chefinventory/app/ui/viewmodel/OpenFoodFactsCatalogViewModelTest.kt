@@ -15,17 +15,22 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Suite de tests unitaires de Type B vérifiant le comportement et la réactivité de [OpenFoodFactsCatalogViewModel].
  */
 @OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class OpenFoodFactsCatalogViewModelTest {
 
     @get:Rule
@@ -60,6 +65,13 @@ class OpenFoodFactsCatalogViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertThat(viewModel.taxonomyList.value).isEqualTo(taxonomyList)
+            assertThat(viewModel.isLoading.value).isFalse()
+
+            // Call loadInitialData with mock context -> covers context != null branch safely
+            val mockContext = mock<android.content.Context>()
+            whenever(mockContext.applicationContext).thenReturn(mockContext)
+            viewModel.loadInitialData(mockContext)
+            testDispatcher.scheduler.advanceUntilIdle()
             assertThat(viewModel.isLoading.value).isFalse()
         }
 
@@ -121,12 +133,52 @@ class OpenFoodFactsCatalogViewModelTest {
             viewModel.loadInitialData()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            // Filter by letter "H"
-            viewModel.filterByLetter("H")
+            // Filter by letter variants
+            val letterCases = listOf("H", "  h  ", "TOUS", "tous", "", "   ", null)
+            for (letter in letterCases) {
+                viewModel.filterByLetter(letter)
+                testDispatcher.scheduler.advanceUntilIdle()
+            }
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFilterByCategory_AllCategoriesAndCombinedLetterWithQuery() {
+        runBlockingTest {
+            whenever(mockOffRepository.getTaxonomyByCodePaged(any(), anyOrNull(), any(), any())).thenReturn(emptyList())
+
+            val viewModel = OpenFoodFactsCatalogViewModel(mockOffRepository)
+
+            val categories = listOf(
+                "Fruits & Légumes",
+                "Produits Laitiers & Crémerie",
+                "Huiles & Graisses",
+                "Viandes Rouges",
+                "Volailles",
+                "Poissons & Crustacés",
+                "Épices & Condiments",
+                "Céréales & Farines",
+                "Boissons",
+                "Épicerie & Divers",
+                null,
+                "Catégorie Inconnue"
+            )
+
+            for (cat in categories) {
+                viewModel.filterByCategory(cat)
+                testDispatcher.scheduler.advanceUntilIdle()
+            }
+
+            viewModel.filterByCategoryCode(5)
             testDispatcher.scheduler.advanceUntilIdle()
 
-            // Filter by letter "TOUS"
-            viewModel.filterByLetter("TOUS")
+            viewModel.filterByCategoryCode(-1)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Test combined non-blank selectedLetter + non-blank currentQuery
+            viewModel.filterByLetter("H")
+            viewModel.search("haricots")
             testDispatcher.scheduler.advanceUntilIdle()
         }
     }
@@ -161,6 +213,16 @@ class OpenFoodFactsCatalogViewModelTest {
             val taxonomyUppercase = OpenFoodFactsTaxonomy(cleanName = "Haricots verts", category = null)
             val viewModel = OpenFoodFactsCatalogViewModel(mockOffRepository, mockIngredientRepository)
             viewModel.importToPantry(taxonomyUppercase)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModel.importStatus.value).contains("Haricots verts")
+        }
+
+        // 4. Import with lowercase cleanName and null category
+        runBlockingTest {
+            val taxonomyLowercase = OpenFoodFactsTaxonomy(cleanName = "haricots verts", category = null)
+            val viewModel = OpenFoodFactsCatalogViewModel(mockOffRepository, mockIngredientRepository)
+            viewModel.importToPantry(taxonomyLowercase)
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertThat(viewModel.importStatus.value).contains("Haricots verts")

@@ -155,5 +155,105 @@ class OpenFoodFactsProductDetailViewModelTest {
         }
     }
 
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testLoadProductAndImport_NullRepoAndNullProductAndFallbackBranches() {
+        runBlockingTest {
+            // 1. Import with null ingredientRepository -> returns early
+            val viewModelNullRepo = OpenFoodFactsProductDetailViewModel(mockOffRepository, null)
+            viewModelNullRepo.importToPantry()
+            assertThat(viewModelNullRepo.importStatus.value).isNull()
+
+            // 2. Import with null product and null taxonomy -> returns early
+            val viewModelNullProduct = OpenFoodFactsProductDetailViewModel(mockOffRepository, mockIngredientRepository)
+            viewModelNullProduct.importToPantry()
+            assertThat(viewModelNullProduct.importStatus.value).isNull()
+
+            // 3. Import with product brand null & taxonomy category null -> fallback "Épicerie"
+            val prodNullBrand = OpenFoodFactsProduct(barcode = "3017620422003", productName = "Nutella", brand = null, ingredientsText = "Sucre, noisettes")
+            whenever(mockOffRepository.getProductByBarcode("3017620422003")).thenReturn(prodNullBrand)
+
+            val viewModelNullBrand = OpenFoodFactsProductDetailViewModel(mockOffRepository, mockIngredientRepository)
+            viewModelNullBrand.loadProduct("3017620422003", null)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            viewModelNullBrand.importToPantry()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModelNullBrand.importStatus.value).contains("Nutella")
+
+            // 4. Import with taxonomy starting with uppercase
+            val taxUppercase = OpenFoodFactsTaxonomy(id = 10L, cleanName = "Courgettes", category = "Légumes", synonyms = "courge")
+            whenever(mockOffRepository.getTaxonomyById(10L)).thenReturn(taxUppercase)
+
+            val viewModelTaxUppercase = OpenFoodFactsProductDetailViewModel(mockOffRepository, mockIngredientRepository)
+            viewModelTaxUppercase.loadProduct(null, null, taxonomyId = 10L)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            viewModelTaxUppercase.importToPantry()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModelTaxUppercase.importStatus.value).contains("Courgettes")
+
+            // 4b. Import with taxonomy starting with lowercase and null category
+            val taxLowercase = OpenFoodFactsTaxonomy(id = 20L, cleanName = "courgettes", category = null)
+            whenever(mockOffRepository.getTaxonomyById(20L)).thenReturn(taxLowercase)
+
+            val viewModelTaxLowercase = OpenFoodFactsProductDetailViewModel(mockOffRepository, mockIngredientRepository)
+            viewModelTaxLowercase.loadProduct(null, null, taxonomyId = 20L)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            viewModelTaxLowercase.importToPantry()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModelTaxLowercase.importStatus.value).contains("Courgettes")
+
+            // 5. Load product with non-existent barcode and non-existent taxonomyId -> falls through to cleanName
+            whenever(mockOffRepository.getProductByBarcode("9999999999999")).thenReturn(null)
+            whenever(mockOffRepository.getTaxonomyById(999L)).thenReturn(null)
+            val fallbackTax = OpenFoodFactsTaxonomy(cleanName = "haricots", category = "Légumes")
+            whenever(mockOffRepository.getTaxonomyByExactName("haricots")).thenReturn(fallbackTax)
+
+            viewModelNullProduct.loadProduct("9999999999999", "haricots", taxonomyId = 999L)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModelNullProduct.taxonomy.value).isEqualTo(fallbackTax)
+        }
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testLoadProduct_WithWhitespaceAndNullBarcodeAndCleanNameVariants() {
+        runBlockingTest {
+            val viewModel = OpenFoodFactsProductDetailViewModel(mockOffRepository, mockIngredientRepository)
+
+            // 1. Whitespace barcode and whitespace cleanName -> returns null
+            viewModel.loadProduct("   ", "   ", taxonomyId = 0L)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModel.product.value).isNull()
+            assertThat(viewModel.taxonomy.value).isNull()
+
+            // 2. Null barcode and null cleanName -> returns null
+            viewModel.loadProduct(null, null, taxonomyId = 0L)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModel.product.value).isNull()
+            assertThat(viewModel.taxonomy.value).isNull()
+
+            // 3. Taxonomy with blank category falls back to "Épicerie"
+            val taxValid = OpenFoodFactsTaxonomy(id = 100L, cleanName = "haricots verts", category = "   ")
+            whenever(mockOffRepository.getTaxonomyById(100L)).thenReturn(taxValid)
+
+            viewModel.loadProduct(null, null, taxonomyId = 100L)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            viewModel.importToPantry()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(viewModel.importStatus.value).contains("Haricots verts")
+        }
+    }
+
     private fun runBlockingTest(block: suspend () -> Unit) = kotlinx.coroutines.runBlocking { block() }
 }

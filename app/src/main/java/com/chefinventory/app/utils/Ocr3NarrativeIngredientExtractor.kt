@@ -172,7 +172,7 @@ object Ocr3NarrativeIngredientExtractor {
         for (seasoning in seasoningList) {
             if (OcrRegexes.getWholeWordPattern(seasoning).containsMatchIn(lowerFullText)) {
                 val formattedSeasoning = seasoning[0].titlecase() + seasoning.substring(1)
-                val seasoningWords = seasoning.lowercase().split(Regex("[\\s,]+")).filter { it.length >= 3 && it != "et" }
+                val seasoningWords = seasoning.lowercase().split(Regex("[\\s,]+")).filter { word -> word.length >= 3 }
                 val alreadySeen = seasoningWords.any { it in seenKeywords }
                 if (!alreadySeen) {
                     seenKeywords.addAll(seasoningWords)

@@ -47,6 +47,7 @@ class EditRecipeViewModelTest {
         Dispatchers.setMain(testDispatcher)
         mockRecipeRepo = mock()
         mockLocRepo = mock()
+        whenever(mockLocRepo.getAllByType(com.chefinventory.app.model.LocationType.RECIPE)).thenReturn(MutableLiveData(emptyList()))
     }
 
     @After
@@ -64,6 +65,7 @@ class EditRecipeViewModelTest {
         whenever(mockRecipeRepo.getIngredientsForRecipe(10L)).thenReturn(ingredientsLiveData)
 
         val vm = EditRecipeViewModel(mockRecipeRepo, mockLocRepo)
+        vm.recipeCategories.observeForever {}
         vm.loadRecipe(10L)
 
         assertThat(vm.recipe.value).isEqualTo(recipe)

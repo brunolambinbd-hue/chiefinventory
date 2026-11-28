@@ -8,6 +8,7 @@ import com.chefinventory.app.dao.OpenFoodFactsDao
 import com.chefinventory.app.utils.OcrLevenshteinUtils
 import com.chefinventory.app.utils.OcrVocabularyLoader
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.parabd.lib.traceability.CoveredRequirement
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -72,16 +73,74 @@ class OpenFoodFactsTaxonomyLoaderTest {
         val json = """
             [
               {"cleanName": "   "},
-              {"cleanName": "sucre", "category": null, "synonyms": null},
+              {"cleanName": "sucre", "category": null, "categoryCode": null, "synonyms": null},
               {"cleanName": "sel"}
             ]
         """.trimIndent()
         val items = OpenFoodFactsTaxonomyLoader.parseTaxonomyJson(json)
         assertThat(items).hasSize(2)
-        assertThat(items[0].cleanName).isEqualTo("sucre")
+        assertWithMessage("Le mot 'sucre' doit être extrait sans catégorie")
+            .that(items[0].cleanName).isEqualTo("sucre")
         assertThat(items[0].category).isNull()
+        assertThat(items[0].categoryCode).isEqualTo(10)
         assertThat(items[0].synonyms).isNull()
         assertThat(items[1].cleanName).isEqualTo("sel")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testParseTaxonomyJson_MissingKeys_DefaultValuesReturned() {
+        val jsonMissingKeys = """
+            [
+              {
+                "cleanName": "farine"
+              }
+            ]
+        """.trimIndent()
+        val items = OpenFoodFactsTaxonomyLoader.parseTaxonomyJson(jsonMissingKeys)
+        assertThat(items).hasSize(1)
+        assertThat(items[0].cleanName).isEqualTo("farine")
+        assertThat(items[0].categoryCode).isEqualTo(10)
+        assertThat(items[0].category).isNull()
+        assertThat(items[0].synonyms).isNull()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testParseTaxonomyJson_FullFieldsAndObjectCoverage() {
+        assertWithMessage("OpenFoodFactsTaxonomyLoader doit générer une représentation textuelle valide")
+            .that(OpenFoodFactsTaxonomyLoader.toString())
+            .contains("OpenFoodFactsTaxonomyLoader")
+
+        val fullJson = """
+            [
+              {
+                "cleanName": "pomme",
+                "category": "Fruits",
+                "categoryCode": 1,
+                "synonyms": "pommes",
+                "averageWeightStr": "150 g",
+                "seasonStr": "Automne",
+                "carbonFootprintStr": "0.2 kg",
+                "ciqualName": "Pomme fraiche",
+                "ecobalyseCategory": "fruits",
+                "parentsStr": "fruits",
+                "childrenStr": "pomme rouge"
+              }
+            ]
+        """.trimIndent()
+
+        val items = OpenFoodFactsTaxonomyLoader.parseTaxonomyJson(fullJson)
+        assertThat(items).hasSize(1)
+        assertThat(items[0].cleanName).isEqualTo("pomme")
+        assertThat(items[0].categoryCode).isEqualTo(1)
+        assertThat(items[0].averageWeightStr).isEqualTo("150 g")
+        assertThat(items[0].seasonStr).isEqualTo("Automne")
+        assertThat(items[0].carbonFootprintStr).isEqualTo("0.2 kg")
+        assertThat(items[0].ciqualName).isEqualTo("Pomme fraiche")
+        assertThat(items[0].ecobalyseCategory).isEqualTo("fruits")
+        assertThat(items[0].parentsStr).isEqualTo("fruits")
+        assertThat(items[0].childrenStr).isEqualTo("pomme rouge")
     }
 
     @Test

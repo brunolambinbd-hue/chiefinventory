@@ -38,10 +38,10 @@ object Ocr3CategorizerIngredientDetector {
             val textAfter = line.substring(match.range.last + 1).trimStart()
             if (textAfter.isEmpty()) return@count false
 
-            val nextWord = textAfter.split(Regex("[\\s,.;]")).firstOrNull()?.lowercase() ?: ""
+            val nextWord = textAfter.split(Regex("[\\s,.;]")).first().lowercase()
             if (nextWord.isEmpty()) return@count false
             if (nextWord in excludedNextWords) return@count false
-            if (!nextWord.any { it.isLetter() }) return@count false
+            if (nextWord.none { it.isLetter() }) return@count false
             return@count true
         }
     }

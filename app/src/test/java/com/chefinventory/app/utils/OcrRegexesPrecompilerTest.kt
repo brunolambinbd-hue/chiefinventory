@@ -47,4 +47,21 @@ class OcrRegexesPrecompilerTest {
         val repairPattern = OcrRegexesDynamicHelpers.getSpellingRepairPattern("æufs")
         assertThat(repairPattern.containsMatchIn("2 æufs durs")).isTrue()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testPrecompile_BlankEntriesAndEmptyStepActionKeywords_CoversAllBranches() {
+        val customVocab = vocabulary.copy(
+            culinaryMeasurementUnits = listOf(" ", "g"),
+            ocrSpellingRepairs = listOf("  | correct", " wrong | right "),
+            phonePrefixes = listOf("   ", "01"),
+            stepActionKeywords = emptyList()
+        )
+
+        val count = OcrRegexesPrecompiler.precompile(customVocab)
+        assertThat(count).isGreaterThan(0)
+
+        // Also test Object generated toString coverage
+        assertThat(OcrRegexesPrecompiler.toString()).contains("OcrRegexesPrecompiler")
+    }
 }

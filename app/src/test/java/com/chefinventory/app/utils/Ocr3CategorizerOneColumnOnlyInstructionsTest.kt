@@ -130,4 +130,30 @@ class Ocr3CategorizerOneColumnOnlyInstructionsTest {
             )
             .inOrder()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testIsNarrativeAndCategorize_ExhaustiveBranchCoverage() {
+        val customVocab = vocabulary.copy(
+            timeHeaderKeywords = listOf("min"),
+            excludedOcrKeywords = listOf("Bruit")
+        )
+
+        // 1. Instruction header with quantified ingredient -> returns false (Type 1 recipe)
+        val linesType1 = listOf("INSTRUCTIONS", "200 g de farine", "Faites un puit et mélanger")
+        assertThat(Ocr3CategorizerOneColumnOnlyInstructions.isNarrativeInstructionOnlyRecipe(linesType1, customVocab)).isFalse()
+
+        // 2. Nutrition table line in bottom list check
+        val linesNutritionBottom = listOf("Ligne 1", "Ligne 2", "Valeurs nutritionnelles", "pour 4 personnes")
+        assertThat(Ocr3CategorizerOneColumnOnlyInstructions.isNarrativeInstructionOnlyRecipe(linesNutritionBottom, customVocab)).isFalse()
+
+        // 3. Excluded keyword in instruction line check
+        val linesExcluded = listOf("pour", "Bruit", "Mélanger")
+        assertThat(Ocr3CategorizerOneColumnOnlyInstructions.isNarrativeInstructionOnlyRecipe(linesExcluded, customVocab)).isTrue()
+
+        // 4. Duplicate source & noise line after wine section closed in categorizeNarrativeRecipe
+        val linesCat = listOf("Notre vin conseillé : Bordeaux 1996 75 cl", "Bruit", "Par le chef Yilmaz", "Par le chef Yilmaz", "Mélanger")
+        val result = Ocr3CategorizerOneColumnOnlyInstructions.categorizeNarrativeRecipe(linesCat, customVocab)
+        assertThat(result.detectedSourceList).containsExactly("Par le chef Yilmaz")
+    }
 }

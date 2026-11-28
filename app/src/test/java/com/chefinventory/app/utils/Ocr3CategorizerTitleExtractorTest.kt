@@ -265,4 +265,22 @@ class Ocr3CategorizerTitleExtractorTest {
             .that(result.title)
             .isEqualTo("Fondue à la bière")
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractTitle_2DSpatialMatchingAndSpellingRepairAndLogging() {
+        val line1 = OcrTextLine("Büchettes de melon", top = 100, bottom = 180, left = 50, right = 300)
+        val line2 = OcrTextLine("au jambon", top = 110, bottom = 185, left = 250, right = 500)
+
+        val customVocab = vocabulary.copy(
+            titleSpellingRepairs = listOf("Büchettes | Bûchettes")
+        )
+
+        val lines = listOf("Büchettes de melon", "au jambon", "200 g de jambon")
+        val result = Ocr3CategorizerTitleExtractor.extractTitle(lines, customVocab, lines2D = listOf(line1, line2))
+
+        assertWithMessage("Le titre spatial 2D avec réparation orthographique doit être extrait")
+            .that(result.title)
+            .contains("Bûchettes de melon au jambon")
+    }
 }

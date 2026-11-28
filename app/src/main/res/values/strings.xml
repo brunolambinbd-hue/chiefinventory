@@ -193,6 +193,13 @@
     <string name="toast_camera_permission_denied">Permission de la caméra refusée</string>
     <string name="toast_title_is_mandatory">Le titre est obligatoire</string>
     <string name="toast_crop_error">Erreur de recadrage: %1$s</string>
+    <string name="toast_mode_pantry_entry">Mode Entrée activé : scannez pour ranger vos courses</string>
+    <string name="toast_mode_pantry_exit">Mode Sortie activé : scannez pour consommer un produit</string>
+    <string name="toast_please_enter_barcode">Veuillez saisir un code-barres EAN13</string>
+    <string name="toast_camera_scan_cancelled">Scan caméra annulé ou indisponible : %1$s</string>
+    <string name="toast_camera_viewfinder_error">Erreur d\'ouverture du viseur caméra : %1$s</string>
+    <string name="toast_product_consumed_format">🔴 Consommé : %1$s (Reste : %2$s %3$s)</string>
+    <string name="unit_default_single">unité</string>
     <string name="rapport_signatures">Rapport des signatures</string>
 
     <!-- Nouvelles chaînes pour le rapport de signature -->

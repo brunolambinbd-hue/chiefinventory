@@ -67,4 +67,28 @@ class Ocr5BeautifierSourceTest {
             "Hôtel Marriott Bruxelles"
         ).inOrder()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifySources_PunctuationBecomesBlank_SkipsLine() {
+        val input = listOf("...", " - - ", "  . , :  ", "Maxi GB")
+        val result = Ocr5BeautifierSource.beautifySources(input)
+        assertThat(result).containsExactly("Maxi GB")
+
+        val customVocab = OcrVocabularyLoader.loadFromProjectResources().copy(
+            knownSourceBrands = listOf("", "Delhaize"),
+            sourceKeywords = listOf("   ", "Hôtel")
+        )
+        val inputNoise = listOf("A. O", "Restaurant Delhaize", "Hôtel Hilton")
+        val resultNoise = Ocr5BeautifierSource.beautifySources(inputNoise, customVocab)
+        assertThat(resultNoise).containsExactly("Restaurant Delhaize", "Hôtel Hilton")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifySources_LowerCaseFirstChar_CapitalizesFirstChar() {
+        val input = listOf("hôtellerie de la plage")
+        val result = Ocr5BeautifierSource.beautifySources(input)
+        assertThat(result).containsExactly("Hôtellerie de la plage")
+    }
 }

@@ -13,7 +13,13 @@ import java.net.URL
 object OpenFoodFactsApiClient {
 
     private const val TAG = "OFFApiClient"
-    internal var baseUrlProvider: (String) -> String = { "https://world.openfoodfacts.org/api/v2/product/$it.json" }
+
+    private fun defaultBaseUrl(barcode: String): String = "https://world.openfoodfacts.org/api/v2/product/$barcode.json"
+    internal var baseUrlProvider: (String) -> String = ::defaultBaseUrl
+
+    fun resetBaseUrlProvider() {
+        baseUrlProvider = ::defaultBaseUrl
+    }
 
     /**
      * Parse une réponse JSON de l'API Open Food Facts v2 et construit un objet [OpenFoodFactsProduct].

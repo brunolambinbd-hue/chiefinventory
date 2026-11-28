@@ -34,13 +34,19 @@ class OpenFoodFactsCatalogAdapter(
         val item = getItem(position)
         val binding = holder.binding
 
-        val formattedName = item.cleanName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        val formattedName = if (item.cleanName.isBlank()) {
+            ""
+        } else if (item.cleanName[0].isLowerCase()) {
+            item.cleanName.replaceFirstChar { it.titlecase() }
+        } else {
+            item.cleanName
+        }
         binding.tvCleanName.text = formattedName
 
         val categoryText = when {
             !item.ecobalyseCategory.isNullOrBlank() -> item.ecobalyseCategory
-            !item.category.isNullOrBlank() && item.category != "Alimentation" -> item.category
-            else -> "other_food_items"
+            !item.category.isNullOrBlank() && item.category != CATEGORY_FOOD_GENERIC -> item.category
+            else -> DEFAULT_FALLBACK_CATEGORY
         }
         binding.tvCategory.text = categoryText
         binding.tvCategory.isVisible = true
@@ -59,5 +65,10 @@ class OpenFoodFactsCatalogAdapter(
         binding.btnAddToPantry.setOnSingleClickListener {
             onAddToPantryClick(item)
         }
+    }
+
+    companion object {
+        private const val CATEGORY_FOOD_GENERIC = "Alimentation"
+        private const val DEFAULT_FALLBACK_CATEGORY = "other_food_items"
     }
 }

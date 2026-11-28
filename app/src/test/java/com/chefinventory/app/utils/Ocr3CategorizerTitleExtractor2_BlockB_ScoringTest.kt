@@ -87,6 +87,16 @@ class Ocr3CategorizerTitleExtractor2_BlockB_ScoringTest {
         assertWithMessage("Une ligne 'Salade 123' avec des nombres parasites doit être disqualifiée")
             .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Salade 123", vocabulary, null))
             .isFalse()
+
+        // Disqualified by sesame without accent and category header without connectors
+        assertWithMessage("Le mot 'sesame' sans accent doit être disqualifié")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("sesame", vocabulary, null))
+            .isFalse()
+
+        val categoryVocab = vocabulary.copy(recipeCategoryHeaders = listOf("entrée | 1"))
+        assertWithMessage("L'en-tête de catégorie sans connecteur 'Entrée froide' doit être disqualifié")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Entrée froide", categoryVocab, null))
+            .isFalse()
     }
 
     @Test
@@ -114,5 +124,57 @@ class Ocr3CategorizerTitleExtractor2_BlockB_ScoringTest {
         assertWithMessage("Le détail explicatif du score doit mentionner le bonus de premier ingrédient")
             .that(details)
             .contains("premier_ingrédient")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testEvaluateScore_2DFontHeightBranchesAndFuzzyTitleKeywords() {
+        val line2DLarge = OcrTextLine("Salade de tomates", top = 100, bottom = 250, left = 50, right = 400)
+        val (_, detailsLarge) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(
+            candidate = "Salade de tomates",
+            vocabulary = vocabulary,
+            recipeIngredientWords = setOf("tomates"),
+            firstIngredientWord = "tomates",
+            lines2D = listOf(line2DLarge)
+        )
+        assertWithMessage("Large font 2D line (150px) gives +60 pts").that(detailsLarge).contains("hauteur_police_titre_2d")
+
+        val line2DSmall = OcrTextLine("Salade de tomates", top = 100, bottom = 150, left = 50, right = 400)
+        val (_, detailsSmall) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(
+            candidate = "Salade de tomates",
+            vocabulary = vocabulary,
+            recipeIngredientWords = setOf("tomates"),
+            firstIngredientWord = "tomates",
+            lines2D = listOf(line2DSmall)
+        )
+        assertWithMessage("Small font 2D line (50px) does not give font height bonus").that(detailsSmall).doesNotContain("hauteur_police_titre_2d")
+
+        val line2DUnmatched = OcrTextLine("Unrelated 2D Line", top = 100, bottom = 250, left = 50, right = 400)
+        val (_, detailsUnmatched) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(
+            candidate = "Salade de tomates",
+            vocabulary = vocabulary,
+            recipeIngredientWords = setOf("tomates"),
+            firstIngredientWord = "tomates",
+            lines2D = listOf(line2DUnmatched)
+        )
+        assertWithMessage("Unmatched 2D line does not give 2D bonus").that(detailsUnmatched).doesNotContain("hauteur_police_titre_2d")
+
+        val customVocab = vocabulary.copy(titleKeywords = listOf("tarte"))
+        val (_, detailsFuzzy) = Ocr3CategorizerTitleExtractor2_BlockB_Scoring.evaluateScore(
+            candidate = "Tartes aux pommes",
+            vocabulary = customVocab,
+            recipeIngredientWords = setOf("pommes"),
+            firstIngredientWord = "pommes"
+        )
+        assertWithMessage("Fuzzy title keyword 'tartes' -> 'tarte' gives +20 pts").that(detailsFuzzy).contains("mots_clés_titre_flou_lettrine")
+
+        val categoryVocab = vocabulary.copy(recipeCategoryHeaders = listOf("entrée | 1"))
+        assertWithMessage("Category header with > 3 words is not disqualified")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("Entrée froide de salade de tomates", categoryVocab, null))
+            .isTrue()
+
+        assertWithMessage("Disqualifying number start '10. Etape' is disqualified")
+            .that(Ocr3CategorizerTitleExtractor2_BlockB_Scoring.isBaseCandidate("10. Etape 1", vocabulary, null))
+            .isFalse()
     }
 }

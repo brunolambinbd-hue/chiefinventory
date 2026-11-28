@@ -30,6 +30,30 @@ object Ocr3CategorizerTitleExtractor1_BlockA_MixedLines {
     }
 
     /**
+     * Détermine si un titre potentiel forme un candidat multi-lignes avec la ligne suivante.
+     *
+     * @param potentialTitle Le titre potentiel extrait de la première ligne.
+     * @param lineIndex L'index de la ligne courante.
+     * @param lines La liste complète des lignes de texte.
+     * @param vocabulary Le vocabulaire métier OCR.
+     * @return `true` si le titre doit être fusionné avec la ligne suivante, `false` sinon.
+     */
+    internal fun evalMultiLineTitleCandidate(
+        potentialTitle: String,
+        lineIndex: Int,
+        lines: List<String>,
+        vocabulary: OcrVocabulary
+    ): Boolean {
+        if (lineIndex + 1 >= lines.size) return false
+
+        val endingConn = hasEndingConnector(potentialTitle, vocabulary)
+        val nextLineText = lines[lineIndex + 1]
+        val isNextConnector = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(nextLineText, vocabulary)
+
+        return endingConn || isNextConnector
+    }
+
+    /**
      * Traite et extrait un potentiel candidat titre situé sur la même ligne qu'un marqueur de fin d'ingrédients ("Sel et poivre").
      *
      * @param workingLine La ligne nettoyée courante.
@@ -58,20 +82,17 @@ object Ocr3CategorizerTitleExtractor1_BlockA_MixedLines {
 
         if (isSelPoivreLine) {
             val parts = workingLine.split(OcrRegexes.Titles.SPLIT_SEL_POIVRE, 2)
-            val rawTitlePart = if (parts.size > 1) parts[1].trim() else ""
+            if (parts.size <= 1) {
+                LogManager.d(TAG, "Ligne sel/poivre sans partie titre après scission : $workingLine")
+                return false
+            }
+
+            val rawTitlePart = parts[1].trim()
             if (rawTitlePart.isNotEmpty()) {
                 var potentialTitle = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.stripRecipeNumber(rawTitlePart)
-                val hasNextLine = lineIndex + 1 < lines.size
-                val endingConn = hasEndingConnector(potentialTitle, vocabulary)
-                val nextConn = if (hasNextLine) {
-                    Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.isMultiLineTitleConnector(lines[lineIndex + 1], vocabulary)
-                } else {
-                    false
-                }
-
-                val isMultiLineCandidate = endingConn || nextConn
+                val isMultiLineCandidate = evalMultiLineTitleCandidate(potentialTitle, lineIndex, lines, vocabulary)
                 var skipCount = 0
-                if (isMultiLineCandidate && hasNextLine) {
+                if (isMultiLineCandidate) {
                     potentialTitle = "$potentialTitle ${lines[lineIndex + 1].trim()}"
                     skipCount = 1
                 }

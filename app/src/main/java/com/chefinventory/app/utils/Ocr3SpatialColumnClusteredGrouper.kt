@@ -85,9 +85,7 @@ object Ocr3SpatialColumnClusteredGrouper {
 
             val hasAction = OcrInstructionUtils.hasActionVerb(text, vocabulary.stepActionKeywords)
             val hasStartVerb = OcrInstructionUtils.hasStartVerb(text, vocabulary.stepStartVerbs)
-            if (hasAction) {
-                instructionCount++
-            } else if (hasStartVerb) {
+            if (hasAction || hasStartVerb) {
                 instructionCount++
             }
         }

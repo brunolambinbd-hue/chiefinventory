@@ -80,7 +80,12 @@ class OpenFoodFactsCatalogViewModel(
     }
 
     fun filterByLetter(letter: String?) {
-        selectedLetter = if (letter.isNullOrBlank() || letter == "TOUS") null else letter.trim().uppercase()
+        val cleanLetter = letter?.trim()
+        selectedLetter = if (cleanLetter.isNullOrBlank() || cleanLetter.equals("TOUS", ignoreCase = true)) {
+            null
+        } else {
+            cleanLetter.uppercase()
+        }
         applyFilters()
     }
 
@@ -109,9 +114,10 @@ class OpenFoodFactsCatalogViewModel(
     fun importToPantry(taxonomy: OpenFoodFactsTaxonomy, defaultLocationId: Long = 2L) = viewModelScope.launch {
         if (ingredientRepository == null) return@launch
         try {
+            val categoryName = if (taxonomy.category.isNullOrBlank()) "Épicerie" else taxonomy.category.trim()
             val newIngredient = Ingredient(
-                name = taxonomy.cleanName.replaceFirstChar { it.titlecase() },
-                category = taxonomy.category ?: "Épicerie",
+                name = taxonomy.cleanName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
+                category = categoryName,
                 locationId = defaultLocationId,
                 quantity = 0.0,
                 unit = "unité"

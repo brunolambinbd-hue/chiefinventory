@@ -14,7 +14,7 @@ class OpenFoodFactsApiClientTest {
 
     @After
     fun tearDown() {
-        OpenFoodFactsApiClient.baseUrlProvider = { "https://world.openfoodfacts.org/api/v2/product/$it.json" }
+        OpenFoodFactsApiClient.resetBaseUrlProvider()
     }
 
     @Test
@@ -126,6 +126,10 @@ class OpenFoodFactsApiClientTest {
     fun testFetchProductByBarcode_InvalidBarcodeOrOffline_ReturnsNull() {
         assertThat(OpenFoodFactsApiClient.fetchProductByBarcode("")).isNull()
         assertThat(OpenFoodFactsApiClient.fetchProductByBarcode("   ")).isNull()
+
+        // Test default baseUrlProvider lambda execution with short timeout
+        val prodDefault = OpenFoodFactsApiClient.fetchProductByBarcode("0000000000000", timeoutMs = 1)
+        assertThat(prodDefault).isNull()
 
         // Point to non-connectable local port
         OpenFoodFactsApiClient.baseUrlProvider = { "http://127.0.0.1:1/api/v2/product/$it.json" }

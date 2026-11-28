@@ -94,9 +94,39 @@ class Ocr5BeautifierIngredientTest {
         val resultDessert = Ocr5BeautifierIngredient.beautifyIngredients(inputDessert)
         assertThat(resultDessert).containsExactly("1 boule de glace vanille sur du melon")
 
-        // Typo correction with elision prefix: "d'hoile" -> "d'huile"
-        val inputElision = listOf("2 c. à soupe d'hoile d'olive")
+        // Typo correction with elision prefix: "d'hoile" -> "d'huile", "d’hoile" -> "d’huile"
+        val inputElision = listOf("2 c. à soupe d'hoile d'olive", "1 c. à soupe d’hoile d'olive")
         val resultElision = Ocr5BeautifierIngredient.beautifyIngredients(inputElision)
-        assertThat(resultElision).containsExactly("2 c. à soupe d'huile d'olive")
+        assertThat(resultElision).containsExactly("2 c. à soupe d'huile d'olive", "1 c. à soupe d’huile d'olive")
+
+        // Mozzarella / Glace / Pain / Pate context: preserves 'boule'
+        val inputMozza = listOf("1 boule de mozzarella", "1 boule de glace", "1 boule de pain", "1 boule de pate")
+        val resultMozza = Ocr5BeautifierIngredient.beautifyIngredients(inputMozza)
+        assertThat(resultMozza).containsExactly("1 boule de mozzarella", "1 boule de glace", "1 boule de pain", "1 boule de pate")
+
+        // Mussel context: "bouchot", "mariniere", "marinière", "zelande", "zélande", "parc", "boule" (singular)
+        val inputMussel2 = listOf("1 kg de boule de bouchot", "1 kg de boules mariniere", "1 kg de boules de zelande")
+        val resultMussel2 = Ocr5BeautifierIngredient.beautifyIngredients(inputMussel2)
+        assertThat(resultMussel2).containsExactly("1 kg de moules de bouchot", "1 kg de moules mariniere", "1 kg de moules de zelande")
+
+        // Plural rules for -eau and -eu
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+        assertThat(Ocr5BeautifierIngredient.applyFrenchPluralIfQuantityGreaterThanOne("2 couteau", 2.0, vocabulary)).isEqualTo("2 couteaux")
+        assertThat(Ocr5BeautifierIngredient.applyFrenchPluralIfQuantityGreaterThanOne("2 pneu", 2.0, vocabulary)).isEqualTo("2 pneux")
+        assertThat(Ocr5BeautifierIngredient.applyFrenchPluralIfQuantityGreaterThanOne("   ", 2.0, vocabulary)).isEqualTo("   ")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyIngredients_BranchCoverageExhaustive() {
+        // Non-elision prefix with apostrophe "s'il" and hyphen "d-hoile"
+        val inputNonElision = listOf("2 c. à soupe s'il vous plaît", "2 c. à soupe d-hoile", "d'", "farine")
+        val resNonElision = Ocr5BeautifierIngredient.beautifyIngredients(inputNonElision)
+        assertThat(resNonElision).containsAtLeast("2 c. à soupe s'il vous plaît", "2 c. à soupe d-hoile", "Farine")
+
+        // Mussel context with "douzaine"
+        val inputDouzaine = listOf("1 douzaine de boules")
+        val resDouzaine = Ocr5BeautifierIngredient.beautifyIngredients(inputDouzaine)
+        assertThat(resDouzaine).containsExactly("1 douzaine de moules")
     }
 }

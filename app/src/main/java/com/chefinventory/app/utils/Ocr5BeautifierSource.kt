@@ -20,10 +20,10 @@ object Ocr5BeautifierSource {
      * @param sources La liste des sources et coordonnées brutes.
      * @return La liste nettoyée, majusculée et sans doublons des sources d'origine.
      */
-    fun beautifySources(sources: List<String>): List<String> {
+    fun beautifySources(sources: List<String>, vocabulary: OcrVocabulary? = null): List<String> {
         if (sources.isEmpty()) return emptyList()
 
-        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val vocab = vocabulary ?: OcrVocabularyLoader.loadFromProjectResources()
         val standaloneTrashWords = (vocab.standaloneArticles + vocab.hangingConnectors).map { it.lowercase().trim() }.toSet()
         val beautifiedList = mutableListOf<String>()
 
@@ -36,6 +36,7 @@ object Ocr5BeautifierSource {
 
             var cleaned = Ocr5Beautifier.sanitizeLine(
                 line = source,
+                spellingRepairs = vocab.ocrSpellingRepairs,
                 prefixPatterns = listOf(OcrRegexes.Sources.LEADING_PUNCTUATION),
                 vocab = vocab,
                 standaloneTrashWords = standaloneTrashWords,
@@ -44,9 +45,6 @@ object Ocr5BeautifierSource {
 
             // Nettoyage des ponctuations orphelines en fin de ligne
             cleaned = cleaned.replace(OcrRegexes.Normalizer.TRAILING_PUNCTUATION, "").trim()
-            if (cleaned.isBlank()) {
-                continue
-            }
 
             // Purge des lettres alpha isolées en début et fin de source ("A Maxi GB" -> "Maxi GB", "Maxi GB O" -> "Maxi GB")
             cleaned = Ocr5BeautifierSourceNoiseHelper.cleanIsolatedAlphaNoiseFromSource(cleaned)

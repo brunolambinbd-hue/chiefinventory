@@ -120,4 +120,63 @@ class Ocr1CorrectorTest {
             .that(result.length)
             .isEqualTo(expectedNfc.length)
     }
+
+    @Test
+    fun testExhaustiveOcr1CorrectorCoverage_WithoutModifyingSourceFile() {
+        assertWithMessage("Ocr1Corrector doit générer une représentation textuelle valide")
+            .that(Ocr1Corrector.toString())
+            .contains("Ocr1Corrector")
+
+        // 1. loadDefaultDiacriticRepairs with error fallback (Line 39, 40, 41)
+        val tempFile = java.io.File.createTempFile("invalid_dir", ".tmp")
+        val emptyDiacritics = Ocr1Corrector.loadDefaultDiacriticRepairs(tempFile)
+        tempFile.delete()
+        assertWithMessage("Un fichier invalide doit déclencher le catch et retourner une liste vide")
+            .that(emptyDiacritics)
+            .isEmpty()
+
+        // 2. defaultDiacriticRepairs getter (Line 57)
+        val defaultDiacritics = Ocr1Corrector.defaultDiacriticRepairs
+        assertWithMessage("Les diacritiques par défaut doivent être chargés")
+            .that(defaultDiacritics)
+            .isNotEmpty()
+
+        // 3. correctLine with 2D OcrTextLine (Line 58)
+        val blank2DLine = OcrTextLine("   ", top = 100, left = 50)
+        val correctedBlank2D = Ocr1Corrector.correctLine(blank2DLine)
+        assertWithMessage("Une ligne 2D blanche doit être retournée nettoyée").that(correctedBlank2D.text).isEmpty()
+
+        val valid2DLine = OcrTextLine("500g de farine", top = 100, left = 50)
+        val correctedValid2D = Ocr1Corrector.correctLine(valid2DLine)
+        assertWithMessage("Une ligne 2D valide doit être corrigée").that(correctedValid2D.text).isEqualTo("500 g de farine")
+
+        // 4. Prefix 't' before digit removal (Line 108)
+        val resultPrefixT = Ocr1Corrector.correct("t 10 min")
+        assertWithMessage("Le préfixe 't' parasite devant un chiffre doit être retiré").that(resultPrefixT).contains("10 min")
+
+        // 5. Number-unit separation (Line 129)
+        val resultNumUnit = Ocr1Corrector.correct("500g 1l")
+        assertWithMessage("Les nombres collés aux unités '500g 1l' doivent être séparés en '500 g 1 l'")
+            .that(resultNumUnit)
+            .isEqualTo("500 g 1 l")
+
+        // 6. applyCaseSensitiveSpellingRepairs (Line 240)
+        assertWithMessage("Texte sans lettres ne doit pas appliquer de réparation sensible à la casse")
+            .that(Ocr1Corrector.applyCaseSensitiveSpellingRepairs("12345", listOf("wrong|correct")))
+            .isEqualTo("12345")
+
+        assertWithMessage("Règles vides doivent retourner le texte inchangé")
+            .that(Ocr1Corrector.applyCaseSensitiveSpellingRepairs("RecouVrez", emptyList()))
+            .isEqualTo("RecouVrez")
+
+        val resultCaseSensitive = Ocr1Corrector.applyCaseSensitiveSpellingRepairs("RecouVrez", listOf("RecouVrez | Recouvrez", "invalid_rule_no_pipe"))
+        assertWithMessage("La réparation sensible à la casse 'RecouVrez' -> 'Recouvrez' doit être appliquée")
+            .that(resultCaseSensitive)
+            .isEqualTo("Recouvrez")
+
+        // 7. Deprecated normalize function
+        @Suppress("DEPRECATION")
+        val resultNormalize = Ocr1Corrector.normalize("500g de farine")
+        assertWithMessage("La méthode normalize doit agir comme un alias de correct").that(resultNormalize).isEqualTo("500 g de farine")
+    }
 }

@@ -110,4 +110,34 @@ class OcrLevenshteinUtilsTest {
         // 4. Exact match
         assertThat(OcrLevenshteinUtils.findBestMatch("Tomates", dictionary)).isEqualTo("Tomates")
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testDistanceAndFindBestMatch_EmptyStringsAndUnmatchedThreshold() {
+        // Distance with empty string
+        assertThat(OcrLevenshteinUtils.distance("", "haricots")).isEqualTo(8)
+        assertThat(OcrLevenshteinUtils.distance("haricots", "")).isEqualTo(8)
+
+        // findBestMatch with low similarity
+        val dictionary = listOf("chocolat")
+        assertThat(OcrLevenshteinUtils.findBestMatch("haricots", dictionary)).isNull()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFindBestMatch_SimNotGreaterThanMaxSimAndLengthDiffGreaterThanMaxAllowed() {
+        val dictionary = listOf("Courjete", "Courgette", "a")
+        val match = OcrLevenshteinUtils.findBestMatch("courjete", dictionary)
+        assertThat(match).isEqualTo("Courjete")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testStripAccentsAndIsFuzzyMatchExhaustive() {
+        assertThat(OcrLevenshteinUtils.stripAccents("\\épinard\\")).isEqualTo("EPINARD")
+        assertThat(OcrLevenshteinUtils.stripAccents("   ")).isEmpty()
+
+        assertThat(OcrLevenshteinUtils.isFuzzyMatch("tomate", "tomate")).isTrue()
+        assertThat(OcrLevenshteinUtils.isFuzzyMatch("tomate", "carotte")).isFalse()
+    }
 }

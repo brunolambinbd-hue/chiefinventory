@@ -216,4 +216,42 @@ class Ocr3CategorizerTitleExtractor3_BlockC_PostProcessTest {
             .that(emptyStripped)
             .isEmpty()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testRepairFirstWordLettrine_Suffix1And2And3FallbackMatch() {
+        val candidateIngredients = setOf("langoustines")
+
+        // Suffix 1 match (xlangoustines -> drop 1 = langoustines)
+        val rep1 = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(
+            titleCandidate = "xlangoustines grillées",
+            candidateIngredients = candidateIngredients,
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Suffixe 1 doit réparer").that(rep1).isEqualTo("Langoustines grillées")
+
+        // Suffix 2 match (xxlangoustines -> drop 2 = langoustines)
+        val rep2 = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(
+            titleCandidate = "xxlangoustines grillées",
+            candidateIngredients = candidateIngredients,
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Suffixe 2 doit réparer").that(rep2).isEqualTo("Langoustines grillées")
+
+        // Suffix 3 match (xxxlangoustines -> drop 3 = langoustines)
+        val rep3 = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(
+            titleCandidate = "xxxlangoustines grillées",
+            candidateIngredients = candidateIngredients,
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Suffixe 3 doit réparer").that(rep3).isEqualTo("Langoustines grillées")
+
+        // No match (xxxxlangoustines -> drop 3 = xlangoustines)
+        val repNone = Ocr3CategorizerTitleExtractor3_BlockC_PostProcess.repairFirstWordLettrine(
+            titleCandidate = "xxxxlangoustines grillées",
+            candidateIngredients = candidateIngredients,
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Aucun suffixe ne doit réparer").that(repNone).isEqualTo("xxxxlangoustines grillées")
+    }
 }

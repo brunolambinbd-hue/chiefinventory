@@ -186,4 +186,22 @@ class Ocr3NarrativeIngredientExtractorTest {
             .that(results.rawIngredientsList)
             .isEmpty()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testExtractImpliedIngredients_SeasoningAlreadyPresent_CoversElseBranch() {
+        val results = RawSections()
+        results.rawIngredientsList.add("Sel de Guérande")
+
+        val instructions = listOf(
+            "Assaisonnez avec du sel et du poivre.",
+            "Rectifiez l'assaisonnement avec du sel."
+        )
+
+        Ocr3NarrativeIngredientExtractor.extractImpliedIngredients(instructions, vocabulary, results)
+
+        assertWithMessage("Le poivre doit être extrait")
+            .that(results.rawIngredientsList)
+            .contains("Poivre")
+    }
 }

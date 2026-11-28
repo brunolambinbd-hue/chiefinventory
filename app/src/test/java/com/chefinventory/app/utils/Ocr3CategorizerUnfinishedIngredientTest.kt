@@ -284,4 +284,67 @@ class Ocr3CategorizerUnfinishedIngredientTest {
             .that(rawList)
             .containsExactly("1 cuillère à soupe")
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBlankParsedNameAfterMerge_WithOnlySymbols_TriggersStillEmptyLog() {
+        val customVocab = vocabulary.copy(
+            logOcr3UnfinishedIngrStillEmpty = "Nom encore vide: %s",
+            logOcr3UnfinishedIngrFused = "Fusion inachevée: %s -> %s"
+        )
+
+        val rawList = mutableListOf("1")
+        val keywords = mutableSetOf<String>()
+
+        val merged = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
+            workingLine = "g",
+            currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
+            containsAction = false,
+            startsWithBullet = false,
+            vocabulary = customVocab,
+            rawIngredientsList = rawList,
+            seenIngredientKeywords = keywords
+        )
+
+        assertWithMessage("La fusion de '1' et 'g' doit produire un ingrédient au nom vide")
+            .that(merged)
+            .isTrue()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testMergeUnfinishedIngredient_WithEmptyLogMessages_FalseBranchesCovered() {
+        val emptyLogVocab = vocabulary.copy(
+            logOcr3UnfinishedIngrStillEmpty = "",
+            logOcr3UnfinishedIngrFused = ""
+        )
+
+        // 1. Still empty branch
+        val rawList1 = mutableListOf("1")
+        val keywords1 = mutableSetOf<String>()
+        val merged1 = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
+            workingLine = "   ",
+            currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
+            containsAction = false,
+            startsWithBullet = false,
+            vocabulary = emptyLogVocab,
+            rawIngredientsList = rawList1,
+            seenIngredientKeywords = keywords1
+        )
+        assertWithMessage("merged1").that(merged1).isTrue()
+
+        // 2. Fused branch
+        val rawList2 = mutableListOf("200 g")
+        val keywords2 = mutableSetOf<String>()
+        val merged2 = Ocr3CategorizerUnfinishedIngredient.tryMergeUnfinishedQuantityLine(
+            workingLine = "de farine",
+            currentSection = Ocr3Categorizer.SECTION_INGREDIENTS,
+            containsAction = false,
+            startsWithBullet = false,
+            vocabulary = emptyLogVocab,
+            rawIngredientsList = rawList2,
+            seenIngredientKeywords = keywords2
+        )
+        assertWithMessage("merged2").that(merged2).isTrue()
+    }
 }

@@ -41,10 +41,8 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
             OcrLevenshteinUtils.stripAccents(trimmed.lowercase()).contains(cleanKw)
         }
 
-        val endsWithDot = line.trim().endsWith(".")
-        val endsWithExcl = line.trim().endsWith("!")
-        val endsWithQuestion = line.trim().endsWith("?")
-        if (endsWithDot || endsWithExcl || endsWithQuestion) return false
+        val lastChar = line.trim().lastOrNull()
+        if (lastChar != null && lastChar in setOf('.', '!', '?')) return false
 
         if (OcrRegexes.Titles.DISQUALIFYING_NUMBER_START.containsMatchIn(line.trim())) return false
 
@@ -63,7 +61,7 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         val isCategoryHeader = !hasTitleConnectors && categoryHeaderKeys.any { header ->
             val cleanHeader = OcrLevenshteinUtils.stripAccents(header.lowercase())
             val cleanTrimmed = OcrLevenshteinUtils.stripAccents(trimmed.lowercase())
-            cleanTrimmed == cleanHeader || (cleanTrimmed.startsWith("$cleanHeader ") && cleanTrimmed.split(Regex("\\s+")).size <= 3) || cleanTrimmed.startsWith("$cleanHeader:")
+            cleanTrimmed.startsWith(cleanHeader) && cleanTrimmed.split(Regex("\\s+")).size <= 3
         }
         if (isCategoryHeader) return false
 
@@ -83,8 +81,10 @@ object Ocr3CategorizerTitleExtractor2_BlockB_Scoring {
         if (isCommonIngr || isEndMarkerLine) return false
 
         val isModifierOnly = vocabulary.ingredientPreparationModifiers.any { OcrRegexes.getSpellingRepairPattern(it).containsMatchIn(trimmed) }
-        if (!hasTitleKeyword && isModifierOnly) return false
-        if (!hasTitleKeyword && (cleanIngName.contains("sésame") || cleanIngName.contains("sesame"))) return false
+        if (!hasTitleKeyword) {
+            if (isModifierOnly) return false
+            if (cleanIngName.contains("sésame") || cleanIngName.contains("sesame")) return false
+        }
 
         val isSource = Ocr3CategorizerProperNameDetector.isLikelyProperNameOrSource(trimmed, vocabulary) || Ocr3CategorizerSource.isSourceLine(trimmed, vocabulary)
         if (isSource) return false

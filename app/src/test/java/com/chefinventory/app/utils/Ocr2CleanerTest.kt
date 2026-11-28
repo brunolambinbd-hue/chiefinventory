@@ -306,4 +306,28 @@ class Ocr2CleanerTest {
                 .isFalse()
         }
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testCleanLines_DuplicateCategoryAndDuplicateSource() {
+        val rawLines = listOf(
+            "ENTRÉES ET AMUSE-BOUCHE",
+            "DESSERTS",
+            "Recette issue du livre de cuisine",
+            "Recette issue du livre de cuisine",
+            "200 g de farine"
+        )
+        val cleanedResult = Ocr2Cleaner.cleanWithVocabulary(rawLines, vocabulary)
+        assertWithMessage("Les en-têtes et sources répétées doivent être nettoyées sans crash")
+            .that(cleanedResult.cleanedLines)
+            .contains("200 g de farine")
+
+        val vocabInvalidHeader = vocabulary.copy(
+            recipeCategoryHeaders = listOf("HEADER_WITHOUT_PIPE", "ENTRÉES|Entrées")
+        )
+        val cleanedInvalid = Ocr2Cleaner.cleanWithVocabulary(listOf("HEADER_WITHOUT_PIPE", "ENTRÉES ET AMUSE-BOUCHE", "1 cuillère à soupe de farine"), vocabInvalidHeader)
+        assertWithMessage("Les cuillères à soupe de farine doivent être conservées")
+            .that(cleanedInvalid.cleanedLines)
+            .contains("1 cuillère à soupe de farine")
+    }
 }

@@ -96,8 +96,14 @@ class Ocr3SpatialColumnClusteredGrouperTest {
             OcrTextLine("• 200 g de farine", top = 100, left = 100),
             OcrTextLine("• 2 oeufs", top = 200, left = 110)
         )
-        val singleResult = Ocr3SpatialColumnClusteredGrouper.groupLinesByXColumns(singleColCandidates)
+        val singleResult = Ocr3SpatialColumnClusteredGrouper.groupLinesByXColumns(singleColCandidates, vocabulary)
         assertThat(singleResult.columnLeft).hasSize(2)
+        assertThat(singleResult.leftSignature.type).isEqualTo(Ocr3SpatialColumnClusteredGrouper.ColumnType.INGREDIENTS)
+
+        // Unknown column signature type (ratios < 0.60f)
+        val unknownLines = listOf(OcrTextLine("Bonjour"), OcrTextLine("Merci"))
+        val unknownSig = Ocr3SpatialColumnClusteredGrouper.evaluateColumnSignature(unknownLines, vocabulary)
+        assertThat(unknownSig.type).isEqualTo(Ocr3SpatialColumnClusteredGrouper.ColumnType.UNKNOWN)
 
         // Instruction start verbs branch in evaluateColumnSignature
         val startVerbLines = listOf(

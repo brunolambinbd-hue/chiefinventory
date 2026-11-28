@@ -99,12 +99,12 @@ object Ocr3CategorizerUnfinishedIngredient {
                 seenIngredientKeywords.addAll(keywords)
             } else {
                 val logStillEmpty = vocabulary.logOcr3UnfinishedIngrStillEmpty
-                if (logStillEmpty.isNotBlank()) {
+                if (logStillEmpty.isNotEmpty()) {
                     LogManager.d(TAG, String.format(logStillEmpty, rawIngredientsList[lastIdx]))
                 }
             }
             val logFused = vocabulary.logOcr3UnfinishedIngrFused
-            if (logFused.isNotBlank()) {
+            if (logFused.isNotEmpty()) {
                 LogManager.d(TAG, String.format(logFused, workingLine, rawIngredientsList[lastIdx]))
             }
             return true

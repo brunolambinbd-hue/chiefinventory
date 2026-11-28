@@ -64,6 +64,29 @@ class RecipeMetadataParserTest {
 
     @Test
     @CoveredRequirement("6.1.1.9")
+    fun testExtractMetadata_ProtectedHeaderWithColonAndSpaceColon() {
+        val vocab = OcrVocabularyLoader.loadFromProjectResources()
+        val results1 = RawSections()
+        val res1 = RecipeMetadataParser.extractMetadata("votre marché: 200 g de farine", results1, vocab)
+        assertWithMessage("Le préfixe 'votre marché:' doit être retiré")
+            .that(res1.remainingLine)
+            .contains("200 g de farine")
+
+        val results2 = RawSections()
+        val res2 = RecipeMetadataParser.extractMetadata("votre marché : 200 g de farine", results2, vocab)
+        assertWithMessage("Le préfixe 'votre marché :' doit être retiré")
+            .that(res2.remainingLine)
+            .contains("200 g de farine")
+
+        val results3 = RawSections()
+        val res3 = RecipeMetadataParser.extractMetadata("200 g de farine", results3, vocabulary = null)
+        assertWithMessage("Un vocabulaire null doit retourner la ligne inchangée")
+            .that(res3.remainingLine)
+            .isEqualTo("200 g de farine")
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
     fun testExtractMetadata_CuissonAndReposOrphanHeaders() {
         val results1 = RawSections()
         val resCuisson = RecipeMetadataParser.extractMetadata("Cuisson :", results1)

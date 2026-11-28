@@ -53,6 +53,10 @@ class Ocr3CategorizerIngredientDetectorTest {
         assertWithMessage("Un nombre suivi de ponctuation '100 , ; .' ne doit pas être compté comme ingrédient")
             .that(Ocr3CategorizerIngredientDetector.countIngredientSequences("100 , ; ."))
             .isEqualTo(0)
+
+        assertWithMessage("Un nombre se terminant par un espace '100 ' ne doit pas compter de séquence d'ingrédient")
+            .that(Ocr3CategorizerIngredientDetector.countIngredientSequences("100 "))
+            .isEqualTo(0)
     }
 
     @Test

@@ -55,12 +55,12 @@ class EditBarcodeProductViewModel(
         try {
             val newProduct = OpenFoodFactsProduct(
                 barcode = cleanBarcode,
-                productName = productName?.trim()?.ifBlank { null },
-                brand = brand?.trim()?.ifBlank { null },
-                quantityStr = quantityStr?.trim()?.ifBlank { null },
-                nutriScore = nutriScore?.trim()?.uppercase()?.ifBlank { null },
-                imageUrl = imageUrl?.trim()?.ifBlank { null },
-                ingredientsText = ingredientsText?.trim()?.ifBlank { null },
+                productName = cleanNullableString(productName),
+                brand = cleanNullableString(brand),
+                quantityStr = cleanNullableString(quantityStr),
+                nutriScore = cleanNullableString(nutriScore)?.uppercase(),
+                imageUrl = cleanNullableString(imageUrl),
+                ingredientsText = cleanNullableString(ingredientsText),
                 timestampAdded = System.currentTimeMillis()
             )
             offRepository.saveProductLocally(newProduct)
@@ -70,6 +70,12 @@ class EditBarcodeProductViewModel(
         } finally {
             _isLoading.value = false
         }
+    }
+
+    private fun cleanNullableString(input: String?): String? {
+        if (input == null) return null
+        val trimmed = input.trim()
+        return if (trimmed.isBlank()) null else trimmed
     }
 
     fun clearSaveStatus() {

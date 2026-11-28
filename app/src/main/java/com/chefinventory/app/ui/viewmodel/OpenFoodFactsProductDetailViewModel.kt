@@ -34,8 +34,9 @@ class OpenFoodFactsProductDetailViewModel(
     fun loadProduct(barcode: String?, cleanName: String?, taxonomyId: Long = 0L, category: String? = null) = viewModelScope.launch {
         _isLoading.value = true
         try {
-            if (!barcode.isNullOrBlank()) {
-                val foundProduct = offRepository.getProductByBarcode(barcode)
+            val cleanBarcode = barcode?.trim()
+            if (!cleanBarcode.isNullOrBlank()) {
+                val foundProduct = offRepository.getProductByBarcode(cleanBarcode)
                 if (foundProduct != null) {
                     _product.value = foundProduct
                     return@launch
@@ -50,18 +51,19 @@ class OpenFoodFactsProductDetailViewModel(
                 }
             }
 
-            if (!cleanName.isNullOrBlank()) {
-                val exactMatch = offRepository.getTaxonomyByExactName(cleanName)
+            val cleanNameTrimmed = cleanName?.trim()
+            if (!cleanNameTrimmed.isNullOrBlank()) {
+                val exactMatch = offRepository.getTaxonomyByExactName(cleanNameTrimmed)
                 if (exactMatch != null) {
                     _taxonomy.value = exactMatch
                     return@launch
                 }
 
-                val matches = offRepository.searchTaxonomy(cleanName)
+                val matches = offRepository.searchTaxonomy(cleanNameTrimmed)
                 if (matches.isNotEmpty()) {
                     _taxonomy.value = matches.first()
                 } else {
-                    _taxonomy.value = OpenFoodFactsTaxonomy(cleanName = cleanName, category = category)
+                    _taxonomy.value = OpenFoodFactsTaxonomy(cleanName = cleanNameTrimmed, category = category)
                 }
             }
         } catch (_: Exception) {
@@ -77,11 +79,14 @@ class OpenFoodFactsProductDetailViewModel(
         val currentProd = _product.value
         val currentTax = _taxonomy.value
 
-        val ingredientName = currentProd?.productName
-            ?: currentTax?.cleanName?.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        val rawName = currentProd?.productName?.trim().takeUnless { it.isNullOrBlank() }
+            ?: currentTax?.cleanName?.trim().takeUnless { it.isNullOrBlank() }
             ?: return@launch
 
-        val ingredientCat = currentProd?.brand ?: currentTax?.category ?: "Épicerie"
+        val ingredientName = rawName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        val ingredientCat = currentProd?.brand?.trim().takeUnless { it.isNullOrBlank() }
+            ?: currentTax?.category?.trim().takeUnless { it.isNullOrBlank() }
+            ?: "Épicerie"
 
         try {
             val newIngredient = Ingredient(

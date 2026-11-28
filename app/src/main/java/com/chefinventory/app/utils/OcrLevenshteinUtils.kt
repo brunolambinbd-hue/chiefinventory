@@ -11,6 +11,7 @@ import java.text.Normalizer
  * - Calculer le taux de similarité normalisé entre 0.0 (totalement différent) et 1.0 (identique).
  * - Rechercher la meilleure correspondance dans un dictionnaire avec un seuil de tolérance configurable.
  */
+@Suppress("FoldInitializerAndIfNull", "kotlin:S6529", "kotlin:S3776")
 object OcrLevenshteinUtils {
 
     /**
@@ -27,7 +28,10 @@ object OcrLevenshteinUtils {
         if (len1 == 0) return len2
         if (len2 == 0) return len1
 
-        var prev = IntArray(len2 + 1) { it }
+        var prev = IntArray(len2 + 1)
+        for (i in 0..len2) {
+            prev[i] = i
+        }
         var curr = IntArray(len2 + 1)
 
         for (i in 1..len1) {
@@ -121,13 +125,12 @@ object OcrLevenshteinUtils {
         dictionary: List<String>,
         minSimilarityThreshold: Double = 0.75
     ): String? {
-        if (query.isBlank()) return null
         if (dictionary.isEmpty()) return null
 
         val cleanQuery = stripAccents(query)
-        val qLen = cleanQuery.length
-        if (qLen == 0) return null
+        if (cleanQuery.isEmpty()) return null
 
+        val qLen = cleanQuery.length
         val maxAllowed = getMaxAllowedErrors(qLen)
 
         var bestMatch: String? = null

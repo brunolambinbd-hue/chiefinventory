@@ -66,4 +66,61 @@ class Ocr5BeautifierTest {
             .containsExactlyElementsIn(expected)
             .inOrder()
     }
+
+    @Test
+    fun testSanitizeLine_ExhaustiveBranchCoverage() {
+        val vocabulary = OcrVocabularyLoader.loadFromProjectResources()
+
+        assertWithMessage("Ocr5Beautifier doit générer une représentation textuelle valide")
+            .that(Ocr5Beautifier.toString())
+            .contains("Ocr5Beautifier")
+
+        // 1. Non-empty spellingRepairs (Lines 108-110)
+        val sanitizedSpelling = Ocr5Beautifier.sanitizeLine(
+            line = "hoile",
+            spellingRepairs = listOf("hoile | huile"),
+            vocab = vocabulary
+        )
+        assertWithMessage("spellingRepairs doit corriger 'hoile' en 'huile'").that(sanitizedSpelling).isEqualTo("huile")
+
+        // 2. ocrNoiseExclusions match & empty string filtering (Line 127)
+        val customNoiseVocab = vocabulary.copy(
+            ocrNoiseExclusions = listOf("   ", "noise_marker"),
+            excludedOcrKeywords = listOf("   ", "publicité")
+        )
+        val sanitizedNoise = Ocr5Beautifier.sanitizeLine(
+            line = "noise_marker 200 g de farine",
+            headerTrashWords = setOf("ingrédients"),
+            vocab = customNoiseVocab
+        )
+        assertWithMessage("ocrNoiseExclusions doit rejeter la ligne comme bruit").that(sanitizedNoise).isNull()
+
+        // 3. isRecipeHeaderTrash and headerTrashWords branches (Line 132)
+        // a) hasActionVerb = true -> isRecipeHeaderTrash is false
+        val sanitizedAction = Ocr5Beautifier.sanitizeLine(
+            line = "Ingrédients : Mélanger la farine",
+            headerTrashWords = setOf("ingrédients"),
+            hasActionVerb = true,
+            vocab = customNoiseVocab
+        )
+        assertWithMessage("Ligne avec verbe d'action ne doit pas être rejetée comme en-tête").that(sanitizedAction).isNotNull()
+
+        // b) hasActionVerb = false and empty headerTrashWords
+        val sanitizedNoHeaders = Ocr5Beautifier.sanitizeLine(
+            line = "200 g de farine",
+            headerTrashWords = emptySet(),
+            hasActionVerb = false,
+            vocab = customNoiseVocab
+        )
+        assertWithMessage("Sans en-têtes rejetés, la ligne est conservée").that(sanitizedNoHeaders).isEqualTo("200 g de farine")
+
+        // c) hasActionVerb = false with matching excludedOcrKeywords
+        val sanitizedExcluded = Ocr5Beautifier.sanitizeLine(
+            line = "publicité",
+            headerTrashWords = setOf("ingrédients"),
+            hasActionVerb = false,
+            vocab = customNoiseVocab
+        )
+        assertWithMessage("Mot exclu de l'OCR doit rejeter la ligne").that(sanitizedExcluded).isNull()
+    }
 }

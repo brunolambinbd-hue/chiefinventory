@@ -48,7 +48,7 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
         val xmlConnectors = activeVocab.titleMultilineConnectors.map { it.trim().lowercase() }
         val connectors = (xmlConnectors + baseConnectors).distinct()
 
-        return connectors.any { lower.startsWith(it) || lower.startsWith("$it ") || (it.endsWith("'") && lower.startsWith(it)) }
+        return connectors.any { conn -> lower.startsWith(conn) }
     }
 
     /**
@@ -82,17 +82,9 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
         }
 
         if (matchedIngredient == null) {
-            val suffix1 = lowerFirst.drop(1)
-            val suffix2 = lowerFirst.drop(2)
-            val suffix3 = lowerFirst.drop(3)
-            
-            matchedIngredient = allIngredients.firstOrNull { ing ->
-                suffix1.length >= 4 && ing.length > suffix1.length && ing.endsWith(suffix1)
-            } ?: allIngredients.firstOrNull { ing ->
-                suffix2.length >= 4 && ing.length > suffix2.length && ing.endsWith(suffix2)
-            } ?: allIngredients.firstOrNull { ing ->
-                suffix3.length >= 4 && ing.length > suffix3.length && ing.endsWith(suffix3)
-            }
+            matchedIngredient = findMatchingSuffix(allIngredients, lowerFirst.drop(1))
+                ?: findMatchingSuffix(allIngredients, lowerFirst.drop(2))
+                ?: findMatchingSuffix(allIngredients, lowerFirst.drop(3))
         }
 
         if (matchedIngredient != null) {
@@ -104,6 +96,11 @@ object Ocr3CategorizerTitleExtractor3_BlockC_PostProcess {
         }
 
         return trimmed
+    }
+
+    private fun findMatchingSuffix(allIngredients: List<String>, suffix: String): String? {
+        if (suffix.length < 4) return null
+        return allIngredients.firstOrNull { ing -> ing.length >= suffix.length && ing.endsWith(suffix) }
     }
 
     /**

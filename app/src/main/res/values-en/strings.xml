@@ -143,6 +143,13 @@
     <string name="toast_camera_permission_denied">Camera permission denied</string>
     <string name="toast_title_is_mandatory">Title is mandatory</string>
     <string name="toast_crop_error">Cropping error: %1$s</string>
+    <string name="toast_mode_pantry_entry">Entry Mode enabled: scan to store your groceries</string>
+    <string name="toast_mode_pantry_exit">Exit Mode enabled: scan to consume a product</string>
+    <string name="toast_please_enter_barcode">Please enter an EAN13 barcode</string>
+    <string name="toast_camera_scan_cancelled">Camera scan cancelled or unavailable: %1$s</string>
+    <string name="toast_camera_viewfinder_error">Error opening camera viewfinder: %1$s</string>
+    <string name="toast_product_consumed_format">🔴 Consumed: %1$s (Remaining: %2$s %3$s)</string>
+    <string name="unit_default_single">unit</string>
     <string name="rapport_signatures">Signature Report</string>
 
     <!-- Kitchen & Pantry Menu Strings -->

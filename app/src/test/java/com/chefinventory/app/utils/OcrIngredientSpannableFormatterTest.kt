@@ -279,4 +279,34 @@ class OcrIngredientSpannableFormatterTest {
             .that(spans1.size)
             .isEqualTo(1)
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testFormatIngredientHyperlinks_DefaultParameters_BlankTextAndNullCallback_AndDrawState() {
+        val textWithBlankLines = "200 g de farine\n\n100 g de beurre"
+        val spannable = OcrIngredientSpannableFormatter.formatIngredientHyperlinks(
+            context = context,
+            fullText = textWithBlankLines,
+            vocabulary = vocabulary
+        )
+
+        val spans = spannable.getSpans(0, spannable.length, android.text.style.ClickableSpan::class.java)
+        assertWithMessage("Des liens doivent être créés avec les paramètres par défaut").that(spans).isNotEmpty()
+
+        // Test updateDrawState on ClickableSpan
+        val paint = android.text.TextPaint()
+        spans[0].updateDrawState(paint)
+        assertWithMessage("Le texte doit être souligné").that(paint.isUnderlineText).isTrue()
+
+        // Test onClick with onIngredientClick = null -> calls openEditIngredientActivity
+        spans[0].onClick(android.view.View(context))
+
+        // Blank fullText -> returns empty builder
+        val blankResult = OcrIngredientSpannableFormatter.formatIngredientHyperlinks(
+            context = context,
+            fullText = "   ",
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Un texte blanc doit retourner un builder blanc").that(blankResult.toString()).isEqualTo("   ")
+    }
 }

@@ -49,4 +49,23 @@ class Ocr5BeautifierTitleTest {
             .that(Ocr5BeautifierTitle.beautifyTitle(":"))
             .isEqualTo(":")
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testBeautifyTitle_LevenshteinCorrectionAndPluralDiffOnly() {
+        val vocab = OcrVocabularyLoader.loadFromProjectResources().copy(
+            titleKeywords = listOf("princesses", "pommes")
+        )
+        // 1. Single letter typo 'fprincesses' -> 'princesses'
+        val repaired = Ocr5BeautifierTitle.beautifyTitle("Haricots fprincesses", vocab)
+        assertWithMessage("Fautes d'impression de l'OCR 'fprincesses' -> 'princesses'").that(repaired).isEqualTo("Haricots princesses")
+
+        // 2. Plural diff only 'pomme' vs 'pommes' -> 'pomme'
+        val plural = Ocr5BeautifierTitle.beautifyTitle("Tarte aux pomme", vocab)
+        assertWithMessage("Seule différence de pluriel -> conservé").that(plural).isEqualTo("Tarte aux pomme")
+
+        // 3. Null vocabulary parameter call
+        val autoVocab = Ocr5BeautifierTitle.beautifyTitle("haricots princesses", null)
+        assertWithMessage("Appel avec vocabulaire null").that(autoVocab).isEqualTo("Haricots princesses")
+    }
 }

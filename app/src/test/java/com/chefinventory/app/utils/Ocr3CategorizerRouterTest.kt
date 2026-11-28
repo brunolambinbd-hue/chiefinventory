@@ -128,4 +128,43 @@ class Ocr3CategorizerRouterTest {
             .that(Ocr3CategorizerRouter.isTitleCandidateLine("poulet rôti aux herbes", linesWithoutTitle))
             .isTrue()
     }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testEvaluateReaderType_OneColumnSmallCoordinatesNoHeader_SelectsOneColumn() {
+        val lines2D = listOf(
+            OcrTextLine("sel", left = 10, right = 50, top = 10, bottom = 20)
+        )
+        val (readerType, _) = Ocr3CategorizerRouter.evaluateReaderType(
+            linesWithoutTitle = listOf("sel"),
+            lines2D = lines2D,
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Un scan 1 colonne avec petites coordonnées et sans en-tête doit sélectionner ONE_COLUMN_INGREDIENT_FIRST")
+            .that(readerType)
+            .isEqualTo(Ocr3CategorizerRouter.ReaderType.ONE_COLUMN_INGREDIENT_FIRST)
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testEvaluateReaderType_Real2DScanSubConditions_SelectsTwoColumns() {
+        // Sub-condition 1: right > 300
+        val linesRight = listOf(OcrTextLine("sel", left = 10, right = 350, top = 10, bottom = 20))
+        val (resRight, _) = Ocr3CategorizerRouter.evaluateReaderType(listOf("sel"), linesRight, vocabulary)
+        assertThat(resRight).isEqualTo(Ocr3CategorizerRouter.ReaderType.TWO_COLUMNS_INGREDIENT_FIRST)
+
+        // Sub-condition 2: left > 300
+        val linesLeft = listOf(OcrTextLine("sel", left = 350, right = 400, top = 10, bottom = 20))
+        val (resLeft, _) = Ocr3CategorizerRouter.evaluateReaderType(listOf("sel"), linesLeft, vocabulary)
+        assertThat(resLeft).isEqualTo(Ocr3CategorizerRouter.ReaderType.TWO_COLUMNS_INGREDIENT_FIRST)
+
+        // Sub-condition 3: bottom > 300
+        val linesBottom = listOf(OcrTextLine("sel", left = 10, right = 50, top = 10, bottom = 350))
+        val (resBottom, _) = Ocr3CategorizerRouter.evaluateReaderType(listOf("sel"), linesBottom, vocabulary)
+        assertThat(resBottom).isEqualTo(Ocr3CategorizerRouter.ReaderType.TWO_COLUMNS_INGREDIENT_FIRST)
+
+        // Empty lines2D -> ONE_COLUMN_INGREDIENT_FIRST
+        val (resEmpty, _) = Ocr3CategorizerRouter.evaluateReaderType(listOf("sel"), emptyList(), vocabulary)
+        assertThat(resEmpty).isEqualTo(Ocr3CategorizerRouter.ReaderType.ONE_COLUMN_INGREDIENT_FIRST)
+    }
 }

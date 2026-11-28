@@ -201,5 +201,105 @@ class Ocr3CategorizerTitleExtractor1_BlockA_MixedLinesTest {
         assertWithMessage("Le titre extrait doit valoir 'Salade de tomates'")
             .that(candidates.last().candidateText)
             .isEqualTo("Salade de tomates")
+
+        // 8. Line with ending connector ("et") followed by next line which is NOT a connector ("200 g de farine")
+        val linesEndingConnNotNext = listOf("1. Ajouter du sel et poivre Salade d'avocat et", "200 g de farine")
+        val res8 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
+            workingLine = linesEndingConnNotNext[0],
+            lineIndex = 0,
+            lines = linesEndingConnNotNext,
+            vocabulary = vocabulary,
+            recipeIngredientWords = setOf("salade", "avocat"),
+            containsActionRegex = null,
+            firstIngredientWord = "avocat",
+            candidates = candidates
+        )
+        assertWithMessage("Un titre se terminant par un connecteur 'et' dont la ligne suivante n'est pas un connecteur doit être ignoré")
+            .that(res8)
+            .isFalse()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testProcessSelPoivreLine_EmptyEndMarkersAndPartsLessThanTwo() {
+        val candidates = mutableListOf<ScoredTitleCandidate>()
+        val emptyEndMarkerVocab = vocabulary.copy(
+            ingredientEndMarkers = emptyList()
+        )
+        val res1 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
+            workingLine = "sel et poivre Salade de tomates",
+            lineIndex = 0,
+            lines = listOf("sel et poivre Salade de tomates"),
+            vocabulary = emptyEndMarkerVocab,
+            recipeIngredientWords = setOf("salade"),
+            containsActionRegex = null,
+            firstIngredientWord = null,
+            candidates = candidates
+        )
+        assertWithMessage("Sans marqueurs d'endMarker 'sel', la ligne ne doit pas être traitée").that(res1).isFalse()
+
+        val res2 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
+            workingLine = "sel",
+            lineIndex = 0,
+            lines = listOf("sel"),
+            vocabulary = vocabulary,
+            recipeIngredientWords = setOf("salade"),
+            containsActionRegex = null,
+            firstIngredientWord = null,
+            candidates = candidates
+        )
+        assertWithMessage("Une ligne 'sel' sans partie titre après la scission ne doit pas être traitée").that(res2).isFalse()
+
+        val res3 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.processSelPoivreLine(
+            workingLine = "sel marin Tarte aux pommes",
+            lineIndex = 0,
+            lines = listOf("sel marin Tarte aux pommes"),
+            vocabulary = vocabulary,
+            recipeIngredientWords = setOf("pommes"),
+            containsActionRegex = null,
+            firstIngredientWord = null,
+            candidates = candidates
+        )
+        assertWithMessage("Une ligne avec 'sel marin' sans 'sel et poivre' doit exécuter la branche else et retourner faux").that(res3).isFalse()
+    }
+
+    @Test
+    @CoveredRequirement("6.1.1.9")
+    fun testEvalMultiLineTitleCandidate_AtomizedTestCases() {
+        // 1. Line index out of bounds (lineIndex + 1 >= lines.size) -> false
+        val isCand1 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.evalMultiLineTitleCandidate(
+            potentialTitle = "Tarte aux pommes",
+            lineIndex = 0,
+            lines = listOf("Tarte aux pommes"),
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Dernière ligne sans suite -> false").that(isCand1).isFalse()
+
+        // 2. endingConn = true ("Tarte aux") -> true
+        val isCand2 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.evalMultiLineTitleCandidate(
+            potentialTitle = "Tarte aux",
+            lineIndex = 0,
+            lines = listOf("Tarte aux", "pommes"),
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Titre avec connecteur suspendu -> true").that(isCand2).isTrue()
+
+        // 3. isNextConnector = true ("aux pommes") -> true
+        val isCand3 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.evalMultiLineTitleCandidate(
+            potentialTitle = "Tarte",
+            lineIndex = 0,
+            lines = listOf("Tarte", "aux pommes"),
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Ligne suivante commençant par connecteur -> true").that(isCand3).isTrue()
+
+        // 4. Neither endingConn nor isNextConnector -> false
+        val isCand4 = Ocr3CategorizerTitleExtractor1_BlockA_MixedLines.evalMultiLineTitleCandidate(
+            potentialTitle = "Tarte",
+            lineIndex = 0,
+            lines = listOf("Tarte", "200 g de farine"),
+            vocabulary = vocabulary
+        )
+        assertWithMessage("Ni connecteur suspendu ni connecteur suivant -> false").that(isCand4).isFalse()
     }
 }

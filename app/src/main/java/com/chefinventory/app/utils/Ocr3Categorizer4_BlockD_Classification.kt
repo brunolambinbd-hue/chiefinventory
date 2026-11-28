@@ -68,7 +68,8 @@ object Ocr3Categorizer4_BlockD_Classification {
         if (isInstructionSignal || isClosedNoQtyNoWeight) {
             return Ocr3Categorizer.SECTION_INSTRUCTIONS
         }
-        if (currentSection == Ocr3Categorizer.SECTION_NONE || currentSection == Ocr3Categorizer.SECTION_INGREDIENTS) {
+        val isIngrSectionCandidate = currentSection == Ocr3Categorizer.SECTION_NONE || currentSection == Ocr3Categorizer.SECTION_INGREDIENTS
+        if (isIngrSectionCandidate) {
             if (looksLikeIngredient || startsWithConnector || hasHardQuantity || hasWeight || startsWithBullet || isCommonIngredient) {
                 return Ocr3Categorizer.SECTION_INGREDIENTS
             }
@@ -119,12 +120,8 @@ object Ocr3Categorizer4_BlockD_Classification {
         }
 
         // Ignorer le bruit de pied de page / étiquette de bouteille après fermeture de la section vin
-        if (wineState.isWineSectionClosed) {
-            if (!containsAction) {
-                if (!startsWithBullet) {
-                    return BlockDResult(true, workingLine, currentSection)
-                }
-            }
+        if (wineState.isWineSectionClosed && !containsAction && !startsWithBullet) {
+            return BlockDResult(true, workingLine, currentSection)
         }
 
         val lastRawIngNull = results.rawIngredientsList.lastOrNull()
@@ -139,9 +136,7 @@ object Ocr3Categorizer4_BlockD_Classification {
         val hasInstructionHyphenContinuation = isInstSection && lastRawInst.trimEnd().endsWith("-")
         val hangingConnectors = vocabulary.hangingConnectors.map { it.lowercase().trim() }
         val lastInstLower = lastRawInst.trimEnd().lowercase()
-        val hasInstructionHangingConnector = isInstSection && hangingConnectors.any { conn ->
-            lastInstLower.endsWith(" $conn") || lastInstLower == conn || (conn.endsWith("'") && lastInstLower.endsWith(conn))
-        }
+        val hasInstructionHangingConnector = isInstSection && hangingConnectors.any { conn -> lastInstLower.endsWith(conn) }
 
         if (hasUnclosedInstructionParen || hasInstructionHyphenContinuation || hasInstructionHangingConnector) {
             return BlockDResult(false, workingLine, Ocr3Categorizer.SECTION_INSTRUCTIONS)

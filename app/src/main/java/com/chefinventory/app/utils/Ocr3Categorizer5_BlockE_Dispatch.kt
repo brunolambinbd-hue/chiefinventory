@@ -25,6 +25,71 @@ object Ocr3Categorizer5_BlockE_Dispatch {
     }
 
     /**
+     * Évalue si la ligne est une ligne de condiments (sel/poivre) non suivie de condiments supplémentaires, et verrouille l'état.
+     */
+    internal fun evalSeasoningClosedState(
+        workingLine: String,
+        nextLine: String,
+        containsAction: Boolean,
+        closedState: Boolean,
+        vocabulary: OcrVocabulary
+    ): Boolean {
+        if (containsAction) return closedState
+        val lowerLine = workingLine.lowercase()
+        val isSaltPepperMarker = vocabulary.ingredientEndMarkers.any { lowerLine.contains(it.lowercase()) }
+        if (!isSaltPepperMarker) return closedState
+
+        val isSaltOrPepperLine = lowerLine.contains("sel") || lowerLine.contains("poivre")
+        val cleanNext = nextLine.trim().lowercase()
+        val isNextSeasoning = if (cleanNext.isEmpty()) {
+            false
+        } else {
+            cleanNext.startsWith("poivre") ||
+            cleanNext.startsWith("sel") ||
+            Ocr4MergerSeasoningHelper.isSaltWithPrepositionOrigin(cleanNext, vocabulary.saltVarietyOrigins) ||
+            Ocr4MergerSeasoningHelper.isPepperWithPrepositionOrigin(cleanNext, vocabulary.pepperDeOriginItems)
+        }
+
+        val isSeasoningFollowedByMore = isSaltOrPepperLine && isNextSeasoning
+        if (!isSeasoningFollowedByMore) {
+            val logLock = vocabulary.logOcr3BlockEDispatchLockActivated
+            LogManager.d(TAG, logLock)
+            return true
+        }
+        return closedState
+    }
+
+    /**
+     * Évalue si la consigne précédente se termine par un connecteur suspendu.
+     */
+    internal fun checkPrevInstEndsWithHangingConnector(
+        lastInstLine: String,
+        hangingConnectors: List<String>
+    ): Boolean {
+        if (lastInstLine.isBlank()) return false
+        val lastInstLower = lastInstLine.trim().lowercase()
+        return hangingConnectors.any { rawConn ->
+            val conn = rawConn.trim().lowercase()
+            lastInstLower.endsWith(" $conn") || lastInstLower == conn || (conn.endsWith("'") && lastInstLower.endsWith(conn))
+        }
+    }
+
+    /**
+     * Évalue si un mot-clé d'ingrédient courant (longueur >= 4) a déjà été vu.
+     */
+    internal fun checkKeywordAlreadySeen(
+        closedState: Boolean,
+        lowerLine: String,
+        commonIngredientsNoQty: List<String>,
+        seenIngredientKeywords: Set<String>
+    ): Boolean {
+        if (!closedState || commonIngredientsNoQty.isEmpty() || seenIngredientKeywords.isEmpty()) return false
+        val lowerIngrs = commonIngredientsNoQty.filter { it.length >= 4 }.map { it.lowercase() }
+        val matchingIngr = lowerIngrs.firstOrNull { lowerLine.contains(it) } ?: return false
+        return seenIngredientKeywords.any { it.equals(matchingIngr, ignoreCase = true) }
+    }
+
+    /**
      * Évalue si une ligne initialement classée en instruction doit être réorientée vers les ingrédients (rattrapage).
      *
      * @param isReappearance Indique s'il s'agit d'une réapparition d'un ingrédient déjà inventorisé.
@@ -45,18 +110,9 @@ object Ocr3Categorizer5_BlockE_Dispatch {
         isStrictWithQty: Boolean,
         isCommonWithNoAction: Boolean
     ): Boolean {
-        if (isReappearance) return false
-        if (isHyphenatedInstruction) return false
-        if (isEndMarkerLine) {
-            if (!containsAction) {
-                return true
-            }
-        }
-        if (closedState) {
-            if (isStrictWithQty) return true
-            if (isCommonWithNoAction) return true
-            return false
-        }
+        if (isReappearance || isHyphenatedInstruction) return false
+        if (isEndMarkerLine && !containsAction) return true
+        if (closedState) return isStrictWithQty || isCommonWithNoAction
         return isStrictWithQty
     }
 
@@ -107,30 +163,12 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                     return closedState
                 }
 
-                val isSaltPepperMarker = vocabulary.ingredientEndMarkers.any { marker -> lowerLine.contains(marker.lowercase()) }
+                closedState = evalSeasoningClosedState(workingLine, nextLine, containsAction, closedState, vocabulary)
 
-                if (!containsAction) {
-                    if (isSaltPepperMarker) {
-                        val isSeasoningFollowedByMore = nextLine.isNotBlank() && (
-                                lowerLine.contains("sel") || lowerLine.contains("poivre")
-                        ) && (
-                                nextLine.trim().lowercase().startsWith("poivre") ||
-                                nextLine.trim().lowercase().startsWith("sel") ||
-                                Ocr4MergerSeasoningHelper.isSaltWithPrepositionOrigin(nextLine, vocabulary.saltVarietyOrigins) ||
-                                Ocr4MergerSeasoningHelper.isPepperWithPrepositionOrigin(nextLine, vocabulary.pepperDeOriginItems)
-                        )
-                        if (!isSeasoningFollowedByMore) {
-                            closedState = true
-                            if (vocabulary.logOcr3BlockEDispatchLockActivated.isNotBlank()) {
-                                LogManager.d(TAG, vocabulary.logOcr3BlockEDispatchLockActivated)
-                            }
-                        }
-                    }
-                }
                 val isIngrHeader = vocabulary.ocr1ProtectedIngredientsHeaders.any { header ->
                     val cleanHeader = header.trim().lowercase()
                     val cleanLine = workingLine.trim().lowercase().removeSuffix(":").removeSuffix(".").trim()
-                    cleanLine == cleanHeader || cleanLine.startsWith("$cleanHeader ") || cleanLine.startsWith("$cleanHeader(") || cleanLine.startsWith("$cleanHeader:")
+                    cleanLine.startsWith(cleanHeader)
                 } && workingLine.length < 35 && !containsAction
 
                 if (isIngrHeader) {
@@ -138,10 +176,9 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                 }
 
                 results.rawIngredientsList.add(workingLine)
+                val cleanLineSub = workingLine.lowercase().removeSuffix(":").removeSuffix(".").trim()
                 val isSubHeader = vocabulary.ingredientSubHeaders.any { sub ->
-                    val cleanSub = sub.lowercase().trim()
-                    val cleanLine = workingLine.lowercase().removeSuffix(":").removeSuffix(".").trim()
-                    cleanLine == cleanSub
+                    cleanLineSub == sub.lowercase().trim()
                 }
                 if (!isSubHeader) {
                     val keywords = Ocr3Categorizer.extractKeywordsFromText(parsed.name, parsed.supplementalInfo)
@@ -153,44 +190,26 @@ object Ocr3Categorizer5_BlockE_Dispatch {
             Ocr3Categorizer.SECTION_INSTRUCTIONS -> {
                 val isTechDim = Ocr2Cleaner.isTechnicalDimension(workingLine, vocabulary)
                 val isIngrOrConnector = looksLikeIngredient || startsWithConnector
-                val isStrictIngredient = if (isIngrOrConnector && !containsAction) {
-                    if (!isTechDim) {
-                        !hasInstructionTrigger
-                    } else {
-                        false
-                    }
-                } else {
-                    false
-                }
+                val isStrictIngredient = isIngrOrConnector && !containsAction && !isTechDim && !hasInstructionTrigger
 
                 val endMarkerLine = isEndMarkerLine(lowerLine, vocabulary.ingredientEndMarkers)
 
                 val isCommonIngredient = vocabulary.commonIngredientsNoQty.any { Regex("(?i)\\b${Regex.escape(it)}\\b").containsMatchIn(workingLine) }
                 val lastInstLine = results.rawInstructionsList.lastOrNull()?.trimEnd() ?: ""
                 val prevInstEndsWithDash = lastInstLine.endsWith("-")
-                val hangingConnectors = vocabulary.hangingConnectors.map { it.lowercase().trim() }
-                val lastInstLower = lastInstLine.lowercase()
-                val prevInstEndsWithHangingConnector = hangingConnectors.any { conn ->
-                    lastInstLower.endsWith(" $conn") || lastInstLower == conn || (conn.endsWith("'") && lastInstLower.endsWith(conn))
-                }
+                val prevInstEndsWithHangingConnector = checkPrevInstEndsWithHangingConnector(lastInstLine, vocabulary.hangingConnectors)
+
                 val endsWithDash = workingLine.trimEnd().endsWith("-")
                 val conjunctions = vocabulary.ocrSentenceConjunctions.map { " ${it.lowercase().trim()}" }
                 val endsWithConjunction = conjunctions.any { lowerLine.trimEnd().endsWith(it) }
                 val isHyphenatedInstruction = endsWithDash || endsWithConjunction || prevInstEndsWithDash || prevInstEndsWithHangingConnector
 
-                val hasHardOrWeight = if (hasHardQuantity) true else hasWeight
+                val hasHardOrWeight = hasHardQuantity || hasWeight
                 val isStrictWithQty = isStrictIngredient && hasHardOrWeight
                 val isNarrativeCompound = Ocr3NarrativeCompoundHelper.isNarrativeCompoundInstruction(workingLine)
-                val isKeywordAlreadySeen = closedState && vocabulary.commonIngredientsNoQty.any { ingredient ->
-                    ingredient.length >= 4 && lowerLine.contains(ingredient.lowercase()) &&
-                            seenIngredientKeywords.any { seen -> seen.equals(ingredient, ignoreCase = true) }
-                }
+                val isKeywordAlreadySeen = checkKeywordAlreadySeen(closedState, lowerLine, vocabulary.commonIngredientsNoQty, seenIngredientKeywords)
 
-                val isCommonWithNoAction = if (isCommonIngredient && !containsAction && !isNarrativeCompound && !isKeywordAlreadySeen) {
-                    !startsWithBullet
-                } else {
-                    false
-                }
+                val isCommonWithNoAction = isCommonIngredient && !containsAction && !isNarrativeCompound && !isKeywordAlreadySeen && !startsWithBullet
 
                 val isPriorityIngredient = vocabulary.priorityIngredientPhrases.any { phrase ->
                     lowerLine.contains(phrase.lowercase())
@@ -215,9 +234,8 @@ object Ocr3Categorizer5_BlockE_Dispatch {
                 if (shouldPullBack) {
                     if (endMarkerLine) {
                         closedState = true
-                        if (vocabulary.logOcr3BlockEDispatchLockActivated.isNotBlank()) {
-                            LogManager.d(TAG, vocabulary.logOcr3BlockEDispatchLockActivated)
-                        }
+                        val logLock = vocabulary.logOcr3BlockEDispatchLockActivated
+                        LogManager.d(TAG, logLock)
                     }
                     results.rawIngredientsList.add(workingLine)
                     seenIngredientKeywords.addAll(Ocr3Categorizer.extractKeywordsFromText(parsed.name, parsed.supplementalInfo))

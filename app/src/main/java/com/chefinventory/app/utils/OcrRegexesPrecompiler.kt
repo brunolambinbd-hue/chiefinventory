@@ -33,13 +33,10 @@ object OcrRegexesPrecompiler {
 
         // 2. Pré-compiler les motifs de réparations orthographiques
         vocab.ocrSpellingRepairs.forEach { repairLine ->
-            val parts = repairLine.split("|")
-            if (parts.isNotEmpty()) {
-                val wrong = parts[0].trim()
-                if (wrong.isNotBlank()) {
-                    OcrRegexesDynamicHelpers.getSpellingRepairPattern(wrong)
-                    compiledCount++
-                }
+            val wrong = repairLine.split("|").firstOrNull()?.trim().orEmpty()
+            if (wrong.isNotBlank()) {
+                OcrRegexesDynamicHelpers.getSpellingRepairPattern(wrong)
+                compiledCount++
             }
         }
 

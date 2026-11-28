@@ -111,8 +111,9 @@ class OpenFoodFactsRepository(
      * Utilisé pour charger en 1 seule fois (40 ms la 1ere fois, puis 0 ms) le dictionnaire de référence RAM pour l'OCR.
      */
     suspend fun getAllCleanNames(): List<String> {
-        if (cachedCleanNames != null && cachedCleanNames!!.isNotEmpty()) {
-            return cachedCleanNames!!
+        val cached = cachedCleanNames
+        if (!cached.isNullOrEmpty()) {
+            return cached
         }
         val namesFromDao = try {
             openFoodFactsDao.getAllCleanNames()
@@ -129,17 +130,22 @@ class OpenFoodFactsRepository(
         allNames.addAll(namesFromDao)
 
         for (item in itemsFromDao) {
-            if (item.cleanName.isNotBlank()) {
-                allNames.add(item.cleanName.trim())
+            val name = item.cleanName.trim()
+            if (name.isNotEmpty()) {
+                allNames.add(name)
             }
-            if (!item.synonyms.isNullOrBlank()) {
-                val syns = item.synonyms.split(",")
+            val syns = item.synonyms
+            if (!syns.isNullOrBlank()) {
+                val parsedSyns = syns.split(",")
                     .map { it.trim() }
-                    .filter { it.isNotBlank() && !it.contains(":") }
-                allNames.addAll(syns)
+                    .filter { syn -> syn.isNotEmpty() && !syn.contains(":") }
+                allNames.addAll(parsedSyns)
             }
         }
-        val resultList = allNames.filter { it.length >= 3 }.sortedByDescending { it.length }
+        val resultList = allNames
+            .filter { name -> name.length >= 3 }
+            .sortedByDescending { name -> name.length }
+
         if (resultList.isNotEmpty()) {
             cachedCleanNames = resultList
         }
@@ -148,8 +154,14 @@ class OpenFoodFactsRepository(
 
     suspend fun searchTaxonomy(query: String): List<OpenFoodFactsTaxonomy> {
         val cleanQuery = query.trim()
-        if (cleanQuery.isBlank()) return emptyList()
-        val formattedQuery = if (cleanQuery.endsWith("%") || cleanQuery.startsWith("%")) cleanQuery else "%$cleanQuery%"
+        if (cleanQuery.isBlank()) {
+            return emptyList()
+        }
+        val formattedQuery = if (cleanQuery.endsWith("%") || cleanQuery.startsWith("%")) {
+            cleanQuery
+        } else {
+            "%$cleanQuery%"
+        }
         return openFoodFactsDao.searchTaxonomy(formattedQuery)
     }
 
@@ -194,10 +206,16 @@ class OpenFoodFactsRepository(
      */
     suspend fun searchTaxonomyPaged(query: String, limit: Int = 50, offset: Int = 0): List<OpenFoodFactsTaxonomy> {
         val cleanQuery = query.trim()
-        if (cleanQuery.isBlank()) return getTaxonomyPaged(limit, offset)
+        if (cleanQuery.isBlank()) {
+            return getTaxonomyPaged(limit, offset)
+        }
         val safeLimit = maxOf(1, limit)
         val safeOffset = maxOf(0, offset)
-        val formattedQuery = if (cleanQuery.endsWith("%") || cleanQuery.startsWith("%")) cleanQuery else "%$cleanQuery%"
+        val formattedQuery = if (cleanQuery.endsWith("%") || cleanQuery.startsWith("%")) {
+            cleanQuery
+        } else {
+            "%$cleanQuery%"
+        }
         return openFoodFactsDao.searchTaxonomyPaged(formattedQuery, safeLimit, safeOffset)
     }
 
@@ -211,7 +229,13 @@ class OpenFoodFactsRepository(
         offset: Int = 0
     ): List<OpenFoodFactsTaxonomy> {
         val cleanQuery = query?.trim()?.ifBlank { null }
-        val formattedQuery = cleanQuery?.let { if (it.endsWith("%") || it.startsWith("%")) it else "%$cleanQuery%" }
+        val formattedQuery = if (cleanQuery == null) {
+            null
+        } else if (cleanQuery.endsWith("%") || cleanQuery.startsWith("%")) {
+            cleanQuery
+        } else {
+            "%$cleanQuery%"
+        }
 
         val safeLimit = maxOf(1, limit)
         val safeOffset = maxOf(0, offset)
@@ -240,9 +264,23 @@ class OpenFoodFactsRepository(
         val cleanCat = category?.trim()?.ifBlank { null }
         val cleanQuery = query?.trim()?.ifBlank { null }
 
-        val formattedCat = cleanCat?.let { "%$it%" }
-        val formattedCatNoAccent = cleanCat?.let { "%${it.replace("é", "_").replace("É", "_").replace("è", "_").replace("ê", "_")}%" }
-        val formattedQuery = cleanQuery?.let { if (it.endsWith("%") || it.startsWith("%")) it else "%$it%" }
+        val formattedCat = if (cleanCat != null) "%$cleanCat%" else null
+        val formattedCatNoAccent = if (cleanCat != null) {
+            "%" + cleanCat.replace("é", "_")
+                .replace("É", "_")
+                .replace("è", "_")
+                .replace("ê", "_") + "%"
+        } else {
+            null
+        }
+
+        val formattedQuery = if (cleanQuery == null) {
+            null
+        } else if (cleanQuery.endsWith("%") || cleanQuery.startsWith("%")) {
+            cleanQuery
+        } else {
+            "%$cleanQuery%"
+        }
 
         val safeLimit = maxOf(1, limit)
         val safeOffset = maxOf(0, offset)

@@ -5,13 +5,16 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.chefinventory.app.R
 import com.chefinventory.app.data.AppDatabase
 import com.chefinventory.app.databinding.DialogBarcodeScannerBinding
 import com.chefinventory.app.repository.OpenFoodFactsRepository
 import com.chefinventory.app.ui.actvity.OpenFoodFactsProductDetailActivity
 import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.parabd.lib.traceability.utils.LogManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,7 +27,9 @@ import kotlinx.coroutines.withContext
  */
 object BarcodeScannerDialog {
 
-    fun show(context: Context, coroutineScope: CoroutineScope) {
+    private const val TAG = "BarcodeScannerDialog"
+
+    fun show(context: Context, coroutineScope: CoroutineScope): AlertDialog {
         val binding = DialogBarcodeScannerBinding.inflate(LayoutInflater.from(context))
         val dialog = AlertDialog.Builder(context)
             .setView(binding.root)
@@ -35,12 +40,12 @@ object BarcodeScannerDialog {
 
         binding.btnModePantryEntry.setOnClickListener {
             currentModeIsEntry = true
-            Toast.makeText(context, "Mode Entrée activé : scannez pour ranger vos courses", Toast.LENGTH_SHORT).show()
+            showToastSafely(context, context.getString(R.string.toast_mode_pantry_entry), Toast.LENGTH_SHORT)
         }
 
         binding.btnModePantryExit.setOnClickListener {
             currentModeIsEntry = false
-            Toast.makeText(context, "Mode Sortie activé : scannez pour consommer un produit", Toast.LENGTH_SHORT).show()
+            showToastSafely(context, context.getString(R.string.toast_mode_pantry_exit), Toast.LENGTH_SHORT)
         }
 
         binding.btnStartCamera.setOnClickListener {
@@ -51,7 +56,7 @@ object BarcodeScannerDialog {
         binding.btnSearchBarcode.setOnClickListener {
             val barcode = binding.etManualBarcode.text.toString().trim()
             if (barcode.isBlank()) {
-                Toast.makeText(context, "Veuillez saisir un code-barres EAN13", Toast.LENGTH_SHORT).show()
+                showToastSafely(context, context.getString(R.string.toast_please_enter_barcode), Toast.LENGTH_SHORT)
                 return@setOnClickListener
             }
 
@@ -60,20 +65,31 @@ object BarcodeScannerDialog {
         }
 
         dialog.show()
+        return dialog
     }
 
-    private fun launchCameraScanner(
+    internal var cameraScannerLauncher: ((Context, GmsBarcodeScanner?, Boolean) -> Unit)? = null
+    internal var scannerClientProvider: ((Context, GmsBarcodeScannerOptions) -> GmsBarcodeScanner)? = null
+
+    internal fun launchCameraScanner(
         context: Context,
         coroutineScope: CoroutineScope,
         isEntryMode: Boolean
     ) {
+        val customLauncher = cameraScannerLauncher
+        if (customLauncher != null) {
+            customLauncher(context, null, isEntryMode)
+            return
+        }
+
         try {
             val options = GmsBarcodeScannerOptions.Builder()
                 .setBarcodeFormats(Barcode.FORMAT_EAN_13, Barcode.FORMAT_UPC_A)
                 .enableAutoZoom()
                 .build()
 
-            val scanner = GmsBarcodeScanning.getClient(context, options)
+            val provider = scannerClientProvider
+            val scanner = if (provider != null) provider(context, options) else GmsBarcodeScanning.getClient(context, options)
 
             scanner.startScan()
                 .addOnSuccessListener { barcode ->
@@ -83,34 +99,51 @@ object BarcodeScannerDialog {
                     }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(context, "Scan caméra annulé ou indisponible : ${e.message}", Toast.LENGTH_SHORT).show()
+                    showToastSafely(context, context.getString(R.string.toast_camera_scan_cancelled, e.message ?: ""), Toast.LENGTH_SHORT)
                 }
-        } catch (e: Exception) {
-            Toast.makeText(context, "Erreur d'ouverture du viseur caméra : ${e.message}", Toast.LENGTH_SHORT).show()
+        } catch (e: Throwable) {
+            showToastSafely(context, context.getString(R.string.toast_camera_viewfinder_error, e.message ?: ""), Toast.LENGTH_SHORT)
         }
     }
 
-    private fun processBarcodeScan(
+    internal var databaseProvider: ((Context) -> AppDatabase)? = null
+    internal var repositoryProvider: ((AppDatabase) -> OpenFoodFactsRepository)? = null
+    internal var activityLauncher: ((Context, Intent) -> Unit)? = null
+    internal var toastShower: ((Context, String, Int) -> Unit)? = null
+
+    private fun showToastSafely(context: Context, text: String, duration: Int) {
+        val shower = toastShower ?: { ctx, txt, dur -> Toast.makeText(ctx, txt, dur).show() }
+        shower(context, text, duration)
+    }
+
+    internal fun processBarcodeScan(
         context: Context,
         coroutineScope: CoroutineScope,
         barcode: String,
-        isEntryMode: Boolean
+        isEntryMode: Boolean,
+        customDatabase: AppDatabase? = null
     ) {
-        coroutineScope.launch(Dispatchers.IO) {
-            val database = AppDatabase.getDatabase(context)
-            val offRepo = OpenFoodFactsRepository(database.openFoodFactsDao())
+        coroutineScope.launch {
+            val database = customDatabase ?: databaseProvider?.invoke(context) ?: AppDatabase.getDatabase(context)
+            val offRepo = repositoryProvider?.invoke(database) ?: OpenFoodFactsRepository(database.openFoodFactsDao())
 
             if (isEntryMode) {
                 // MODE ENTRÉE (COURSES & RANGEMENT) -> Recherche OFF et ouverture fiche produit
                 val product = offRepo.getProductByBarcode(barcode)
                 withContext(Dispatchers.Main) {
-                    val intent = Intent(context, OpenFoodFactsProductDetailActivity::class.java).apply {
-                        putExtra(OpenFoodFactsProductDetailActivity.EXTRA_BARCODE, barcode)
-                        if (product != null) {
-                            putExtra(OpenFoodFactsProductDetailActivity.EXTRA_CLEAN_NAME, product.productName)
+                    try {
+                        val intent = Intent(context, OpenFoodFactsProductDetailActivity::class.java).apply {
+                            putExtra(OpenFoodFactsProductDetailActivity.EXTRA_BARCODE, barcode)
+                            if (product != null) {
+                                putExtra(OpenFoodFactsProductDetailActivity.EXTRA_CLEAN_NAME, product.productName)
+                            }
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         }
+                        val launcher = activityLauncher ?: { ctx, itnt -> ctx.startActivity(itnt) }
+                        launcher(context, intent)
+                    } catch (e: Exception) {
+                        LogManager.e(TAG, "Erreur lors du lancement de l'activité produit", e)
                     }
-                    context.startActivity(intent)
                 }
             } else {
                 // MODE SORTIE (CUISINE & CONSOMMATION) -> Recherche dans le stock local et décrémentation
@@ -120,20 +153,28 @@ object BarcodeScannerDialog {
                     it.name.contains(barcode, ignoreCase = true) || it.description?.contains(barcode, ignoreCase = true) == true 
                 }
 
-                withContext(Dispatchers.Main) {
-                    if (match != null) {
-                        val currentQty = match.quantity ?: 0.0
-                        val newQuantity = maxOf(0.0, currentQty - 1.0)
-                        val updated = match.copy(quantity = newQuantity)
-                        coroutineScope.launch(Dispatchers.IO) {
-                            ingredientDao.update(updated)
+                if (match != null) {
+                    val currentQty = match.quantity ?: 0.0
+                    val newQuantity = maxOf(0.0, currentQty - 1.0)
+                    val updated = match.copy(quantity = newQuantity)
+                    ingredientDao.update(updated)
+                    withContext(Dispatchers.Main) {
+                        val unitStr = match.unit ?: context.getString(R.string.unit_default_single)
+                        val msg = context.getString(R.string.toast_product_consumed_format, match.name, newQuantity.toString(), unitStr)
+                        showToastSafely(context, msg, Toast.LENGTH_LONG)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        try {
+                            val intent = Intent(context, OpenFoodFactsProductDetailActivity::class.java).apply {
+                                putExtra(OpenFoodFactsProductDetailActivity.EXTRA_BARCODE, barcode)
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            val launcher = activityLauncher ?: { ctx, itnt -> ctx.startActivity(itnt) }
+                            launcher(context, intent)
+                        } catch (e: Exception) {
+                            LogManager.e(TAG, "Erreur lors du lancement de l'activité produit", e)
                         }
-                        Toast.makeText(context, "🔴 Consommé : ${match.name} (Reste : $newQuantity ${match.unit ?: "unité"})", Toast.LENGTH_LONG).show()
-                    } else {
-                        val intent = Intent(context, OpenFoodFactsProductDetailActivity::class.java).apply {
-                            putExtra(OpenFoodFactsProductDetailActivity.EXTRA_BARCODE, barcode)
-                        }
-                        context.startActivity(intent)
                     }
                 }
             }

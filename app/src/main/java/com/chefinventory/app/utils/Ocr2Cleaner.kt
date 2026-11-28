@@ -137,9 +137,7 @@ object Ocr2Cleaner {
                 }
             }
             if (matchedCategory != null) {
-                if (earlyCategory == null) {
-                    earlyCategory = matchedCategory
-                }
+                earlyCategory = earlyCategory ?: matchedCategory
                 continue // Purge la ligne d'en-tête de catégorie du texte !
             }
 

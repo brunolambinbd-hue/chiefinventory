@@ -119,12 +119,15 @@ object Ocr3CategorizerRouter {
         val sortedCol1Lines = Ocr2DSpatialLayoutSorter.sortSpatially(col1Lines)
         val lines2DWithoutTitle = sortedCol1Lines + otherLines
 
-        val isReal2DScan = lines2DWithoutTitle.any { it.right > 300 || it.left > 300 || it.bottom > 300 }
+        val isReal2DScan = lines2DWithoutTitle.any { is2DLine(it) }
         val isTwoColumns = !hasIngredientsHeader && isReal2DScan
 
         val selectedType = if (isTwoColumns) ReaderType.TWO_COLUMNS_INGREDIENT_FIRST else ReaderType.ONE_COLUMN_INGREDIENT_FIRST
         return Pair(selectedType, lines2DWithoutTitle)
     }
+
+    private fun is2DLine(line: OcrTextLine): Boolean =
+        (line.right > 300) or (line.left > 300) or (line.bottom > 300)
 
     /**
      * Détermine atomiquement si une ligne [cleanText] est un candidat titre exclu des [linesWithoutTitle].
